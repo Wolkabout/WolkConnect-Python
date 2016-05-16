@@ -7,4 +7,5 @@ Devices are created using RESTful Web API, while device readings are published u
 
 
 See readme.txt for installation guide.
+
 Also check example.py for a simple example how to connect a new device and send readings.
