@@ -1,3 +1,12 @@
+#
+#  WolkSenseMQTT.py
+#
+#  Copyright (c) 2014-2016 WolkSense (https://wolksense.com/)
+#
+#  This code is made available under the terms of the Eclipse Public License v1.0
+#  See LICENSE for details.
+#
+
 from enum import Enum
 from WolkSenseWebClient import WolkSenseDevice
 import time
