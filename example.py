@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from WolkSenseMQTT import WolkSenseMQTTClient, WolkSenseMQTTClientException
 from WolkSenseMQTT import TemperatureReading, PressureReading, HumidityReading
 from WolkSenseMQTT import AccelerometerReading, MagnetometerReading, GyroReading
