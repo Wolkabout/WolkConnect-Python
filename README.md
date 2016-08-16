@@ -9,3 +9,8 @@ Devices are created using RESTful Web API, while device readings are published u
 See readme.txt for installation guide.
 
 Also check example.py for a simple example how to connect a new device and send readings.
+
+LICENSE
+-------
+
+This software is released under the Apache License version 2.0. See LICENSE for details.
