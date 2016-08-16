@@ -1,5 +1,5 @@
 # WolkConnect-Python-
-Python connectivity library for WolkSense Sensor Data Cloud https://wolksense.com/
+Python connectivity library for [WolkSense Sensor Data Cloud](https://wolksense.com/)
 
 The library provides a minimal API for connecting devices to WolkSense Sensor Data Cloud.
 
