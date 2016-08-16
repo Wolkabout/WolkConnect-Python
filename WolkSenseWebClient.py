@@ -114,7 +114,7 @@ class WolkSenseWebClient:
         if res.status == cls.HTTP_UNAUTHORIZED:
             raise WolkSenseWebClientException("User is not authorized to activate device")
         elif res.status == cls.HTTP_CONFLICT:
-            raise WolkSenseWebClientException("Device with name '{0}' alread exists.".format(deviceName))
+            raise WolkSenseWebClientException("Device with name '{0}' already exists.".format(deviceName))
         elif res.status != cls.HTTP_OK:
             raise WolkSenseWebClientException("Error activating device")
 
