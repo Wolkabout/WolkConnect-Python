@@ -2,7 +2,7 @@
 from WolkSenseMQTT import WolkSenseMQTTClient, WolkSenseMQTTClientException
 from WolkSenseMQTT import TemperatureReading, PressureReading, HumidityReading
 from WolkSenseMQTT import AccelerometerReading, MagnetometerReading, GyroReading
-from WolkSenseMQTT import StepsReading, HeartrateReading, CaloriesReading, LightReading
+from WolkSenseMQTT import StepsReading, HeartrateReading, CaloriesReading, LightReading, GenericReading
 from WolkSenseMQTT import ReadingsWithTimestamp, ReadingsCollection
 import WolkSenseWebClient as WebAPI
 import time
@@ -32,8 +32,9 @@ else:
     r7 = StepsReading(10)
     r8 = HeartrateReading(67)
     r9 = CaloriesReading(13)
+    rg = GenericReading(27.3)
 
-    readings = [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9]
+    readings = [r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, rg]
     rs = ReadingsWithTimestamp(readings, None) # None for timestamp will use the current time
     rc = ReadingsCollection(rs)
 
@@ -48,8 +49,9 @@ else:
     r17 = StepsReading(15)
     r18 = HeartrateReading(65)
     r19 = CaloriesReading(15)
+    rg1 = GenericReading(37.2)
 
-    readings1 = [r10, r11, r12, r13, r14, r15, r16, r17, r18, r19]
+    readings1 = [r10, r11, r12, r13, r14, r15, r16, r17, r18, r19, rg1]
     lastMinuteTime = time.time() - 60.0
     rs1 = ReadingsWithTimestamp(readings1, lastMinuteTime)
     rc.addReadings(rs1)
@@ -59,7 +61,8 @@ else:
     r21 = PressureReading(1002.1)
     r22 = HumidityReading(32.4)
     r23 = LightReading(52.0)
-    readings2 = [r20, r21, r22, r23]
+    rg2 = GenericReading(45.3)
+    readings2 = [r20, r21, r22, r23, rg2]
     last10MinuteTime = time.time() - 600.0
     rs2 = ReadingsWithTimestamp(readings2, last10MinuteTime)
 
@@ -73,7 +76,9 @@ else:
     r27 = StepsReading(12)
     r28 = HeartrateReading(62)
     r29 = CaloriesReading(12)
-    rs2.addReadings([r25, r26, r27, r28, r29])
+    rg3 = GenericReading(67.3)
+
+    rs2.addReadings([r25, r26, r27, r28, r29, rg3])
 
     rc.addReadings(rs2)
 

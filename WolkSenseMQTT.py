@@ -29,6 +29,7 @@ class ReadingType(Enum):
     STEPS = "STP"
     HEARTRATE = "BPM"
     CALORIES = "KCAL"
+    GENERIC = "GEN"
 
 
 class _Reading():
@@ -104,6 +105,13 @@ class CaloriesReading(_Reading):
     """
     def __init__(self, calories):
         super().__init__(ReadingType.CALORIES, [calories])
+
+
+class GenericReading(_Reading):
+    """ Generic reading (no unit)
+    """
+    def __init__(self, generic):
+        super().__init__(ReadingType.GENERIC, [generic], 10.0)
 
 
 class _XYZReading(_Reading):

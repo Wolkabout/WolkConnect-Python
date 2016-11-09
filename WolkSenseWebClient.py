@@ -157,12 +157,12 @@ class WolkSenseWebClient:
             raise WolkSenseWebClientException("Wrong credentials, please try again")
 
         if not deviceSerial:
-            serial = cls.getRandomSerial(at)
-            if serial is None:
+            deviceSerial = cls.getRandomSerial(at)
+            if deviceSerial is None:
                 raise WolkSenseWebClientException("Device could not be activated because serial number is not generated. Please try again.")
 
-        password = cls.activateDevice(deviceName, serial, at)
+        password = cls.activateDevice(deviceName, deviceSerial, at)
         if password is None:
             raise WolkSenseWebClientException("Device not activated")
 
-        return WolkSenseDevice(deviceName, serial, password)
+        return WolkSenseDevice(deviceName, deviceSerial, password)
