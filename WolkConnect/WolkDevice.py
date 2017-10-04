@@ -18,7 +18,6 @@
 
 import logging
 import WolkConnect.WolkMQTT as WolkMQTT
-import WolkConnect.Serialization.WolkJSON.WolkJSONMQTTSerializer as MQTTSerializer
 import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 
 logger = logging.getLogger(__name__)
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 class WolkDevice:
     """ WolkDevice class
     """
-    def __init__(self, serial="", password="", serializer=None, sensors=None, actuators=None, alarms=None, qos=0):
+    def __init__(self, serial="", password="", serializer=WolkMQTTSerializer.WolkSerializerType.JSON_MULTI, sensors=None, actuators=None, alarms=None, qos=0):
 
         self.serial = serial
         self.password = password
@@ -43,8 +42,7 @@ class WolkDevice:
         for alarm in alarms:
             self.alarms[alarm.alarmType.ref] = alarm
 
-
-        mqttSerializer = MQTTSerializer.WolkJSONMQTTSerializer(serial) if serializer is None else serializer
+        mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
         host = "api-demo.wolkabout.com"
         port = 8883
@@ -56,7 +54,6 @@ class WolkDevice:
         """
         logger.info("Connecting %s to mqtt broker...", self.serial)
         self.mqttClient.connect()
-        self._publishAll()
 
     def disconnect(self):
         """ Disconnect WolkDevice from MQTT broker
@@ -116,7 +113,7 @@ class WolkDevice:
         else:
             logger.warning("Unknown command %s", message.wolkCommand)
 
-    def _publishAll(self):
+    def publishAll(self):
         self.publishReadings()
 
         for actuator in self.actuators.values():

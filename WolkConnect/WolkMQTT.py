@@ -113,14 +113,13 @@ class WolkMQTTClient:
             raise WolkMQTTClientException(errorMessage)
         else:
             logger.info("Connected %s to mqtt broker", self.clientConfig.username)
-            
+
         for topic in self.clientConfig.topics:
-            (res, mid) = self.client.subscribe(topic, self.clientConfig.qos)
+            (res, ____) = self.client.subscribe(topic, self.clientConfig.qos)
             if res == 0:
                 logger.info("Subscribed to topic: %s", topic)
             else:
                 logger.error("Failed subscribing to topic: %s reason: %s", topic, mqtt.error_string(res))
-                
 
     def _on_mqtt_disconnect(self, _, __, result):
         if result:
