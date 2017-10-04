@@ -12,6 +12,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+"""
+    WolkConnect reading types
+"""
+
 import random
 import string
 from enum import Enum, unique
@@ -43,10 +47,13 @@ class ReadingType(Enum):
         return self.ref + ":" + self.dataType.value + isScalar + dataSizeString + dataDelimiter
 
     def generateRandomValues(self):
+        """ Generate random value in range (minValue, maxValue)
+            A handy way to use for device simulator
+        """
         if self.dataType == DataType.NUMERIC:
             if self.minValue is None or self.maxValue is None:
                 return None
-            
+
             return [random.uniform(self.minValue, self.maxValue) for _ in range(self.dataSize)]
         elif self.dataType == DataType.BOOLEAN:
             return [bool(int(random.uniform(0, 1)))]
@@ -56,4 +63,6 @@ class ReadingType(Enum):
 
     @property
     def isScalar(self):
+        """ Is reading type scalar i.e. data size is 1
+        """
         return self.dataSize == 1
