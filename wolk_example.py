@@ -7,7 +7,7 @@ import WolkConnect.Sensor as Sensor
 import WolkConnect.Actuator as Actuator
 import WolkConnect.Alarm as Alarm
 import WolkConnect.WolkDevice as WolkDevice
-import WolkConnect.Serialization.WolkSense.WolkSenseMQTTSerializer as MQTTSerializer
+import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 
 logger = logging.getLogger("WolkConnect")
 WolkConnect.setupLoggingLevel(logging.INFO)
@@ -30,16 +30,19 @@ humidityHigh = Alarm.HumidityHighAlarm(True)
 alarms = [humidityHigh]
 
 try:
-    serializer = None
-    # serializer = MQTTSerializer.WolkSenseMQTTSerializer(serial)
+    serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
     device = WolkDevice.WolkDevice(serial, password, serializer, sensors, actuators, alarms)
     device.connect()
+    device.publishAll()
     while True:
+        print("A to publish all readings and actuators")
         print("P to publish readings")
         print("H to publish alarm high")
         print("Q to quit")
         option = input()
-        if option.upper() == "P":
+        if option.upper() == "A":
+            device.publishAll()
+        elif option.upper() == "P":
             device.publishReadings()
         elif option.upper() == "H":
             device.publishAlarm(WolkConnect.Alarm.AlarmType.HUMIDITY_HIGH)
