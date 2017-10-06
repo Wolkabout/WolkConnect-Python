@@ -13,8 +13,8 @@ logger = logging.getLogger("WolkConnect")
 WolkConnect.setupLoggingLevel(logging.INFO)
 
 # Device parameters
-serial = "serial"
-password = "password"
+serial = "DEMODEVICE03"
+password = "2b03bb40-5ae3-42c8-a2b5-58a6893322e3"
 
 # Setup sensors, actuators and alarms
 temperature = Sensor.TemperatureReading()
@@ -43,9 +43,9 @@ try:
         if option.upper() == "A":
             device.publishAll()
         elif option.upper() == "P":
-            device.publishReadings()
+            device.publishAllReadings()
         elif option.upper() == "H":
-            device.publishAlarm(WolkConnect.Alarm.AlarmType.HUMIDITY_HIGH)
+            device.publishAlarm(humidityHigh)
         elif option.upper() == "Q":
             print("quitting...")
             device.disconnect()

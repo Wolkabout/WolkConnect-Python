@@ -39,15 +39,32 @@ Check wolk_example.py for a simple example how to connect a new device and send 
    alarms = [humidityHigh]
 
    # create device
-   device = WolkDevice(serial, password, serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+   device = WolkDevice(device_key, password, serializer, sensors=sensors, actuators=actuators, alarms=alarms)
 
    device.connect()
 
 ```
 
-**Publishing data**
+**Publishing readings**
 ```sh
-   device.publishReadings() # publish readings for all device sensors
+   # publish readings for all device sensors
+   device.publishAllReadings()
+   
+   # publish one reading
+   temperature.setReadingValue(25.6)
+   device.publishReading(temperature)
+
+   # publish more readings
+   temperature.setReadingValue(26.7)
+   pressure.setReadingValue(999.9)
+   device.publishReadings([temperature, pressure])
+```
+
+**Publishing alarm**
+```sh
+   # publish alarm
+   humidityHigh.setAlarm()
+   device.publishAlarm(humidityHigh)
 ```
 
 **Disconnect device**

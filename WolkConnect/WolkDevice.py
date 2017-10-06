@@ -19,6 +19,7 @@
 import logging
 import WolkConnect.WolkMQTT as WolkMQTT
 import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
+import WolkConnect.Sensor as Sensor
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,17 @@ class WolkDevice:
         logger.info("Disconnecting %s from mqtt broker...", self.serial)
         self.mqttClient.disconnect()
 
-    def publishReadings(self):
+
+    def publishReading(self, reading):
+        if isinstance(reading, Sensor.Reading):
+            self.mqttClient.publishReadings([reading])
+
+
+    def publishReadings(self, readings):
+        self.mqttClient.publishReadings(readings)
+        logger.info("%s published readings", self.serial)
+
+    def publishAllReadings(self):
         """ Publish readings to MQTT broker
         """
         if not self.sensors:
@@ -72,13 +83,11 @@ class WolkDevice:
             randomValues = feed.sensorType.generateRandomValues()
             feed.setReadingValues(randomValues)
 
-        self.mqttClient.publishReadings(readings)
-        logger.info("%s published readings", self.serial)
+        self.publishReadings(readings)
 
-    def publishAlarm(self, alarmType):
+    def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
-        """
-        alarm = self.alarms[alarmType.ref]
+        """        
         self.mqttClient.publishAlarm(alarm)
         logger.info("%s published alarm %s", self.serial, alarm.alarmType.ref)
 
@@ -114,7 +123,7 @@ class WolkDevice:
             logger.warning("Unknown command %s", message.wolkCommand)
 
     def publishAll(self):
-        self.publishReadings()
+        self.publishAllReadings()
 
         for actuator in self.actuators.values():
             self.publishActuator(actuator)

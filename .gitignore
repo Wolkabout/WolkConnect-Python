@@ -3,8 +3,6 @@
 # gitignore contributors: remember to update Global/Xcode.gitignore, Objective-C.gitignore & Swift.gitignore
 
 ## Build generated
-__pychache__
-WolkConnect/__pychache__
-WolkConnect/Serialization/__pychache__
+*.pyc
 WolkConnect/.vscode
 
