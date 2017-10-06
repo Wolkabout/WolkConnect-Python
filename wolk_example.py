@@ -13,8 +13,8 @@ logger = logging.getLogger("WolkConnect")
 WolkConnect.setupLoggingLevel(logging.INFO)
 
 # Device parameters
-serial = "DEMODEVICE03"
-password = "2b03bb40-5ae3-42c8-a2b5-58a6893322e3"
+serial = "serial"
+password = "password"
 
 # Setup sensors, actuators and alarms
 temperature = Sensor.TemperatureReading()
