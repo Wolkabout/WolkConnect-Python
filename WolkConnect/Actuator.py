@@ -35,7 +35,7 @@ class ActuatorType(ReadingType):
     SLIDER = ("SL", DataType.NUMERIC, ActuatorState.READY)
 
     def __init__(self, ref, dataType, actuatorState, dataSize=1, dataDelimiter=""):
-        super().__init__(ref, dataType, dataSize=1, dataDelimiter="")
+        ReadingType.__init__(self, ref, dataType, dataSize=1, dataDelimiter="")
         self.state = actuatorState
 
     def __str__(self):
