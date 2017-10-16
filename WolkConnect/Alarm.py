@@ -14,7 +14,7 @@
 
 import time
 from enum import unique
-from ReadingType import ReadingType, DataType
+from WolkConnect.ReadingType import ReadingType, DataType
 
 @unique
 class AlarmType(ReadingType):
