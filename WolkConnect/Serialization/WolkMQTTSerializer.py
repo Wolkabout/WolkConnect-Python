@@ -22,9 +22,9 @@ from enum import Enum, unique
 import json
 import logging
 import time
-import Alarm
-import Sensor
-import Actuator
+import WolkConnect.Alarm as Alarm
+import WolkConnect.Sensor as Sensor
+import WolkConnect.Actuator as Actuator
 
 logger = logging.getLogger(__name__)
 notNone = lambda x: not x is None

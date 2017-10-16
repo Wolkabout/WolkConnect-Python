@@ -16,7 +16,7 @@
 """
 
 from enum import Enum, unique
-from ReadingType import ReadingType, DataType
+from WolkConnect.ReadingType import ReadingType, DataType
 
 @unique
 class ActuatorState(Enum):

@@ -2,16 +2,15 @@
 """
 
 import logging
-import Sensor
-import Actuator
-import Alarm
-import WolkDevice
-import WolkMQTT
-import Serialization.WolkMQTTSerializer as WolkMQTTSerializer
-from __init__ import setupLoggingLevel
+import WolkConnect
+import WolkConnect.Sensor as Sensor
+import WolkConnect.Actuator as Actuator
+import WolkConnect.Alarm as Alarm
+import WolkConnect.WolkDevice as WolkDevice
+import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 
 logger = logging.getLogger("WolkConnect")
-setupLoggingLevel(logging.INFO)
+WolkConnect.setupLoggingLevel(logging.INFO)
 
 # Device parameters
 serial = "serial"
@@ -34,6 +33,7 @@ try:
     serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
     device = WolkDevice.WolkDevice(serial, password, serializer, sensors, actuators, alarms)
     device.connect()
+    device.publishAll()
     while True:
         print("A to publish all readings and actuators")
         print("P to publish readings")
@@ -51,5 +51,5 @@ try:
             device.disconnect()
             exit(0)
 
-except WolkMQTT.WolkMQTTClientException as e:
+except WolkConnect.WolkMQTT.WolkMQTTClientException as e:
     print("WolkMQTTClientException occured with value: " + e.value)

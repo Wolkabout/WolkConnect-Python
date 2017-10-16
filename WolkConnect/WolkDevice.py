@@ -17,9 +17,9 @@
 """
 
 import logging
-import WolkMQTT
-import Serialization.WolkMQTTSerializer as WolkMQTTSerializer
-import Sensor
+import WolkConnect.WolkMQTT as WolkMQTT
+import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
+import WolkConnect.Sensor as Sensor
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +45,7 @@ class WolkDevice:
 
         mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
-        # host = "api-demo.wolkabout.com"
-        host = "api-verification.wolksense.com"
+        host = "api-demo.wolkabout.com"
         port = 8883
         clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, self._mqttResponseHandler, qos)
         self.mqttClient = WolkMQTT.WolkMQTTClient(clientConfig)
