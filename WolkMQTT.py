@@ -68,7 +68,6 @@ class WolkMQTTClient:
         self.client.on_disconnect = self._on_mqtt_disconnect
         self.client.on_message = self._on_mqtt_message
         self.client.tls_set("ca.crt")
-        self.client.tls_insecure_set(True)
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
