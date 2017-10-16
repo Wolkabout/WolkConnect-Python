@@ -16,7 +16,7 @@
     Sensors and readings
 """
 from enum import unique
-import WolkConnect.ReadingType as ReadingType
+import ReadingType
 
 @unique
 class SensorType(ReadingType.ReadingType):

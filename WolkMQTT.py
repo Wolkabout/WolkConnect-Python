@@ -17,7 +17,7 @@
 """
 import logging
 import paho.mqtt.client as mqtt
-import WolkConnect.Sensor as Sensor
+import Sensor
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +67,8 @@ class WolkMQTTClient:
         self.client.on_connect = self._on_mqtt_connect
         self.client.on_disconnect = self._on_mqtt_disconnect
         self.client.on_message = self._on_mqtt_message
-        self.client.tls_set("WolkConnect/ca.crt")
+        self.client.tls_set("ca.crt")
+        self.client.tls_insecure_set(True)
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
