@@ -32,7 +32,7 @@ class WolkDevice:
             password - Device serial used to connect to MQTT broker
             host - MQTT broker host
             port - MQTT broker port
-            ca_cert - path to Certificate Authority certificate file (if SSL is used for MQTT connection)
+            certificate_file_path - path to Certificate Authority certificate file (neccessary when SSL is used for MQTT connection)
             set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted) 
             serializer - WolkMQTTSerializer. By default is is JSON_MULTI
             responseHandler - Handler that accepts list of WolkMQTTSubscribeMessage objects 
