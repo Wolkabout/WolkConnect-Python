@@ -31,7 +31,7 @@ alarms = [humidityHigh]
 
 try:
     serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
-    device = WolkDevice.WolkDevice(serial, password, serializer, sensors, actuators, alarms)
+    device = WolkDevice.WolkDevice(serial, password, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:

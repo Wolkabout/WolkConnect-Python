@@ -36,7 +36,7 @@ class WolkMQTTClientException(Exception):
 class WolkMQTTClientConfig:
     """ WolkMQTTClient configuration for WolkAbout MQTT broker
     """
-    def __init__(self, host, port, username, password, serializer, topics, messagesHandler, qos=0, wolkClientId=None):
+    def __init__(self, host, port, username, password, serializer, topics, messagesHandler, ca_cert=None, set_insecure=None, qos=0, wolkClientId=None):
         """
             host - broker host
             port - broker port
@@ -45,6 +45,8 @@ class WolkMQTTClientConfig:
             serializer - WolkMQTTSerializer
             topics - subscription topics to subscribe on broker
             messagesHandler - callback for handling WolkMQTTSubscribeMessages received from broker
+            ca_cert - path to Certificate Authority certificate file
+            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted) 
             qos - MQTT quality of service
         """
         self.host = host
@@ -55,6 +57,8 @@ class WolkMQTTClientConfig:
         self.topics = topics
         self.wolkClientId = wolkClientId
         self.messagesHandler = messagesHandler
+        self.ca_cert = ca_cert
+        self.set_insecure = set_insecure
         self.qos = qos
 
 class WolkMQTTClient:
@@ -67,7 +71,14 @@ class WolkMQTTClient:
         self.client.on_connect = self._on_mqtt_connect
         self.client.on_disconnect = self._on_mqtt_disconnect
         self.client.on_message = self._on_mqtt_message
-        self.client.tls_set("WolkConnect/ca.crt")
+
+        if self.clientConfig.ca_cert:
+            self.client.tls_set(self.clientConfig.ca_cert)
+
+        print(self.clientConfig.set_insecure)
+        if self.clientConfig.set_insecure:
+            self.client.tls_insecure_set(self.clientConfig.set_insecure)
+
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
