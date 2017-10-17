@@ -26,7 +26,23 @@ logger = logging.getLogger(__name__)
 class WolkDevice:
     """ WolkDevice class
     """
-    def __init__(self, serial="", password="", serializer=WolkMQTTSerializer.WolkSerializerType.JSON_MULTI, sensors=None, actuators=None, alarms=None, qos=0):
+    def __init__(self, serial="", password="", host="api-demo.wolkabout.com", port=8883, certificate_file_path="WolkConnect/ca.crt", set_insecure=False, serializer=WolkMQTTSerializer.WolkSerializerType.JSON_MULTI, responseHandler=None, sensors=None, actuators=None, alarms=None, qos=0):
+        """
+            serial - Device serial used to connect to MQTT broker
+            password - Device serial used to connect to MQTT broker
+            host - MQTT broker host
+            port - MQTT broker port
+            ca_cert - path to Certificate Authority certificate file (if SSL is used for MQTT connection)
+            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted) 
+            serializer - WolkMQTTSerializer. By default is is JSON_MULTI
+            responseHandler - Handler that accepts list of WolkMQTTSubscribeMessage objects 
+                                used for processing raw messages from MQTT broker. 
+                            If not specified default implementation self._mqttResponseHandler is used
+            sensors - List of Sensor objects
+            actuators - List of Actuator objects
+            alarms - List of Alarm objects
+            qos - MQTT quality of service
+        """
 
         self.serial = serial
         self.password = password
@@ -45,9 +61,8 @@ class WolkDevice:
 
         mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
-        host = "api-demo.wolkabout.com"
-        port = 8883
-        clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, self._mqttResponseHandler, qos)
+        messageHandler = responseHandler if responseHandler else self._mqttResponseHandler
+        clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, messageHandler, certificate_file_path, set_insecure, qos)
         self.mqttClient = WolkMQTT.WolkMQTTClient(clientConfig)
 
     def connect(self):
@@ -97,10 +112,10 @@ class WolkDevice:
         self.mqttClient.publishActuator(actuator)
         logger.info("%s published actuator %s", self.serial, actuator.actuatorType.ref)
 
-    def _mqttResponseHandler(self, response):
+    def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from broker
         """
-        for message in response:
+        for message in responses:
             self._mqttMessageHandler(message)
 
     def _mqttMessageHandler(self, message):
