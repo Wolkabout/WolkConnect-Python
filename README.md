@@ -166,7 +166,7 @@ HOW to ...
 
    NEW_ALARM = ("ALM", DataType.BOOLEAN)
 
-   # Add new class in Actuator.py
+   # Add new class in Alarm.py
 
    class NewAlarm(Alarm):
        """ New alarm
