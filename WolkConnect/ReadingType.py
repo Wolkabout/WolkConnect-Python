@@ -33,6 +33,16 @@ class ReadingType(Enum):
     """ Reading types
     """
     def __init__(self, ref, dataType, minValue=None, maxValue=None, dataSize=1, dataDelimiter=""):
+        """
+            Define new reading type
+
+            ref - Reference from the device manifest
+            dataType - Data type from the device manifest mapped to any of DataType entries
+            minValue - Minimum value from the device manifest
+            maxValue - Maximum value from the device manifest
+            dataSize - Data size from the device manifest. By default is 1
+            dataDelimiter - Delimitier for parsing data (applicable if dataSize > 1)
+        """
         self.ref = ref
         self.dataType = dataType
         self.minValue = minValue
