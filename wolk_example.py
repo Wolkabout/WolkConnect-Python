@@ -38,6 +38,7 @@ try:
         print("A to publish all readings and actuators")
         print("P to publish readings")
         print("H to publish alarm high")
+        print("R to publish raw reading")
         print("Q to quit")
         option = input()
         if option.upper() == "A":
@@ -46,6 +47,9 @@ try:
             device.publishAllReadings()
         elif option.upper() == "H":
             device.publishAlarm(humidityHigh)
+        elif option.upper() == "R":
+            # publish raw Temperature 17.9
+            device.publishRawReading(Sensor.RawReading("T","17.9"))
         elif option.upper() == "Q":
             print("quitting...")
             device.disconnect()
