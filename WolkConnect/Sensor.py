@@ -35,6 +35,14 @@ class SensorType(ReadingType.ReadingType):
     GENERIC = ("GEN", ReadingType.DataType.NUMERIC)
     AIR_QUALITY = ("O", ReadingType.DataType.NUMERIC, 0.0, 10000.0)
 
+class RawReading():
+    """ Free form reading with reference, value and timestamp
+    """
+    def __init__(self, reference, value, timestamp=None):
+        self.reference = reference
+        self.value = value
+        self.timestamp = timestamp
+
 class Reading():
     """ Reading with SensorType and float values list
     """

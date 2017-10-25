@@ -60,6 +60,14 @@ Check wolk_example.py for a simple example how to connect a new device and send 
    temperature.setReadingValue(26.7)
    pressure.setReadingValue(999.9)
    device.publishReadings([temperature, pressure])
+
+   # publish raw reading
+   # Reference = T, Value = 17.9
+   # value is represented as string
+   rawTemperature = RawReading("T","17.9") 
+   device.publishRawReading(rawTemperature)
+
+
 ```
 
 **Publishing alarm**
