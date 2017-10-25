@@ -86,6 +86,11 @@ class WolkDevice:
             self.mqttClient.publishReadings([reading])
 
 
+    def publishRawReading(self, reading):
+        if isinstance(reading, Sensor.RawReading):
+            self.mqttClient.publishReadings([reading])
+
+
     def publishReadings(self, readings):
         self.mqttClient.publishReadings(readings)
         logger.info("%s published readings", self.serial)
