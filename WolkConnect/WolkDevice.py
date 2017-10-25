@@ -48,16 +48,19 @@ class WolkDevice:
         self.password = password
 
         self.sensors = {}
-        for sensor in sensors:
-            self.sensors[sensor.sensorType.ref] = sensor
+        if sensors:
+            for sensor in sensors:
+                self.sensors[sensor.sensorType.ref] = sensor
 
         self.actuators = {}
-        for actuator in actuators:
-            self.actuators[actuator.actuatorType.ref] = actuator
+        if actuators:
+            for actuator in actuators:
+                self.actuators[actuator.actuatorType.ref] = actuator
 
         self.alarms = {}
-        for alarm in alarms:
-            self.alarms[alarm.alarmType.ref] = alarm
+        if alarms:
+            for alarm in alarms:
+                self.alarms[alarm.alarmType.ref] = alarm
 
         mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
@@ -116,7 +119,8 @@ class WolkDevice:
         """ Handle MQTT messages from broker
         """
         for message in responses:
-            self._mqttMessageHandler(message)
+            if message:
+                self._mqttMessageHandler(message)
 
     def _mqttMessageHandler(self, message):
         """ Handle single MQTT message from broker
@@ -124,7 +128,7 @@ class WolkDevice:
         actuator = None
         try:
             actuator = self.actuators[message.ref]
-        except KeyError:
+        except:
             logger.warning("%s could not find actuator with ref %s", self.serial, message.ref)
             return
 
@@ -140,5 +144,6 @@ class WolkDevice:
     def publishAll(self):
         self.publishAllReadings()
 
-        for actuator in self.actuators.values():
-            self.publishActuator(actuator)
+        if self.actuators:
+            for actuator in self.actuators.values():
+                self.publishActuator(actuator)

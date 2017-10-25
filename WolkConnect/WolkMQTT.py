@@ -134,8 +134,8 @@ class WolkMQTTClient:
 
     def _on_mqtt_disconnect(self, _, __, result):
         if result:
-            errorMessage = "Disconnected %s with error code %s"
-            logger.error(errorMessage, self.clientConfig.username, result)
+            errorMessage = "Disconnected " + self.clientConfig.username + " with error code " + str(result)
+            logger.error(errorMessage)
             raise WolkMQTTClientException(errorMessage)
         else:
             logger.info("Disconnected %s from mqtt broker", self.clientConfig.username)
