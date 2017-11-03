@@ -538,7 +538,7 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
         """
         if collection.readings:
             topic = self.rootReadingsTopic + self.serialNumber
-            mqttMessage = self._serialize(collection.readings, _ReadingsArrayEncoder, topic)
+            mqttMessage = self._serialize(collection, _ReadingsCollectionEncoder, topic)            
             return mqttMessage
 
         return None
@@ -595,21 +595,57 @@ class _ReadingsArrayEncoder(json.JSONEncoder):
     """
     def default(self, o):
         if isinstance(o, Sensor.ReadingsWithTimestamp):
-            dct = {}
-            if o.timestamp:
-                dct["utc"] = int(o.timestamp)
-
-            for reading in o.readings:
-                if isinstance(reading, Sensor.RawReading):
-                    dct[reading.reference] = reading.value
-                else:
-                    if reading.sensorType.isScalar:
-                        dct[reading.sensorType.ref] = WolkJSONMQTTSerializer.roundFloat(reading.readingValues[0])
-                    else:
-                        dct[reading.sensorType.ref] = list(map(WolkJSONMQTTSerializer.roundFloat, reading.readingValues))
-
-            return dct
+            return _serializeReadingsWithTimestampToDictionary(o)
         return json.JSONEncoder.default(self, o)
+
+def _serializeReadingsWithTimestampToDictionary(o):
+    dct = {}
+    if isinstance(o, Sensor.ReadingsWithTimestamp):
+        if o.timestamp:
+            dct["utc"] = int(o.timestamp)
+
+        for reading in o.readings:
+            if isinstance(reading, Sensor.RawReading):
+                dct[reading.reference] = reading.value
+            else:
+                if reading.sensorType.isScalar:
+                    dct[reading.sensorType.ref] = WolkJSONMQTTSerializer.roundFloat(reading.readingValues[0])
+                else:
+                    dct[reading.sensorType.ref] = list(map(WolkJSONMQTTSerializer.roundFloat, reading.readingValues))        
+    print(dct)
+    return dct
+    
+
+
+class _ReadingsCollectionEncoder(json.JSONEncoder):
+    """ Reading collection JSON encoder that returns
+        dictionary with reading type and value
+    """
+    def default(self, o):
+        if isinstance(o, Sensor.ReadingsCollection):
+            print("---------------------")
+            print("---------------------")
+            print("print(o.readings) in  _ReadingsCollectionEncoder")
+            for items in o.readings:
+                print("new list", items.timestamp)
+                for reading in items.readings:
+                    print("reading in items.readings ", reading)
+
+            # readingsLists = list(map(_serializeReadingsWithTimestampToDictionary, o.readings))
+            readingLists = []
+            for item in o.readings:
+                print("print(item)")
+                print(item)
+                itemDict = _serializeReadingsWithTimestampToDictionary(item)
+                print("print(itemDict)")
+                print(itemDict)
+                readingLists.append(itemDict)
+            print("print(readingsLists) in  _ReadingsCollectionEncoder")
+            print(readingLists)
+            return readingLists
+        return json.JSONEncoder.default(self, o)
+
+
 
 class _AlarmEncoder(json.JSONEncoder):
     """ Alarm JSON encoder that returns

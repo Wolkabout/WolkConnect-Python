@@ -61,6 +61,16 @@ class Reading():
         """ Set reading values
         """
         self.readingValues = values
+    
+    def setTimestamp(self, timestamp):
+        self.timestamp = timestamp
+
+    def __str__(self):
+        return "Reading sensor type={0} values={1}, timestamp={2}, times={3}".format(self.sensorType, self.readingValues, self.timestamp, self.times)
+
+    def asRawReading(self):
+        return RawReading(self.sensorType.reference, self.value, self.timestamp)
+
 
 class TemperatureReading(Reading):
     """ Temperature reading in Celsius degrees
@@ -157,9 +167,9 @@ class ReadingsWithTimestamp():
         self.readings = []
         self.timestamp = timestamp
 
-    def __init__(self, reading, timestamp=None):
-        self.readings = [reading]
-        self.timestamp = timestamp
+    # def __init__(self, reading, timestamp=None):
+    #     self.readings = [reading]
+    #     self.timestamp = timestamp
 
     def __init__(self, readings, timestamp=None):
         self.readings = readings
@@ -181,8 +191,8 @@ class ReadingsCollection():
     def __init__(self):
         self.readings = []
 
-    def __init__(self, readings):
-        self.readings = [readings]
+    # def __init__(self, readings):
+    #     self.readings = [readings]
 
     def addReadings(self, readings):
         """ Add readings

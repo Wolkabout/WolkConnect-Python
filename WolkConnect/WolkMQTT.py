@@ -75,11 +75,13 @@ class WolkMQTTClient:
         if self.clientConfig.ca_cert:
             self.client.tls_set(self.clientConfig.ca_cert)
 
-        print(self.clientConfig.set_insecure)
         if self.clientConfig.set_insecure:
             self.client.tls_insecure_set(self.clientConfig.set_insecure)
 
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
+        lastWillTopic = "lastwill/" + self.clientConfig.username
+        lastWillPayloyad = "Last will of serial:" + self.clientConfig.username
+        self.client.will_set(lastWillTopic, lastWillPayloyad, self.clientConfig.qos, False)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
         self.client.on_log = self._on_log
@@ -87,9 +89,19 @@ class WolkMQTTClient:
     def publishReadings(self, readings):
         """ Publish readings to MQTT broker
         """
+        if isinstance(readings, Sensor.ReadingsCollection):
+            mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readings)
+            logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
+            self._publish(mqttMessage)
+            return
+
+        logger.debug("Readings %s", readings)
         readingsWithTimestamp = Sensor.ReadingsWithTimestamp(readings)
+        logger.debug("Readings with timestamp %s", readingsWithTimestamp.readings)
         readingsCollection = Sensor.ReadingsCollection(readingsWithTimestamp)
+        logger.debug("Readings with timestamp collection %s", readingsCollection.readings)
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
+        logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
         self._publish(mqttMessage)
 
     def publishActuator(self, actuator):

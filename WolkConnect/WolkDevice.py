@@ -20,6 +20,9 @@ import logging
 import WolkConnect.WolkMQTT as WolkMQTT
 import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 import WolkConnect.Sensor as Sensor
+import WolkConnect.Serialization.WolkBufferSerialization as WolkBufferSerialization
+import copy
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -90,6 +93,8 @@ class WolkDevice:
         if isinstance(reading, Sensor.RawReading):
             self.mqttClient.publishReadings([reading])
 
+    def publishReading(self, reading):
+        self.mqttClient.publishReadings([reading])
 
     def publishReadings(self, readings):
         self.mqttClient.publishReadings(readings)
@@ -101,12 +106,66 @@ class WolkDevice:
         if not self.sensors:
             return
 
-        readings = self.sensors.values()
+
+        print("------ Readings ------")
+        readings = list(self.sensors.values())
+        timestamp = time.time()
         for feed in readings:
             randomValues = feed.sensorType.generateRandomValues()
             feed.setReadingValues(randomValues)
+            feed.setTimestamp(timestamp)
+            print(feed)
 
-        self.publishReadings(readings)
+        print("------ Readings2 ------")
+        readings2 = copy.deepcopy(readings)
+        timestamp = time.time()
+        for feed in readings2:
+            randomValues = feed.sensorType.generateRandomValues()
+            feed.setReadingValues(randomValues)
+            feed.setTimestamp(timestamp)
+            print(feed)
+
+        print("------ Readings3 ------")
+        readings3 = copy.deepcopy(readings)
+        timestamp = time.time()
+        for feed in readings3:
+            randomValues = feed.sensorType.generateRandomValues()
+            feed.setReadingValues(randomValues)
+            feed.setTimestamp(timestamp)
+            print(feed)
+
+
+        # readingsList = Sensor.ReadingsWithTimestamp()
+        # readingsList.readings = readings
+        # readingsList2 = Sensor.ReadingsWithTimestamp()
+        # readingsList2.readings = readings2
+        # readingsList3 = Sensor.ReadingsWithTimestamp()
+        # readingsList3.readings = readings3
+        
+        wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer(readings)
+        print("------ wolkBuffer.content ------")
+        for item in wolkBuffer.content:            
+            print(item)
+
+        wolkBuffer.addReadings(readings2)
+        print("------ wolkBuffer.content + readings2 ------")
+        for item in wolkBuffer.content:            
+            print(item)
+        
+        wolkBuffer.addReadings(readings3)
+        print("------ wolkBuffer.content + readings3 ------")
+        for item in wolkBuffer.content:            
+            print(item)
+        wolkBuffer.serializeToFile("buffer.json")
+        
+        newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
+        newBuffer.deserializeFromFile("buffer.json")
+        print("------ new buffer from JSON --------")
+        readingsToPublish = newBuffer.getReadings()
+        for item in readingsToPublish.readings:
+            print(item)
+        # self.publishReadings(readings)
+        self.publishReadings(readingsToPublish)
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
