@@ -569,25 +569,23 @@ class _ReadingEncoder(json.JSONEncoder):
     """
     def default(self, o):
         if isinstance(o, Sensor.Reading):
-            dct = {}
-            if o.timestamp:
-                dct["utc"] = o.timestamp
-
-            if o.sensorType.isScalar:
-                dct["data"] = WolkJSONMQTTSerializer.roundFloat(o.readingValues[0])
-            else:
-                dct["data"] = list(map(WolkJSONMQTTSerializer.roundFloat, o.readingValues))
-
-            return dct
+            return _rawReadingToDict(o.asRawReading())
         elif isinstance(o, Sensor.RawReading):
-            dct = {}
-            if o.timestamp:
-                dct["utc"] = o.timestamp
-
-            dct["data"] = o.value
-            return dct
+            return _rawReadingToDict(o)
             
         return json.JSONEncoder.default(self, o)
+
+def _rawReadingToDict(o):
+    if not isinstance(o, Sensor.RawReading):
+        return None
+
+    dct = {}
+    if o.timestamp:
+        dct["utc"] = o.timestamp
+
+    dct["data"] = o.value
+    return dct
+            
 
 class _ReadingsArrayEncoder(json.JSONEncoder):
     """ Reading JSON encoder that returns
@@ -608,11 +606,8 @@ def _serializeReadingsWithTimestampToDictionary(o):
             if isinstance(reading, Sensor.RawReading):
                 dct[reading.reference] = reading.value
             else:
-                if reading.sensorType.isScalar:
-                    dct[reading.sensorType.ref] = WolkJSONMQTTSerializer.roundFloat(reading.readingValues[0])
-                else:
-                    dct[reading.sensorType.ref] = list(map(WolkJSONMQTTSerializer.roundFloat, reading.readingValues))        
-    print(dct)
+                rawReading = reading.asRawReading()
+                dct[rawReading.reference] = rawReading.value
     return dct
     
 

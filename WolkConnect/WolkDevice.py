@@ -85,22 +85,41 @@ class WolkDevice:
 
 
     def publishReading(self, reading):
-        if isinstance(reading, Sensor.Reading):
-            self.mqttClient.publishReadings([reading])
-
+        self.mqttClient.publishReadings([reading])
 
     def publishRawReading(self, reading):
         if isinstance(reading, Sensor.RawReading):
             self.mqttClient.publishReadings([reading])
 
-    def publishReading(self, reading):
-        self.mqttClient.publishReadings([reading])
+    def publishReadings(self):
+        readings = list(self.sensors.values())
+        timestamp = time.time()
+        for reading in readings:
+            reading.setTimestamp(timestamp)
+            print(reading)
 
-    def publishReadings(self, readings):
         self.mqttClient.publishReadings(readings)
-        logger.info("%s published readings", self.serial)
 
-    def publishAllReadings(self):
+    def publishAlarm(self, alarm):
+        """ Publish alarm to MQTT broker
+        """        
+        self.mqttClient.publishAlarm(alarm)
+        logger.info("%s published alarm %s", self.serial, alarm.alarmType.ref)
+
+    def publishActuator(self, actuator):
+        """ Publish actuator to MQTT broker
+        """
+        self.mqttClient.publishActuator(actuator)
+        logger.info("%s published actuator %s", self.serial, actuator.actuatorType.ref)
+
+    def publishAll(self):
+        self.publishRandomReadings()
+
+        if self.actuators:
+            for actuator in self.actuators.values():
+                self.publishActuator(actuator)
+
+    def publishRandomReadings(self):
         """ Publish readings to MQTT broker
         """
         if not self.sensors:
@@ -118,7 +137,7 @@ class WolkDevice:
 
         print("------ Readings2 ------")
         readings2 = copy.deepcopy(readings)
-        timestamp = time.time()
+        timestamp = timestamp + 1
         for feed in readings2:
             randomValues = feed.sensorType.generateRandomValues()
             feed.setReadingValues(randomValues)
@@ -127,7 +146,7 @@ class WolkDevice:
 
         print("------ Readings3 ------")
         readings3 = copy.deepcopy(readings)
-        timestamp = time.time()
+        timestamp = timestamp + 1
         for feed in readings3:
             randomValues = feed.sensorType.generateRandomValues()
             feed.setReadingValues(randomValues)
@@ -156,8 +175,18 @@ class WolkDevice:
         print("------ wolkBuffer.content + readings3 ------")
         for item in wolkBuffer.content:            
             print(item)
+
+        timestamp = timestamp + 1
+        bzvzReading = Sensor.RawReading("T",17.9, timestamp)
+        wolkBuffer.addReading(bzvzReading)
+        print("------ wolkBuffer.content + bzvzReading ------")
+        for item in wolkBuffer.content:            
+            print(item)
+
         wolkBuffer.serializeToFile("buffer.json")
         
+
+
         newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
         newBuffer.deserializeFromFile("buffer.json")
         print("------ new buffer from JSON --------")
@@ -165,19 +194,8 @@ class WolkDevice:
         for item in readingsToPublish.readings:
             print(item)
         # self.publishReadings(readings)
-        self.publishReadings(readingsToPublish)
+        self._publishReadings(readingsToPublish)
 
-    def publishAlarm(self, alarm):
-        """ Publish alarm to MQTT broker
-        """        
-        self.mqttClient.publishAlarm(alarm)
-        logger.info("%s published alarm %s", self.serial, alarm.alarmType.ref)
-
-    def publishActuator(self, actuator):
-        """ Publish actuator to MQTT broker
-        """
-        self.mqttClient.publishActuator(actuator)
-        logger.info("%s published actuator %s", self.serial, actuator.actuatorType.ref)
 
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from broker
@@ -205,9 +223,7 @@ class WolkDevice:
         else:
             logger.warning("Unknown command %s", message.wolkCommand)
 
-    def publishAll(self):
-        self.publishAllReadings()
 
-        if self.actuators:
-            for actuator in self.actuators.values():
-                self.publishActuator(actuator)
+    def _publishReadings(self, readings):
+        self.mqttClient.publishReadings(readings)
+        logger.info("%s published readings", self.serial)

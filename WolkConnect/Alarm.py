@@ -23,6 +23,7 @@ class AlarmType(ReadingType):
     TEMPERATURE_HIGH = ("TH", DataType.BOOLEAN)
     TEMPERATURE_LOW = ("TL", DataType.BOOLEAN)
     HUMIDITY_HIGH = ("HH", DataType.BOOLEAN)
+    MOVEMENT = ("M", DataType.BOOLEAN)
 
 class Alarm():
     """ Alarm with alarm type
@@ -62,3 +63,9 @@ class HumidityHighAlarm(Alarm):
     """
     def __init__(self, isSet=False):
         super().__init__(AlarmType.HUMIDITY_HIGH, isSet)
+
+class MovementAlarm(Alarm):
+    """ Movement alarm
+    """
+    def __init__(self, isSet=False):
+        super().__init__(AlarmType.MOVEMENT, isSet)

@@ -15,6 +15,7 @@
 """
     Sensors and readings
 """
+import time
 from enum import unique
 import WolkConnect.ReadingType as ReadingType
 
@@ -42,6 +43,12 @@ class RawReading():
         self.reference = reference
         self.value = value
         self.timestamp = timestamp
+        if not timestamp:
+            self.timestamp = time.time()
+
+
+    def __str__(self):
+        return "RawReading reference={0} value={1}, timestamp={2}".format(self.reference, self.value, self.timestamp)
 
 class Reading():
     """ Reading with SensorType and float values list
@@ -69,7 +76,11 @@ class Reading():
         return "Reading sensor type={0} values={1}, timestamp={2}, times={3}".format(self.sensorType, self.readingValues, self.timestamp, self.times)
 
     def asRawReading(self):
-        return RawReading(self.sensorType.reference, self.value, self.timestamp)
+        value = self.readingValues
+        if self.sensorType.isScalar:
+            value = self.readingValues[0]
+        
+        return RawReading(self.sensorType.ref, value, self.timestamp)
 
 
 class TemperatureReading(Reading):
@@ -188,18 +199,54 @@ class ReadingsWithTimestamp():
 class ReadingsCollection():
     """ List of ReadingsWithTimestamp
     """
-    def __init__(self):
-        self.readings = []
 
-    # def __init__(self, readings):
-    #     self.readings = [readings]
+    def __init__(self, readings=None):
+        if not readings:
+            self.readings = []
+        else:
+            self.readings = [readings]
 
     def addReadings(self, readings):
-        """ Add readings
+        """ Add readings with timestamp
         """
         self.readings.append(readings)
 
     def addListOfReadings(self, readings):
-        """ Add list of readings
+        """ Add list of readings with timestamp
         """
         self.readings.extend(readings)
+
+
+    @staticmethod
+    def collectionFromReadingsList(readings):
+        """ turn list of readings into ReadingsCollection
+        """
+
+        readingsDict = {}
+
+        for reading in readings:
+            readingsForTimestamp = []
+            try:
+                readingsForTimestamp = readingsDict[reading.timestamp]
+            except KeyError:
+                readingsDict[reading.timestamp] = readingsForTimestamp
+
+            readingsForTimestamp.append(reading)
+
+        readingsCollection = ReadingsCollection()
+        for (key, value) in readingsDict.items():
+            rds = ReadingsWithTimestamp(value,key)
+            readingsCollection.addReadings(rds)
+
+        print("print(readingsCollection.readings)")
+        print(readingsCollection.readings)
+        for rds in readingsCollection.readings:
+            print("rds")
+            print(rds)
+            for rdsItem in rds.readings:
+                print("rdsItem")
+                print(rdsItem)
+
+        return readingsCollection
+        
+

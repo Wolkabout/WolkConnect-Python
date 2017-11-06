@@ -79,9 +79,6 @@ class WolkMQTTClient:
             self.client.tls_insecure_set(self.clientConfig.set_insecure)
 
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
-        lastWillTopic = "lastwill/" + self.clientConfig.username
-        lastWillPayloyad = "Last will of serial:" + self.clientConfig.username
-        self.client.will_set(lastWillTopic, lastWillPayloyad, self.clientConfig.qos, False)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
         self.client.on_log = self._on_log
@@ -90,17 +87,24 @@ class WolkMQTTClient:
         """ Publish readings to MQTT broker
         """
         if isinstance(readings, Sensor.ReadingsCollection):
-            mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readings)
-            logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
-            self._publish(mqttMessage)
-            return
+            self._publishReadingsCollection(readings)
+        else:
+            self._publishReadingsList(readings)
 
-        logger.debug("Readings %s", readings)
-        readingsWithTimestamp = Sensor.ReadingsWithTimestamp(readings)
-        logger.debug("Readings with timestamp %s", readingsWithTimestamp.readings)
-        readingsCollection = Sensor.ReadingsCollection(readingsWithTimestamp)
-        logger.debug("Readings with timestamp collection %s", readingsCollection.readings)
-        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
+    def _publishReadingsList(self, readings):
+        readingsCollection = Sensor.ReadingsCollection.collectionFromReadingsList(readings)
+        self._publishReadingsCollection(readingsCollection)
+        # logger.debug("Readings %s", readings)
+        # readingsWithTimestamp = Sensor.ReadingsWithTimestamp(readings)
+        # logger.debug("Readings with timestamp %s", readingsWithTimestamp.readings)
+        # readingsCollection = Sensor.ReadingsCollection(readingsWithTimestamp)
+        # logger.debug("Readings with timestamp collection %s", readingsCollection.readings)
+        # mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
+        # logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
+        # self._publish(mqttMessage)
+
+    def _publishReadingsCollection(self, readings):
+        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readings)
         logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
         self._publish(mqttMessage)
 

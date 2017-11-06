@@ -92,20 +92,20 @@ class WolkReadingsBuffer(WolkBuffer):
 
         readingsCollection = Sensor.ReadingsCollection()
         for (key, value) in readingsDict.items():
-            # print("new key ",key)
-            # for val in value:
-            #     print(val)
+            print("new key ",key)
+            for val in value:
+                print(val)
             rds = Sensor.ReadingsWithTimestamp(value,key)
             readingsCollection.addReadings(rds)
 
-        # print("print(readingsCollection.readings)")
-        # print(readingsCollection.readings)
-        # for rds in readingsCollection.readings:
-        #     print("rds")
-        #     print(rds)
-        #     for rdsItem in rds.readings:
-        #         print("rdsItem")
-        #         print(rdsItem)
+        print("print(readingsCollection.readings)")
+        print(readingsCollection.readings)
+        for rds in readingsCollection.readings:
+            print("rds")
+            print(rds)
+            for rdsItem in rds.readings:
+                print("rdsItem")
+                print(rdsItem)
 
         return readingsCollection
 
