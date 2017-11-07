@@ -23,7 +23,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
     # first setup device credentials which you got when device is created
     device_key = "device_key"
     password = "some_password"
-
+    
     # setup sensors
     temperature = TemperatureReading()
     pressure = PressureReading()
@@ -86,50 +86,67 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 
 **Buffering readings**
 
-Buffers are introduced for saving/loading readings to/from persistent storage.
-This is suitable in situations when internet connectivity is not stable and readings could not be sent at the time.
+Buffers are designed to serve two purposes:
+  - collect and store more readings over time
+  - save/load readings to/from persistent storage
 
-Readings can be stored in the buffer and persisted, making possible to load readings from the persisted storage
-and send them when circumstances are favorable.
+Buffers are suitable in situations when internet connectivity is not stable and readings could not be sent at the time.
+Collected readings may be stored in buffer and persisted, and, when circumstances become favorable, loaded from storage and sent to the platform.
 
-Please note that buffers do not need to be persisted. In such a case, buffers may contain different kind of readings, that may be sent in one go. See examples below.
+Persisting buffers is not a must. All different kind of readings from the buffer may be sent to the platform at your will.
 
+*Creating a buffer*
 ```sh
-    # create a buffer
+    # create an empty buffer
     wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer()
-
-    # add readings to buffer
-    temperature.setReadingValue(23.4)
-    pressure.setReadingValue(999.9)
-    humidity.setReadingValue(50.0)
-    wolkBuffer.addReadings([temperature, pressure, humidity])
-
-    # add a single reading to buffer
-    temperature.setReadingValue(16.7)
-    temperature.setTimestamp(time.time())
-    wolkBuffer.addReading(temperature)
-
-
-    wolkBuffer.addReadings(sensors)
-
-
 
     # create a buffer with list of sensors
-    wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer()
-    wolkBuffer.addReadings(sensors)
-
-    temperature.setReadingValue(23.4)
-    pressure.setReadingValue(999.9)
-    humidity.setReadingValue(50.0)
-    wolkBuffer.addReadings([temperature, pressure, humidity])
-
-    temperature.setReadingValue(16.7)
-    temperature.setTimestamp(time.time())
-    wolkBuffer.addReading(temperature)
-
+    sensors = device.getSensors()
+    wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer(sensors)
 
 ```
 
+*Add sensors and readings to a buffer*
+```sh
+    # add readings to the buffer
+    temperature.setReadingValue(23.4)
+    pressure.setReadingValue(999.9)
+    humidity.setReadingValue(50.0)
+    wolkBuffer.addReadings([temperature, pressure, humidity])
+
+    # add a single reading to the buffer
+    temperature.setReadingValue(16.7)
+    temperature.setTimestamp(time.time())
+    wolkBuffer.addReading(temperature)
+
+    # add a raw reading to the buffer
+    rawTemperature = RawReading("T", 17.9) 
+    wolkBuffer.addReading(rawTemperature)
+
+    # add sensors from the device to the buffer 
+    # this will add the current reading values of the sensors to the buffer
+    sensors = device.getSensors()
+    wolkBuffer.addReadings(sensors)
+```
+
+*Publish readings from the buffer*
+```sh
+    # publish readings from buffer
+    device.publishBufferedReadings(newBuffer)
+```
+
+*Persisting, loading and clearing buffer*
+```sh
+    # persist buffer to file
+    wolkBuffer.serializeToFile("buffer.bfr")
+
+    # create new buffer from file
+    newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
+    newBuffer.deserializeFromFile("buffer.bfr")
+
+    # clear buffer
+    newBuffer.clear()
+```
 
 **Disconnect device**
 ```sh

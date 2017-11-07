@@ -15,8 +15,8 @@ logger = logging.getLogger("WolkConnect")
 WolkConnect.setupLoggingLevel(logging.DEBUG)
 
 # Device parameters
-serial = "DEMOSIMULATOR01"
-password = "a8db6a67-18f2-4e34-b8d4-41742d0ba3a"
+serial = "serial"
+password = "password"
 
 # Setup sensors, actuators and alarms
 temperature = Sensor.TemperatureReading()
@@ -33,10 +33,7 @@ alarms = [humidityHighAlarm]
 
 try:
     serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
-    # integration_host = "api-integration.wolksense.com"
-    trust_insecure_cert = True
-    # device = WolkDevice.WolkDevice(serial, password, host=integration_host, set_insecure=trust_insecure_cert, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
-    device = WolkDevice.WolkDevice(serial, password, set_insecure=trust_insecure_cert, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+    device = WolkDevice.WolkDevice(serial, password, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:
@@ -135,7 +132,7 @@ try:
             device.publishAlarm(humidityHighAlarm)
         elif option.upper() == "R":
             # publish raw Temperature 17.9
-            device.publishRawReading(Sensor.RawReading("T", "17.9"))
+            device.publishRawReading(Sensor.RawReading("T", 17.9))
         elif option.upper() == "Q":
             print("quitting...")
             device.disconnect()
