@@ -79,12 +79,18 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 
 **Publishing alarm**
 ```sh
-   # publish alarm
-   humidityHigh.setAlarm()
-   device.publishAlarm(humidityHigh)
+    # publish alarm
+    humidityHigh.setAlarm()
+    device.publishAlarm(humidityHigh)
 ```
 
-**Buffering readings**
+**Disconnect device**
+```sh
+    device.disconnect()
+```
+
+Buffering readings
+------------------
 
 Buffers are designed to serve two purposes:
   - collect and store more readings over time
@@ -95,7 +101,7 @@ Collected readings may be stored in buffer and persisted, and, when circumstance
 
 Persisting buffers is not a must. All different kind of readings from the buffer may be sent to the platform at your will.
 
-*Creating a buffer*
+**Creating a buffer**
 ```sh
     # create an empty buffer
     wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer()
@@ -106,7 +112,7 @@ Persisting buffers is not a must. All different kind of readings from the buffer
 
 ```
 
-*Add sensors and readings to a buffer*
+**Add sensors and readings to a buffer**
 ```sh
     # add readings to the buffer
     temperature.setReadingValue(23.4)
@@ -129,13 +135,7 @@ Persisting buffers is not a must. All different kind of readings from the buffer
     wolkBuffer.addReadings(sensors)
 ```
 
-*Publish readings from the buffer*
-```sh
-    # publish readings from buffer
-    device.publishBufferedReadings(newBuffer)
-```
-
-*Persisting, loading and clearing buffer*
+**Persisting, loading and clearing buffer**
 ```sh
     # persist buffer to file
     wolkBuffer.serializeToFile("buffer.bfr")
@@ -148,10 +148,18 @@ Persisting buffers is not a must. All different kind of readings from the buffer
     newBuffer.clear()
 ```
 
-**Disconnect device**
+**Publish readings from the buffer**
 ```sh
-   device.disconnect()
+    # publish readings from buffer
+    device.publishBufferedReadings(newBuffer)
 ```
+
+**Clearing buffer**
+```sh
+    # clear buffer
+    newBuffer.clear()
+```
+
 
 NOTE:
 For WolkSense Sensor Data cloud connectivity please use [this version](https://github.com/Wolkabout/WolkConnect-Python-/releases/tag/WolkSense1.0.0)
