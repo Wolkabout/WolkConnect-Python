@@ -238,15 +238,6 @@ class ReadingsCollection():
             rds = ReadingsWithTimestamp(value,key)
             readingsCollection.addReadings(rds)
 
-        print("print(readingsCollection.readings)")
-        print(readingsCollection.readings)
-        for rds in readingsCollection.readings:
-            print("rds")
-            print(rds)
-            for rdsItem in rds.readings:
-                print("rdsItem")
-                print(rdsItem)
-
         return readingsCollection
         
 

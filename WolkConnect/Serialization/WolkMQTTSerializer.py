@@ -501,7 +501,7 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
             return None
 
         topicPath = self.rootActuatorsSubscribeTopic + self.serialNumber + "/"
-        return [topicPath + actuator.actuatorType.ref for actuator in device.actuators.values()]
+        return [topicPath + actuator.actuatorType.ref for actuator in device.getActuators()]
 
     def _serializeReading(self, reading):
         """ Serialize reading to mqtt message
@@ -609,8 +609,6 @@ def _serializeReadingsWithTimestampToDictionary(o):
                 rawReading = reading.asRawReading()
                 dct[rawReading.reference] = rawReading.value
     return dct
-    
-
 
 class _ReadingsCollectionEncoder(json.JSONEncoder):
     """ Reading collection JSON encoder that returns
@@ -618,29 +616,12 @@ class _ReadingsCollectionEncoder(json.JSONEncoder):
     """
     def default(self, o):
         if isinstance(o, Sensor.ReadingsCollection):
-            print("---------------------")
-            print("---------------------")
-            print("print(o.readings) in  _ReadingsCollectionEncoder")
-            for items in o.readings:
-                print("new list", items.timestamp)
-                for reading in items.readings:
-                    print("reading in items.readings ", reading)
-
-            # readingsLists = list(map(_serializeReadingsWithTimestampToDictionary, o.readings))
             readingLists = []
             for item in o.readings:
-                print("print(item)")
-                print(item)
                 itemDict = _serializeReadingsWithTimestampToDictionary(item)
-                print("print(itemDict)")
-                print(itemDict)
                 readingLists.append(itemDict)
-            print("print(readingsLists) in  _ReadingsCollectionEncoder")
-            print(readingLists)
             return readingLists
         return json.JSONEncoder.default(self, o)
-
-
 
 class _AlarmEncoder(json.JSONEncoder):
     """ Alarm JSON encoder that returns

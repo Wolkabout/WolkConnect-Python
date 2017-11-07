@@ -50,26 +50,44 @@ class WolkDevice:
         self.serial = serial
         self.password = password
 
-        self.sensors = {}
+        self._sensors = {}
         if sensors:
             for sensor in sensors:
-                self.sensors[sensor.sensorType.ref] = sensor
+                self._sensors[sensor.sensorType.ref] = sensor
 
-        self.actuators = {}
+        self._actuators = {}
         if actuators:
             for actuator in actuators:
-                self.actuators[actuator.actuatorType.ref] = actuator
+                self._actuators[actuator.actuatorType.ref] = actuator
 
-        self.alarms = {}
+        self._alarms = {}
         if alarms:
             for alarm in alarms:
-                self.alarms[alarm.alarmType.ref] = alarm
+                self._alarms[alarm.alarmType.ref] = alarm
 
         mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
         messageHandler = responseHandler if responseHandler else self._mqttResponseHandler
         clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, messageHandler, certificate_file_path, set_insecure, qos)
         self.mqttClient = WolkMQTT.WolkMQTTClient(clientConfig)
+
+    def __str__(self):
+        return "Device with serial:" + self.serial
+
+    def getSensors(self):
+        """ Get list of sensors
+        """
+        return list(self._sensors.values())
+
+    def getActuators(self):
+        """ Get list of actuators
+        """
+        return list(self._actuators.values())
+
+    def getAlarms(self):
+        """ Get list of alarms
+        """
+        return list(self._alarms.values())
 
     def connect(self):
         """ Connect WolkDevice to MQTT broker
@@ -85,20 +103,41 @@ class WolkDevice:
 
 
     def publishReading(self, reading):
-        self.mqttClient.publishReadings([reading])
+        """ Publish one reading
+        """
+        if not isinstance(reading, Sensor.Reading):
+            logger.warning("Could not publish reading %s", str(reading))
+            return
 
-    def publishRawReading(self, reading):
-        if isinstance(reading, Sensor.RawReading):
-            self.mqttClient.publishReadings([reading])
+        self._publishReadings([reading])
 
-    def publishReadings(self):
-        readings = list(self.sensors.values())
-        timestamp = time.time()
-        for reading in readings:
-            reading.setTimestamp(timestamp)
-            print(reading)
+    def publishRawReading(self, rawReading):
+        """ Publish raw reading
+        """
+        if not isinstance(rawReading, Sensor.RawReading):
+            logger.warning("Could not publish raw reading %s", str(rawReading))
+            return
 
-        self.mqttClient.publishReadings(readings)
+        self._publishReadings([rawReading])
+
+    def publishReadings(self, useCurrentTimestamp=False):
+        """ Publish current values of all device's sensors
+
+            If useCurrentTimestamp is True, each reading will be set the current timestamp,
+            otherwise, timestamp from the reading will not be changed.
+        """
+        sensors = self.getSensors()
+
+        if not sensors:
+            logger.warning("Could not publish readings. %s does not have sensors", str(self))
+            return
+
+        if useCurrentTimestamp:
+            timestamp = time.time()
+            for sensor in sensors:
+                sensor.setTimestamp(timestamp)
+
+        self._publishReadings(sensors)
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
@@ -113,89 +152,39 @@ class WolkDevice:
         logger.info("%s published actuator %s", self.serial, actuator.actuatorType.ref)
 
     def publishAll(self):
-        self.publishRandomReadings()
+        self.publishReadings()
 
-        if self.actuators:
-            for actuator in self.actuators.values():
+        actuators = self.getActuators()
+        if actuators:
+            for actuator in actuators:
                 self.publishActuator(actuator)
 
     def publishRandomReadings(self):
-        """ Publish readings to MQTT broker
+        """ Publish random values of all device's sensors
         """
-        if not self.sensors:
+        sensors = self.getSensors()
+
+        if not sensors:
+            logger.warning("Could not publish random readings. %s does not have sensors", str(self))
+            return
+        
+        timestamp = time.time()
+        for sensor in sensors:
+            randomValues = sensor.sensorType.generateRandomValues()
+            sensor.setReadingValues(randomValues)
+            sensor.setTimestamp(timestamp)
+
+        self._publishReadings(sensors)
+
+    def publishBufferedReadings(self, buffer):
+        """ Publish readings from the buffer
+        """
+        if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
+            logger.warning("Could not publish buffered readings. %s is not WolkBuffer", str(buffer))
             return
 
-
-        print("------ Readings ------")
-        readings = list(self.sensors.values())
-        timestamp = time.time()
-        for feed in readings:
-            randomValues = feed.sensorType.generateRandomValues()
-            feed.setReadingValues(randomValues)
-            feed.setTimestamp(timestamp)
-            print(feed)
-
-        print("------ Readings2 ------")
-        readings2 = copy.deepcopy(readings)
-        timestamp = timestamp + 1
-        for feed in readings2:
-            randomValues = feed.sensorType.generateRandomValues()
-            feed.setReadingValues(randomValues)
-            feed.setTimestamp(timestamp)
-            print(feed)
-
-        print("------ Readings3 ------")
-        readings3 = copy.deepcopy(readings)
-        timestamp = timestamp + 1
-        for feed in readings3:
-            randomValues = feed.sensorType.generateRandomValues()
-            feed.setReadingValues(randomValues)
-            feed.setTimestamp(timestamp)
-            print(feed)
-
-
-        # readingsList = Sensor.ReadingsWithTimestamp()
-        # readingsList.readings = readings
-        # readingsList2 = Sensor.ReadingsWithTimestamp()
-        # readingsList2.readings = readings2
-        # readingsList3 = Sensor.ReadingsWithTimestamp()
-        # readingsList3.readings = readings3
-        
-        wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer(readings)
-        print("------ wolkBuffer.content ------")
-        for item in wolkBuffer.content:            
-            print(item)
-
-        wolkBuffer.addReadings(readings2)
-        print("------ wolkBuffer.content + readings2 ------")
-        for item in wolkBuffer.content:            
-            print(item)
-        
-        wolkBuffer.addReadings(readings3)
-        print("------ wolkBuffer.content + readings3 ------")
-        for item in wolkBuffer.content:            
-            print(item)
-
-        timestamp = timestamp + 1
-        bzvzReading = Sensor.RawReading("T",17.9, timestamp)
-        wolkBuffer.addReading(bzvzReading)
-        print("------ wolkBuffer.content + bzvzReading ------")
-        for item in wolkBuffer.content:            
-            print(item)
-
-        wolkBuffer.serializeToFile("buffer.json")
-        
-
-
-        newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
-        newBuffer.deserializeFromFile("buffer.json")
-        print("------ new buffer from JSON --------")
-        readingsToPublish = newBuffer.getReadings()
-        for item in readingsToPublish.readings:
-            print(item)
-        # self.publishReadings(readings)
+        readingsToPublish = buffer.getReadings()
         self._publishReadings(readingsToPublish)
-
 
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from broker
@@ -209,7 +198,7 @@ class WolkDevice:
         """
         actuator = None
         try:
-            actuator = self.actuators[message.ref]
+            actuator = self._actuators[message.ref]
         except:
             logger.warning("%s could not find actuator with ref %s", self.serial, message.ref)
             return
@@ -222,7 +211,6 @@ class WolkDevice:
             self.publishActuator(actuator)
         else:
             logger.warning("Unknown command %s", message.wolkCommand)
-
 
     def _publishReadings(self, readings):
         self.mqttClient.publishReadings(readings)

@@ -46,7 +46,7 @@ class WolkMQTTClientConfig:
             topics - subscription topics to subscribe on broker
             messagesHandler - callback for handling WolkMQTTSubscribeMessages received from broker
             ca_cert - path to Certificate Authority certificate file
-            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted) 
+            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted)
             qos - MQTT quality of service
         """
         self.host = host
@@ -86,25 +86,8 @@ class WolkMQTTClient:
     def publishReadings(self, readings):
         """ Publish readings to MQTT broker
         """
-        if isinstance(readings, Sensor.ReadingsCollection):
-            self._publishReadingsCollection(readings)
-        else:
-            self._publishReadingsList(readings)
-
-    def _publishReadingsList(self, readings):
         readingsCollection = Sensor.ReadingsCollection.collectionFromReadingsList(readings)
-        self._publishReadingsCollection(readingsCollection)
-        # logger.debug("Readings %s", readings)
-        # readingsWithTimestamp = Sensor.ReadingsWithTimestamp(readings)
-        # logger.debug("Readings with timestamp %s", readingsWithTimestamp.readings)
-        # readingsCollection = Sensor.ReadingsCollection(readingsWithTimestamp)
-        # logger.debug("Readings with timestamp collection %s", readingsCollection.readings)
-        # mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
-        # logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
-        # self._publish(mqttMessage)
-
-    def _publishReadingsCollection(self, readings):
-        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readings)
+        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
         logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
         self._publish(mqttMessage)
 
