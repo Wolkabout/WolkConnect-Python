@@ -1,6 +1,6 @@
 # WolkConnect-Python-
 
-Connector library written in Python for WolkAbout platform.
+Connector library written in Python3 for WolkAbout platform.
 
 Installation
 ------------
