@@ -43,11 +43,10 @@ class WolkBuffer():
     def __init__(self, content=None):
         """ Initialize buffer with content (which may be a list of items or single object)
         """
-        if not content:
-            return
-
         if isinstance(content, list):
             self.content = content
+        elif not content:
+            self.content = []
         else:
             self.content = list(content)
 
@@ -116,10 +115,11 @@ class WolkReadingsBuffer(WolkBuffer):
             If useCurrentTimestamp is True, the current timestamp will be set to the reading
             otherwise, timestamp from the reading will not be changed.
         """
+        readingCopy = copy.deepcopy(reading)
         if useCurrentTimestamp:
-            reading.timestamp = time.time()
+            readingCopy.timestamp = time.time()
 
-        super().addItem(reading)
+        super().addItem(readingCopy)
 
     def addReadings(self, readings, useCurrentTimestamp=False):
         """ Add list of readings
@@ -127,13 +127,13 @@ class WolkReadingsBuffer(WolkBuffer):
             If useCurrentTimestamp is True, each reading will be set the current timestamp,
             otherwise, timestamp from the reading will not be changed.
         """
-
+        readingsCopy = copy.deepcopy(readings)
         if useCurrentTimestamp:
             timestamp = time.time()
-            for reading in readings:
+            for reading in readingsCopy:
                 reading.timestamp = timestamp
 
-        super().addItems(readings)
+        super().addItems(readingsCopy)
 
     def clearReadings(self):
         """ Clear readings
