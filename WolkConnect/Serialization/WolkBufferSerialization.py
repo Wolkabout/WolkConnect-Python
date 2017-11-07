@@ -46,7 +46,7 @@ class WolkBuffer():
         if not content:
             return
 
-        if type(content) is list:
+        if isinstance(content, list):
             self.content = content
         else:
             self.content = list(content)
@@ -81,7 +81,7 @@ class WolkReadingsBuffer(WolkBuffer):
         """ Initialize readings buffer with content that may be
             list of readings, a single reading or None.
 
-            Content is deep copied and stored in the buffer, 
+            Content is deep copied and stored in the buffer,
             preventing unintentional side effects like changing reading values/timestamps.
 
             If useCurrentTimestamp is True, each reading will be set the current timestamp,
@@ -96,7 +96,7 @@ class WolkReadingsBuffer(WolkBuffer):
 
         if useCurrentTimestamp:
             timestamp = int(time.time())
-            if type(readings) is list:
+            if isinstance(readings, list):
                 for reading in readings:
                     reading.timestamp = timestamp
             else:

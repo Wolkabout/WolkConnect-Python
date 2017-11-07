@@ -68,18 +68,22 @@ class Reading():
         """ Set reading values
         """
         self.readingValues = values
-    
+
     def setTimestamp(self, timestamp):
+        """ Set reading timestamp
+        """
         self.timestamp = timestamp
 
     def __str__(self):
         return "Reading sensor type={0} values={1}, timestamp={2}, times={3}".format(self.sensorType, self.readingValues, self.timestamp, self.times)
 
     def asRawReading(self):
+        """ Convert reading to RawReading; useful for easier serialization to MQTT messages
+        """
         value = self.readingValues
         if self.sensorType.isScalar:
             value = self.readingValues[0]
-        
+
         return RawReading(self.sensorType.ref, value, self.timestamp)
 
 
@@ -178,10 +182,6 @@ class ReadingsWithTimestamp():
         self.readings = []
         self.timestamp = timestamp
 
-    # def __init__(self, reading, timestamp=None):
-    #     self.readings = [reading]
-    #     self.timestamp = timestamp
-
     def __init__(self, readings, timestamp=None):
         self.readings = readings
         self.timestamp = timestamp
@@ -216,7 +216,6 @@ class ReadingsCollection():
         """
         self.readings.extend(readings)
 
-
     @staticmethod
     def collectionFromReadingsList(readings):
         """ turn list of readings into ReadingsCollection
@@ -235,9 +234,7 @@ class ReadingsCollection():
 
         readingsCollection = ReadingsCollection()
         for (key, value) in readingsDict.items():
-            rds = ReadingsWithTimestamp(value,key)
+            rds = ReadingsWithTimestamp(value, key)
             readingsCollection.addReadings(rds)
 
         return readingsCollection
-        
-

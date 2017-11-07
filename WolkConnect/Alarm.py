@@ -12,6 +12,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+"""
+    Alarms
+"""
 import time
 from enum import unique
 from WolkConnect.ReadingType import ReadingType, DataType
@@ -44,6 +47,8 @@ class Alarm():
         self.alarmValue = False
 
     def setTimestamp(self, timestamp=None):
+        """ Set alarm timestamp
+        """
         self.timestamp = timestamp if timestamp else time.time()
 
 class TemperatureHighAlarm(Alarm):

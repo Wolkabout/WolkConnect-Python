@@ -10,10 +10,9 @@ import WolkConnect.Alarm as Alarm
 import WolkConnect.WolkDevice as WolkDevice
 import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 import WolkConnect.Serialization.WolkBufferSerialization as WolkBufferSerialization
-import WolkConnect.ReadingType as ReadingType
 
 logger = logging.getLogger("WolkConnect")
-WolkConnect.setupLoggingLevel(logging.DEBUG)
+WolkConnect.setupLoggingLevel(logging.INFO)
 
 # Device parameters
 serial = "PYTHONJSON000001"
@@ -36,7 +35,7 @@ try:
     serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
     integration_host = "api-integration.wolksense.com"
     trust_insecure_cert = True
-    device = WolkDevice.WolkDevice(serial, password, host=integration_host, set_insecure=trust_insecure_cert,  serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+    device = WolkDevice.WolkDevice(serial, password, host=integration_host, set_insecure=trust_insecure_cert, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:
@@ -101,12 +100,12 @@ try:
             # add raw reading to buffer
             # i.e. it is possible to mix objects of type RawReadings and Readings in the buffer
             timestamp = timestamp - 60
-            dummyReading = Sensor.RawReading("T",17.9, timestamp)
+            dummyReading = Sensor.RawReading("T", 17.9, timestamp)
             wolkBuffer.addReading(dummyReading)
 
             # persist buffer to file
             wolkBuffer.serializeToFile("buffer.bfr")
-            
+
             # create new buffer from file
             newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
             newBuffer.deserializeFromFile("buffer.bfr")
@@ -125,7 +124,7 @@ try:
             device.publishAlarm(humidityHighAlarm)
         elif option.upper() == "R":
             # publish raw Temperature 17.9
-            device.publishRawReading(Sensor.RawReading("T","17.9"))
+            device.publishRawReading(Sensor.RawReading("T", "17.9"))
         elif option.upper() == "Q":
             print("quitting...")
             device.disconnect()

@@ -17,12 +17,11 @@
 """
 
 import logging
+import time
 import WolkConnect.WolkMQTT as WolkMQTT
 import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 import WolkConnect.Sensor as Sensor
 import WolkConnect.Serialization.WolkBufferSerialization as WolkBufferSerialization
-import copy
-import time
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +35,10 @@ class WolkDevice:
             host - MQTT broker host
             port - MQTT broker port
             certificate_file_path - path to Certificate Authority certificate file (neccessary when SSL is used for MQTT connection)
-            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted) 
+            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted)
             serializer - WolkMQTTSerializer. By default is is JSON_MULTI
-            responseHandler - Handler that accepts list of WolkMQTTSubscribeMessage objects 
-                                used for processing raw messages from MQTT broker. 
+            responseHandler - Handler that accepts list of WolkMQTTSubscribeMessage objects
+                                used for processing raw messages from MQTT broker.
                             If not specified default implementation self._mqttResponseHandler is used
             sensors - List of Sensor objects
             actuators - List of Actuator objects
@@ -141,7 +140,7 @@ class WolkDevice:
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
-        """        
+        """
         self.mqttClient.publishAlarm(alarm)
         logger.info("%s published alarm %s", self.serial, alarm.alarmType.ref)
 
@@ -152,6 +151,8 @@ class WolkDevice:
         logger.info("%s published actuator %s", self.serial, actuator.actuatorType.ref)
 
     def publishAll(self):
+        """ Publish all actuators and sensors
+        """
         self.publishReadings()
 
         actuators = self.getActuators()
@@ -167,7 +168,7 @@ class WolkDevice:
         if not sensors:
             logger.warning("Could not publish random readings. %s does not have sensors", str(self))
             return
-        
+
         timestamp = time.time()
         for sensor in sensors:
             randomValues = sensor.sensorType.generateRandomValues()

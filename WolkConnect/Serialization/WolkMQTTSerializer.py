@@ -246,7 +246,6 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         if not reading.value:
             return None
 
-        topic = self.rootReadingsTopic + self.serialNumber
         mqttString = self.READING_FORMAT.format(ref=reading.reference, value=reading.value)
         return mqttString
 
@@ -445,7 +444,7 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
                 logger.warning("Could not get reference from topic %s", topic)
                 return None
 
-            if type(response) is list:
+            if isinstance(response, list):
                 parseOneResponse = lambda x: self._parseResponse(topic, reference, x)
                 responses = list(map(parseOneResponse, response))
                 return responses
@@ -538,7 +537,7 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
         """
         if collection.readings:
             topic = self.rootReadingsTopic + self.serialNumber
-            mqttMessage = self._serialize(collection, _ReadingsCollectionEncoder, topic)            
+            mqttMessage = self._serialize(collection, _ReadingsCollectionEncoder, topic)
             return mqttMessage
 
         return None
@@ -572,7 +571,7 @@ class _ReadingEncoder(json.JSONEncoder):
             return _rawReadingToDict(o.asRawReading())
         elif isinstance(o, Sensor.RawReading):
             return _rawReadingToDict(o)
-            
+
         return json.JSONEncoder.default(self, o)
 
 def _rawReadingToDict(o):
@@ -585,7 +584,7 @@ def _rawReadingToDict(o):
 
     dct["data"] = o.value
     return dct
-            
+
 
 class _ReadingsArrayEncoder(json.JSONEncoder):
     """ Reading JSON encoder that returns
