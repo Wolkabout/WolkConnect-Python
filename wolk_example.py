@@ -12,11 +12,11 @@ import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
 import WolkConnect.Serialization.WolkBufferSerialization as WolkBufferSerialization
 
 logger = logging.getLogger("WolkConnect")
-WolkConnect.setupLoggingLevel(logging.INFO)
+WolkConnect.setupLoggingLevel(logging.DEBUG)
 
 # Device parameters
-serial = "PYTHONJSON000001"
-password = "69b17b3c-44b8-42d8-8270-91fc926ddc21"
+serial = "DEMOSIMULATOR01"
+password = "a8db6a67-18f2-4e34-b8d4-41742d0ba3a"
 
 # Setup sensors, actuators and alarms
 temperature = Sensor.TemperatureReading()
@@ -33,9 +33,10 @@ alarms = [humidityHighAlarm]
 
 try:
     serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
-    integration_host = "api-integration.wolksense.com"
+    # integration_host = "api-integration.wolksense.com"
     trust_insecure_cert = True
-    device = WolkDevice.WolkDevice(serial, password, host=integration_host, set_insecure=trust_insecure_cert, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+    # device = WolkDevice.WolkDevice(serial, password, host=integration_host, set_insecure=trust_insecure_cert, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+    device = WolkDevice.WolkDevice(serial, password, set_insecure=trust_insecure_cert, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:
@@ -75,7 +76,17 @@ try:
                 sensor.setTimestamp(timestamp)
 
             # create a buffer with list of sensors
-            wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer(sensors)
+            wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer()
+            wolkBuffer.addReadings(sensors)
+
+            temperature.setReadingValue(23.4)
+            pressure.setReadingValue(999.9)
+            humidity.setReadingValue(50.0)
+            wolkBuffer.addReadings([temperature, pressure, humidity])
+
+            temperature.setReadingValue(16.7)
+            temperature.setTimestamp(time.time())
+            wolkBuffer.addReading(temperature)
 
             # set random values to sensors with timestamp for one minute in past
             timestamp = timestamp - 60
