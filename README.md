@@ -12,6 +12,9 @@ Installation
 
  That will download and install the Paho MQTT library from the web repository. If pip3 is not found, try with `pip` instead of `pip3`.
 
+NOTE:
+For WolkSense Sensor Data cloud connectivity please use [this version](https://github.com/Wolkabout/WolkConnect-Python-/releases/tag/WolkSense1.0.0)
+
 
 Example usage
 -------------
@@ -156,10 +159,6 @@ Persisting a buffer is not obligatory. All different kind of readings from the b
     # clear buffer
     newBuffer.clear()
 ```
-
-
-NOTE:
-For WolkSense Sensor Data cloud connectivity please use [this version](https://github.com/Wolkabout/WolkConnect-Python-/releases/tag/WolkSense1.0.0)
 
 HOW to ...
 ------------
