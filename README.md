@@ -135,7 +135,7 @@ Persisting a buffer is not obligatory. All different kind of readings from the b
     wolkBuffer.addReadings(sensors)
 ```
 
-**Persisting, loading and clearing buffer**
+**Persisting and loading a buffer**
 ```sh
     # persist buffer to file
     wolkBuffer.serializeToFile("buffer.bfr")
@@ -143,9 +143,6 @@ Persisting a buffer is not obligatory. All different kind of readings from the b
     # create new buffer from file
     newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
     newBuffer.deserializeFromFile("buffer.bfr")
-
-    # clear buffer
-    newBuffer.clear()
 ```
 
 **Publish readings from the buffer**
