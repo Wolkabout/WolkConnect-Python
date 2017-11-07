@@ -97,9 +97,9 @@ Buffers are designed to serve two purposes:
   - save/load readings to/from persistent storage
 
 Buffers are suitable in situations when internet connectivity is not stable and readings could not be sent at the time.
-Collected readings may be stored in buffer and persisted, and, when circumstances become favorable, loaded from storage and sent to the platform.
+Collected readings may be stored in a buffer and persisted, and when circumstances become favorable, loaded from storage to a buffer and sent to the platform.
 
-Persisting buffers is not a must. All different kind of readings from the buffer may be sent to the platform at your will.
+Persisting a buffer is not obligatory. All different kind of readings from the buffer may be sent to the platform at your will.
 
 **Creating a buffer**
 ```sh
