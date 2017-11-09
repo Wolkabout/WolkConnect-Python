@@ -23,23 +23,25 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def serializeToFile(buffer, filename):
+    """ Persist buffer into binary file
+    """
+    with open(filename, mode='wb') as outfile:
+        pickle.dump(buffer, outfile, pickle.HIGHEST_PROTOCOL)
+
+def deserializeFromFile(filename):
+    """ Load buffer content from  binary file
+    """
+    with open(filename, mode='rb') as infile:
+        buffer = pickle.load(infile)
+        return buffer
+
+
+
 class WolkBuffer():
     """ Base buffer class
     """
-
-    def serializeToFile(self, filename):
-        """ Persist buffer into binary file
-        """
-        with open(filename, mode='wb') as outfile:
-            pickle.dump(self.content, outfile, pickle.HIGHEST_PROTOCOL)
-
-    def deserializeFromFile(self, filename):
-        """ Load buffer content from  binary file
-        """
-        with open(filename, mode='rb') as infile:
-            readings = pickle.load(infile)
-            self.content = readings
-
     def __init__(self, content=None):
         """ Initialize buffer with content (which may be a list of items or single object)
         """

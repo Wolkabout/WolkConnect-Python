@@ -141,11 +141,10 @@ Persisting a buffer is not obligatory. All different kind of readings from the b
 **Persisting and loading a buffer**
 ```sh
     # persist buffer to file
-    wolkBuffer.serializeToFile("buffer.bfr")
+    WolkBufferSerialization.serializeToFile(wolkBuffer, "buffer.bfr")
 
     # create new buffer from file
-    newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
-    newBuffer.deserializeFromFile("buffer.bfr")
+    newBuffer = WolkBufferSerialization.deserializeFromFile("buffer.bfr")
 ```
 
 **Publish readings from the buffer**

@@ -112,11 +112,10 @@ try:
             wolkBuffer.addReading(dummyReading)
 
             # persist buffer to file
-            wolkBuffer.serializeToFile("buffer.bfr")
+            WolkBufferSerialization.serializeToFile(wolkBuffer, "buffer.bfr")
 
             # create new buffer from file
-            newBuffer = WolkBufferSerialization.WolkReadingsBuffer()
-            newBuffer.deserializeFromFile("buffer.bfr")
+            newBuffer = WolkBufferSerialization.deserializeFromFile("buffer.bfr")
 
             # publish readings from buffer
             device.publishBufferedReadings(newBuffer)
