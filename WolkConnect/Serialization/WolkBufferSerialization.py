@@ -23,7 +23,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 def serializeToFile(buffer, filename):
     """ Persist buffer into binary file
     """
@@ -37,13 +36,15 @@ def deserializeFromFile(filename):
         buffer = pickle.load(infile)
         return buffer
 
-
-
 class WolkBuffer():
     """ Base buffer class
     """
-    def __init__(self, content=None):
+    def __init__(self, content=None, capacity=0, overwrite=False):
         """ Initialize buffer with content (which may be a list of items or single object)
+            capacity - if 0, there is no limit on amount of items in the buffer
+            overwrite - when capacity is limited (e.g capacity > 0), and buffer is full 
+                        if overwrite = True, new items will overwrite the oldest
+                        if overwrite = False, new items will not be added to the buffer
         """
         if isinstance(content, list):
             self.content = content
@@ -52,15 +53,26 @@ class WolkBuffer():
         else:
             self.content = list(content)
 
+        self.capacity = capacity
+        self.overwrite = overwrite
+
     def addItem(self, item):
         """ Add item to buffer
         """
-        self.content.append(item)
+        print("addItem", item)
+        if self.capacity == 0 or len(self.content) < self.capacity:
+            self.content.append(item)
+        elif self.overwrite:
+            del self.content[0]
+            self.content.append(item)
 
     def addItems(self, items):
         """ Add list of items to buffer
         """
-        self.content.extend(items)
+        print("addItems", items)
+        for item in items:
+            self.addItem(item)
+        # self.content.extend(items)
 
     def getContent(self):
         """ Get buffer content as list of items
@@ -72,13 +84,12 @@ class WolkBuffer():
         """
         self.content.clear()
 
-
 """ WolkSense Serializer for WolkConnect
 """
 class WolkReadingsBuffer(WolkBuffer):
     """ WolkReadingsBuffer
     """
-    def __init__(self, content=None, useCurrentTimestamp=False):
+    def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False):
         """ Initialize readings buffer with content that may be
             list of readings, a single reading or None.
 
@@ -90,7 +101,7 @@ class WolkReadingsBuffer(WolkBuffer):
         """
 
         if not content:
-            super().__init__(content)
+            super().__init__(content, capacity, overwrite)
             return
 
         readings = copy.deepcopy(content)
@@ -103,7 +114,7 @@ class WolkReadingsBuffer(WolkBuffer):
             else:
                 readings.timestamp = timestamp
 
-        super().__init__(readings)
+        super().__init__(readings, capacity, overwrite)
 
     def getReadings(self):
         """ Get buffer content as list of readings
@@ -141,7 +152,6 @@ class WolkReadingsBuffer(WolkBuffer):
         """ Clear readings
         """
         super().clear()
-
 
 class WolkAlarmsBuffer(WolkBuffer):
     """ WolkAlarmsBuffer
