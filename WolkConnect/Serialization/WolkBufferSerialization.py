@@ -116,8 +116,7 @@ class WolkReadingsBuffer(WolkBuffer):
     def getReadings(self):
         """ Get buffer content as list of readings
         """
-        readings = super().getContent()
-        return readings
+        return super().getContent()
 
     def addReading(self, reading, useCurrentTimestamp=False):
         """ Add a reading
@@ -153,28 +152,64 @@ class WolkReadingsBuffer(WolkBuffer):
 class WolkAlarmsBuffer(WolkBuffer):
     """ WolkAlarmsBuffer
     """
-    def __init__(self, alarms=None):
-        if alarms:
+
+    def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False):
+        """ Initialize alarms buffer with content that may be
+            list of alarms, a single alarm or None.
+
+            Content is deep copied and stored in the buffer,
+            preventing unintentional side effects.
+
+            If useCurrentTimestamp is True, each alarm will be set the current timestamp,
+            otherwise, timestamp from the alarm will not be changed.
+        """
+
+        if not content:
+            super().__init__(content, capacity, overwrite)
+            return
+
+        alarms = copy.deepcopy(content)
+
+        if useCurrentTimestamp:
             timestamp = int(time.time())
-            for alarm in alarms:
-                if not alarm.timestamp:
+            if isinstance(alarms, list):
+                for alarm in alarms:
                     alarm.timestamp = timestamp
-        super().__init__(alarms)
+            else:
+                alarms.timestamp = timestamp
+
+        super().__init__(alarms, capacity, overwrite)
 
     def getAlarms(self):
         """ Get buffer content as list of alarms
         """
         return super().getContent()
 
-    def addAlarm(self, alarm):
-        """ Add alarm
-        """
-        super().addItem(alarm)
+    def addAlarm(self, alarm, useCurrentTimestamp=False):
+        """ Add an alarm
 
-    def addAlarms(self, alarms):
-        """ Add alarms
+            If useCurrentTimestamp is True, the current timestamp will be set to the alarm
+            otherwise, timestamp from the alarm will not be changed.
         """
-        super().addItems(alarms)
+        alarmCopy = copy.deepcopy(alarm)
+        if useCurrentTimestamp:
+            alarmCopy.timestamp = time.time()
+
+        super().addItem(alarmCopy)
+
+    def addAlarms(self, alarms, useCurrentTimestamp=False):
+        """ Add list of alarms
+
+            If useCurrentTimestamp is True, each alarm will be set the current timestamp,
+            otherwise, timestamp from the alarm will not be changed.
+        """
+        alarmsCopy = copy.deepcopy(alarms)
+        if useCurrentTimestamp:
+            timestamp = time.time()
+            for alarm in alarmsCopy:
+                alarm.timestamp = timestamp
+
+        super().addItems(alarmsCopy)
 
     def clearAlarms(self):
         """ Clear alarms

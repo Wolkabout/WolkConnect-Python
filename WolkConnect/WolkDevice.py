@@ -187,6 +187,16 @@ class WolkDevice:
         readingsToPublish = buffer.getReadings()
         self._publishReadings(readingsToPublish)
 
+    def publishBufferedAlarms(self, buffer):
+        """ Publish alarms from the buffer
+        """
+        if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
+            logger.warning("Could not publish buffered readings. %s is not WolkBuffer", str(buffer))
+            return
+
+        alarmsToPublish = buffer.getAlarms()
+        self._publishReadings(alarmsToPublish)
+
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from broker
         """

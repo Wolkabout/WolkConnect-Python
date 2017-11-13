@@ -30,7 +30,6 @@ slider = Actuator.Actuator("SL", ReadingType.DataType.NUMERIC)
 slider.setValue(20.0)
 actuators = [switch, slider]
 
-
 humidityHighAlarm = Alarm.Alarm("HH", True)
 alarms = [humidityHighAlarm]
 
@@ -47,6 +46,7 @@ try:
         print("B to publish buffered readings.")
         print("O to publish one temperature reading t=23.4℃ for the current timestamp")
         print("H to publish humidity high alarm")
+        print("X to publish buffered alarms")
         print("R to publish raw reading")
         print("Q to quit")
         option = input()
@@ -132,6 +132,36 @@ try:
             device.publishReading(temperature)
         elif option.upper() == "H":
             device.publishAlarm(humidityHighAlarm)
+        elif option.upper() == "X":
+
+            deviceAlarms = device.getAlarms()
+            # set alarms
+            timestamp = time.time()
+            for alarm in deviceAlarms:
+                alarm.setAlarm()
+                alarm.setTimestamp(timestamp)
+
+            # create a buffer with list of alarms
+            wolkAlarmsBuffer = WolkBufferSerialization.WolkAlarmsBuffer()
+            wolkAlarmsBuffer.addAlarms(deviceAlarms)
+
+            # add new alarm to buffer
+            humidityHighAlarm.resetAlarm()
+            humidityHighAlarm.setTimestamp(time.time())
+            wolkAlarmsBuffer.addAlarm(humidityHighAlarm)
+
+            # persist buffer to file
+            WolkBufferSerialization.serializeToFile(wolkAlarmsBuffer, "alarms_buffer.bfr")
+
+            # create new buffer from file
+            newAlarmsBuffer = WolkBufferSerialization.deserializeFromFile("alarms_buffer.bfr")
+
+            # publish alarms from buffer
+            device.publishBufferedAlarms(newAlarmsBuffer)
+
+            # clear buffer
+            newAlarmsBuffer.clear()
+
         elif option.upper() == "R":
             # publish raw Temperature 17.9
             device.publishRawReading(Sensor.RawReading("T", 17.9))

@@ -72,7 +72,7 @@ class Sensor():
     def setTimestamp(self, timestamp):
         """ Set reading timestamp
         """
-        self.timestamp = timestamp
+        self.timestamp = timestamp if timestamp else time.time()
 
     @property
     def isScalar(self):

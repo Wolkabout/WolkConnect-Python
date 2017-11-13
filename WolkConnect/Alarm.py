@@ -16,6 +16,7 @@
     Alarms
 """
 import time
+import WolkConnect.Sensor as Sensor
 
 class Alarm():
     """ Alarm as defined in device manifest
@@ -41,3 +42,14 @@ class Alarm():
         """ Set alarm timestamp
         """
         self.timestamp = timestamp if timestamp else time.time()
+
+    def asRawReading(self):
+        """ Convert reading to RawReading; useful for easier serialization to MQTT messages
+        """
+        value = self.alarmValue
+        if not value:
+            value = False
+            return Sensor.RawReading(self.alarmRef, value, self.timestamp)
+
+        return Sensor.RawReading(self.alarmRef, value, self.timestamp)
+
