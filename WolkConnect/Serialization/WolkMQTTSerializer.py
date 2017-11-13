@@ -249,12 +249,15 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         mqttString = self.READING_FORMAT.format(ref=reading.reference, value=reading.value)
         return mqttString
 
-
     def _serializeReadingToPayload(self, reading):
         """ Serialize reading to mqtt message payload
         """
         if isinstance(reading, Sensor.RawReading):
             return self._serializeRawReading(reading)
+        elif isinstance(reading, Alarm.Alarm):
+            rawReading = reading.asRawReading()
+            rawReading.value = 1 if reading.alarmValue == True else 0
+            return self._serializeRawReading(rawReading)
 
         if not reading.readingValue:
             logger.warning("No reading values to serialize")

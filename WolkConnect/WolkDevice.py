@@ -37,9 +37,8 @@ class WolkDevice:
             certificate_file_path - path to Certificate Authority certificate file (neccessary when SSL is used for MQTT connection)
             set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted)
             serializer - WolkMQTTSerializer. By default is is JSON_MULTI
-            responseHandler - Handler that accepts list of WolkMQTTSubscribeMessage objects
+            responseHandler - Handler that accepts WolkDevice and WolkMQTTSubscribeMessage object
                                 used for processing raw messages from MQTT broker.
-                            If not specified default implementation self._mqttResponseHandler is used
             sensors - List of Sensor objects
             actuators - List of Actuator objects
             alarms - List of Alarm objects
@@ -66,8 +65,9 @@ class WolkDevice:
 
         mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
-        messageHandler = responseHandler if responseHandler else self._mqttResponseHandler
-        clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, messageHandler, certificate_file_path, set_insecure, qos)
+        self.responseHandler = responseHandler
+        clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, self._mqttResponseHandler, certificate_file_path, set_insecure, qos)
+        
         self.mqttClient = WolkMQTT.WolkMQTTClient(clientConfig)
 
     def __str__(self):
@@ -78,15 +78,30 @@ class WolkDevice:
         """
         return list(self._sensors.values())
 
+    def getSensor(self, ref):
+        """ Get sensor by reference
+        """
+        return self._sensors[ref]
+
     def getActuators(self):
         """ Get list of actuators
         """
         return list(self._actuators.values())
 
+    def getActuator(self, ref):
+        """ Get actuator by reference
+        """
+        return self._actuators[ref]
+
     def getAlarms(self):
         """ Get list of alarms
         """
         return list(self._alarms.values())
+
+    def getAlarm(self, ref):
+        """ Get alarm by reference
+        """
+        return self._alarms[ref]
 
     def connect(self):
         """ Connect WolkDevice to MQTT broker
@@ -199,29 +214,15 @@ class WolkDevice:
 
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from broker
+            Each message contains: 
+                - ref, which is actuator reference
+                - wolkCommand, which may be SET or STATUS
+                - value, if wolkCommand is SET
+            responseHandler, provided in __init__, will be invoked for each message 
         """
         for message in responses:
             if message:
-                self._mqttMessageHandler(message)
-
-    def _mqttMessageHandler(self, message):
-        """ Handle single MQTT message from broker
-        """
-        actuator = None
-        try:
-            actuator = self._actuators[message.ref]
-        except:
-            logger.warning("%s could not find actuator with ref %s", self.serial, message.ref)
-            return
-
-        logger.info("%s received message %s", self.serial, message)
-        if message.wolkCommand == WolkMQTTSerializer.WolkCommand.SET:
-            actuator.value = message.value
-            self.publishActuator(actuator)
-        elif message.wolkCommand == WolkMQTTSerializer.WolkCommand.STATUS:
-            self.publishActuator(actuator)
-        else:
-            logger.warning("Unknown command %s", message.wolkCommand)
+                self.responseHandler(self, message)
 
     def _publishReadings(self, readings):
         self.mqttClient.publishReadings(readings)

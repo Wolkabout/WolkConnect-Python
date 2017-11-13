@@ -33,9 +33,29 @@ actuators = [switch, slider]
 humidityHighAlarm = Alarm.Alarm("HH", True)
 alarms = [humidityHighAlarm]
 
+def mqttMessageHandler(wolkDevice, message):
+    """ Handle single MQTT message from broker
+        See WolkDevice._mqttResponseHandler for further explanations
+    """
+    actuator = wolkDevice.getActuator(message.ref)
+    
+    if not actuator:
+        logger.warning("%s could not find actuator with ref %s", wolkDevice.serial, message.ref)
+        return
+
+    logger.info("%s received message %s", wolkDevice.serial, message)
+    if message.wolkCommand == WolkMQTTSerializer.WolkCommand.SET:
+        actuator.value = message.value
+        wolkDevice.publishActuator(actuator)
+    elif message.wolkCommand == WolkMQTTSerializer.WolkCommand.STATUS:
+        wolkDevice.publishActuator(actuator)
+    else:
+        logger.warning("Unknown command %s", message.wolkCommand)
+
+
 try:
     serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
-    device = WolkDevice.WolkDevice(serial, password, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+    device = WolkDevice.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:
@@ -147,7 +167,7 @@ try:
 
             # add new alarm to buffer
             humidityHighAlarm.resetAlarm()
-            humidityHighAlarm.setTimestamp(time.time())
+            humidityHighAlarm.setTimestamp(time.time() + 1)
             wolkAlarmsBuffer.addAlarm(humidityHighAlarm)
 
             # persist buffer to file
