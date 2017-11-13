@@ -16,23 +16,14 @@
     Alarms
 """
 import time
-from enum import unique
-from WolkConnect.ReadingType import ReadingType, DataType
-
-@unique
-class AlarmType(ReadingType):
-    """ Alarms
-    """
-    TEMPERATURE_HIGH = ("TH", DataType.BOOLEAN)
-    TEMPERATURE_LOW = ("TL", DataType.BOOLEAN)
-    HUMIDITY_HIGH = ("HH", DataType.BOOLEAN)
-    MOVEMENT = ("MV", DataType.BOOLEAN)
 
 class Alarm():
-    """ Alarm with alarm type
+    """ Alarm as defined in device manifest
+        alarmRef - Alarm reference
+        alarmValue - Current alarm value
     """
-    def __init__(self, alarmType, isSet=False, timestamp=None):
-        self.alarmType = alarmType
+    def __init__(self, alarmRef, isSet=False, timestamp=None):
+        self.alarmRef = alarmRef
         self.alarmValue = isSet
         self.timestamp = timestamp
 
@@ -50,27 +41,3 @@ class Alarm():
         """ Set alarm timestamp
         """
         self.timestamp = timestamp if timestamp else time.time()
-
-class TemperatureHighAlarm(Alarm):
-    """ Temperature high alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.TEMPERATURE_HIGH, isSet)
-
-class TemperatureLowAlarm(Alarm):
-    """ Temperature low alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.TEMPERATURE_LOW, isSet)
-
-class HumidityHighAlarm(Alarm):
-    """ Humidity high alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.HUMIDITY_HIGH, isSet)
-
-class MovementAlarm(Alarm):
-    """ Movement alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.MOVEMENT, isSet)

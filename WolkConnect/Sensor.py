@@ -16,25 +16,9 @@
     Sensors and readings
 """
 import time
-from enum import unique
+import random
+import string
 import WolkConnect.ReadingType as ReadingType
-
-@unique
-class SensorType(ReadingType.ReadingType):
-    """ Sensor types
-    """
-    TEMPERATURE = ("T", ReadingType.DataType.NUMERIC, -40.0, 80.0)
-    PRESSURE = ("P", ReadingType.DataType.NUMERIC, 900.0, 1100.0)
-    HUMIDITY = ("H", ReadingType.DataType.NUMERIC, 0.0, 100.0)
-    LIGHT = ("LT", ReadingType.DataType.NUMERIC, 0.0, 100.0)
-    ACCELEROMETER = ("ACL", ReadingType.DataType.NUMERIC, -1.0, 1.0, 3, "|")
-    MAGNETOMETER = ("MAG", ReadingType.DataType.NUMERIC, None, None, 3, "|")
-    GYROSCOPE = ("GYR", ReadingType.DataType.NUMERIC, None, None, 3, "|")
-    STEPS = ("STP", ReadingType.DataType.NUMERIC)
-    HEARTRATE = ("BPM", ReadingType.DataType.NUMERIC, 0.0, 1000.0)
-    CALORIES = ("KCAL", ReadingType.DataType.NUMERIC, 0.0, 10000.0)
-    GENERIC = ("GEN", ReadingType.DataType.NUMERIC)
-    AIR_QUALITY = ("O", ReadingType.DataType.NUMERIC, 0.0, 10000.0)
 
 class RawReading():
     """ Free form reading with reference, value and timestamp
@@ -50,138 +34,90 @@ class RawReading():
     def __str__(self):
         return "RawReading reference={0} value={1}, timestamp={2}".format(self.reference, self.value, self.timestamp)
 
-class Reading():
-    """ Reading with SensorType and float values list
+class Sensor():
+    """ Sensor as defined in device manifest
+        sensorRef - Sensor reference
+        dataType - Any of DataType members (NUMERIC, STRING or BOOLEAN)
+        value - Current reading value of the sensor.
+        minValue - If applicable, minimum reading value of the sensor
+        maxValue - If applicable, maximum reading value of the sensor
+        dataSize - By default it is 1 rendering sensor reading values as scalar
+            e.g. temperature sensor would typically have scalar reading values as t=23.4℃
+                accelerometer sensor would typically have 3 reading values for x, y, z; like (0.1, -1.0, 0.5) G
+        dataDelimiter - Delimitier for parsing values (applicable if dataSize > 1)
+
     """
-    def __init__(self, sensorType, values, times=1.0, timestamp=None):
-        self.sensorType = sensorType
-        self.readingValues = values
-        self.times = times
+    def __init__(self, sensorRef, dataType, value=None, minValue=None, maxValue=None, dataSize=1, dataDelimiter="", timestamp=None):
+        self.sensorRef = sensorRef
+        self.dataType = dataType
+        self.readingValue = value
+        if not self.readingValue:
+            self.readingValue = []
+        self.minValue = minValue
+        self.maxValue = maxValue
+        self.dataSize = dataSize
+        self.dataDelimiter = dataDelimiter
         self.timestamp = timestamp
 
     def setReadingValue(self, value):
         """ Set reading value
         """
-        self.readingValues = [value]
+        self.readingValue = [value]
 
     def setReadingValues(self, values):
         """ Set reading values
         """
-        self.readingValues = values
+        self.readingValue = values
 
     def setTimestamp(self, timestamp):
         """ Set reading timestamp
         """
         self.timestamp = timestamp
 
+    @property
+    def isScalar(self):
+        """ Is reading type scalar i.e. data size is 1
+        """
+        return self.dataSize == 1
+
     def __str__(self):
-        return "Reading sensor type={0} values={1}, timestamp={2}, times={3}".format(self.sensorType, self.readingValues, self.timestamp, self.times)
+        isScalar = " isScalar={0}".format(self.isScalar)
+        dataSizeString = "" if self.dataSize == 1 else " dataSize={0}".format(self.dataSize)
+        dataDelimiter = " dataDelimiter={0}".format(self.dataDelimiter) if dataSizeString else ""
+        sensorType = self.sensorRef + ":" + self.dataType.value + isScalar + dataSizeString + dataDelimiter
+        return "Reading sensor type={0} values={1}, timestamp={2}".format(sensorType, self.readingValue, self.timestamp)
 
     def asRawReading(self):
         """ Convert reading to RawReading; useful for easier serialization to MQTT messages
         """
-        value = self.readingValues
-        if self.sensorType.isScalar:
-            value = self.readingValues[0]
+        value = self.readingValue
+        if not value:
+            value = []
+            return RawReading(self.sensorRef, value, self.timestamp)
 
-        return RawReading(self.sensorType.ref, value, self.timestamp)
+        if self.isScalar:
+            value = self.readingValue[0]
 
+        return RawReading(self.sensorRef, value, self.timestamp)
 
-class TemperatureReading(Reading):
-    """ Temperature reading in Celsius degrees
-    """
-    def __init__(self, temperature=None, timestamp=None):
-        super().__init__(SensorType.TEMPERATURE, [temperature], 10.0, timestamp)
+    def generateRandomValues(self):
+        """ Generate random value in range (minValue, maxValue)
+            A handy way to use for device simulator
+        """
+        if self.dataType == ReadingType.DataType.NUMERIC:
+            if self.minValue is None or self.maxValue is None:
+                return None
 
+            return [random.uniform(self.minValue, self.maxValue) for _ in range(self.dataSize)]
+        elif self.dataType == ReadingType.DataType.BOOLEAN:
+            return [bool(int(random.uniform(0, 1)))]
 
-class PressureReading(Reading):
-    """ Pressure reading in mbar
-    """
-    def __init__(self, pressure=None, timestamp=None):
-        super().__init__(SensorType.PRESSURE, [pressure], 10.0, timestamp)
-
-
-class HumidityReading(Reading):
-    """ Humidity reading in %
-    """
-    def __init__(self, humidity=None, timestamp=None):
-        super().__init__(SensorType.HUMIDITY, [humidity], 10.0, timestamp)
-
-class AirQualityReading(Reading):
-    """ Air quality reading in ppm
-    """
-    def __init__(self, air_quality=None, timestamp=None):
-        super().__init__(SensorType.AIR_QUALITY, [air_quality], 1.0, timestamp)
-
-class LightReading(Reading):
-    """ Light reading in %
-    """
-    def __init__(self, light=None, timestamp=None):
-        super().__init__(SensorType.LIGHT, [light], 10.0, timestamp)
-
-
-class StepsReading(Reading):
-    """ Steps reading
-    """
-    def __init__(self, steps=None, timestamp=None):
-        super().__init__(SensorType.STEPS, [steps], 1.0, timestamp)
-
-
-class HeartrateReading(Reading):
-    """ Heartrate reading in bpm
-    """
-    def __init__(self, heartrate=None, timestamp=None):
-        super().__init__(SensorType.HEARTRATE, [heartrate], 1.0, timestamp)
-
-
-class CaloriesReading(Reading):
-    """ Calories reading in kcal
-    """
-    def __init__(self, calories=None, timestamp=None):
-        super().__init__(SensorType.CALORIES, [calories], 1.0, timestamp)
-
-
-class GenericReading(Reading):
-    """ Generic reading (no unit)
-    """
-    def __init__(self, generic=None, times=10.0, timestamp=None):
-        super().__init__(SensorType.GENERIC, [generic], times, timestamp)
-
-
-class _XYZReading(Reading):
-    """ Reading with x, y and z axis
-    """
-    def __init__(self, readingType, xValue=None, yValue=None, zValue=None, times=1.0, timestamp=None):
-        super().__init__(readingType, [xValue, yValue, zValue], times, timestamp)
-
-
-class AccelerometerReading(_XYZReading):
-    """ Accelerometer reading with x, y and z axis in G
-    """
-    def __init__(self, xValue=None, yValue=None, zValue=None, times=10.0, timestamp=None):
-        super().__init__(SensorType.ACCELEROMETER, xValue, yValue, zValue, times, timestamp)
-
-
-class MagnetometerReading(_XYZReading):
-    """ Magnetometer reading with x, y and z axis in uT
-    """
-    def __init__(self, xValue=None, yValue=None, zValue=None, times=10.0, timestamp=None):
-        super().__init__(SensorType.MAGNETOMETER, xValue, yValue, zValue, times, timestamp)
-
-
-class GyroReading(_XYZReading):
-    """ Gyro reading with x, y and z axis in deg/sec
-    """
-    def __init__(self, xValue=None, yValue=None, zValue=None, times=10.0, timestamp=None):
-        super().__init__(SensorType.GYROSCOPE, xValue, yValue, zValue, times, timestamp)
+        rndValue = random.SystemRandom()
+        return [''.join(rndValue.choice(string.ascii_uppercase + string.digits) for _ in range(10))]
 
 class ReadingsWithTimestamp():
     """ List of readings for defined timestamp
     """
-    def __init__(self, timestamp=None):
-        self.readings = []
-        self.timestamp = timestamp
-
     def __init__(self, readings, timestamp=None):
         self.readings = readings
         self.timestamp = timestamp

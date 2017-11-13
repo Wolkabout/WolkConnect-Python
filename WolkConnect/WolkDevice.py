@@ -52,17 +52,17 @@ class WolkDevice:
         self._sensors = {}
         if sensors:
             for sensor in sensors:
-                self._sensors[sensor.sensorType.ref] = sensor
+                self._sensors[sensor.sensorRef] = sensor
 
         self._actuators = {}
         if actuators:
             for actuator in actuators:
-                self._actuators[actuator.actuatorType.ref] = actuator
+                self._actuators[actuator.actuatorRef] = actuator
 
         self._alarms = {}
         if alarms:
             for alarm in alarms:
-                self._alarms[alarm.alarmType.ref] = alarm
+                self._alarms[alarm.alarmRef] = alarm
 
         mqttSerializer = WolkMQTTSerializer.getSerializer(serializer, serial)
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
@@ -104,7 +104,7 @@ class WolkDevice:
     def publishReading(self, reading):
         """ Publish one reading
         """
-        if not isinstance(reading, Sensor.Reading):
+        if not isinstance(reading, Sensor.Sensor):
             logger.warning("Could not publish reading %s", str(reading))
             return
 
@@ -142,13 +142,13 @@ class WolkDevice:
         """ Publish alarm to MQTT broker
         """
         self.mqttClient.publishAlarm(alarm)
-        logger.info("%s published alarm %s", self.serial, alarm.alarmType.ref)
+        logger.info("%s published alarm %s", self.serial, alarm.alarmRef)
 
     def publishActuator(self, actuator):
         """ Publish actuator to MQTT broker
         """
         self.mqttClient.publishActuator(actuator)
-        logger.info("%s published actuator %s", self.serial, actuator.actuatorType.ref)
+        logger.info("%s published actuator %s", self.serial, actuator.actuatorRef)
 
     def publishAll(self):
         """ Publish all actuators and sensors
@@ -171,7 +171,7 @@ class WolkDevice:
 
         timestamp = time.time()
         for sensor in sensors:
-            randomValues = sensor.sensorType.generateRandomValues()
+            randomValues = sensor.generateRandomValues()
             sensor.setReadingValues(randomValues)
             sensor.setTimestamp(timestamp)
 

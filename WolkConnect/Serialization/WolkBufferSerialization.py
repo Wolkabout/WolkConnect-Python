@@ -42,7 +42,7 @@ class WolkBuffer():
     def __init__(self, content=None, capacity=0, overwrite=False):
         """ Initialize buffer with content (which may be a list of items or single object)
             capacity - if 0, there is no limit on amount of items in the buffer
-            overwrite - when capacity is limited (e.g capacity > 0), and buffer is full 
+            overwrite - when capacity is limited (e.g capacity > 0), and buffer is full
                         if overwrite = True, new items will overwrite the oldest
                         if overwrite = False, new items will not be added to the buffer
         """
@@ -59,7 +59,6 @@ class WolkBuffer():
     def addItem(self, item):
         """ Add item to buffer
         """
-        print("addItem", item)
         if self.capacity == 0 or len(self.content) < self.capacity:
             self.content.append(item)
         elif self.overwrite:
@@ -69,10 +68,8 @@ class WolkBuffer():
     def addItems(self, items):
         """ Add list of items to buffer
         """
-        print("addItems", items)
         for item in items:
             self.addItem(item)
-        # self.content.extend(items)
 
     def getContent(self):
         """ Get buffer content as list of items

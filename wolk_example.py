@@ -5,6 +5,7 @@ import logging
 import time
 import WolkConnect
 import WolkConnect.Sensor as Sensor
+import WolkConnect.ReadingType as ReadingType
 import WolkConnect.Actuator as Actuator
 import WolkConnect.Alarm as Alarm
 import WolkConnect.WolkDevice as WolkDevice
@@ -19,16 +20,18 @@ serial = "serial"
 password = "password"
 
 # Setup sensors, actuators and alarms
-temperature = Sensor.TemperatureReading()
-pressure = Sensor.PressureReading()
-humidity = Sensor.HumidityReading()
+temperature = Sensor.Sensor("T", ReadingType.DataType.NUMERIC, minValue=-40.0, maxValue=80.0)
+pressure = Sensor.Sensor("P", ReadingType.DataType.NUMERIC, minValue=900.0, maxValue=1100.0)
+humidity = Sensor.Sensor("H", ReadingType.DataType.NUMERIC, minValue=0.0, maxValue=100.0)
 sensors = [temperature, pressure, humidity]
 
-switch = Actuator.SwitchActuator(0)
-slider = Actuator.SliderActuator(20.0)
+switch = Actuator.Actuator("SW", ReadingType.DataType.BOOLEAN, value=True)
+slider = Actuator.Actuator("SL", ReadingType.DataType.NUMERIC)
+slider.setValue(20.0)
 actuators = [switch, slider]
 
-humidityHighAlarm = Alarm.HumidityHighAlarm(True)
+
+humidityHighAlarm = Alarm.Alarm("HH", True)
 alarms = [humidityHighAlarm]
 
 try:
@@ -68,7 +71,7 @@ try:
             # set random values to sensors
             timestamp = time.time()
             for sensor in sensors:
-                randomValues = sensor.sensorType.generateRandomValues()
+                randomValues = sensor.generateRandomValues()
                 sensor.setReadingValues(randomValues)
                 sensor.setTimestamp(timestamp)
 
@@ -88,7 +91,7 @@ try:
             # set random values to sensors with timestamp for one minute in past
             timestamp = timestamp - 60
             for sensor in sensors:
-                randomValues = sensor.sensorType.generateRandomValues()
+                randomValues = sensor.generateRandomValues()
                 sensor.setReadingValues(randomValues)
                 sensor.setTimestamp(timestamp)
 
@@ -98,7 +101,7 @@ try:
             # set random values to sensors with timestamp for two minute in past
             timestamp = timestamp - 60
             for sensor in sensors:
-                randomValues = sensor.sensorType.generateRandomValues()
+                randomValues = sensor.generateRandomValues()
                 sensor.setReadingValues(randomValues)
                 sensor.setTimestamp(timestamp)
 
