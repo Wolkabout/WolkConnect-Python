@@ -17,7 +17,7 @@
 """
 import logging
 import paho.mqtt.client as mqtt
-import WolkConnect.Sensor as Sensor
+from WolkConnect.Sensor import ReadingsCollection
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +86,7 @@ class WolkMQTTClient:
     def publishReadings(self, readings):
         """ Publish readings to MQTT broker
         """
-        readingsCollection = Sensor.ReadingsCollection.collectionFromReadingsList(readings)
+        readingsCollection = ReadingsCollection.collectionFromReadingsList(readings)
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
         logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
         self._publish(mqttMessage)

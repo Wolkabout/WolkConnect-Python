@@ -16,6 +16,7 @@
     WolkConnect reading data types
 """
 
+import time
 from enum import Enum, unique
 
 @unique
@@ -26,3 +27,16 @@ class DataType(Enum):
     STRING = "STRING"
     BOOLEAN = "BOOLEAN"
     
+class RawReading():
+    """ Free form reading with reference, value and timestamp
+    """
+    def __init__(self, reference, value, timestamp=None):
+        self.reference = reference
+        self.value = value
+        self.timestamp = timestamp
+        if not timestamp:
+            self.timestamp = time.time()
+
+
+    def __str__(self):
+        return "RawReading reference={0} value={1}, timestamp={2}".format(self.reference, self.value, self.timestamp)

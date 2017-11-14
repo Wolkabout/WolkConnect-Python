@@ -20,7 +20,8 @@ import logging
 import time
 import WolkConnect.WolkMQTT as WolkMQTT
 import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
-import WolkConnect.Sensor as Sensor
+import WolkConnect.ReadingType as ReadingType
+from WolkConnect.Sensor import Sensor
 import WolkConnect.Serialization.WolkBufferSerialization as WolkBufferSerialization
 
 logger = logging.getLogger(__name__)
@@ -119,7 +120,7 @@ class WolkDevice:
     def publishReading(self, reading):
         """ Publish one reading
         """
-        if not isinstance(reading, Sensor.Sensor):
+        if not isinstance(reading, Sensor):
             logger.warning("Could not publish reading %s", str(reading))
             return
 
@@ -128,7 +129,7 @@ class WolkDevice:
     def publishRawReading(self, rawReading):
         """ Publish raw reading
         """
-        if not isinstance(rawReading, Sensor.RawReading):
+        if not isinstance(rawReading, ReadingType.RawReading):
             logger.warning("Could not publish raw reading %s", str(rawReading))
             return
 
@@ -213,12 +214,12 @@ class WolkDevice:
         self._publishReadings(alarmsToPublish)
 
     def _mqttResponseHandler(self, responses):
-        """ Handle MQTT messages from broker
+        """ Handle MQTT messages from MQTT broker
             Each message contains: 
                 - ref, which is actuator reference
                 - wolkCommand, which may be SET or STATUS
                 - value, if wolkCommand is SET
-            responseHandler, provided in __init__, will be invoked for each message 
+            responseHandler, provided in WolkDevice.__init__, will be invoked for each message 
         """
         for message in responses:
             if message:

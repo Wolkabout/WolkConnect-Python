@@ -23,13 +23,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def serializeToFile(buffer, filename):
+def serializeBufferToFile(buffer, filename):
     """ Persist buffer into binary file
     """
     with open(filename, mode='wb') as outfile:
         pickle.dump(buffer, outfile, pickle.HIGHEST_PROTOCOL)
 
-def deserializeFromFile(filename):
+def deserializeBufferFromFile(filename):
     """ Load buffer content from  binary file
     """
     with open(filename, mode='rb') as infile:

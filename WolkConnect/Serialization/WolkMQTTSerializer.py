@@ -22,9 +22,10 @@ from enum import Enum, unique
 import json
 import logging
 import time
-import WolkConnect.Alarm as Alarm
-import WolkConnect.Sensor as Sensor
-import WolkConnect.Actuator as Actuator
+from WolkConnect.Alarm import Alarm
+from WolkConnect.Sensor import Sensor, ReadingsWithTimestamp, ReadingsCollection
+from WolkConnect.Actuator import Actuator, ActuationException
+from WolkConnect.ReadingType import RawReading, DataType
 
 logger = logging.getLogger(__name__)
 notNone = lambda x: not x is None
@@ -151,17 +152,17 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         super().__init__(serialNumber, rootReadings, rootEvents, rootActuatorsPub, rootActuatorsSub)
 
     def serializeToMQTTMessage(self, obj):
-        if isinstance(obj, Sensor.Sensor):
+        if isinstance(obj, Sensor):
             return self._serializeReading(obj)
-        elif isinstance(obj, Sensor.RawReading):
+        elif isinstance(obj, RawReading):
             return self._serializeRawReading(obj)
-        elif isinstance(obj, Sensor.ReadingsWithTimestamp):
+        elif isinstance(obj, ReadingsWithTimestamp):
             return self._serializeReadingsWithTimestamp(obj)
-        elif isinstance(obj, Sensor.ReadingsCollection):
+        elif isinstance(obj, ReadingsCollection):
             return self._serializeReadingsCollection(obj)
-        elif isinstance(obj, Alarm.Alarm):
+        elif isinstance(obj, Alarm):
             return self._serializeAlarm(obj)
-        elif isinstance(obj, Actuator.Actuator):
+        elif isinstance(obj, Actuator):
             return self._serializeActuator(obj)
 
         raise TypeError("WolkSenseMQTTSerializer can't serialize object {0}".format(repr(obj)))
@@ -252,9 +253,9 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
     def _serializeReadingToPayload(self, reading):
         """ Serialize reading to mqtt message payload
         """
-        if isinstance(reading, Sensor.RawReading):
+        if isinstance(reading, RawReading):
             return self._serializeRawReading(reading)
-        elif isinstance(reading, Alarm.Alarm):
+        elif isinstance(reading, Alarm):
             rawReading = reading.getRawReading()
             rawReading.value = 1 if reading.alarmValue == True else 0
             return self._serializeRawReading(rawReading)
@@ -263,7 +264,7 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
             logger.warning("No reading values to serialize")
             return None
 
-        if reading.dataType == Sensor.ReadingType.DataType.STRING:
+        if reading.dataType == DataType.STRING:
             return reading.sensorRef + self.VALUE_SEPARATOR + "".join(reading.readingValue)
 
         timesTenReferences = ["T", "P", "H", "LT", "ACL", "MAG", "GYR"]
@@ -351,14 +352,14 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         returnValue = ""
         # preconditions
         if not actuator.actuatorRef:
-            raise Actuator.ActuationException("Actuator type missing")
+            raise ActuationException("Actuator type missing")
         elif actuator.value is None:
-            raise Actuator.ActuationException("Actuation value missing")
+            raise ActuationException("Actuation value missing")
 
         # check if value and type match
-        if actuator.dataType == Sensor.ReadingType.DataType.BOOLEAN and WolkSenseMQTTSerializer._isValueBoolean(actuator):
+        if actuator.dataType == DataType.BOOLEAN and WolkSenseMQTTSerializer._isValueBoolean(actuator):
             returnValue = WolkSenseMQTTSerializer._getStringFromBoolean(actuator)
-        elif actuator.dataType == Sensor.ReadingType.DataType.NUMERIC and WolkSenseMQTTSerializer._isValueNumeric(actuator):
+        elif actuator.dataType == DataType.NUMERIC and WolkSenseMQTTSerializer._isValueNumeric(actuator):
             returnValue = WolkSenseMQTTSerializer._getStringFromNumeric(actuator)
         else:
             returnValue = str(actuator.value)
@@ -382,7 +383,7 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
             float(actuator.value)
             return True
         except ValueError:
-            raise Actuator.ActuationException("Actuation value is not numeric")
+            raise ActuationException("Actuation value is not numeric")
 
     @staticmethod
     def _getStringFromBoolean(actuator):
@@ -407,7 +408,7 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
             # pad one digit numbers with leading 0 and keep sign prefix
             return "{:+.0f}".format(fl).zfill(3)
         except ValueError:
-            raise Actuator.ActuationException("Actuation value is not numeric")
+            raise ActuationException("Actuation value is not numeric")
 
 """ JSON Serializer for WolkConnect
 """
@@ -422,17 +423,17 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
         super().__init__(serialNumber, rootReadings, rootEvents, rootActuatorsPub, rootActuatorsSub)
 
     def serializeToMQTTMessage(self, obj):
-        if isinstance(obj, Sensor.Sensor):
+        if isinstance(obj, Sensor):
             return self._serializeReading(obj)
-        elif isinstance(obj, Sensor.RawReading):
+        elif isinstance(obj, RawReading):
             return self._serializeRawReading(obj)
-        elif isinstance(obj, Sensor.ReadingsWithTimestamp):
+        elif isinstance(obj, ReadingsWithTimestamp):
             return self._serializeReadingsWithTimestamp(obj)
-        elif isinstance(obj, Sensor.ReadingsCollection):
+        elif isinstance(obj, ReadingsCollection):
             return self._serializeReadingsCollection(obj)
-        elif isinstance(obj, Alarm.Alarm):
+        elif isinstance(obj, Alarm):
             return self._serializeAlarm(obj)
-        elif isinstance(obj, Actuator.Actuator):
+        elif isinstance(obj, Actuator):
             return self._serializeActuator(obj)
 
         raise TypeError("WolkJSONMQTTSerializer can't serialize object {0}".format(repr(obj)))
@@ -572,15 +573,15 @@ class _ReadingEncoder(json.JSONEncoder):
         dictionary with data and reading value
     """
     def default(self, o):
-        if isinstance(o, Sensor.Sensor):
+        if isinstance(o, Sensor):
             return _rawReadingToDict(o.getRawReading())
-        elif isinstance(o, Sensor.RawReading):
+        elif isinstance(o, RawReading):
             return _rawReadingToDict(o)
 
         return json.JSONEncoder.default(self, o)
 
 def _rawReadingToDict(o):
-    if not isinstance(o, Sensor.RawReading):
+    if not isinstance(o, RawReading):
         return None
 
     dct = {}
@@ -596,18 +597,18 @@ class _ReadingsArrayEncoder(json.JSONEncoder):
         dictionary with reading type and value
     """
     def default(self, o):
-        if isinstance(o, Sensor.ReadingsWithTimestamp):
+        if isinstance(o, ReadingsWithTimestamp):
             return _serializeReadingsWithTimestampToDictionary(o)
         return json.JSONEncoder.default(self, o)
 
 def _serializeReadingsWithTimestampToDictionary(o):
     dct = {}
-    if isinstance(o, Sensor.ReadingsWithTimestamp):
+    if isinstance(o, ReadingsWithTimestamp):
         if o.timestamp:
             dct["utc"] = int(o.timestamp)
 
         for reading in o.readings:
-            if isinstance(reading, Sensor.RawReading):
+            if isinstance(reading, RawReading):
                 dct[reading.reference] = reading.value
             else:
                 rawReading = reading.getRawReading()
@@ -619,7 +620,7 @@ class _ReadingsCollectionEncoder(json.JSONEncoder):
         dictionary with reading type and value
     """
     def default(self, o):
-        if isinstance(o, Sensor.ReadingsCollection):
+        if isinstance(o, ReadingsCollection):
             readingLists = []
             for item in o.readings:
                 itemDict = _serializeReadingsWithTimestampToDictionary(item)
@@ -632,7 +633,7 @@ class _AlarmEncoder(json.JSONEncoder):
         dictionary with data and reading value
     """
     def default(self, o):
-        if isinstance(o, Alarm.Alarm):
+        if isinstance(o, Alarm):
             dct = {}
             if o.timestamp:
                 dct["utc"] = o.timestamp
@@ -647,7 +648,7 @@ class _ActuatorEncoder(json.JSONEncoder):
         dictionary with status and value
     """
     def default(self, o):
-        if isinstance(o, Actuator.Actuator):
+        if isinstance(o, Actuator):
             dct = {}
             dct["status"] = o.actuatorState.value
             dct["value"] = o.value

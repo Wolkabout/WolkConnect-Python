@@ -4,13 +4,6 @@
 import logging
 import time
 import WolkConnect
-import WolkConnect.Sensor as Sensor
-import WolkConnect.ReadingType as ReadingType
-import WolkConnect.Actuator as Actuator
-import WolkConnect.Alarm as Alarm
-import WolkConnect.WolkDevice as WolkDevice
-import WolkConnect.Serialization.WolkMQTTSerializer as WolkMQTTSerializer
-import WolkConnect.Serialization.WolkBufferSerialization as WolkBufferSerialization
 
 logger = logging.getLogger("WolkConnect")
 WolkConnect.setupLoggingLevel(logging.DEBUG)
@@ -20,21 +13,21 @@ serial = "serial"
 password = "password"
 
 # Setup sensors, actuators and alarms
-temperature = Sensor.Sensor("T", ReadingType.DataType.NUMERIC, minValue=-40.0, maxValue=80.0)
-pressure = Sensor.Sensor("P", ReadingType.DataType.NUMERIC, minValue=900.0, maxValue=1100.0)
-humidity = Sensor.Sensor("H", ReadingType.DataType.NUMERIC, minValue=0.0, maxValue=100.0)
+temperature = WolkConnect.Sensor("T", WolkConnect.DataType.NUMERIC, minValue=-40.0, maxValue=80.0)
+pressure = WolkConnect.Sensor("P", WolkConnect.DataType.NUMERIC, minValue=900.0, maxValue=1100.0)
+humidity = WolkConnect.Sensor("H", WolkConnect.DataType.NUMERIC, minValue=0.0, maxValue=100.0)
 sensors = [temperature, pressure, humidity]
 
-switch = Actuator.Actuator("SW", ReadingType.DataType.BOOLEAN, value=True)
-slider = Actuator.Actuator("SL", ReadingType.DataType.NUMERIC)
+switch = WolkConnect.Actuator("SW", WolkConnect.DataType.BOOLEAN, value=True)
+slider = WolkConnect.Actuator("SL", WolkConnect.DataType.NUMERIC)
 slider.setValue(20.0)
 actuators = [switch, slider]
 
-humidityHighAlarm = Alarm.Alarm("HH", True)
+humidityHighAlarm = WolkConnect.Alarm("HH", True)
 alarms = [humidityHighAlarm]
 
 def mqttMessageHandler(wolkDevice, message):
-    """ Handle single MQTT message from broker
+    """ Handle single MQTT message from MQTT broker
         See WolkDevice._mqttResponseHandler for further explanations
     """
     actuator = wolkDevice.getActuator(message.ref)
@@ -44,18 +37,18 @@ def mqttMessageHandler(wolkDevice, message):
         return
 
     logger.info("%s received message %s", wolkDevice.serial, message)
-    if message.wolkCommand == WolkMQTTSerializer.WolkCommand.SET:
+    if message.wolkCommand == WolkConnect.WolkCommand.SET:
         actuator.value = message.value
         wolkDevice.publishActuator(actuator)
-    elif message.wolkCommand == WolkMQTTSerializer.WolkCommand.STATUS:
+    elif message.wolkCommand == WolkConnect.WolkCommand.STATUS:
         wolkDevice.publishActuator(actuator)
     else:
         logger.warning("Unknown command %s", message.wolkCommand)
 
 
 try:
-    serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
-    device = WolkDevice.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
+    serializer = WolkConnect.WolkSerializerType.JSON_MULTI
+    device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:
@@ -96,7 +89,7 @@ try:
                 sensor.setTimestamp(timestamp)
 
             # create a buffer with list of sensors
-            wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer()
+            wolkBuffer = WolkConnect.WolkReadingsBuffer()
             wolkBuffer.addReadings(sensors)
 
             temperature.setReadingValue(23.4)
@@ -131,14 +124,14 @@ try:
             # add raw reading to buffer
             # i.e. it is possible to mix objects of type RawReadings and Readings in the buffer
             timestamp = timestamp - 60
-            dummyReading = Sensor.RawReading("T", 17.9, timestamp)
+            dummyReading = WolkConnect.RawReading("T", 17.9, timestamp)
             wolkBuffer.addReading(dummyReading)
 
             # persist buffer to file
-            WolkBufferSerialization.serializeToFile(wolkBuffer, "buffer.bfr")
+            WolkConnect.serializeBufferToFile(wolkBuffer, "buffer.bfr")
 
             # create new buffer from file
-            newBuffer = WolkBufferSerialization.deserializeFromFile("buffer.bfr")
+            newBuffer = WolkConnect.deserializeBufferFromFile("buffer.bfr")
 
             # publish readings from buffer
             device.publishBufferedReadings(newBuffer)
@@ -162,7 +155,7 @@ try:
                 alarm.setTimestamp(timestamp)
 
             # create a buffer with list of alarms
-            wolkAlarmsBuffer = WolkBufferSerialization.WolkAlarmsBuffer()
+            wolkAlarmsBuffer = WolkConnect.WolkAlarmsBuffer()
             wolkAlarmsBuffer.addAlarms(deviceAlarms)
 
             # add new alarm to buffer
@@ -171,10 +164,10 @@ try:
             wolkAlarmsBuffer.addAlarm(humidityHighAlarm)
 
             # persist buffer to file
-            WolkBufferSerialization.serializeToFile(wolkAlarmsBuffer, "alarms_buffer.bfr")
+            WolkConnect.serializeBufferToFile(wolkAlarmsBuffer, "alarms_buffer.bfr")
 
             # create new buffer from file
-            newAlarmsBuffer = WolkBufferSerialization.deserializeFromFile("alarms_buffer.bfr")
+            newAlarmsBuffer = WolkConnect.deserializeBufferFromFile("alarms_buffer.bfr")
 
             # publish alarms from buffer
             device.publishBufferedAlarms(newAlarmsBuffer)
@@ -184,7 +177,7 @@ try:
 
         elif option.upper() == "R":
             # publish raw Temperature 17.9
-            device.publishRawReading(Sensor.RawReading("T", 17.9))
+            device.publishRawReading(WolkConnect.RawReading("T", 17.9))
         elif option.upper() == "Q":
             print("quitting...")
             device.disconnect()

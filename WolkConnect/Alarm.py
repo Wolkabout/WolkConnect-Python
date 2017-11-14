@@ -16,7 +16,7 @@
     Alarms
 """
 import time
-import WolkConnect.Sensor as Sensor
+import WolkConnect.ReadingType as ReadingType
 
 class Alarm():
     """ Alarm as defined in device manifest
@@ -49,7 +49,7 @@ class Alarm():
         value = self.alarmValue
         if not value:
             value = False
-            return Sensor.RawReading(self.alarmRef, value, self.timestamp)
+            return ReadingType.RawReading(self.alarmRef, value, self.timestamp)
 
-        return Sensor.RawReading(self.alarmRef, value, self.timestamp)
+        return ReadingType.RawReading(self.alarmRef, value, self.timestamp)
 
