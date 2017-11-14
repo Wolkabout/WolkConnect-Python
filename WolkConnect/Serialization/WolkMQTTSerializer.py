@@ -255,7 +255,7 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         if isinstance(reading, Sensor.RawReading):
             return self._serializeRawReading(reading)
         elif isinstance(reading, Alarm.Alarm):
-            rawReading = reading.asRawReading()
+            rawReading = reading.getRawReading()
             rawReading.value = 1 if reading.alarmValue == True else 0
             return self._serializeRawReading(rawReading)
 
@@ -573,7 +573,7 @@ class _ReadingEncoder(json.JSONEncoder):
     """
     def default(self, o):
         if isinstance(o, Sensor.Sensor):
-            return _rawReadingToDict(o.asRawReading())
+            return _rawReadingToDict(o.getRawReading())
         elif isinstance(o, Sensor.RawReading):
             return _rawReadingToDict(o)
 
@@ -610,7 +610,7 @@ def _serializeReadingsWithTimestampToDictionary(o):
             if isinstance(reading, Sensor.RawReading):
                 dct[reading.reference] = reading.value
             else:
-                rawReading = reading.asRawReading()
+                rawReading = reading.getRawReading()
                 dct[rawReading.reference] = rawReading.value
     return dct
 

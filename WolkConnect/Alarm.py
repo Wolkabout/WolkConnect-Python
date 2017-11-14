@@ -43,7 +43,7 @@ class Alarm():
         """
         self.timestamp = timestamp if timestamp else time.time()
 
-    def asRawReading(self):
+    def getRawReading(self):
         """ Convert reading to RawReading; useful for easier serialization to MQTT messages
         """
         value = self.alarmValue

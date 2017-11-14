@@ -87,7 +87,7 @@ class Sensor():
         sensorType = self.sensorRef + ":" + self.dataType.value + isScalar + dataSizeString + dataDelimiter
         return "Reading sensor type={0} values={1}, timestamp={2}".format(sensorType, self.readingValue, self.timestamp)
 
-    def asRawReading(self):
+    def getRawReading(self):
         """ Convert reading to RawReading; useful for easier serialization to MQTT messages
         """
         value = self.readingValue
