@@ -28,23 +28,44 @@ Check wolk_example.py for a simple example how to connect a new device and send 
     password = "some_password"
     
     # setup sensors
-    temperature = TemperatureReading()
-    pressure = PressureReading()
-    humidity = HumidityReading()
+    temperature = WolkConnect.Sensor("T", WolkConnect.DataType.NUMERIC, minValue=-40.0, maxValue=80.0)
+    pressure = WolkConnect.Sensor("P", WolkConnect.DataType.NUMERIC, minValue=900.0, maxValue=1100.0)
+    humidity = WolkConnect.Sensor("H", WolkConnect.DataType.NUMERIC, minValue=0.0, maxValue=100.0)
     sensors = [temperature, pressure, humidity]
 
     # setup actuators
-    switch = SwitchActuator(0)
-    slider = SliderActuator(20.0)
+    switch = WolkConnect.Actuator("SW", WolkConnect.DataType.BOOLEAN, value=True)
+    slider = WolkConnect.Actuator("SL", WolkConnect.DataType.NUMERIC)
+    slider.setValue(20.0)
     actuators = [switch, slider]
 
     # setup alarms
-    humidityHigh = HumidityHighAlarm(True)
+    humidityHighAlarm = WolkConnect.Alarm("HH", True)
     alarms = [humidityHigh]
 
-    # create device
-    serializer = WolkMQTTSerializer.WolkSerializerType.JSON_MULTI
-    device = WolkDevice.WolkDevice(serial, password, serializer=serializer, sensors=sensors, actuators=actuators, alarms=alarms)
+    # create device with message handler for actuators
+    def mqttMessageHandler(wolkDevice, message):
+        """ Handle single MQTT message from MQTT broker
+            See WolkDevice._mqttResponseHandler for further explanations
+        """
+        actuator = wolkDevice.getActuator(message.ref)
+        
+        if not actuator:
+            logger.warning("%s could not find actuator with ref %s", wolkDevice.serial, message.ref)
+            return
+
+        logger.info("%s received message %s", wolkDevice.serial, message)
+        if message.wolkCommand == WolkConnect.WolkCommand.SET:
+            actuator.value = message.value
+            wolkDevice.publishActuator(actuator)
+        elif message.wolkCommand == WolkConnect.WolkCommand.STATUS:
+            wolkDevice.publishActuator(actuator)
+        else:
+            logger.warning("Unknown command %s", message.wolkCommand)
+
+
+    serializer = WolkConnect.WolkSerializerType.JSON_MULTI
+    device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
 
     device.connect()
 
@@ -72,7 +93,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
     # publish raw reading
     # Reference = T, Value = 17.9
     # value is represented as string
-    rawTemperature = RawReading("T", "17.9") 
+    rawTemperature = WolkConnect.RawReading("T", "17.9") 
     device.publishRawReading(rawTemperature)
 
     # publish random readings for the device (suitable for simulators)
@@ -92,26 +113,26 @@ Check wolk_example.py for a simple example how to connect a new device and send 
     device.disconnect()
 ```
 
-Buffering readings
-------------------
+Buffering
+---------
 
 Buffers are designed to serve two purposes:
-  - collect and store more readings over time
+  - collect and store more readings/alarms over time
   - save/load readings to/from persistent storage
 
-Buffers are suitable in situations when internet connectivity is not stable and readings could not be sent at the time.
-Collected readings may be stored in a buffer and persisted, and when circumstances become favorable, loaded from storage to a buffer and sent to the platform.
+Buffers are suitable in situations when internet connectivity is not stable and readings/alarms could not be sent at the time.
+Collected readings/alarms may be stored in a buffer and persisted, and when circumstances become favorable, loaded from storage to a buffer and sent to the platform.
 
-Persisting a buffer is not obligatory. All different kind of readings from the buffer may be sent to the platform at your will.
+Persisting a buffer is not obligatory. All different kind of readings/alarms from the buffer may be sent to the platform at your will.
 
 **Creating a buffer**
 ```sh
     # create an empty buffer
-    wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer()
+    wolkBuffer = WolkConnect.WolkReadingsBuffer()
 
     # create a buffer with list of sensors
     sensors = device.getSensors()
-    wolkBuffer = WolkBufferSerialization.WolkReadingsBuffer(sensors)
+    wolkBuffer = WolkConnect.WolkReadingsBuffer(sensors)
 
 ```
 
@@ -129,7 +150,7 @@ Persisting a buffer is not obligatory. All different kind of readings from the b
     wolkBuffer.addReading(temperature)
 
     # add a raw reading to the buffer
-    rawTemperature = RawReading("T", 17.9) 
+    rawTemperature = WolkConnect.RawReading("T", 17.9) 
     wolkBuffer.addReading(rawTemperature)
 
     # add sensors from the device to the buffer 
@@ -141,10 +162,10 @@ Persisting a buffer is not obligatory. All different kind of readings from the b
 **Persisting and loading a buffer**
 ```sh
     # persist buffer to file
-    WolkBufferSerialization.serializeToFile(wolkBuffer, "buffer.bfr")
+    WolkConnect.serializeBufferToFile(wolkBuffer, "buffer.bfr")
 
     # create new buffer from file
-    newBuffer = WolkBufferSerialization.deserializeFromFile("buffer.bfr")
+    newBuffer = WolkConnect.deserializeBufferFromFile("buffer.bfr")
 ```
 
 **Publish readings from the buffer**
@@ -164,102 +185,68 @@ HOW to ...
 **... set custom host, port and certificate for MQTT broker ?**
 
  ```sh
-   ...
-   # set custom host and port
-   custom_host = "my.custom.host"
-   custom_port = 12345
-   # set custom certificate
-   custom_certificate = "path/to/custom/certificate/file/ca.crt"
-   trust_my_certificate = True # use this if certificate is not signed by a trusted authority but you want to trust it. (e.g. certificate is self signed)
+    ...
+    # set custom host and port
+    custom_host = "my.custom.host"
+    custom_port = 12345
+    # set custom certificate
+    custom_certificate = "path/to/custom/certificate/file/ca.crt"
+    trust_my_certificate = True # use this if certificate is not signed by a trusted authority but you want to trust it. (e.g. certificate is self signed)
 
-   device = WolkDevice.WolkDevice(serial, password, host=custom_host, port=custom_port, certificate_file_path=custom_certificate, set_insecure=trust_my_certificate, sensors=sensors, actuators=actuators, alarms=alarms)
-   ...
+    device = WolkConnect.WolkDevice(serial, password, host=custom_host, port=custom_port, certificate_file_path=custom_certificate, set_insecure=trust_my_certificate, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
+    ...
  ```
 
-**... add new Sensor type ?**
+**... add new Sensor ?**
 
  ```sh
-   ...
+    ...
 
-   # Suppose new sensor is defined in the device manifest as:
-   # Sensor reference = REF
-   # Data type = NUMERIC
-   # Data size = 1
-   # Minimum = 0.0
-   # Maximum = 100.0  
+    # Suppose new sensor is defined in the device manifest as:
+    # Sensor reference = REF
+    # Data type = NUMERIC
+    # Data size = 1
+    # Minimum = 0.0
+    # Maximum = 100.0  
 
-   # Edit Sensor.py and add new entry in SensorType enumeration
-
-   NEW_SENSOR = ("REF", ReadingType.DataType.NUMERIC, 0.0, 100.0)
-
-   # Add new class in Sensor.py
-
-   class NewSensor(Reading):
-   """ New Sensor
-   """
-   def __init__(self, newSensorValue=None, timestamp=None):
-      super().__init__(SensorType.NEW_SENSOR, [newSensorValue], 1.0, timestamp)
-
-   # Instantiate new sensor
-
-   newSensor = Sensor.NewSensor()
-   ...
+    # Instantiate new sensor
+    newSensor = WolkConnect.Sensor("REF", WolkConnect.DataType.NUMERIC, minValue=0.0, maxValue=100.0)
+    ...
  ```
 
-**... add new Actuator type ?**
+**... add new Actuator ?**
 
  ```sh
-   ...
+    ...
 
-   # Suppose new actuator is defined in the device manifest as:
-   # Actuator reference = ACT
-   # Data type = NUMERIC
-   # Data size = 1
-   # Minimum = 0.0
-   # Maximum = 100.0  
+    # Suppose new actuator is defined in the device manifest as:
+    # Actuator reference = ACT
+    # Data type = NUMERIC
 
-   # Edit Actuator.py and add new entry in ActuatorType enumeration
+    # Instantiate new actuator
+    newActuator = WolkConnect.Actuator("ACT", WolkConnect.DataType.NUMERIC)
 
-   NEW_ACTUATOR = ("ACT", DataType.NUMERIC, ActuatorState.READY)
+    # or
+    newActuator = WolkConnect.Actuator("ACT", WolkConnect.DataType.NUMERIC, value=20.0)
 
-   # Add new class in Actuator.py
+    # Set actutor value
+    newActuator.setValue(20.0)
 
-   class NewActuator(Actuator):
-   """ New Actuator
-   """
-   def __init__(self, newActuatorValue):
-      super().__init__(ActuatorType.NEW_ACTUATOR, newActuatorValue)
-
-   # Instantiate new actuator
-
-   newActuator = Actuator.NewActuator()
-   ...
+    ...
  ```
 
 **... add new Alarm type ?**
 
  ```sh
-   ...
+    ...
 
-   # Suppose new alarm is defined in the device manifest as:
-   # Alarm reference = ALM
+    # Suppose new alarm is defined in the device manifest as:
+    # Alarm reference = ALM
 
-   # Edit Alarm.py and add new entry in AlarmType enumeration
+    # Instantiate new alarm
+    newAlarm = WolkConnect.Alarm("ALM", True)
 
-   NEW_ALARM = ("ALM", DataType.BOOLEAN)
-
-   # Add new class in Alarm.py
-
-   class NewAlarm(Alarm):
-       """ New alarm
-       """
-       def __init__(self, isSet=False):
-          super().__init__(AlarmType.NEW_ALARM, isSet)
-
-   # Instantiate new alarm
-
-   newAlarm = Alarm.NewAlarm(True)
-   ...
+    ...
  ```
 
 

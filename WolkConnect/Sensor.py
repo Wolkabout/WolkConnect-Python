@@ -31,7 +31,7 @@ class Sensor():
             e.g. temperature sensor would typically have scalar reading values as t=23.4℃
                 accelerometer sensor would typically have 3 reading values for x, y, z; like (0.1, -1.0, 0.5) G
         dataDelimiter - Delimitier for parsing values (applicable if dataSize > 1)
-
+        timestamp - timestamp for value
     """
     def __init__(self, sensorRef, dataType, value=None, minValue=None, maxValue=None, dataSize=1, dataDelimiter="", timestamp=None):
         self.sensorRef = sensorRef

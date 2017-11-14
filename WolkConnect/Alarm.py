@@ -22,6 +22,7 @@ class Alarm():
     """ Alarm as defined in device manifest
         alarmRef - Alarm reference
         alarmValue - Current alarm value
+        timestamp - timestamp for alarmValue
     """
     def __init__(self, alarmRef, isSet=False, timestamp=None):
         self.alarmRef = alarmRef
