@@ -249,6 +249,23 @@ HOW to ...
     ...
  ```
 
+**... send raw readings ?**
+
+ ```sh
+    ...
+
+    # If you would like to avoid creating Sensors and Alarms
+    # and just want to send raw readings, as pairs of reference and value
+    # then do the following
+
+    # Instantiate raw reading    
+    rawReading = WolkConnect.RawReading("T", 17.9) # optionally, add timestamp
+    
+    # publish raw Temperature 17.9
+    device.publishRawReading(rawReading)
+
+    ...
+ ```
 
 
 LICENSE
