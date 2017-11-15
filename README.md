@@ -78,17 +78,12 @@ Check wolk_example.py for a simple example how to connect a new device and send 
     temperature.setReadingValue(23.4)
     pressure.setReadingValue(999.9)
     humidity.setReadingValue(50.0)
-    device.publishReadings(useCurrentTimestamp=True)
+    device.publishSensors(useCurrentTimestamp=True)
 
-    # publish one reading with the current time
+    # publish reading value from one sensor with the current time
     temperature.setReadingValue(25.6)
     temperature.setTimestamp(time.time())
-    device.publishReading(temperature)
-
-    # publish more readings
-    temperature.setReadingValue(26.7)
-    pressure.setReadingValue(999.9)
-    device.publishReadings([temperature, pressure])
+    device.publishSensor(temperature)
 
     # publish raw reading
     # Reference = T, Value = 17.9
