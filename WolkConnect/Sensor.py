@@ -27,7 +27,7 @@ class Sensor():
         value - Current reading value of the sensor.
         minValue - If applicable, minimum reading value of the sensor
         maxValue - If applicable, maximum reading value of the sensor
-        dataSize - By default it is 1 rendering sensor reading values as scalar
+        dataSize - By default it is 1, rendering sensor reading values as scalar
             e.g. temperature sensor would typically have scalar reading values as t=23.4℃
                 accelerometer sensor would typically have 3 reading values for x, y, z; like (0.1, -1.0, 0.5) G
         dataDelimiter - Delimitier for parsing values (applicable if dataSize > 1)
@@ -74,7 +74,7 @@ class Sensor():
         return "Reading sensor type={0} values={1}, timestamp={2}".format(sensorType, self.readingValue, self.timestamp)
 
     def getRawReading(self):
-        """ Convert reading to RawReading; useful for easier serialization to MQTT messages
+        """ Convert to RawReading; useful for easier serialization to MQTT messages
         """
         value = self.readingValue
         if not value:

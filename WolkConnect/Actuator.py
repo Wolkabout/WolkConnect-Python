@@ -41,7 +41,7 @@ class Actuator():
         actuatorRef - Actuator reference
         dataType - Any of DataType values (NUMERIC, STRING or BOOLEAN)
         actuatorState - Any of ActuatorState values (READY, BUSY, ERROR)
-        value - Current reading value of the sensor.
+        value - Current value of the actuator.
     """
     def __init__(self, actuatorRef, dataType, actuatorState=ActuatorState.READY, value=None):
         self.actuatorRef = actuatorRef

@@ -26,6 +26,7 @@ actuators = [switch, slider]
 humidityHighAlarm = WolkConnect.Alarm("HH", True)
 alarms = [humidityHighAlarm]
 
+
 def mqttMessageHandler(wolkDevice, message):
     """ Handle single MQTT message from MQTT broker
         See WolkDevice._mqttResponseHandler for further explanations
@@ -48,6 +49,7 @@ def mqttMessageHandler(wolkDevice, message):
 
 try:
     serializer = WolkConnect.WolkSerializerType.JSON_MULTI
+    
     device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
@@ -72,12 +74,12 @@ try:
         elif option.upper() == "P":
             device.publishRandomReadings()
         elif option.upper() == "C":
-            device.publishReadings()
+            device.publishSensors()
         elif option.upper() == "D":
             temperature.setReadingValue(23.4)
             pressure.setReadingValue(999.9)
             humidity.setReadingValue(50.0)
-            device.publishReadings(useCurrentTimestamp=True)
+            device.publishSensors(useCurrentTimestamp=True)
         elif option.upper() == "B":
 
             sensors = device.getSensors()
@@ -122,7 +124,7 @@ try:
             wolkBuffer.addReadings(sensors)
 
             # add raw reading to buffer
-            # i.e. it is possible to mix objects of type RawReadings and Readings in the buffer
+            # i.e. it is possible to mix objects of type RawReading and Sensor in the buffer
             timestamp = timestamp - 60
             dummyReading = WolkConnect.RawReading("T", 17.9, timestamp)
             wolkBuffer.addReading(dummyReading)
@@ -142,7 +144,7 @@ try:
         elif option.upper() == "O":
             temperature.setReadingValue(23.4)
             temperature.setTimestamp(time.time())
-            device.publishReading(temperature)
+            device.publishSensor(temperature)
         elif option.upper() == "H":
             device.publishAlarm(humidityHighAlarm)
         elif option.upper() == "X":

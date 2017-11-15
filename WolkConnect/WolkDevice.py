@@ -117,14 +117,14 @@ class WolkDevice:
         self.mqttClient.disconnect()
 
 
-    def publishReading(self, reading):
-        """ Publish one reading
+    def publishSensor(self, sensor):
+        """ Publish one sensor
         """
-        if not isinstance(reading, Sensor):
-            logger.warning("Could not publish reading %s", str(reading))
+        if not isinstance(sensor, Sensor):
+            logger.warning("Could not publish sensor %s", str(sensor))
             return
 
-        self._publishReadings([reading])
+        self._publishReadings([sensor])
 
     def publishRawReading(self, rawReading):
         """ Publish raw reading
@@ -135,7 +135,7 @@ class WolkDevice:
 
         self._publishReadings([rawReading])
 
-    def publishReadings(self, useCurrentTimestamp=False):
+    def publishSensors(self, useCurrentTimestamp=False):
         """ Publish current values of all device's sensors
 
             If useCurrentTimestamp is True, each reading will be set the current timestamp,
@@ -169,7 +169,7 @@ class WolkDevice:
     def publishAll(self):
         """ Publish all actuators and sensors
         """
-        self.publishReadings()
+        self.publishSensors()
 
         actuators = self.getActuators()
         if actuators:
@@ -207,7 +207,7 @@ class WolkDevice:
         """ Publish alarms from the buffer
         """
         if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
-            logger.warning("Could not publish buffered readings. %s is not WolkBuffer", str(buffer))
+            logger.warning("Could not publish buffered alarms. %s is not WolkBuffer", str(buffer))
             return
 
         alarmsToPublish = buffer.getAlarms()

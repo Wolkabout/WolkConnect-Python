@@ -88,7 +88,7 @@ class WolkReadingsBuffer(WolkBuffer):
     """
     def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False):
         """ Initialize readings buffer with content that may be
-            list of readings, a single reading or None.
+            list of Sensors/RawReadings, a single Sensor/RawReading or None.
 
             Content is deep copied and stored in the buffer,
             preventing unintentional side effects like changing reading values/timestamps.
@@ -114,12 +114,12 @@ class WolkReadingsBuffer(WolkBuffer):
         super().__init__(readings, capacity, overwrite)
 
     def getReadings(self):
-        """ Get buffer content as list of readings
+        """ Get buffer content
         """
         return super().getContent()
 
     def addReading(self, reading, useCurrentTimestamp=False):
-        """ Add a reading
+        """ Add a Sensor/RawReading
 
             If useCurrentTimestamp is True, the current timestamp will be set to the reading
             otherwise, timestamp from the reading will not be changed.
@@ -131,7 +131,7 @@ class WolkReadingsBuffer(WolkBuffer):
         super().addItem(readingCopy)
 
     def addReadings(self, readings, useCurrentTimestamp=False):
-        """ Add list of readings
+        """ Add list of Sensors/RawReadings
 
             If useCurrentTimestamp is True, each reading will be set the current timestamp,
             otherwise, timestamp from the reading will not be changed.
@@ -145,7 +145,7 @@ class WolkReadingsBuffer(WolkBuffer):
         super().addItems(readingsCopy)
 
     def clearReadings(self):
-        """ Clear readings
+        """ Clear buffer content
         """
         super().clear()
 
