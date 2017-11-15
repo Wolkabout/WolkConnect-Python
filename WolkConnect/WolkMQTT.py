@@ -81,6 +81,9 @@ class WolkMQTTClient:
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
+        lastWillTopic = "lastwill/" + self.clientConfig.username
+        lastWillPayloyad = "Last will of serial:" + self.clientConfig.username
+        self.client.will_set(lastWillTopic, lastWillPayloyad, self.clientConfig.qos, False)
         self.client.on_log = self._on_log
 
     def publishReadings(self, readings):
