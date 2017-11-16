@@ -314,6 +314,12 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         """ Serialize ReadingCollection to mqtt message
         """
         if collection.readings:
+            currentTimestamp = int(time.time())
+            for item in collection.readings:
+                if item.timestamp is None:
+                    item.timestamp = currentTimestamp
+            collection.readings.sort(key=lambda item:item.timestamp)
+
             lst = filter(notNone, [self._serializeReadingsWithTimestampToPayload(r) for r in collection.readings if r])
             readingsList = self.READINGS_SEPARATOR.join(lst)
             timestampString = str(int(time.time()))
@@ -606,6 +612,8 @@ def _serializeReadingsWithTimestampToDictionary(o):
     if isinstance(o, ReadingsWithTimestamp):
         if o.timestamp:
             dct["utc"] = int(o.timestamp)
+        else:
+            dct["utc"] = int(time.time())
 
         for reading in o.readings:
             if isinstance(reading, RawReading):
@@ -625,6 +633,7 @@ class _ReadingsCollectionEncoder(json.JSONEncoder):
             for item in o.readings:
                 itemDict = _serializeReadingsWithTimestampToDictionary(item)
                 readingLists.append(itemDict)
+            readingLists.sort(key=lambda item:item["utc"])
             return readingLists
         return json.JSONEncoder.default(self, o)
 

@@ -144,13 +144,17 @@ class ReadingsCollection():
         """
 
         readingsDict = {}
-
+        currentTimestamp = time.time()
         for reading in readings:
             readingsForTimestamp = []
+            timestampKey = currentTimestamp
+            if reading.timestamp:
+                timestampKey = int(reading.timestamp)
+
             try:
-                readingsForTimestamp = readingsDict[reading.timestamp]
+                readingsForTimestamp = readingsDict[timestampKey]
             except KeyError:
-                readingsDict[reading.timestamp] = readingsForTimestamp
+                readingsDict[timestampKey] = readingsForTimestamp
 
             readingsForTimestamp.append(reading)
 
