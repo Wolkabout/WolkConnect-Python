@@ -121,19 +121,21 @@ class WolkDevice:
         """ Publish one sensor
         """
         if not isinstance(sensor, Sensor):
-            logger.warning("Could not publish sensor %s", str(sensor))
-            return
+            message = "Provided object is not a Sensor"
+            logger.warning(message)
+            return (False, message)
 
-        self._publishReadings([sensor])
+        return self._publishReadings([sensor])
 
     def publishRawReading(self, rawReading):
         """ Publish raw reading
         """
         if not isinstance(rawReading, ReadingType.RawReading):
-            logger.warning("Could not publish raw reading %s", str(rawReading))
-            return
+            message = "Provided object is not a RawReading"
+            logger.warning(message)
+            return (False, message)
 
-        self._publishReadings([rawReading])
+        return self._publishReadings([rawReading])
 
     def publishSensors(self, useCurrentTimestamp=False):
         """ Publish current values of all device's sensors
@@ -144,37 +146,55 @@ class WolkDevice:
         sensors = self.getSensors()
 
         if not sensors:
-            logger.warning("Could not publish readings. %s does not have sensors", str(self))
-            return
+            message = "Could not publish readings. {0} does not have sensors".format(str(self))
+            logger.warning(message)
+            return (False, message)
 
         if useCurrentTimestamp:
             timestamp = time.time()
             for sensor in sensors:
                 sensor.setTimestamp(timestamp)
 
-        self._publishReadings(sensors)
+        return self._publishReadings(sensors)
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
         """
-        self.mqttClient.publishAlarm(alarm)
-        logger.info("%s published alarm %s", self.serial, alarm.alarmRef)
+        result = self.mqttClient.publishAlarm(alarm)
+        print(result[0], result[1])
+        if result[0]:
+            logger.info("%s published alarm %s", self.serial, alarm.alarmRef)
+        else:
+            logger.error("%s failed publishing alarm %s with error: %s", self.serial, alarm.alarmRef, str(result[1]))
+        return result
 
     def publishActuator(self, actuator):
         """ Publish actuator to MQTT broker
         """
-        self.mqttClient.publishActuator(actuator)
-        logger.info("%s published actuator %s", self.serial, actuator.actuatorRef)
+        result = self.mqttClient.publishActuator(actuator)
+        print(result[0], result[1])
+        if result[0]:
+            logger.info("%s published actuator %s", self.serial, actuator.actuatorRef)
+        else:
+            logger.error("%s failed publishing actuator %s with error: %s", self.serial, actuator.actuatorRef, str(result[1]))
+        return result
+
 
     def publishAll(self):
         """ Publish all actuators and sensors
         """
-        self.publishSensors()
+        result = self.publishSensors()
+        if not result[0]:
+            return result
 
         actuators = self.getActuators()
         if actuators:
             for actuator in actuators:
-                self.publishActuator(actuator)
+                result = self.publishActuator(actuator)
+                if not result[0]:
+                    return result
+        
+        return result
 
     def publishRandomReadings(self):
         """ Publish random values of all device's sensors
@@ -182,8 +202,9 @@ class WolkDevice:
         sensors = self.getSensors()
 
         if not sensors:
-            logger.warning("Could not publish random readings. %s does not have sensors", str(self))
-            return
+            message = "Could not publish random readings. {0} does not have sensors".format(str(self))
+            logger.warning(message)
+            return (False, message)
 
         timestamp = time.time()
         for sensor in sensors:
@@ -191,27 +212,29 @@ class WolkDevice:
             sensor.setReadingValues(randomValues)
             sensor.setTimestamp(timestamp)
 
-        self._publishReadings(sensors)
+        return self._publishReadings(sensors)
 
     def publishBufferedReadings(self, buffer):
         """ Publish readings from the buffer
         """
         if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
-            logger.warning("Could not publish buffered readings. %s is not WolkBuffer", str(buffer))
-            return
+            message = "Could not publish buffered readings. {0} is not WolkBuffer".format(str(buffer))
+            logger.warning(message)
+            return (False, message)
 
         readingsToPublish = buffer.getReadings()
-        self._publishReadings(readingsToPublish)
+        return self._publishReadings(readingsToPublish)
 
     def publishBufferedAlarms(self, buffer):
         """ Publish alarms from the buffer
         """
         if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
-            logger.warning("Could not publish buffered alarms. %s is not WolkBuffer", str(buffer))
-            return
+            message = "Could not publish buffered alarms. {0} is not WolkBuffer".format(str(buffer))
+            logger.warning(message)
+            return (False, message)
 
         alarmsToPublish = buffer.getAlarms()
-        self._publishReadings(alarmsToPublish)
+        return self._publishReadings(alarmsToPublish)
 
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from MQTT broker
@@ -226,5 +249,11 @@ class WolkDevice:
                 self.responseHandler(self, message)
 
     def _publishReadings(self, readings):
-        self.mqttClient.publishReadings(readings)
-        logger.info("%s published readings", self.serial)
+        logger.info("%s publishing readings", self.serial)
+        result = self.mqttClient.publishReadings(readings)
+        print(result[0], result[1])
+        if result[0]:
+            logger.info("%s published readings", self.serial)
+        else:
+            logger.error("%s failed publishing readings with error: %s", self.serial, str(result[1]))
+        return result

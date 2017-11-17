@@ -70,16 +70,36 @@ try:
             pressure.setReadingValue(999.9)
             humidity.setReadingValue(50.0)
             humidityHighAlarm.setAlarm()
-            device.publishAll()
+            (success, errorMessage) = device.publishAll()
+            if success:
+                print("Successfully published AllReadings")
+            else:
+                print("Error publishing AllReadings.", errorMessage)
+
         elif option.upper() == "P":
-            device.publishRandomReadings()
+            (success, errorMessage) = device.publishRandomReadings()
+            if success:
+                print("Successfully published random readings")
+            else:
+                print("Error publishing random readings.", errorMessage)
+
         elif option.upper() == "C":
-            device.publishSensors()
+            (success, errorMessage) = device.publishSensors()
+            if success:
+                print("Successfully published sensors")
+            else:
+                print("Error publishing sensors.", errorMessage)
+                
         elif option.upper() == "D":
             temperature.setReadingValue(23.4)
             pressure.setReadingValue(999.9)
             humidity.setReadingValue(50.0)
-            device.publishSensors(useCurrentTimestamp=True)
+            (success, errorMessage) = device.publishSensors(useCurrentTimestamp=True)
+            if success:
+                print("Successfully published sensors")
+            else:
+                print("Error publishing sensors.", errorMessage)
+            
         elif option.upper() == "B":
 
             sensors = device.getSensors()
@@ -136,7 +156,12 @@ try:
             newBuffer = WolkConnect.deserializeBufferFromFile("buffer.bfr")
 
             # publish readings from buffer
-            device.publishBufferedReadings(newBuffer)
+            (success, errorMessage) = device.publishBufferedReadings(newBuffer)
+            if success:
+                print("Successfully published buffered readings")
+            else:
+                print("Error publishing buffered readings.", errorMessage)
+            
 
             # clear buffer
             newBuffer.clear()
@@ -144,9 +169,19 @@ try:
         elif option.upper() == "O":
             temperature.setReadingValue(23.4)
             temperature.setTimestamp(time.time())
-            device.publishSensor(temperature)
+            (success, errorMessage) = device.publishSensor(temperature)
+            if success:
+                print("Successfully published temperature sensor")
+            else:
+                print("Error publishing sensor", errorMessage)
+            
         elif option.upper() == "H":
-            device.publishAlarm(humidityHighAlarm)
+            (success, errorMessage) = device.publishAlarm(humidityHighAlarm)
+            if success:
+                print("Successfully published alarm")
+            else:
+                print("Error publishing alarm", errorMessage)
+            
         elif option.upper() == "X":
 
             deviceAlarms = device.getAlarms()
@@ -172,14 +207,23 @@ try:
             newAlarmsBuffer = WolkConnect.deserializeBufferFromFile("alarms_buffer.bfr")
 
             # publish alarms from buffer
-            device.publishBufferedAlarms(newAlarmsBuffer)
+            (success, errorMessage) = device.publishBufferedAlarms(newAlarmsBuffer)
+            if success:
+                print("Successfully published buffered alarms")
+            else:
+                print("Error publishing buffered alarms.", errorMessage)
 
             # clear buffer
             newAlarmsBuffer.clear()
 
         elif option.upper() == "R":
             # publish raw Temperature 17.9
-            device.publishRawReading(WolkConnect.RawReading("T", 17.9))
+            (success, errorMessage) = device.publishRawReading(WolkConnect.RawReading("T", 17.9))
+            if success:
+                print("Successfully published raw reading")
+            else:
+                print("Error publishing raw readingr", errorMessage)
+
         elif option.upper() == "Q":
             print("quitting...")
             device.disconnect()

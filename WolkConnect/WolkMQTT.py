@@ -92,19 +92,19 @@ class WolkMQTTClient:
         readingsCollection = ReadingsCollection.collectionFromReadingsList(readings)
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
         logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
-        self._publish(mqttMessage)
+        return self._publish(mqttMessage)
 
     def publishActuator(self, actuator):
         """ Publish actuator to MQTT broker
         """
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(actuator)
-        self._publish(mqttMessage)
+        return self._publish(mqttMessage)
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
         """
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(alarm)
-        self._publish(mqttMessage)
+        return self._publish(mqttMessage)
 
     def connect(self):
         """ Connect to MQTT broker
@@ -168,5 +168,12 @@ class WolkMQTTClient:
 
         if not message:
             logger.warning("No message to publish")
+            return(False, "No message to publish")
 
-        self.client.publish(message.topic, message.payload, self.clientConfig.qos)
+        info = self.client.publish(message.topic, message.payload, self.clientConfig.qos)
+        if info.rc == mqtt.MQTT_ERR_SUCCESS:
+            return(True, "")
+        elif info.is_published:
+            return(True, "")
+        else:
+            return(False, mqtt.error_string(info.rc))
