@@ -221,11 +221,11 @@ HOW to ...
     # Instantiate new actuator
     newActuator = WolkConnect.Actuator("ACT", WolkConnect.DataType.NUMERIC)
 
-    # or
+    # or instantiate with value
     newActuator = WolkConnect.Actuator("ACT", WolkConnect.DataType.NUMERIC, value=20.0)
 
     # Set actutor value
-    newActuator.setValue(20.0)
+    newActuator.setValue(25.0)
 
     ...
  ```
