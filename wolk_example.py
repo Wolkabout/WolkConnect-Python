@@ -26,7 +26,6 @@ actuators = [switch, slider]
 humidityHighAlarm = WolkConnect.Alarm("HH", True)
 alarms = [humidityHighAlarm]
 
-
 def mqttMessageHandler(wolkDevice, message):
     """ Handle single MQTT message from MQTT broker
         See WolkDevice._mqttResponseHandler for further explanations
@@ -50,7 +49,7 @@ def mqttMessageHandler(wolkDevice, message):
 try:
     serializer = WolkConnect.WolkSerializerType.JSON_MULTI
     
-    device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
+    device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms, qos=2)
     device.connect()
     device.publishAll()
     while True:
@@ -150,10 +149,10 @@ try:
             wolkBuffer.addReading(dummyReading)
 
             # persist buffer to file
-            WolkConnect.serializeBufferToFile(wolkBuffer, "buffer.bfr")
+            wolkBuffer.serialize()
 
-            # create new buffer from file
-            newBuffer = WolkConnect.deserializeBufferFromFile("buffer.bfr")
+            # deserialize new buffer from file
+            newBuffer = wolkBuffer.deserialize()
 
             # publish readings from buffer
             (success, errorMessage) = device.publishBufferedReadings(newBuffer)
@@ -201,10 +200,10 @@ try:
             wolkAlarmsBuffer.addAlarm(humidityHighAlarm)
 
             # persist buffer to file
-            WolkConnect.serializeBufferToFile(wolkAlarmsBuffer, "alarms_buffer.bfr")
+            wolkAlarmsBuffer.serialize()
 
-            # create new buffer from file
-            newAlarmsBuffer = WolkConnect.deserializeBufferFromFile("alarms_buffer.bfr")
+            # deserialize new buffer from file
+            newAlarmsBuffer = wolkAlarmsBuffer.deserialize()
 
             # publish alarms from buffer
             (success, errorMessage) = device.publishBufferedAlarms(newAlarmsBuffer)
@@ -222,7 +221,7 @@ try:
             if success:
                 print("Successfully published raw reading")
             else:
-                print("Error publishing raw readingr", errorMessage)
+                print("Error publishing raw reading", errorMessage)
 
         elif option.upper() == "Q":
             print("quitting...")

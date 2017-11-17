@@ -161,7 +161,6 @@ class WolkDevice:
         """ Publish alarm to MQTT broker
         """
         result = self.mqttClient.publishAlarm(alarm)
-        print(result[0], result[1])
         if result[0]:
             logger.info("%s published alarm %s", self.serial, alarm.alarmRef)
         else:
@@ -172,7 +171,6 @@ class WolkDevice:
         """ Publish actuator to MQTT broker
         """
         result = self.mqttClient.publishActuator(actuator)
-        print(result[0], result[1])
         if result[0]:
             logger.info("%s published actuator %s", self.serial, actuator.actuatorRef)
         else:
@@ -214,8 +212,9 @@ class WolkDevice:
 
         return self._publishReadings(sensors)
 
-    def publishBufferedReadings(self, buffer):
+    def publishBufferedReadings(self, buffer, clearOnSuccess=False):
         """ Publish readings from the buffer
+            clearOnSuccess - if True, the buffer will be cleared if readings are successfully published
         """
         if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
             message = "Could not publish buffered readings. {0} is not WolkBuffer".format(str(buffer))
@@ -223,10 +222,15 @@ class WolkDevice:
             return (False, message)
 
         readingsToPublish = buffer.getReadings()
-        return self._publishReadings(readingsToPublish)
+        result = self._publishReadings(readingsToPublish)
+        if result[0] and clearOnSuccess:
+            buffer.clear()
 
-    def publishBufferedAlarms(self, buffer):
+        return result
+
+    def publishBufferedAlarms(self, buffer, clearOnSuccess=False):
         """ Publish alarms from the buffer
+            clearOnSuccess - if True, the buffer will be cleared if alarms are successfully published
         """
         if not isinstance(buffer, WolkBufferSerialization.WolkBuffer):
             message = "Could not publish buffered alarms. {0} is not WolkBuffer".format(str(buffer))
@@ -234,7 +238,11 @@ class WolkDevice:
             return (False, message)
 
         alarmsToPublish = buffer.getAlarms()
-        return self._publishReadings(alarmsToPublish)
+        result = self._publishReadings(alarmsToPublish)
+        if result[0] and clearOnSuccess:
+            buffer.clear()
+
+        return result
 
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from MQTT broker
@@ -251,7 +259,6 @@ class WolkDevice:
     def _publishReadings(self, readings):
         logger.info("%s publishing readings", self.serial)
         result = self.mqttClient.publishReadings(readings)
-        print(result[0], result[1])
         if result[0]:
             logger.info("%s published readings", self.serial)
         else:
