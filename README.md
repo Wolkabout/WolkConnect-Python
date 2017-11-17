@@ -239,7 +239,14 @@ HOW to ...
     # Alarm reference = ALM
 
     # Instantiate new alarm
+    newAlarm = WolkConnect.Alarm("ALM")
+
+    # Instantiate new alarm with alarm set
     newAlarm = WolkConnect.Alarm("ALM", True)
+
+    # Set or reset alarm
+    newAlarm.setAlarm()
+    newAlarm.resetAlarm()
 
     ...
  ```
