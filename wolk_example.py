@@ -49,7 +49,7 @@ def mqttMessageHandler(wolkDevice, message):
 try:
     serializer = WolkConnect.WolkSerializerType.JSON_MULTI
     
-    device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms, qos=2)
+    device = WolkConnect.WolkDevice(serial, password, serializer=serializer, responseHandler=mqttMessageHandler, sensors=sensors, actuators=actuators, alarms=alarms)
     device.connect()
     device.publishAll()
     while True:
