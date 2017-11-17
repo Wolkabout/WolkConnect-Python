@@ -78,21 +78,35 @@ Check wolk_example.py for a simple example how to connect a new device and send 
     temperature.setReadingValue(23.4)
     pressure.setReadingValue(999.9)
     humidity.setReadingValue(50.0)
-    device.publishSensors(useCurrentTimestamp=True)
+    (success, errorMessage) = device.publishSensors(useCurrentTimestamp=True)
+    if success:
+        print("Successfully published sensors")
+    else:
+        print("Error publishing sensors.", errorMessage)
 
     # publish reading value from one sensor with the current time
     temperature.setReadingValue(25.6)
     temperature.setTimestamp(time.time())
-    device.publishSensor(temperature)
+    (success, errorMessage) = device.publishSensor(temperature)
+    if success:
+        print("Successfully published sensors")
+    else:
+        print("Error publishing sensors.", errorMessage)
 
     # publish raw reading
     # Reference = T, Value = 17.9
-    # value is represented as string
-    rawTemperature = WolkConnect.RawReading("T", "17.9") 
-    device.publishRawReading(rawTemperature)
+    (success, errorMessage) = device.publishRawReading(WolkConnect.RawReading("T", 17.9))
+    if success:
+        print("Successfully published raw reading")
+    else:
+        print("Error publishing raw reading", errorMessage)
 
     # publish random readings for the device (suitable for simulators)
-    device.publishRandomReadings()
+    (success, errorMessage) = device.publishRandomReadings()
+    if success:
+        print("Successfully published random readings")
+    else:
+        print("Error publishing random readings.", errorMessage)
 
 ```
 
@@ -100,7 +114,11 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 ```sh
     # publish alarm
     humidityHigh.setAlarm()
-    device.publishAlarm(humidityHigh)
+    (success, errorMessage) = device.publishAlarm(humidityHighAlarm)
+    if success:
+        print("Successfully published alarm")
+    else:
+        print("Error publishing alarm", errorMessage)
 ```
 
 **Disconnect device**
@@ -128,6 +146,8 @@ Persisting a buffer is not obligatory. All different kind of readings/alarms fro
     # create a buffer with list of sensors
     sensors = device.getSensors()
     wolkBuffer = WolkConnect.WolkReadingsBuffer(sensors)
+
+    # for additional buffer parameters see WolkBuffer class in WolkBufferSerialization.py
 
 ```
 
@@ -157,16 +177,16 @@ Persisting a buffer is not obligatory. All different kind of readings/alarms fro
 **Persisting and loading a buffer**
 ```sh
     # persist buffer to file
-    WolkConnect.serializeBufferToFile(wolkBuffer, "buffer.bfr")
+    wolkBuffer.serialize()
 
-    # create new buffer from file
-    newBuffer = WolkConnect.deserializeBufferFromFile("buffer.bfr")
+    # deserialize new buffer from file
+    newBuffer = wolkBuffer.deserialize()
 ```
 
 **Publish readings from the buffer**
 ```sh
     # publish readings from buffer
-    device.publishBufferedReadings(newBuffer)
+    device.publishBufferedReadings(newBuffer) # if added clearOnSuccess=True, the buffer will be cleared when readings are sent
 ```
 
 **Clearing buffer**

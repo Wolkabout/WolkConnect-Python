@@ -23,28 +23,21 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def serializeBufferToFile(buffer, filename):
-    """ Persist buffer into binary file
-    """
-    with open(filename, mode='wb') as outfile:
-        pickle.dump(buffer, outfile, pickle.HIGHEST_PROTOCOL)
-
-def deserializeBufferFromFile(filename):
-    """ Load buffer content from  binary file
-    """
-    with open(filename, mode='rb') as infile:
-        buffer = pickle.load(infile)
-        return buffer
-
 class WolkBuffer():
     """ Base buffer class
     """
-    def __init__(self, content=None, capacity=0, overwrite=False):
+    def __init__(self, content=None, capacity=0, overwrite=False, filename="buffer.bfr", deserializeOnInit=False, autopersist=False):
         """ Initialize buffer with content (which may be a list of items or single object)
             capacity - if 0, there is no limit on amount of items in the buffer
             overwrite - when capacity is limited (e.g capacity > 0), and buffer is full
                         if overwrite = True, new items will overwrite the oldest
                         if overwrite = False, new items will not be added to the buffer
+            filename - filename for buffer persistance
+            deserializeOnInit - if True, the buffer will be deserialized from the filename. 
+                        If content is provided, it will be appended to the deserialized buffer.
+                        Provided overwrite flag will be set to the deserialized buffer.
+                        Provided capacity will be set to the buffer if it is greater of deserialized buffer capacity.
+            autopersist - if True, each addition/clearing of the buffer will be immediatelly persisted to filename
         """
         if isinstance(content, list):
             self.content = content
@@ -55,6 +48,21 @@ class WolkBuffer():
 
         self.capacity = capacity
         self.overwrite = overwrite
+        self.filename = filename
+        self.autopersist = autopersist
+        if deserializeOnInit:
+            tmp = self.deserialize()
+            if tmp:
+                if capacity == 0 or capacity < tmp.capacity:
+                    self.capacity = tmp.capacity
+
+                if content and tmp.content:
+                    self.content = tmp.content
+                    if isinstance(content, list):
+                        self.content.extend(content)
+                    elif content:
+                        self.content.append(content)
+
 
     def addItem(self, item):
         """ Add item to buffer
@@ -65,11 +73,17 @@ class WolkBuffer():
             del self.content[0]
             self.content.append(item)
 
+        if self.autopersist:
+            self.serialize()
+
     def addItems(self, items):
         """ Add list of items to buffer
         """
         for item in items:
             self.addItem(item)
+
+        if self.autopersist:
+            self.serialize()
 
     def getContent(self):
         """ Get buffer content as list of items
@@ -81,12 +95,30 @@ class WolkBuffer():
         """
         self.content.clear()
 
+        if self.autopersist:
+            self.serialize()
+
+    def serialize(self):
+        """ Persist buffer into binary file
+        """
+        with open(self.filename, mode='wb') as outfile:
+            pickle.dump(self, outfile, pickle.HIGHEST_PROTOCOL)
+
+    def deserialize(self):
+        """ Load buffer content from  binary file
+        """
+        with open(self.filename, mode='rb') as infile:
+            buffer = pickle.load(infile)
+            return buffer
+
+
+
 """ WolkSense Serializer for WolkConnect
 """
 class WolkReadingsBuffer(WolkBuffer):
     """ WolkReadingsBuffer
     """
-    def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False):
+    def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False, filename="readings.bfr", deserializeOnInit=False, autopersist=False):
         """ Initialize readings buffer with content that may be
             list of Sensors/RawReadings, a single Sensor/RawReading or None.
 
@@ -98,7 +130,7 @@ class WolkReadingsBuffer(WolkBuffer):
         """
 
         if not content:
-            super().__init__(content, capacity, overwrite)
+            super().__init__(content, capacity, overwrite, filename, deserializeOnInit, autopersist)
             return
 
         readings = copy.deepcopy(content)
@@ -111,7 +143,7 @@ class WolkReadingsBuffer(WolkBuffer):
             else:
                 readings.timestamp = timestamp
 
-        super().__init__(readings, capacity, overwrite)
+        super().__init__(readings, capacity, overwrite, filename, deserializeOnInit, autopersist)
 
     def getReadings(self):
         """ Get buffer content
@@ -153,7 +185,7 @@ class WolkAlarmsBuffer(WolkBuffer):
     """ WolkAlarmsBuffer
     """
 
-    def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False):
+    def __init__(self, content=None, useCurrentTimestamp=False, capacity=0, overwrite=False, filename="alarms.bfr", deserializeOnInit=False, autopersist=False):
         """ Initialize alarms buffer with content that may be
             list of alarms, a single alarm or None.
 
@@ -165,7 +197,7 @@ class WolkAlarmsBuffer(WolkBuffer):
         """
 
         if not content:
-            super().__init__(content, capacity, overwrite)
+            super().__init__(content, capacity, overwrite, filename, deserializeOnInit, autopersist)
             return
 
         alarms = copy.deepcopy(content)
@@ -178,7 +210,7 @@ class WolkAlarmsBuffer(WolkBuffer):
             else:
                 alarms.timestamp = timestamp
 
-        super().__init__(alarms, capacity, overwrite)
+        super().__init__(alarms, capacity, overwrite, filename, deserializeOnInit, autopersist)
 
     def getAlarms(self):
         """ Get buffer content as list of alarms
