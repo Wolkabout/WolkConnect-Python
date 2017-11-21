@@ -13,11 +13,10 @@
 #   limitations under the License.
 
 """
-    WolkConnect reading types
+    WolkConnect reading data types
 """
 
-import random
-import string
+import time
 from enum import Enum, unique
 
 @unique
@@ -27,52 +26,17 @@ class DataType(Enum):
     NUMERIC = "NUMERIC"
     STRING = "STRING"
     BOOLEAN = "BOOLEAN"
-
-@unique
-class ReadingType(Enum):
-    """ Reading types
+    
+class RawReading():
+    """ Free form reading with reference, value and timestamp
     """
-    def __init__(self, ref, dataType, minValue=None, maxValue=None, dataSize=1, dataDelimiter=""):
-        """
-            Define new reading type
+    def __init__(self, reference, value, timestamp=None):
+        self.reference = reference
+        self.value = value
+        self.timestamp = timestamp
+        if not timestamp:
+            self.timestamp = time.time()
 
-            ref - Reference from the device manifest
-            dataType - Data type from the device manifest mapped to any of DataType entries
-            minValue - Minimum value from the device manifest
-            maxValue - Maximum value from the device manifest
-            dataSize - Data size from the device manifest. By default is 1
-            dataDelimiter - Delimitier for parsing data (applicable if dataSize > 1)
-        """
-        self.ref = ref
-        self.dataType = dataType
-        self.minValue = minValue
-        self.maxValue = maxValue
-        self.dataSize = dataSize
-        self.dataDelimiter = dataDelimiter
 
     def __str__(self):
-        isScalar = " isScalar={0}".format(self.isScalar)
-        dataSizeString = "" if self.dataSize == 1 else " dataSize={0}".format(self.dataSize)
-        dataDelimiter = " dataDelimiter={0}".format(self.dataDelimiter) if dataSizeString else ""
-        return self.ref + ":" + self.dataType.value + isScalar + dataSizeString + dataDelimiter
-
-    def generateRandomValues(self):
-        """ Generate random value in range (minValue, maxValue)
-            A handy way to use for device simulator
-        """
-        if self.dataType == DataType.NUMERIC:
-            if self.minValue is None or self.maxValue is None:
-                return None
-
-            return [random.uniform(self.minValue, self.maxValue) for _ in range(self.dataSize)]
-        elif self.dataType == DataType.BOOLEAN:
-            return [bool(int(random.uniform(0, 1)))]
-
-        rndValue = random.SystemRandom()
-        return [''.join(rndValue.choice(string.ascii_uppercase + string.digits) for _ in range(10))]
-
-    @property
-    def isScalar(self):
-        """ Is reading type scalar i.e. data size is 1
-        """
-        return self.dataSize == 1
+        return "RawReading reference={0} value={1}, timestamp={2}".format(self.reference, self.value, self.timestamp)

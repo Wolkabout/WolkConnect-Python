@@ -12,23 +12,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+"""
+    Alarms
+"""
 import time
-from enum import unique
-from WolkConnect.ReadingType import ReadingType, DataType
-
-@unique
-class AlarmType(ReadingType):
-    """ Alarms
-    """
-    TEMPERATURE_HIGH = ("TH", DataType.BOOLEAN)
-    TEMPERATURE_LOW = ("TL", DataType.BOOLEAN)
-    HUMIDITY_HIGH = ("HH", DataType.BOOLEAN)
+import WolkConnect.ReadingType as ReadingType
 
 class Alarm():
-    """ Alarm with alarm type
+    """ Alarm as defined in device manifest
+        alarmRef - Alarm reference
+        alarmValue - Current alarm value
+        timestamp - timestamp for alarmValue
     """
-    def __init__(self, alarmType, isSet=False, timestamp=None):
-        self.alarmType = alarmType
+    def __init__(self, alarmRef, isSet=False, timestamp=None):
+        self.alarmRef = alarmRef
         self.alarmValue = isSet
         self.timestamp = timestamp
 
@@ -43,22 +40,16 @@ class Alarm():
         self.alarmValue = False
 
     def setTimestamp(self, timestamp=None):
+        """ Set alarm timestamp
+        """
         self.timestamp = timestamp if timestamp else time.time()
 
-class TemperatureHighAlarm(Alarm):
-    """ Temperature high alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.TEMPERATURE_HIGH, isSet)
+    def getRawReading(self):
+        """ Convert to RawReading; useful for easier serialization to MQTT messages
+        """
+        value = self.alarmValue
+        if not value:
+            value = False
 
-class TemperatureLowAlarm(Alarm):
-    """ Temperature low alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.TEMPERATURE_LOW, isSet)
+        return ReadingType.RawReading(self.alarmRef, value, self.timestamp)
 
-class HumidityHighAlarm(Alarm):
-    """ Humidity high alarm
-    """
-    def __init__(self, isSet=False):
-        super().__init__(AlarmType.HUMIDITY_HIGH, isSet)

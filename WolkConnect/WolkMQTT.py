@@ -17,7 +17,7 @@
 """
 import logging
 import paho.mqtt.client as mqtt
-import WolkConnect.Sensor as Sensor
+from WolkConnect.Sensor import ReadingsCollection
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class WolkMQTTClientConfig:
             topics - subscription topics to subscribe on broker
             messagesHandler - callback for handling WolkMQTTSubscribeMessages received from broker
             ca_cert - path to Certificate Authority certificate file
-            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted) 
+            set_insecure - if set to True, server hostname, in ca_cert, will be automatically verified (i.e. trusted)
             qos - MQTT quality of service
         """
         self.host = host
@@ -75,34 +75,36 @@ class WolkMQTTClient:
         if self.clientConfig.ca_cert:
             self.client.tls_set(self.clientConfig.ca_cert)
 
-        print(self.clientConfig.set_insecure)
         if self.clientConfig.set_insecure:
             self.client.tls_insecure_set(self.clientConfig.set_insecure)
 
         self.client.username_pw_set(self.clientConfig.username, self.clientConfig.password)
         self.host = self.clientConfig.host
         self.port = self.clientConfig.port
+        lastWillTopic = "lastwill/" + self.clientConfig.username
+        lastWillPayloyad = "Last will of serial:" + self.clientConfig.username
+        self.client.will_set(lastWillTopic, lastWillPayloyad, self.clientConfig.qos, False)
         self.client.on_log = self._on_log
 
     def publishReadings(self, readings):
         """ Publish readings to MQTT broker
         """
-        readingsWithTimestamp = Sensor.ReadingsWithTimestamp(readings)
-        readingsCollection = Sensor.ReadingsCollection(readingsWithTimestamp)
+        readingsCollection = ReadingsCollection.collectionFromReadingsList(readings)
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
-        self._publish(mqttMessage)
+        logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
+        return self._publish(mqttMessage)
 
     def publishActuator(self, actuator):
         """ Publish actuator to MQTT broker
         """
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(actuator)
-        self._publish(mqttMessage)
+        return self._publish(mqttMessage)
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
         """
         mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(alarm)
-        self._publish(mqttMessage)
+        return self._publish(mqttMessage)
 
     def connect(self):
         """ Connect to MQTT broker
@@ -166,5 +168,12 @@ class WolkMQTTClient:
 
         if not message:
             logger.warning("No message to publish")
+            return(False, "No message to publish")
 
-        self.client.publish(message.topic, message.payload, self.clientConfig.qos)
+        info = self.client.publish(message.topic, message.payload, self.clientConfig.qos)
+        if info.rc == mqtt.MQTT_ERR_SUCCESS:
+            return(True, "")
+        elif info.is_published:
+            return(True, "")
+        else:
+            return(False, mqtt.error_string(info.rc))

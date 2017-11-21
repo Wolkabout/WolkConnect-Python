@@ -16,7 +16,6 @@
 """
 
 from enum import Enum, unique
-from WolkConnect.ReadingType import ReadingType, DataType
 
 @unique
 class ActuatorState(Enum):
@@ -25,24 +24,6 @@ class ActuatorState(Enum):
     READY = "READY"
     BUSY = "BUSY"
     ERROR = "ERROR"
-    DISABLED = "DISABLED"
-
-@unique
-class ActuatorType(ReadingType):
-    """ Actuator types
-    """
-    SWITCH = ("SW", DataType.BOOLEAN, ActuatorState.READY)
-    SLIDER = ("SL", DataType.NUMERIC, ActuatorState.READY)
-
-    def __init__(self, ref, dataType, actuatorState, dataSize=1, dataDelimiter=""):
-        ReadingType.__init__(self, ref, dataType, dataSize=1, dataDelimiter="")
-        self.state = actuatorState
-
-    def __str__(self):
-        superString = super().strRepresentation
-        actuatorStateString = " state={0}".format(self.state.value)
-        return superString + actuatorStateString
-
 
 class ActuationException(Exception):
     """ ActuationException is raised whenever there is an error in
@@ -56,51 +37,29 @@ class ActuationException(Exception):
         return repr(self.value)
 
 class Actuator():
-    """  Actuator with ReadingType
+    """ Actuator as defined in device manifest
+        actuatorRef - Actuator reference
+        dataType - Any of DataType values (NUMERIC, STRING or BOOLEAN)
+        actuatorState - Any of ActuatorState values (READY, BUSY, ERROR)
+        value - Current value of the actuator.
     """
-    def __init__(self, actuatorType, value=None):
-        self.actuatorType = actuatorType
+    def __init__(self, actuatorRef, dataType, actuatorState=ActuatorState.READY, value=None):
+        self.actuatorRef = actuatorRef
+        self.dataType = dataType
+        self.actuatorState = actuatorState
         self.value = value
 
     def setValue(self, value):
         """ Set actuator value
         """
-        self.actuatorType.state = ActuatorState.BUSY
-        if not self.actuatorType:
-            self.actuatorType.state = ActuatorState.ERROR
+        self.actuatorState = ActuatorState.BUSY
+        if not self.actuatorRef:
+            self.actuatorState = ActuatorState.ERROR
             raise ActuationException("Actuator type missing")
 
-class SwitchActuator(Actuator):
-    """ Switch actuator
-    """
-    def __init__(self, value):
-        super().__init__(ActuatorType.SWITCH, value)
+        self.value = value
+        self.actuatorState = ActuatorState.READY
 
-    def setValue(self, value):
-        super().setValue(value)
-
-        if value.upper == "TRUE" or value == "1":
-            self.value = True
-            self.actuatorType.state = ActuatorState.READY
-        elif value.upper == "FALSE" or value == "0":
-            self.value = False
-            self.actuatorType.state = ActuatorState.READY
-        else:
-            self.actuatorType.state = ActuatorState.ERROR
-            raise ActuationException("Could not set Switch actuator to value {0}".format(value))
-
-class SliderActuator(Actuator):
-    """ Slider actuator
-    """
-    def __init__(self, value):
-        super().__init__(ActuatorType.SLIDER, value)
-
-    def setValue(self, value):
-        super().setValue(value)
-
-        try:
-            self.value = float(value)
-            self.actuatorType.state = ActuatorState.READY
-        except ValueError:
-            self.actuatorType.state = ActuatorState.ERROR
-            raise ActuationException("Could not set Slider actuator to value {0}".format(value))
+    def __str__(self):
+        actuatorStateString = "{0}:{1} state={2}".format(self.actuatorRef, self.dataType.value, self.actuatorState.value)
+        return actuatorStateString
