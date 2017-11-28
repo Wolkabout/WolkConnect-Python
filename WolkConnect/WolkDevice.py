@@ -160,6 +160,7 @@ class WolkDevice:
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
         """
+        logger.info("%s publishing alarm %s", self.serial, alarm.alarmRef)
         result = self.mqttClient.publishAlarm(alarm)
         if result[0]:
             logger.info("%s published alarm %s", self.serial, alarm.alarmRef)
@@ -170,6 +171,7 @@ class WolkDevice:
     def publishActuator(self, actuator):
         """ Publish actuator to MQTT broker
         """
+        logger.info("%s publishing actuator %s", self.serial, actuator.actuatorRef)
         result = self.mqttClient.publishActuator(actuator)
         if result[0]:
             logger.info("%s published actuator %s", self.serial, actuator.actuatorRef)
@@ -239,15 +241,17 @@ class WolkDevice:
 
         alarmsToPublish = buffer.getAlarms()
         result = (True, "")
+        logger.info("%s publishing alarms", self.serial)
         for alarm in alarmsToPublish:
-            logger.debug("Serialized one alarm %s", alarm)
             result = self.publishAlarm(alarm)
             if result[0] == False:
+                logger.info("%s published alarms", self.serial)
                 return result
 
         if result[0] and clearOnSuccess:
             buffer.clear()
 
+        logger.info("%s published alarms", self.serial)
         return result
 
 
