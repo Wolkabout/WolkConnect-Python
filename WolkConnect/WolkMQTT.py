@@ -90,21 +90,38 @@ class WolkMQTTClient:
         """ Publish readings to MQTT broker
         """
         readingsCollection = ReadingsCollection.collectionFromReadingsList(readings)
-        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(readingsCollection)
-        logger.debug("Serialized readings collection to mqttMessage %s", mqttMessage)
-        return self._publish(mqttMessage)
+        mqttMessages = self.clientConfig.serializer.serializeToMQTTMessages(readingsCollection)
+        result = (True, "")
+        for message in mqttMessages:
+            logger.debug("Serialized one message %s", message)
+            result = self._publish(message)
+            if result[0] == False:
+                return result
+        return result
 
     def publishActuator(self, actuator):
         """ Publish actuator to MQTT broker
         """
-        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(actuator)
-        return self._publish(mqttMessage)
+        mqttMessages = self.clientConfig.serializer.serializeToMQTTMessages(actuator)
+        result = (True, "")
+        for message in mqttMessages:
+            logger.debug("Serialized one message %s", message)
+            result = self._publish(message)
+            if result[0] == False:
+                return result
+        return result
 
     def publishAlarm(self, alarm):
         """ Publish alarm to MQTT broker
         """
-        mqttMessage = self.clientConfig.serializer.serializeToMQTTMessage(alarm)
-        return self._publish(mqttMessage)
+        mqttMessages = self.clientConfig.serializer.serializeToMQTTMessages(alarm)
+        result = (True, "")
+        for message in mqttMessages:
+            logger.debug("Serialized one message %s", message)
+            result = self._publish(message)
+            if result[0] == False:
+                return result
+        return result
 
     def connect(self):
         """ Connect to MQTT broker

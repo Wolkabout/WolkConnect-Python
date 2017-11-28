@@ -238,11 +238,18 @@ class WolkDevice:
             return (False, message)
 
         alarmsToPublish = buffer.getAlarms()
-        result = self._publishReadings(alarmsToPublish)
+        result = (True, "")
+        for alarm in alarmsToPublish:
+            logger.debug("Serialized one alarm %s", alarm)
+            result = self.publishAlarm(alarm)
+            if result[0] == False:
+                return result
+
         if result[0] and clearOnSuccess:
             buffer.clear()
 
         return result
+
 
     def _mqttResponseHandler(self, responses):
         """ Handle MQTT messages from MQTT broker
