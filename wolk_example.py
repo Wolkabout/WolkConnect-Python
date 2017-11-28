@@ -6,7 +6,7 @@ import time
 import WolkConnect
 
 logger = logging.getLogger("WolkConnect")
-WolkConnect.setupLoggingLevel(logging.DEBUG)
+WolkConnect.setupLoggingLevel(logging.INFO)
 
 # Device parameters
 serial = "serial"

@@ -35,7 +35,7 @@ class WolkMQTTSerializer(abc.ABC):
     """ Abstract MQTT serializer class
     """
     @abc.abstractmethod
-    def serializeToMQTTMessage(self, obj):
+    def serializeToMQTTMessages(self, obj):
         """ Abstract method to serialize obj
         """
         raise NotImplementedError
@@ -118,6 +118,7 @@ class WolkSerializerType(Enum):
     """
     WOLKSENSE = "WOLKSENSE"
     JSON_MULTI = "JSON_MULTI"
+    JSON_SINGLE = "JSON_SINGLE"
 
 
 def getSerializer(serializerType, serial):
@@ -125,9 +126,10 @@ def getSerializer(serializerType, serial):
     """
     if serializerType == WolkSerializerType.WOLKSENSE:
         return WolkSenseMQTTSerializer(serial)
+    elif serializerType == WolkSerializerType.JSON_MULTI:
+        return WolkJSONMQTTSerializer(serial)
 
-    return WolkJSONMQTTSerializer(serial)
-
+    return WolkJSONSingleMQTTSerializer(serial)
 
 """ WolkSense Serializer for WolkConnect
 """
@@ -151,19 +153,19 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         rootActuatorsSub = "config/"
         super().__init__(serialNumber, rootReadings, rootEvents, rootActuatorsPub, rootActuatorsSub)
 
-    def serializeToMQTTMessage(self, obj):
+    def serializeToMQTTMessages(self, obj):
         if isinstance(obj, Sensor):
-            return self._serializeReading(obj)
+            return [self._serializeReading(obj)]
         elif isinstance(obj, RawReading):
-            return self._serializeRawReading(obj)
+            return [self._serializeRawReading(obj)]
         elif isinstance(obj, ReadingsWithTimestamp):
-            return self._serializeReadingsWithTimestamp(obj)
+            return [self._serializeReadingsWithTimestamp(obj)]
         elif isinstance(obj, ReadingsCollection):
-            return self._serializeReadingsCollection(obj)
+            return [self._serializeReadingsCollection(obj)]
         elif isinstance(obj, Alarm):
-            return self._serializeAlarm(obj)
+            return [self._serializeAlarm(obj)]
         elif isinstance(obj, Actuator):
-            return self._serializeActuator(obj)
+            return [self._serializeActuator(obj)]
 
         raise TypeError("WolkSenseMQTTSerializer can't serialize object {0}".format(repr(obj)))
 
@@ -297,7 +299,6 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         """
         if readings.readings:
             lst = filter(notNone, [self._serializeReadingToPayload(r) for r in readings.readings if r])
-            logger.info(lst)
             readingsList = self.READING_SEPARATOR.join(lst)
             timestamp = ""
             if readings.timestamp is None:
@@ -428,19 +429,19 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
         rootActuatorsSub = "actuators/commands/"
         super().__init__(serialNumber, rootReadings, rootEvents, rootActuatorsPub, rootActuatorsSub)
 
-    def serializeToMQTTMessage(self, obj):
+    def serializeToMQTTMessages(self, obj):
         if isinstance(obj, Sensor):
-            return self._serializeReading(obj)
+            return [self._serializeReading(obj)]
         elif isinstance(obj, RawReading):
-            return self._serializeRawReading(obj)
+            return [self._serializeRawReading(obj)]
         elif isinstance(obj, ReadingsWithTimestamp):
-            return self._serializeReadingsWithTimestamp(obj)
+            return [self._serializeReadingsWithTimestamp(obj)]
         elif isinstance(obj, ReadingsCollection):
-            return self._serializeReadingsCollection(obj)
+            return [self._serializeReadingsCollection(obj)]
         elif isinstance(obj, Alarm):
-            return self._serializeAlarm(obj)
+            return [self._serializeAlarm(obj)]
         elif isinstance(obj, Actuator):
-            return self._serializeActuator(obj)
+            return [self._serializeActuator(obj)]
 
         raise TypeError("WolkJSONMQTTSerializer can't serialize object {0}".format(repr(obj)))
 
@@ -500,12 +501,6 @@ class WolkJSONMQTTSerializer(WolkMQTTSerializer):
         except KeyError:
             logger.error("Could not get command from payload %s", payloadDictionary)
             return None
-
-    @staticmethod
-    def roundFloat(floatValue):
-        """ Helper to round float values to one decimal
-        """
-        return round(floatValue, 1)
 
     def extractSubscriptionTopics(self, device):
         if not device:
@@ -581,6 +576,8 @@ class _ReadingEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Sensor):
             return _rawReadingToDict(o.getRawReading())
+        elif isinstance(o, Alarm):
+            return _rawReadingToDict(o.getRawReading())
         elif isinstance(o, RawReading):
             return _rawReadingToDict(o)
 
@@ -592,7 +589,7 @@ def _rawReadingToDict(o):
 
     dct = {}
     if o.timestamp:
-        dct["utc"] = o.timestamp
+        dct["utc"] = int(o.timestamp)
 
     dct["data"] = o.value
     return dct
@@ -645,7 +642,7 @@ class _AlarmEncoder(json.JSONEncoder):
         if isinstance(o, Alarm):
             dct = {}
             if o.timestamp:
-                dct["utc"] = o.timestamp
+                dct["utc"] = int(o.timestamp)
 
             dct[o.alarmRef] = o.alarmValue
 
@@ -663,4 +660,112 @@ class _ActuatorEncoder(json.JSONEncoder):
             dct["value"] = o.value
             return dct
 
+        return json.JSONEncoder.default(self, o)
+
+# SINGLE
+""" JSON Single Serialization
+    for WolkConnect
+"""
+class WolkJSONSingleMQTTSerializer(WolkJSONMQTTSerializer):
+    """ WolkJSON Single serializer
+    """
+    def __init__(self, serialNumber):
+        super().__init__(serialNumber)
+
+    def serializeToMQTTMessages(self, obj):
+        if isinstance(obj, Sensor):
+            return [self._serializeReading(obj)]
+        elif isinstance(obj, RawReading):
+            return [self._serializeRawReading(obj)]
+        elif isinstance(obj, ReadingsWithTimestamp):
+            return self._serializeReadingsWithTimestamp(obj)
+        elif isinstance(obj, ReadingsCollection):
+            return self._serializeReadingsCollection(obj)
+        elif isinstance(obj, Alarm):
+            return [self._serializeAlarm(obj)]
+        elif isinstance(obj, Actuator):
+            return [self._serializeActuator(obj)]
+
+        raise TypeError("WolkJSONSingleMQTTSerializer can't serialize object {0}".format(repr(obj)))
+
+    def _serializeReading(self, reading):
+        """ Serialize reading to mqtt message
+        """
+        if not reading.readingValue:
+            return None
+
+        topic = self.rootReadingsTopic + self.serialNumber + "/" + reading.sensorRef
+        mqttMessage = self._serialize(reading, _ReadingEncoder, topic)
+        return mqttMessage
+
+    def _serializeRawReading(self, reading):
+        """ Serialize raw reading to mqtt message
+        """
+        if not reading.value:
+            return None
+
+        topic = self.rootReadingsTopic + self.serialNumber + "/" + reading.reference
+        mqttMessage = self._serialize(reading, _ReadingEncoder, topic)
+        return mqttMessage
+
+    def _serializeReadingsWithTimestamp(self, readings):
+        """ Serialize Readings to mqtt message
+        """
+        if readings.readings:
+            mqttMessages = []
+            for reading in readings.readings:
+                topic = self.rootReadingsTopic + self.serialNumber + "/" + _getRefFromReading(reading)
+                mqttMessages.append(self._serialize(reading, _ReadingEncoder, topic))
+            return mqttMessages
+        return None
+
+    def _serializeReadingsCollection(self, collection):
+        """ Serialize ReadingCollection to mqtt message
+        """
+        if collection.readings:
+            mqttMessages = []
+            for readings in collection.readings:
+                messages = self._serializeReadingsWithTimestamp(readings)
+                for message in messages:
+                    mqttMessages.append(message)
+            return mqttMessages
+        return None
+
+    def _serializeAlarm(self, alarm):
+        """ Serialize Alarm to mqtt message
+        """
+        topic = self.rootEventsTopic + self.serialNumber + "/" + alarm.alarmRef
+        mqttMessage = self._serialize(alarm, _AlarmJSONSingleEncoder, topic)
+        return mqttMessage
+
+    def _serializeActuator(self, actuator):
+        """ Serialize Actuator to mqtt message
+        """
+        topic = self.rootActuatorsPublishTopic + self.serialNumber + "/" + actuator.actuatorRef
+        mqttMessage = self._serialize(actuator, _ActuatorEncoder, topic)
+        return mqttMessage
+
+def _getRefFromReading(o):
+    if isinstance(o, Sensor):
+        return o.sensorRef
+    elif isinstance(o, RawReading):
+        return o.reference
+    elif isinstance(o, Alarm):
+        return o.alarmRef
+
+    return None
+
+class _AlarmJSONSingleEncoder(json.JSONEncoder):
+    """ Alarm JSON encoder that returns
+        dictionary with data and reading value
+    """
+    def default(self, o):
+        if isinstance(o, Alarm):
+            dct = {}
+            if o.timestamp:
+                dct["utc"] = int(o.timestamp)
+
+            dct["data"] = o.alarmValue
+
+            return dct
         return json.JSONEncoder.default(self, o)
