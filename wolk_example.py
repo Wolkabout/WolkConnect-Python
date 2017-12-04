@@ -37,6 +37,7 @@ def mqttMessageHandler(wolkDevice, message):
         return
 
     logger.info("%s received message %s", wolkDevice.serial, message)
+    logger.info("\n\r*************************************\n\rActuator ref: %s\n\r       Value: %s\n\r*************************************", message.ref, message.value)
     if message.wolkCommand == WolkConnect.WolkCommand.SET:
         actuator.value = message.value
         wolkDevice.publishActuator(actuator)
