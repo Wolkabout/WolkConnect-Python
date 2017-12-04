@@ -9,8 +9,8 @@ logger = logging.getLogger("WolkConnect")
 WolkConnect.setupLoggingLevel(logging.INFO)
 
 # Device parameters
-serial = "serial"
-password = "password"
+serial = "1217TD1000000245"
+password = "a20f9d0e-059b-4351-a03a-fac1e1d07a84"
 
 # Setup sensors, actuators and alarms
 temperature = WolkConnect.Sensor("T", WolkConnect.DataType.NUMERIC, minValue=-40.0, maxValue=80.0)
@@ -37,6 +37,7 @@ def mqttMessageHandler(wolkDevice, message):
         return
 
     logger.info("%s received message %s", wolkDevice.serial, message)
+    logger.info("\n\r*************************************\n\rActuator ref: %s\n\r       Value: %s\n\r*************************************", message.ref, message.value)
     if message.wolkCommand == WolkConnect.WolkCommand.SET:
         actuator.value = message.value
         wolkDevice.publishActuator(actuator)
