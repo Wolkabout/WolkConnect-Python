@@ -35,8 +35,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 
     # setup actuators
     switch = WolkConnect.Actuator("SW", WolkConnect.DataType.BOOLEAN, value=True)
-    slider = WolkConnect.Actuator("SL", WolkConnect.DataType.NUMERIC)
-    slider.setValue(20.0)
+    slider = WolkConnect.Actuator("SL", WolkConnect.DataType.NUMERIC, value=20.0)
     actuators = [switch, slider]
 
     # setup alarms
