@@ -22,7 +22,7 @@ Example usage
 Check wolk_example.py for a simple example how to connect a new device and send readings.
 
 **Connecting device**
-```sh
+```python
     # first setup device credentials which you got when device is created
     device_key = "device_key"
     password = "some_password"
@@ -35,8 +35,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 
     # setup actuators
     switch = WolkConnect.Actuator("SW", WolkConnect.DataType.BOOLEAN, value=True)
-    slider = WolkConnect.Actuator("SL", WolkConnect.DataType.NUMERIC)
-    slider.setValue(20.0)
+    slider = WolkConnect.Actuator("SL", WolkConnect.DataType.NUMERIC, value=20.0)
     actuators = [switch, slider]
 
     # setup alarms
@@ -72,7 +71,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 ```
 
 **Publishing readings**
-```sh
+```python
     # set sensor values
     # and publish all sensors for the device for the current time
     temperature.setReadingValue(23.4)
@@ -111,7 +110,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 ```
 
 **Publishing alarm**
-```sh
+```python
     # publish alarm
     humidityHigh.setAlarm()
     (success, errorMessage) = device.publishAlarm(humidityHighAlarm)
@@ -122,7 +121,7 @@ Check wolk_example.py for a simple example how to connect a new device and send 
 ```
 
 **Disconnect device**
-```sh
+```python
     device.disconnect()
 ```
 
@@ -139,7 +138,7 @@ Collected readings/alarms may be stored in a buffer and persisted, and when circ
 Persisting a buffer is not obligatory. All different kind of readings/alarms from the buffer may be sent to the platform at your will.
 
 **Creating a buffer**
-```sh
+```python
     # create an empty buffer
     wolkBuffer = WolkConnect.WolkReadingsBuffer()
 
@@ -152,7 +151,7 @@ Persisting a buffer is not obligatory. All different kind of readings/alarms fro
 ```
 
 **Add sensors and readings to a buffer**
-```sh
+```python
     # add readings to the buffer
     temperature.setReadingValue(23.4)
     pressure.setReadingValue(999.9)
@@ -175,7 +174,7 @@ Persisting a buffer is not obligatory. All different kind of readings/alarms fro
 ```
 
 **Persisting and loading a buffer**
-```sh
+```python
     # persist buffer to file
     wolkBuffer.serialize()
 
@@ -184,13 +183,13 @@ Persisting a buffer is not obligatory. All different kind of readings/alarms fro
 ```
 
 **Publish readings from the buffer**
-```sh
+```python
     # publish readings from buffer
     device.publishBufferedReadings(newBuffer) # if added clearOnSuccess=True, the buffer will be cleared when readings are sent
 ```
 
 **Clearing buffer**
-```sh
+```python
     # clear buffer
     newBuffer.clear()
 ```
@@ -199,7 +198,7 @@ HOW to ...
 ------------
 **... set custom host, port and certificate for MQTT broker ?**
 
- ```sh
+ ```python
     ...
     # set custom host and port
     custom_host = "my.custom.host"
@@ -214,7 +213,7 @@ HOW to ...
 
 **... add new Sensor ?**
 
- ```sh
+ ```python
     ...
 
     # Suppose new sensor is defined in the device manifest as:
@@ -231,7 +230,7 @@ HOW to ...
 
 **... add new Actuator ?**
 
- ```sh
+ ```python
     ...
 
     # Suppose new actuator is defined in the device manifest as:
@@ -252,7 +251,7 @@ HOW to ...
 
 **... add new Alarm type ?**
 
- ```sh
+ ```python
     ...
 
     # Suppose new alarm is defined in the device manifest as:
@@ -273,7 +272,7 @@ HOW to ...
 
 **... send raw readings ?**
 
- ```sh
+ ```python
     ...
 
     # If you would like to avoid creating Sensors and Alarms
