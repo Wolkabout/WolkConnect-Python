@@ -61,5 +61,5 @@ class Actuator():
         self.actuatorState = ActuatorState.READY
 
     def __str__(self):
-        actuatorStateString = "{0}:{1} state={2}".format(self.actuatorRef, self.dataType.value, self.actuatorState.value)
+        actuatorStateString = "{0}:{1} state={2}".format(self.actuatorRef, self.dataType, self.actuatorState.value)
         return actuatorStateString

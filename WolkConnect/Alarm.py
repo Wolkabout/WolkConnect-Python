@@ -53,3 +53,6 @@ class Alarm():
 
         return ReadingType.RawReading(self.alarmRef, value, self.timestamp)
 
+    def __str__(self):
+        alarmString = "{0}:{1}".format(self.alarmRef, self.alarmValue)
+        return alarmString

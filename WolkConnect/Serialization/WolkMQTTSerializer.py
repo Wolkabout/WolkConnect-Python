@@ -257,31 +257,15 @@ class WolkSenseMQTTSerializer(WolkMQTTSerializer):
         """
         if isinstance(reading, RawReading):
             return self._serializeRawReading(reading)
+        elif isinstance(reading, Sensor):
+            return self._serializeRawReading(reading.getRawReading())
         elif isinstance(reading, Alarm):
             rawReading = reading.getRawReading()
             rawReading.value = 1 if reading.alarmValue == True else 0
             return self._serializeRawReading(rawReading)
 
-        if not reading.readingValue:
-            logger.warning("No reading values to serialize")
-            return None
-
-        if reading.dataType == DataType.STRING:
-            return reading.sensorRef + self.VALUE_SEPARATOR + "".join(reading.readingValue)
-
-        timesTenReferences = ["T", "P", "H", "LT", "ACL", "MAG", "GYR"]
-        times = 10.0 if timesTenReferences.count(reading.sensorRef) else 1.0
-        listOfInt = filter(notNone, [int(r * times) for r in reading.readingValue if r])
-        listOfStrings = []
-        for i in listOfInt:
-            if i >= 10:
-                listOfStrings.append("{:+.0f}".format(i))
-            else: # pad one digit numbers with leading 0 and keep sign prefix
-                listOfStrings.append("{:+.0f}".format(i).zfill(3))
-
-        correctedValues = "".join(listOfStrings)
-        mqttString = self.READING_FORMAT.format(ref=reading.sensorRef, value=correctedValues)
-        return mqttString
+        logger.warning("No reading to serialize")
+        return None
 
     def _serializeReadingsWithTimestamp(self, readings):
         """ Serialize Readings to mqtt message
