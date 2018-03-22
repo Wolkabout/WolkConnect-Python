@@ -33,7 +33,7 @@ class Sensor():
         dataDelimiter - Delimitier for parsing values (applicable if dataSize > 1)
         timestamp - timestamp for value
     """
-    def __init__(self, sensorRef, dataType, value=None, minValue=None, maxValue=None, dataSize=1, dataDelimiter="", timestamp=None):
+    def __init__(self, sensorRef, dataType, value=None, minValue=None, maxValue=None, dataSize=1, dataDelimiter="", timestamp=None, roundingDecimals=1):
         self.sensorRef = sensorRef
         self.dataType = dataType
         self.readingValue = value
@@ -44,6 +44,7 @@ class Sensor():
         self.dataSize = dataSize
         self.dataDelimiter = dataDelimiter
         self.timestamp = timestamp
+        self.roundingDecimals = roundingDecimals # 0 - round generated data to 0 decimals == integers. 1 - round as float with 1 decimal
 
     def setReadingValue(self, value):
         """ Set reading value
@@ -83,8 +84,16 @@ class Sensor():
 
         if self.isScalar:
             value = self.readingValue[0]
+            return ReadingType.RawReading(self.sensorRef, value, self.timestamp)
 
-        return ReadingType.RawReading(self.sensorRef, value, self.timestamp)
+        # it is not scalar
+        listOfStrings = []
+        for item in self.readingValue:
+            listOfStrings.append(str(item))
+
+        correctedValues = self.dataDelimiter.join(listOfStrings)
+        
+        return ReadingType.RawReading(self.sensorRef, correctedValues, self.timestamp)
 
     def generateRandomValues(self):
         """ Generate random value in range (minValue, maxValue)
@@ -94,10 +103,9 @@ class Sensor():
             if self.minValue is None or self.maxValue is None:
                 return None
 
-            return [random.uniform(self.minValue, self.maxValue) for _ in range(self.dataSize)]
+            return [round(random.uniform(self.minValue, self.maxValue), self.roundingDecimals) for _ in range(self.dataSize)]
         elif self.dataType == ReadingType.DataType.BOOLEAN:
             return [bool(int(random.uniform(0, 1)))]
-
         rndValue = random.SystemRandom()
         return [''.join(rndValue.choice(string.ascii_uppercase + string.digits) for _ in range(10))]
 

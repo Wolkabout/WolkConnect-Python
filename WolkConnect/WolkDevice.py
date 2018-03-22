@@ -68,7 +68,7 @@ class WolkDevice:
         subscriptionTopics = mqttSerializer.extractSubscriptionTopics(self)
         self.responseHandler = responseHandler
         clientConfig = WolkMQTT.WolkMQTTClientConfig(host, port, serial, password, mqttSerializer, subscriptionTopics, self._mqttResponseHandler, certificate_file_path, set_insecure, qos)
-        
+
         self.mqttClient = WolkMQTT.WolkMQTTClient(clientConfig)
 
     def __str__(self):
