@@ -1,0 +1,308 @@
+#   Copyright 2018 WolkAbout Technology s.r.o.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+"""
+OS MQTT Connectivity Service module.
+
+Contains OSMQTTConnectivityService class used for MQTT connection.
+"""
+
+from paho.mqtt import client as mqtt
+
+from wolk.wolkcore import ConnectivityService
+from wolk.wolkcore import InboundMessage
+from wolk import LoggerFactory
+
+
+class OSMQTTConnectivityService(ConnectivityService):
+    """This class handles sending and receiving MQTT messages.
+
+    :ivar ca_cert: Path to ca.crt file used for TLS
+    :vartype ca_cert: str
+    :ivar client: MQTT client used to send/receive data
+    :vartype client: paho.mqtt.Client
+    :ivar connected: State of the connection
+    :vartype connected: bool
+    :ivar device: Holds authentication information and actuator references
+    :vartype device: wolk.Device
+    :ivar topics: List of topics to subscribe to
+    :vartype topics: list
+    :ivar host: Address of the MQTT broker
+    :vartype host: str
+    :ivar port: Port to which to send messages
+    :vartype port: int
+    :ivar qos: Quality of Service for the MQTT connection
+    :vartype qos: int
+    :ivar inbound_message_listener: Callback method for inbound messages
+    :vartype inbound_message_listener: method
+    :ivar logger: Logger instance issued from the LoggerFactory class
+    :vartype logger: logger
+    """
+
+    def __init__(
+        self,
+        device,
+        qos=2,
+        host="api-demo.wolkabout.com",
+        port=8883,
+        ca_cert=None,
+    ):
+        """Provide the connection to the WolkAbout IoT Platform.
+
+        :param device: Contains device key, password and actuator references
+        :type device: Device
+        :param qos: Quality of Service for MQTT connection, defaults to 2
+        :type qos: int, optional
+        :param host: Address of the MQTT broker, defaults to the Demo instance
+        :type host: str, optional
+        :param port: Port to which to send messages, defaults to 8883
+        :type port: int, optional
+        :param ca_cert: The certificate file used to encrypt the connection
+        :type ca_cert: None, optional
+        """
+        self.device = device
+        self.qos = qos
+        self.host = host
+        self.port = port
+        self.connected = False
+        self.inbound_message_listener = None
+        self.client = None
+        self.ca_cert = ca_cert
+        self.logger = LoggerFactory.logger_factory.get_logger(
+            str(self.__class__.__name__)
+        )
+        self.logger.debug(
+            "Init:  Device key: %s ; Device password: %s ;"
+            " Actuator references: %s ;"
+            " QoS: %s ; Host: %s ; Port: %s ; CA certificate: %s ",
+            self.device.key,
+            self.device.password,
+            self.device.actuator_references,
+            self.qos,
+            self.host,
+            self.port,
+            self.ca_cert,
+        )
+
+    def set_inbound_message_listener(self, on_inbound_message):
+        """
+        Set the callback method to handle inbound messages.
+
+        :param on_inbound_message: The method that handles inbound messages
+        :type on_inbound_message: method
+        """
+        self.logger.debug(
+            "set_inbound_message_listener called - "
+            "inbound_message_listener set to: %s",
+            on_inbound_message,
+        )
+        self.inbound_message_listener = on_inbound_message
+
+    def on_mqtt_message(self, client, userdata, message):
+        """
+        Serialize inbound messages and passes them to inbound message listener.
+
+        :param client: Client that received the message
+        :type client: paho.mqtt.Client
+        :param userdata: private user data set in Client()
+        :type userdata: str
+        :param message: Class with members: topic, payload, qos, retain.
+        :type message: paho.mqtt.MQTTMessage
+
+        :returns: Nothing
+        :rtype: None if no message is present
+        """
+        self.logger.debug("on_mqtt_message called")
+        if not message:
+            return
+
+        channel = message.topic
+
+        payload = (
+            message.payload
+            if message.topic.startswith("service/binary")
+            else message.payload.decode("utf-8")
+        )
+
+        message = InboundMessage(channel, payload)
+        self.inbound_message_listener(message)
+        if isinstance(message.payload, bytes):
+            self.logger.debug(
+                "Received from channel: %s ; Payload size: %s",
+                message.channel,
+                len(message.payload),
+            )
+        else:
+            self.logger.debug(
+                "Received from channel: %s ; Payload: %s",
+                message.channel,
+                message.payload,
+            )
+
+    def on_mqtt_connect(self, client, userdata, flags, rc):
+        """
+        Handle when the client receives a CONNACK response from the server.
+
+        :param client: Client that received the message
+        :type client: paho.mqtt.Client
+        :param userdata: private user data set in Client()
+        :type userdata: str
+        :param flags: response flags sent by the broker
+        :type flags: int
+        :param rc: the connection result
+        :type rc: int
+        """
+        if rc == 0:
+
+            self.connected = True
+            # Subscribing in on_mqtt_connect() means if we lose the connection
+            # and reconnect then subscriptions will be renewed.
+            self.client.subscribe(self.topics)
+            self.logger.debug(
+                "on_mqtt_connect - self.connected : %s", self.connected
+            )
+
+    def on_mqtt_disconnect(self, client, userdata, rc):
+        """
+        Handle when the client disconnects from the broker.
+
+        :param client: Client that received the message
+        :type client: paho.mqtt.Client
+        :param userdata: private user data set in Client()
+        :type userdata: str
+        :param rc: the disconnection result
+        :type rc: int
+        """
+        self.connected = False
+        self.logger.debug(
+            "on_mqtt_disconnect - self.connected : %s", self.connected
+        )
+
+    def connect(self):
+        """
+        Establish the connection to the WolkAbout IoT platform.
+
+        If there are actuators it will subscribe to topics
+        that will contain actuator commands.
+        Subscribes to firmware update related topics.
+        Starts a loop to handle inbound messages.
+
+        :returns: if self.connected returns None
+        :rtype: None
+        """
+        if self.connected:
+
+            return
+
+        self.client = mqtt.Client(
+            client_id=self.device.key, clean_session=True
+        )
+        self.client.on_connect = self.on_mqtt_connect
+        self.client.on_disconnect = self.on_mqtt_disconnect
+        self.client.on_message = self.on_mqtt_message
+        if self.ca_cert:
+            self.client.tls_set(self.ca_cert)
+            self.client.tls_insecure_set(True)
+        self.client.username_pw_set(self.device.key, self.device.password)
+        self.client.will_set(
+            "lastwill/" + self.device.key, "Gone offline", 2, False
+        )
+
+        self.client.connect(self.host, self.port)
+        self.client.loop_start()
+
+        topics = list()
+        topics.append(["service/commands/firmware/" + self.device.key, 2])
+        topics.append(["service/commands/file/" + self.device.key, 2])
+        topics.append(["service/commands/url/" + self.device.key, 2])
+        topics.append(["service/binary/" + self.device.key, 2])
+        topics.append(["pong/" + self.device.key, 2])
+        topics.append(["configurations/commands/" + self.device.key, 2])
+
+        if self.device.actuator_references:
+
+            for actuator_reference in self.device.actuator_references:
+
+                topics.append(
+                    [
+                        "actuators/commands/"
+                        + self.device.key
+                        + "/"
+                        + actuator_reference,
+                        2,
+                    ]
+                )
+
+        self.topics = topics
+        self.logger.debug("connect - Topics: %s", topics)
+        self.client.subscribe(topics)
+
+    def disconnect(self):
+        """Disconnects the device from the WolkAbout IoT Platform."""
+        self.logger.debug("disconnect")
+        self.client.publish("lastwill/" + self.device.key, "Gone offline")
+        self.client.loop_stop()
+        self.client.disconnect()
+
+    def publish(self, outbound_message):
+        """
+        Publish the outbound_message to the WolkAbout IoT Platform.
+
+        :param outbound_message: message to be published
+        :type outbound_message: OutboundMessage
+
+        :returns: result
+        :rtype: bool
+        """
+        if outbound_message is None:
+            self.logger.warning("No message to publish!")
+            return False
+
+        if not self.connected:
+            self.logger.warning(
+                "Not connected, unable to publish. Channel: %s ; Payload: %s",
+                outbound_message.channel,
+                outbound_message.payload,
+            )
+            return False
+
+        info = self.client.publish(
+            outbound_message.channel, outbound_message.payload, self.qos
+        )
+
+        if info.rc == mqtt.MQTT_ERR_SUCCESS:
+
+            self.logger.debug(
+                "Published to channel: %s ; Payload: %s",
+                outbound_message.channel,
+                outbound_message.payload,
+            )
+            return True
+
+        elif info.is_published():
+
+            self.logger.debug(
+                "Published to channel: %s ; Payload: %s",
+                outbound_message.channel,
+                outbound_message.payload,
+            )
+            return True
+
+        else:
+
+            self.logger.warning(
+                "Publishing failed! Channel: %s ; Payload: %s",
+                outbound_message.channel,
+                outbound_message.payload,
+            )
+            return False

@@ -1,0 +1,224 @@
+{
+  "id": 305,
+  "name": "Full example manifest",
+  "protocol": "JsonSingleReferenceProtocol",
+  "firmwareUpdateProtocol": "DFUProtocol",
+  "description": "This device manifest covers all the functionality provided by WolkConnectors",
+  "published": false,
+  "feeds": [
+    {
+      "id": 517,
+      "name": "Temperature",
+      "reference": "T",
+      "description": "",
+      "unit": {
+        "id": 31,
+        "name": "CELSIUS",
+        "symbol": "℃",
+        "readingTypeId": 2,
+        "system": "SI"
+      },
+      "minimum": -40,
+      "maximum": 85,
+      "readingType": {
+        "id": 2,
+        "name": "TEMPERATURE",
+        "dataType": "NUMERIC",
+        "size": 1,
+        "precision": 1,
+        "labels": null
+      }
+    },
+    {
+      "id": 518,
+      "name": "Pressure",
+      "reference": "P",
+      "description": "",
+      "unit": {
+        "id": 112,
+        "name": "MILLIBAR",
+        "symbol": "mb",
+        "readingTypeId": 3,
+        "system": "NON_SI"
+      },
+      "minimum": 300,
+      "maximum": 1100,
+      "readingType": {
+        "id": 3,
+        "name": "PRESSURE",
+        "dataType": "NUMERIC",
+        "size": 1,
+        "precision": 1,
+        "labels": null
+      }
+    },
+    {
+      "id": 519,
+      "name": "Humidity",
+      "reference": "H",
+      "description": "",
+      "unit": {
+        "id": 124,
+        "name": "HUMIDITY_PERCENT",
+        "symbol": "%",
+        "readingTypeId": 4,
+        "system": "NON_SI"
+      },
+      "minimum": 0,
+      "maximum": 100,
+      "readingType": {
+        "id": 4,
+        "name": "HUMIDITY",
+        "dataType": "NUMERIC",
+        "size": 1,
+        "precision": 1,
+        "labels": null
+      }
+    },
+    {
+      "id": 520,
+      "name": "Accelerometer",
+      "reference": "ACL",
+      "description": "",
+      "unit": {
+        "id": 24,
+        "name": "METRES_PER_SQUARE_SECOND",
+        "symbol": "m/s²",
+        "readingTypeId": 8,
+        "system": "SI"
+      },
+      "minimum": 0,
+      "maximum": 100,
+      "readingType": {
+        "id": 8,
+        "name": "ACCELEROMETER",
+        "dataType": "NUMERIC",
+        "size": 3,
+        "precision": 1,
+        "labels": [
+          "x",
+          "y",
+          "z"
+        ]
+      }
+    }
+  ],
+  "actuators": [
+    {
+      "id": 365,
+      "name": "Switch",
+      "reference": "SW",
+      "description": "",
+      "unit": {
+        "id": 145,
+        "name": "BOOLEAN(ACTUATOR)",
+        "symbol": null,
+        "readingTypeId": 31,
+        "system": "CUSTOM"
+      },
+      "minimum": 0,
+      "maximum": 1,
+      "readingType": {
+        "id": 31,
+        "name": "SWITCH(ACTUATOR)",
+        "dataType": "BOOLEAN",
+        "size": 1,
+        "precision": 1,
+        "labels": null
+      }
+    },
+    {
+      "id": 366,
+      "name": "Slider",
+      "reference": "SL",
+      "description": "",
+      "unit": {
+        "id": 141,
+        "name": "COUNT(ACTUATOR)",
+        "symbol": "count",
+        "readingTypeId": 13,
+        "system": "CUSTOM"
+      },
+      "minimum": 0,
+      "maximum": 100,
+      "readingType": {
+        "id": 13,
+        "name": "COUNT(ACTUATOR)",
+        "dataType": "NUMERIC",
+        "size": 1,
+        "precision": 1,
+        "labels": null
+      }
+    }
+  ],
+  "alarms": [
+    {
+      "id": 88,
+      "name": "High Humidity",
+      "description": "This alarm will trigger if humidity is over a certain threshold",
+      "message": "High humidity has been detected",
+      "severity": "ALERT",
+      "reference": "HH"
+    }
+  ],
+  "configs": [
+    {
+      "id": 54,
+      "name": "configuration_1",
+      "reference": "config_1",
+      "defaultValue": "",
+      "nullValue": null,
+      "description": null,
+      "minimum": 0,
+      "maximum": 100,
+      "dataType": "NUMERIC",
+      "size": 1,
+      "labels": null
+    },
+    {
+      "id": 55,
+      "name": "configuration_2",
+      "reference": "config_2",
+      "defaultValue": "",
+      "nullValue": null,
+      "description": "",
+      "minimum": null,
+      "maximum": null,
+      "dataType": "BOOLEAN",
+      "size": 1,
+      "labels": null
+    },
+    {
+      "id": 56,
+      "name": "configuration_3",
+      "reference": "configuration_3",
+      "defaultValue": "",
+      "nullValue": null,
+      "description": null,
+      "minimum": null,
+      "maximum": null,
+      "dataType": "STRING",
+      "size": 1,
+      "labels": null
+    },
+    {
+      "id": 57,
+      "name": "configuration_4",
+      "reference": "config_4",
+      "defaultValue": "",
+      "nullValue": null,
+      "description": null,
+      "minimum": null,
+      "maximum": null,
+      "dataType": "STRING",
+      "size": 3,
+      "labels": [
+        "a",
+        "b",
+        "c"
+      ]
+    }
+  ],
+  "inUse": false,
+  "generallyAvailable": false
+}
