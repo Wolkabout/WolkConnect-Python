@@ -34,6 +34,7 @@ from .ConfigurationProvider import ConfigurationProvider
 from .Device import Device
 from .FileSystemFirmwareHandler import FileSystemFirmwareHandler
 from .FirmwareInstaller import FirmwareInstaller
+from .FirmwareURLDownloadHandler import FirmwareURLDownloadHandler
 from .LoggerFactory import logging_config
 from .wolkcore.OutboundMessageQueue import OutboundMessageQueue
 from .WolkConnect import WolkConnect
@@ -47,6 +48,7 @@ __all__ = [
     "Device",
     "FileSystemFirmwareHandler",
     "FirmwareInstaller",
+    "FirmwareURLDownloadHandler",
     "LoggerFactory",
     "logging_config",
     "OutboundMessageQueue",
@@ -62,4 +64,4 @@ ACTUATOR_STATE_ERROR = 2
 # "Enum" of connector version
 VERSION_MAJOR = 3
 VERSION_MINOR = 0
-VERSION_PATCH = 0
+VERSION_PATCH = 1
