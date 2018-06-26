@@ -51,8 +51,8 @@ def main():
     # from WolkAbout IoT Platform when creating the device
     # List actuator references included on your device
     device = wolk.Device(
-        key="w6orbtllbfifxzjm",
-        password="1cb483b4-7209-4810-99d0-7431b0cb0dfb",
+        key="device_key",
+        password="some_password",
         actuator_references=["SW", "SL"],
     )
 
