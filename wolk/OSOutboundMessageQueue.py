@@ -1,0 +1,171 @@
+#   Copyright 2018 WolkAbout Technology s.r.o.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+"""
+OS Outbound Message Queue module.
+
+Contains OSOutboundMessageQueue class used to store messages.
+"""
+from collections import deque
+
+from wolk.wolkcore import OutboundMessageQueue
+from wolk import LoggerFactory
+
+
+class OSOutboundMessageQueue(OutboundMessageQueue):
+    """
+    Store messages before they are sent to the WolkAbout IoT Platform.
+
+    :ivar logger: Logger instance issued from the LoggerFactory class
+    :vartype logger: logger
+    :ivar queue: Double ended queue used to store messages
+    :vartype queue: collections.deque
+    """
+
+    def __init__(self):
+        """Create a double ended queue to store messages."""
+        self.queue = deque()
+        self.logger = LoggerFactory.logger_factory.get_logger(
+            str(self.__class__.__name__)
+        )
+        self.logger.debug("Init")
+
+    def put(self, message):
+        """
+        Add the message to the queue.
+
+        Combines sensor reading messages of the same reference
+        into a single message.
+
+        :param message: message to place in the queue
+        :type message: OutboundMessage
+
+        :returns: Nothing
+        :rtype: None
+        """
+        if not message:
+            return
+
+        if "readings" not in message.channel:
+            self.queue.append(message)
+            self.logger.debug(
+                "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                len(self.queue),
+                message.channel,
+                message.payload,
+            )
+
+        reading_reference = message.channel.split("/")[-1]
+
+        present_in_queue = False
+
+        for stored_message in self.queue:
+            if "readings" not in message.channel:
+                continue
+            if reading_reference == stored_message.channel.split("/")[-1]:
+                present_in_queue = True
+                break
+
+        if not present_in_queue:
+            self.queue.append(message)
+            self.logger.debug(
+                "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                len(self.queue),
+                message.channel,
+                message.payload,
+            )
+            return
+
+        readings = 0
+        max_data = 1
+
+        for stored_message in self.queue:
+            if "readings" not in stored_message.channel:
+                continue
+            if reading_reference == stored_message.channel.split("/")[-1]:
+                readings += 1
+                data_count = stored_message.payload.count('"data"')
+                if data_count > max_data:
+                    max_data = data_count
+
+        if readings > 0 and max_data == 1:
+            for stored_message in self.queue:
+                if reading_reference == stored_message.channel.split("/")[-1]:
+                    stored_message.payload = "[" + stored_message.payload
+                    stored_message.payload += "," + message.payload + "]"
+                    self.logger.debug(
+                        "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                        len(self.queue),
+                        message.channel,
+                        message.payload,
+                    )
+                    break
+
+        if max_data > 1:
+            for stored_message in self.queue:
+                if "readings" not in stored_message.channel:
+                    continue
+                if reading_reference == stored_message.channel.split("/")[-1]:
+                    data_count = stored_message.payload.count('"data"')
+                    if max_data > data_count:
+                        continue
+
+                    stored_message.payload = stored_message.payload[:-1]
+                    stored_message.payload += "," + message.payload + "]"
+                    self.logger.debug(
+                        "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                        len(self.queue),
+                        message.channel,
+                        message.payload,
+                    )
+
+    def get(self):
+        """
+        Take the first message from the queue.
+
+        :returns: message
+        :rtype: None if empty queue or OutboundMessage
+        """
+        if len(self.queue) == 0:
+            return None
+
+        message = self.queue.popleft()
+        self.logger.debug(
+            "get - Queue size: %s ; Channel: %s ; Payload: %s",
+            len(self.queue),
+            message.channel,
+            message.payload,
+        )
+        return message
+
+    def peek(self):
+        """
+        Return the first message from the queue without removing it.
+
+        :returns: message
+        :rtype: OutboundMessage
+        """
+        if len(self.queue) == 0:
+
+            self.logger.debug("peek - Queue size: %s", len(self.queue))
+            return
+
+        else:
+            message = self.queue[0]
+            self.logger.debug(
+                "peek - Queue size: %s ; Channel: %s ; Payload: %s",
+                len(self.queue),
+                message.channel,
+                message.payload,
+            )
+            return message
