@@ -33,20 +33,22 @@ class OSMQTTConnectivityService(ConnectivityService):
     :vartype client: paho.mqtt.Client
     :ivar connected: State of the connection
     :vartype connected: bool
+    :ivar connected_rc: return code of the connection
+    :vartype connected_rc: int
     :ivar device: Holds authentication information and actuator references
     :vartype device: wolk.Device
-    :ivar topics: List of topics to subscribe to
-    :vartype topics: list
     :ivar host: Address of the MQTT broker
     :vartype host: str
-    :ivar port: Port to which to send messages
-    :vartype port: int
-    :ivar qos: Quality of Service for the MQTT connection
-    :vartype qos: int
     :ivar inbound_message_listener: Callback method for inbound messages
     :vartype inbound_message_listener: method
     :ivar logger: Logger instance issued from the LoggerFactory class
     :vartype logger: logger
+    :ivar port: Port to which to send messages
+    :vartype port: int
+    :ivar qos: Quality of Service for the MQTT connection
+    :vartype qos: int
+    :ivar topics: List of topics to subscribe to
+    :vartype topics: list
     """
 
     def __init__(
@@ -75,8 +77,10 @@ class OSMQTTConnectivityService(ConnectivityService):
         self.host = host
         self.port = port
         self.connected = False
+        self.connected_rc = None
         self.inbound_message_listener = None
         self.client = None
+        self.topics = None
         self.ca_cert = ca_cert
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
@@ -162,15 +166,28 @@ class OSMQTTConnectivityService(ConnectivityService):
         :param rc: the connection result
         :type rc: int
         """
-        if rc == 0:
+        self.logger.debug("on_mqtt_connect called with rc: %s", rc)
+        if rc == 0:  # Connection successful
 
             self.connected = True
+            self.connected_rc = 0
             # Subscribing in on_mqtt_connect() means if we lose the connection
             # and reconnect then subscriptions will be renewed.
-            self.client.subscribe(self.topics)
+            if self.topics:
+                self.client.subscribe(self.topics)
             self.logger.debug(
                 "on_mqtt_connect - self.connected : %s", self.connected
             )
+        elif rc == 1:  # Connection refused - incorrect protocol version
+            self.connected_rc = 1
+        elif rc == 2:  # Connection refused - invalid client identifier
+            self.connected_rc = 2
+        elif rc == 3:  # Connection refused - server unavailable
+            self.connected_rc = 3
+        elif rc == 4:  # Connection refused - bad username or password
+            self.connected_rc = 4
+        elif rc == 5:  # Connection refused - not authorised
+            self.connected_rc = 5
 
     def on_mqtt_disconnect(self, client, userdata, rc):
         """
@@ -182,8 +199,13 @@ class OSMQTTConnectivityService(ConnectivityService):
         :type userdata: str
         :param rc: the disconnection result
         :type rc: int
+
+        :raises RuntimeError: Description
         """
+        if rc != 0:
+            raise RuntimeError("Unexpected disconnection.")
         self.connected = False
+        self.connected_rc = None
         self.logger.debug(
             "on_mqtt_disconnect - self.connected : %s", self.connected
         )
@@ -199,11 +221,14 @@ class OSMQTTConnectivityService(ConnectivityService):
 
         :returns: if self.connected returns None
         :rtype: None
+
+        :raises RuntimeError: Description
         """
         if self.connected:
 
             return
 
+        self.logger.debug("connect started")
         self.client = mqtt.Client(
             client_id=self.device.key, clean_session=True
         )
@@ -219,7 +244,43 @@ class OSMQTTConnectivityService(ConnectivityService):
         )
 
         self.client.connect(self.host, self.port)
+        self.logger.debug("client.connect called")
+
         self.client.loop_start()
+
+        while True:
+
+            if self.connected_rc is None:
+                continue
+
+            if self.connected_rc == 0:
+                break
+
+            elif self.connected_rc == 1:
+                raise RuntimeError(
+                    "Connection refused - incorrect protocol version"
+                )
+                break
+
+            elif self.connected_rc == 2:
+                raise RuntimeError(
+                    "Connection refused - invalid client identifier"
+                )
+                break
+
+            elif self.connected_rc == 3:
+                raise RuntimeError("Connection refused - server unavailable")
+                break
+
+            elif self.connected_rc == 4:
+                raise RuntimeError(
+                    "Connection refused - bad username or password"
+                )
+                break
+
+            elif self.connected_rc == 5:
+                raise RuntimeError("Connection refused - not authorised")
+                break
 
         topics = list()
         topics.append(["service/commands/firmware/" + self.device.key, 2])
@@ -244,8 +305,9 @@ class OSMQTTConnectivityService(ConnectivityService):
                 )
 
         self.topics = topics
-        self.logger.debug("connect - Topics: %s", topics)
+        self.logger.debug("calling subscribe with topics: %s", topics)
         self.client.subscribe(topics)
+        self.logger.debug("connect ended")
 
     def disconnect(self):
         """Disconnects the device from the WolkAbout IoT Platform."""

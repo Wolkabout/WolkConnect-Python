@@ -185,7 +185,12 @@ def main():
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
-    wolk_device.connect()
+    try:
+        wolk_device.connect()
+    except RuntimeError as e:
+        print(str(e))
+        sys.exit(1)
+
     wolk_device.publish_configuration()
 
     publish_period_seconds = 5
