@@ -200,7 +200,7 @@ class OSMQTTConnectivityService(ConnectivityService):
         :param rc: the disconnection result
         :type rc: int
 
-        :raises RuntimeError: Description
+        :raises RuntimeError: Unexpected disconnection
         """
         if rc != 0:
             raise RuntimeError("Unexpected disconnection.")
@@ -222,7 +222,7 @@ class OSMQTTConnectivityService(ConnectivityService):
         :returns: if self.connected returns None
         :rtype: None
 
-        :raises RuntimeError: Description
+        :raises RuntimeError: Reason for connection being refused
         """
         if self.connected:
 
