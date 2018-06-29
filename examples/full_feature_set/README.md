@@ -36,8 +36,8 @@ Example Usage
 -------------
 **Establishing connection with WolkAbout IoT platform:**
 
-Create a device on WolkAbout IoT platform by importing `full-example-manifest.json` from `examples\full_feature_set`. <br />
-This manifest fits `wolk_example.py` located in `examples\full_feature_set` and demonstrates all the functionality of WolkConnect-Python library.
+Create a device on WolkAbout IoT platform by importing [full-example-manifest.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/full-example-manifest.json) .<br />
+This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/wolk_example.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
 # First setup device credentials which you got when the device was created on the platform
@@ -115,7 +115,10 @@ wolk_device.add_sensor_reading("ACL", (4, 2, 0))
 
 **Publishing events:**
 ```python
-wolk_device.add_alarm("ALARM_REFERENCE", "ALARM_MESSAGE_FROM_CONNECTOR")
+# Activate alarm
+wolk_device.add_alarm("ALARM_REFERENCE", True)
+# Disable alarm
+wolk_device.add_alarm("ALARM_REFERENCE", False)
 ```
 
 **Publishing actuator statuses:**

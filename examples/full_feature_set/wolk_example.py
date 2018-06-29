@@ -208,7 +208,9 @@ def main():
             )
             if humidity > 50:
                 # Adds an alarm event to the queue
-                wolk_device.add_alarm("HH", "Humidity is over 50%!")
+                wolk_device.add_alarm("HH", True)
+            else:
+                wolk_device.add_alarm("HH", False)
             # Adds a sensor reading to the queue
             wolk_device.add_sensor_reading("T", temperature, timestamp)
             wolk_device.add_sensor_reading("H", humidity, timestamp)

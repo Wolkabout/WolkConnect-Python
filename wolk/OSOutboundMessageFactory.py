@@ -129,6 +129,11 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         self.logger.debug("make_from_alarm called")
         if alarm.timestamp is None:
 
+            if alarm.message is True:
+                alarm.message = "ON"
+            elif alarm.message is False:
+                alarm.message = "OFF"
+
             message = OutboundMessage(
                 "events/" + self.device_key + "/" + alarm.reference,
                 '{ "data" : "' + str(alarm.message) + '" }',
@@ -141,6 +146,11 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
             return message
 
         else:
+
+            if alarm.message is True:
+                alarm.message = "ON"
+            elif alarm.message is False:
+                alarm.message = "OFF"
 
             message = OutboundMessage(
                 "events/" + self.device_key + "/" + alarm.reference,

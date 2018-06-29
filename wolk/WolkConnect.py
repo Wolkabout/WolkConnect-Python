@@ -207,19 +207,19 @@ class WolkConnect:
         self._wolk.add_sensor_reading(reference, value, timestamp)
         self.logger.debug("add_sensor_reading ended")
 
-    def add_alarm(self, reference, message, timestamp=None):
+    def add_alarm(self, reference, active, timestamp=None):
         """
         Publish an alarm to the WolkAbout IoT Platform.
 
         :param reference: Reference of the alarm
         :type reference: str
-        :param message: Description of the event that occurred
-        :type message: str
+        :param active: Current state of the alarm
+        :type active: bool
         :param timestamp: Unix timestamp. If not provided, platform will assign
         :type timestamp: int
         """
         self.logger.debug("add_alarm started")
-        self._wolk.add_alarm(reference, message, timestamp)
+        self._wolk.add_alarm(reference, active, timestamp)
         self.logger.debug("add_alarm ended")
 
     def publish(self):
