@@ -36,8 +36,8 @@ Example Usage
 -------------
 **Establishing connection with WolkAbout IoT platform:**
 
-Create a device on WolkAbout IoT platform by importing `simple-example-manifest.json` from `examples\simple`. <br />
-This manifest fits `wolk_example.py` located in `examples\simple` and demonstrates the sending of a temperature sensor reading.
+Create a device on WolkAbout IoT platform by importing [simple-example-manifest.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/simple-example-manifest.json).<br />
+This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/wolk_example.py) and demonstrates the sending of a temperature sensor reading.
 
 ```python
 # Setup the device credentials which you received when the device was created on the platform
