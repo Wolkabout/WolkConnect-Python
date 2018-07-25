@@ -1,8 +1,8 @@
 # WolkConnect-Python
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
-Supported protocol(s):
-* JSON_SINGLE
+Supported device communication protocol(s):
+* JsonSingleReferenceProtocol
 
 Prerequisite
 ------------
@@ -40,7 +40,8 @@ Create a device on WolkAbout IoT platform by importing [simple-example-manifest.
 This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/wolk_example.py) and demonstrates the sending of a temperature sensor reading.
 
 ```python
-# Setup the device credentials which you received when the device was created on the platform
+# Setup the device credentials which you received
+# when the device was created on the platform
 device = wolk.Device(
     key="device_key",
     password="some_password"
