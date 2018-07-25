@@ -14,7 +14,7 @@
 """
 WolkAbout IoT Platform Library.
 
-Contains Wolk class that contains the top level API.
+Contains WolkConnect class that represents the top level API.
 """
 import os
 
@@ -225,12 +225,6 @@ class WolkConnect:
     def publish(self):
         """Publish all currently stored messages to WolkAbout IoT Platform."""
         self.logger.debug("publish started")
-
-        if self.device.actuator_references:
-
-            for reference in self.device.actuator_references:
-
-                self.publish_actuator_status(reference)
 
         self._wolk.publish()
         self.logger.debug("publish ended")
