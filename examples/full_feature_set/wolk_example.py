@@ -60,38 +60,34 @@ def main():
         def __init__(self, inital_value):
             self.value = inital_value
 
-    switch = ActuatorSimulator(True)
-    slider = ActuatorSimulator(1)
+    switch = ActuatorSimulator(False)
+    slider = ActuatorSimulator(0)
 
     class ConfigurationSimulator:
         def __init__(self, inital_value):
             self.value = inital_value
 
     configuration_1 = ConfigurationSimulator(0)
-    configuration_2 = ConfigurationSimulator(True)
-    configuration_3 = ConfigurationSimulator("")
+    configuration_2 = ConfigurationSimulator(False)
+    configuration_3 = ConfigurationSimulator("configuration_3")
     configuration_4 = ConfigurationSimulator(
-        ("192.168.1.10", "255.255.255.0", "192.168.1.1")
+        ("configuration_4a", "configuration_4b", "configuration_4c")
     )
 
     # Provide a way to read actuator status if your device has actuators
     class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
         def get_actuator_status(self, reference):
             if reference == "SW":
-                return (
-                    (wolk.ACTUATOR_STATE_READY, "true")
-                    if switch.value
-                    else (wolk.ACTUATOR_STATE_READY, "false")
-                )
+                return wolk.ACTUATOR_STATE_READY, switch.value
             elif reference == "SL":
                 return wolk.ACTUATOR_STATE_READY, slider.value
 
     # Provide an actuation handler if your device has actuators
     class ActuationHandlerImpl(wolk.ActuationHandler):
         def handle_actuation(self, reference, value):
-            print("Setting actuator " + reference + " to value: " + value)
+            print("Setting actuator " + reference + " to value: " + str(value))
             if reference == "SW":
-                switch.value = True if value == "true" else False
+                switch.value = value
 
             elif reference == "SL":
                 slider.value = value
@@ -192,6 +188,8 @@ def main():
         sys.exit(1)
 
     wolk_device.publish_configuration()
+    wolk_device.publish_actuator_status("SW")
+    wolk_device.publish_actuator_status("SL")
 
     publish_period_seconds = 5
 
@@ -218,8 +216,8 @@ def main():
             wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
 
             # Publishes all sensor readings and alarms from the queue
-            # and current actuator states to the WolkAbout IoT Platform
-            print("Publishing buffered messages and actuator statuses")
+            # to the WolkAbout IoT Platform
+            print("Publishing buffered messages")
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:

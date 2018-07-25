@@ -63,6 +63,10 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
             command_type = ActuatorCommandType.ACTUATOR_COMMAND_TYPE_SET
             value = payload.get("value")
+            if value == "true":
+                value = True
+            elif value == "false":
+                value = False
 
             actuation = ActuatorCommand(reference, command_type, value)
             self.logger.info(

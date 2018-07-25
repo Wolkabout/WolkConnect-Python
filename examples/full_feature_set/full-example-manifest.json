@@ -191,7 +191,7 @@
     {
       "id": 56,
       "name": "configuration_3",
-      "reference": "configuration_3",
+      "reference": "config_3",
       "defaultValue": "",
       "nullValue": null,
       "description": null,

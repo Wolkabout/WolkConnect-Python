@@ -191,7 +191,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
             '{ "status" : "'
             + actuator.state
             + '" , "value" : "'
-            + str(actuator.value)
+            + str(actuator.value).lower()
             + '" }',
         )
         self.logger.debug(

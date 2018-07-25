@@ -1,8 +1,8 @@
 # WolkConnect-Python
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
-Supported protocol(s):
-* JSON_SINGLE
+Supported device communication protocol(s):
+* JsonSingleReferenceProtocol
 
 Prerequisite
 ------------
@@ -40,7 +40,8 @@ Create a device on WolkAbout IoT platform by importing [full-example-manifest.js
 This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/wolk_example.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
-# First setup device credentials which you got when the device was created on the platform
+# Setup device credentials which you got
+# when the device was created on the platform
 device = wolk.Device(
     key="device_key",
     password="some_password",
@@ -49,29 +50,28 @@ device = wolk.Device(
 
 # Provide implementation of a way to read actuator status
 class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
-
     def get_actuator_status(self, reference):
-        if reference == "ACTUATOR_REFERENCE_ONE": 
-            return (wolk.ACTUATOR_STATE_READY, "true") if actuator_1.value else (wolk.ACTUATOR_STATE_READY, "false")
+        if reference == "ACTUATOR_REFERENCE_ONE":
+            return wolk.ACTUATOR_STATE_READY, actuator_1.value
         elif reference == "ACTUATOR_REFERENCE_TWO":
             return wolk.ACTUATOR_STATE_READY, actuator_2.value
 
+
 # Provide implementation of an actuation handler
 class ActuationHandlerImpl(wolk.ActuationHandler):
-
     def handle_actuation(self, reference, value):
-        print("Setting actuator " + reference + " to value: " + value)
-            if reference == "ACTUATOR_REFERENCE_ONE":
-                actuator_1.value = True if value == "true" else False
+        print("Setting actuator " + reference + " to value: " + str(value))
+        if reference == "ACTUATOR_REFERENCE_ONE":
+            actuator_1.value = value
 
-            elif reference == "ACTUATOR_REFERENCE_TWO":
-                actuator_2.value = value
+        elif reference == "ACTUATOR_REFERENCE_TWO":
+            actuator_2.value = value
 
 # Provide implementation of a configuration handler
 class ConfigurationHandlerImpl(wolk.ConfigurationHandler):
 
     def handle_configuration(self, configuration):
-        for key, value in configuration.values.items():
+        for key, value in configuration.items():
             if key == "config_1":
                 configuration_1.value = value
             elif key == "config_2":
