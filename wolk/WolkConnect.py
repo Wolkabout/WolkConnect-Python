@@ -110,18 +110,18 @@ class WolkConnect:
         self.device = device
         self.outbound_message_factory = OSOutboundMessageFactory(device.key)
         self.outbound_message_queue = outbound_message_queue
-        if host and port:
-            if ca_cert:
-                self.connectivity_service = OSMQTTConnectivityService(
-                    device, host=host, port=int(port), ca_cert=ca_cert
-                )
-            else:
+
+        wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
+
+        if host and port and ca_cert:
+            self.connectivity_service = OSMQTTConnectivityService(
+                device, host=host, port=int(port), ca_cert=ca_cert
+            )
+        elif host and port:
                 self.connectivity_service = OSMQTTConnectivityService(
                     device, host=host, port=int(port)
                 )
-
         else:
-            wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
             self.connectivity_service = OSMQTTConnectivityService(
                 device, ca_cert=wolk_ca_cert
             )

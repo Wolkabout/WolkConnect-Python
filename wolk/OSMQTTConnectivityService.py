@@ -243,8 +243,16 @@ class OSMQTTConnectivityService(ConnectivityService):
             "lastwill/" + self.device.key, "Gone offline", 2, False
         )
 
+        self.logger.debug(
+            "client.connect called : host: %s ; port:%s, ca_cert:%s "
+            "; username:%s ; password:%s",
+            self.host,
+            self.port,
+            self.ca_cert,
+            self.device.key,
+            self.device.password,
+        )
         self.client.connect(self.host, self.port)
-        self.logger.debug("client.connect called")
 
         self.client.loop_start()
 
