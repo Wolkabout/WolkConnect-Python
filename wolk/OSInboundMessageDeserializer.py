@@ -63,6 +63,9 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
             command_type = ActuatorCommandType.ACTUATOR_COMMAND_TYPE_SET
             value = payload.get("value")
+            if "\n" in value:
+                value = value.replace("\n", "\\n")
+                value = value.replace("\r", "")
             if value == "true":
                 value = True
             elif value == "false":
@@ -242,8 +245,19 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
                 received_reference,
                 received_value,
             ) in configuration.values.items():
+                if "\n" in received_value:
+                    received_value = received_value.replace("\n", "\\n")
+                    received_value = received_value.replace("\r", "")
+                if received_value == "true":
+                    received_value = True
+                elif received_value == "false":
+                    received_value = False
                 if "," in received_value:
                     values_list = received_value.split(",")
+                    for value in values_list:
+                        if "\n" in value:
+                            value = value.replace("\n", "\\n")
+                            value = value.replace("\r", "")
                     try:
                         if any("." in value for value in values_list):
                             values_list = [
