@@ -63,6 +63,9 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
             command_type = ActuatorCommandType.ACTUATOR_COMMAND_TYPE_SET
             value = payload.get("value")
+            if "\n" in value:
+                value = value.replace("\n", "\\n")
+                value = value.replace("\r", "")
             if value == "true":
                 value = True
             elif value == "false":
@@ -238,26 +241,33 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
                 configuration.values,
             )
 
-            for (
-                received_reference,
-                received_value,
-            ) in configuration.values.items():
-                if "," in received_value:
-                    values_list = received_value.split(",")
-                    try:
-                        if any("." in value for value in values_list):
-                            values_list = [
-                                float(value) for value in values_list
-                            ]
-                        else:
-                            values_list = [int(value) for value in values_list]
-                    except ValueError:
-                        pass
+            for reference, value in configuration.values.items():
+                if "\n" in value:
+                    value = value.replace("\n", "\\n")
+                    value = value.replace("\r", "")
+                if value == "true":
+                    value = True
+                elif value == "false":
+                    value = False
 
-                        configuration.values[received_reference] = tuple(
-                            values_list
-                        )
-                        break
+                if isinstance(value, bool):
+                    pass
+                else:
+                    if "," in value:
+                        values_list = value.split(",")
+                        try:
+                            if any("." in value for value in values_list):
+                                values_list = [
+                                    float(value) for value in values_list
+                                ]
+                            else:
+                                values_list = [
+                                    int(value) for value in values_list
+                                ]
+                        except ValueError:
+                            pass
+
+                        configuration.values[reference] = tuple(values_list)
 
             return configuration
 

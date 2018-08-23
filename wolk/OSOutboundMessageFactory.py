@@ -68,12 +68,28 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
                 values_list = list()
 
                 for value in reading.value:
+                    if value is True:
+                        value = "true"
+                    elif value is False:
+                        value = "false"
+                    if "\n" in str(value):
+                        value = value.replace("\n", "\\n")
+                        value = value.replace("\r", "")
                     values_list.append(value)
                     values_list.append(delimiter)
 
                 values_list.pop()
 
                 reading.value = "".join(map(str, values_list))
+
+            if reading.value is True:
+                reading.value = "true"
+            elif reading.value is False:
+                reading.value = "false"
+
+            if "\n" in str(reading.value):
+                reading.value = reading.value.replace("\n", "\\n")
+                reading.value = reading.value.replace("\r", "")
 
             message = OutboundMessage(
                 "readings/" + self.device_key + "/" + reading.reference,
@@ -95,12 +111,28 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
                 values_list = list()
 
                 for value in reading.value:
+                    if value is True:
+                        value = "true"
+                    elif value is False:
+                        value = "false"
+                    if "\n" in str(value):
+                        value = value.replace("\n", "\\n")
+                        value = value.replace("\r", "")
                     values_list.append(value)
                     values_list.append(delimiter)
 
                 values_list.pop()
 
                 reading.value = "".join(map(str, values_list))
+
+            if reading.value is True:
+                reading.value = "true"
+            elif reading.value is False:
+                reading.value = "false"
+
+            if "\n" in str(reading.value):
+                reading.value = reading.value.replace("\n", "\\n")
+                reading.value = reading.value.replace("\r", "")
 
             message = OutboundMessage(
                 "readings/" + self.device_key + "/" + reading.reference,
@@ -186,12 +218,21 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         elif actuator.state == ActuatorState.ACTUATOR_STATE_ERROR:
             actuator.state = "ERROR"
 
+        if actuator.value is True:
+            actuator.value = "true"
+        elif actuator.value is False:
+            actuator.value = "false"
+
+        if "\n" in str(actuator.value):
+            actuator.value = actuator.value.replace("\n", "\\n")
+            actuator.value = actuator.value.replace("\r", "")
+
         message = OutboundMessage(
             "actuators/status/" + self.device_key + "/" + actuator.reference,
             '{ "status" : "'
             + actuator.state
             + '" , "value" : "'
-            + str(actuator.value).lower()
+            + str(actuator.value)
             + '" }',
         )
         self.logger.debug(
@@ -408,11 +449,27 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
                 values_list = list()
 
                 for single_value in value:
+                    if single_value is True:
+                        single_value = "true"
+                    elif single_value is False:
+                        single_value = "false"
+                    if "\n" in str(single_value):
+                        single_value = single_value.replace("\n", "\\n")
+                        single_value = single_value.replace("\r", "")
                     values_list.append(single_value)
                     values_list.append(delimiter)
 
                 values_list.pop()
                 value = "".join(map(str, values_list))
+
+            if value is True:
+                value = "true"
+            elif value is False:
+                value = "false"
+
+            if "\n" in str(value):
+                value = value.replace("\n", "\\n")
+                value = value.replace("\r", "")
 
             values += '"' + reference + '":"' + str(value) + '",'
 
