@@ -152,6 +152,12 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         Calls the provided firmware installer's install_firmware function
         """
         self.logger.debug("update_finalize called")
+        self.logger.debug(
+            "download location: %s ;file_name: %s ;temp_file: %s",
+            self.download_location,
+            self.file_name,
+            self.temp_file,
+        )
 
         if not os.path.exists(os.path.abspath(self.download_location)):
             os.makedirs(os.path.abspath(self.download_location))
@@ -160,9 +166,10 @@ class FileSystemFirmwareHandler(FirmwareHandler):
             os.path.abspath(self.download_location), self.file_name
         )
 
-        shutil.copy2(os.path.realpath(self.temp_file.name), firmware_file_path)
-
         if self.temp_file:
+            shutil.copy2(
+                os.path.realpath(self.temp_file.name), firmware_file_path
+            )
             self.temp_file.close()
 
         self.logger.info(
