@@ -157,14 +157,14 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         self.logger.debug("make_from_alarm called")
         if alarm.timestamp is None:
 
-            if alarm.message is True:
-                alarm.message = "ON"
-            elif alarm.message is False:
-                alarm.message = "OFF"
+            if alarm.active is True:
+                alarm.active = "ON"
+            elif alarm.active is False:
+                alarm.active = "OFF"
 
             message = OutboundMessage(
                 "events/" + self.device_key + "/" + alarm.reference,
-                '{ "data" : "' + str(alarm.message) + '" }',
+                '{ "data" : "' + str(alarm.active) + '" }',
             )
             self.logger.debug(
                 "make_from_alarm - Channel: %s ; Payload: %s",
@@ -175,17 +175,17 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
         else:
 
-            if alarm.message is True:
-                alarm.message = "ON"
-            elif alarm.message is False:
-                alarm.message = "OFF"
+            if alarm.active is True:
+                alarm.active = "ON"
+            elif alarm.active is False:
+                alarm.active = "OFF"
 
             message = OutboundMessage(
                 "events/" + self.device_key + "/" + alarm.reference,
                 '{ "utc" : "'
                 + str(alarm.timestamp)
                 + '", "data" : "'
-                + str(alarm.message)
+                + str(alarm.active)
                 + '" }',
             )
             self.logger.debug(
