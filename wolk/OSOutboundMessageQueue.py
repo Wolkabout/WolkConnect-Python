@@ -11,11 +11,9 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-OS Outbound Message Queue module.
 
-Contains OSOutboundMessageQueue class used to store messages.
-"""
+"""OSOutboundMessageQueue Module."""
+
 from collections import deque
 
 from wolk.wolkcore import OutboundMessageQueue
@@ -26,8 +24,8 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
     """
     Store messages before they are sent to the WolkAbout IoT Platform.
 
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     :ivar queue: Double ended queue used to store messages
     :vartype queue: collections.deque
     """
@@ -47,11 +45,8 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         Combines sensor reading messages of the same reference
         into a single message.
 
-        :param message: message to place in the queue
-        :type message: OutboundMessage
-
-        :returns: Nothing
-        :rtype: None
+        :param message: Message to place in the queue
+        :type message: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         if not message:
             return
@@ -134,7 +129,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         Take the first message from the queue.
 
         :returns: message
-        :rtype: None if empty queue or OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage or None
         """
         if len(self.queue) == 0:
             return None
@@ -153,7 +148,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         Return the first message from the queue without removing it.
 
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage or None
         """
         if len(self.queue) == 0:
 

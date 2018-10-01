@@ -11,40 +11,37 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Device module.
 
-Contains Device class that holds connection credentials.
-"""
+"""Device Module."""
+
 from wolk import LoggerFactory
 
 
 class Device:
     """
+    Hold all necessary information to communicate with WolkAbout IoT Platform.
 
-    Contains required information for connecting to the WolkAbout IoT Platform.
-
-    :ivar actuator_references: actuator references defined in device manifest
+    :ivar actuator_references: Actuator references enabled on device
     :vartype actuator_references: list
-    :ivar key: key obtained when creating device on WolkAbout IoT Platform
+    :ivar key: Device key obtained when creating device on WolkAbout IoT Platform
     :vartype key: str
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
-    :ivar password: password obtained when creating device on platform
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
+    :ivar password: Password obtained when creating device on WolkAbout IoT Platform
     :vartype password: str
 
     """
 
     def __init__(self, key, password, actuator_references=None):
         """
-        Contain device credentials necessary for connection to the platform.
+        Contain device credentials necessary for connection to WolkAbout IoT Platform.
 
-        :param key: key obtained when creating device on WolkAbout IoT Platform
+        :param key: Device key obtained when creating device on WolkAbout IoT Platform
         :type key: str
-        :param password: password obtained when creating device on platform
+        :param password: Password obtained when creating device on WolkAbout IoT Platform
         :type password: str
-        :param actuator_references: references defined in device manifest
-        :type actuator_references: list or None, optional
+        :param actuator_references: Actuator references enabled on device
+        :type actuator_references: list or None
         """
         self.key = key
         self.password = password

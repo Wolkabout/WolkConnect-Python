@@ -11,28 +11,23 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Configuration Handler module.
 
-Contains ConfigurationHandler "interface".
-"""
+"""ConfigurationHandler Module."""
 
 
 class ConfigurationHandler:
-    """
-    Must be implemented in order to set to the configuration values received.
-
-    The configuration values are issued from the WolkAbout IoT Platform.
-    """
+    """Set device's configuration options."""
 
     def handle_configuration(self, configuration):
         """
-        Update device configuration with received configuration values.
+        Change device's configuration options.
 
+        When the configuration command is given from WolkAbout IoT Platform, it will be delivered to this method.
+        This function should update device configuration with received configuration values.
         Must be implemented as non blocking.
         Must be implemented as thread safe.
 
-        :param configuration: dictionary of configuration reference/value pairs
+        :param configuration: Configuration option reference:value pairs
         :type configuration: dict
         """
         pass

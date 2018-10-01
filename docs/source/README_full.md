@@ -19,8 +19,7 @@
 ----
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
-Supported device communication protocol(s):
-* JsonSingleReferenceProtocol
+Supported device communication protocol(s): **JsonSingleReferenceProtocol**
 
 ##Prerequisite
 

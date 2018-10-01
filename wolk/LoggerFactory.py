@@ -12,6 +12,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+"""LoggerFactory Module."""
+
 import logging
 
 
@@ -43,12 +45,13 @@ class LoggerFactory:
         self.log_file = log_file
 
     def get_logger(self, name, level=None):
-        """Return a ready to use logger instance.
+        """
+        Return a ready to use logger instance.
 
         :param name: Name of the logger
         :type name: str
         :param level: Override the log level
-        :type level: None, optional
+        :type level: int or None
 
         :returns: Logger instance
         :rtype: logger
@@ -96,7 +99,7 @@ def logging_config(level, log_file=None):
     :param level: Available levels : debug, info, notset
     :type level: str
     :param log_file: path to log file
-    :type log_file: str or None, optional
+    :type log_file: str or None
     """
     if level == "debug":
         logger_factory.level = logging.DEBUG

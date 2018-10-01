@@ -11,25 +11,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Configuration Provider module.
 
-Contains ConfigurationProvider "interface".
-"""
+"""ConfigurationProvider Module."""
 
 
 class ConfigurationProvider:
-    """
-    Must be implemented to read the device's configuration values.
-
-    The configuration values are then sent to WolkAbout IoT Platform.
-    """
+    """Read the device's current configuration options."""
 
     def get_configuration(self):
         """
-        Read device configuration and return it as a dictionary.
+        Get current configuration options.
 
-        With device configuration reference as key,
+        Reads device configuration and returns it as a dictionary
+        with device configuration reference as key,
         and device configuration value as value.
 
         Must be implemented as non blocking.

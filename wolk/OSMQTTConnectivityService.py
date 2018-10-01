@@ -11,11 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-OS MQTT Connectivity Service module.
 
-Contains OSMQTTConnectivityService class used for MQTT connection.
-"""
+"""OSMQTTConnectivityService Module."""
 
 from paho.mqtt import client as mqtt
 
@@ -25,7 +22,7 @@ from wolk import LoggerFactory
 
 
 class OSMQTTConnectivityService(ConnectivityService):
-    """This class handles sending and receiving MQTT messages.
+    """Handle sending and receiving MQTT messages.
 
     :ivar ca_cert: Path to ca.crt file used for TLS
     :vartype ca_cert: str
@@ -36,13 +33,13 @@ class OSMQTTConnectivityService(ConnectivityService):
     :ivar connected_rc: return code of the connection
     :vartype connected_rc: int
     :ivar device: Holds authentication information and actuator references
-    :vartype device: wolk.Device
+    :vartype device: wolk.Device.Device
     :ivar host: Address of the MQTT broker
     :vartype host: str
-    :ivar inbound_message_listener: Callback method for inbound messages
-    :vartype inbound_message_listener: method
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
+    :ivar inbound_message_listener: Callback function for inbound messages
+    :vartype inbound_message_listener: function
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     :ivar port: Port to which to send messages
     :vartype port: int
     :ivar qos: Quality of Service for the MQTT connection
@@ -62,15 +59,15 @@ class OSMQTTConnectivityService(ConnectivityService):
         """Provide the connection to the WolkAbout IoT Platform.
 
         :param device: Contains device key, password and actuator references
-        :type device: Device
-        :param qos: Quality of Service for MQTT connection, defaults to 2
-        :type qos: int, optional
-        :param host: Address of the MQTT broker, defaults to the Demo instance
-        :type host: str, optional
-        :param port: Port to which to send messages, defaults to 8883
-        :type port: int, optional
-        :param ca_cert: The certificate file used to encrypt the connection
-        :type ca_cert: None, optional
+        :type device: wolk.Device.Device
+        :param qos: Quality of Service for MQTT connection
+        :type qos: int or None
+        :param host: Address of the MQTT broker
+        :type host: str or None
+        :param port: Port to which to send messages
+        :type port: int or None
+        :param ca_cert: Certificate file used to encrypt the connection
+        :type ca_cert: str or None
         """
         self.device = device
         self.qos = qos
@@ -100,10 +97,10 @@ class OSMQTTConnectivityService(ConnectivityService):
 
     def set_inbound_message_listener(self, on_inbound_message):
         """
-        Set the callback method to handle inbound messages.
+        Set the callback function to handle inbound messages.
 
-        :param on_inbound_message: The method that handles inbound messages
-        :type on_inbound_message: method
+        :param on_inbound_message: Function that handles inbound messages
+        :type on_inbound_message: function
         """
         self.logger.debug(
             "set_inbound_message_listener called - "
@@ -114,17 +111,14 @@ class OSMQTTConnectivityService(ConnectivityService):
 
     def on_mqtt_message(self, client, userdata, message):
         """
-        Serialize inbound messages and passes them to inbound message listener.
+        Serialize inbound messages and pass them to inbound message listener.
 
         :param client: Client that received the message
         :type client: paho.mqtt.Client
-        :param userdata: private user data set in Client()
+        :param userdata: Private user data set in Client()
         :type userdata: str
         :param message: Class with members: topic, payload, qos, retain.
         :type message: paho.mqtt.MQTTMessage
-
-        :returns: Nothing
-        :rtype: None if no message is present
         """
         self.logger.debug("on_mqtt_message called")
         if not message:
@@ -161,9 +155,9 @@ class OSMQTTConnectivityService(ConnectivityService):
         :type client: paho.mqtt.Client
         :param userdata: private user data set in Client()
         :type userdata: str
-        :param flags: response flags sent by the broker
+        :param flags: Response flags sent by the broker
         :type flags: int
-        :param rc: the connection result
+        :param rc: Connection result
         :type rc: int
         """
         self.logger.debug("on_mqtt_connect called with rc: %s", rc)
@@ -197,7 +191,7 @@ class OSMQTTConnectivityService(ConnectivityService):
         :type client: paho.mqtt.Client
         :param userdata: private user data set in Client()
         :type userdata: str
-        :param rc: the disconnection result
+        :param rc: Disconnection result
         :type rc: int
 
         :raises RuntimeError: Unexpected disconnection
@@ -218,9 +212,6 @@ class OSMQTTConnectivityService(ConnectivityService):
         that will contain actuator commands.
         Subscribes to firmware update related topics.
         Starts a loop to handle inbound messages.
-
-        :returns: if self.connected returns None
-        :rtype: None
 
         :raises RuntimeError: Reason for connection being refused
         """
@@ -326,10 +317,10 @@ class OSMQTTConnectivityService(ConnectivityService):
 
     def publish(self, outbound_message):
         """
-        Publish the outbound_message to the WolkAbout IoT Platform.
+        Publish serialized data to WolkAbout IoT Platform.
 
-        :param outbound_message: message to be published
-        :type outbound_message: OutboundMessage
+        :param outbound_message: Message to be published
+        :type outbound_message: wolk.wolkcore.OutboundMessage.OutboundMessage
 
         :returns: result
         :rtype: bool

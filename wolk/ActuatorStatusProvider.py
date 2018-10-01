@@ -11,34 +11,32 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Actuator Status Provider module.
 
-Contains ActuatorStatusProvider "interface".
-"""
+"""ActuatorStatusProvider Module."""
 
 
 class ActuatorStatusProvider:
-    """
-    Must be implemented to provide information about current actuator status.
-
-    Should be implemented as non blocking.
-    """
+    """Read the status of device's actuators."""
 
     def get_actuator_status(self, reference):
         """
-        Return the current actuator state and value.
+        Get current actuator status.
 
-        The possible states are:
+        Reads the status of actuator from device
+        and returns as tuple containing actuator state and current value.
+        Must be implemented as non blocking.
+        Must be implemented as thread safe.
 
-            wolk.ACTUATOR_STATE_READY
-            wolk.ACTUATOR_STATE_BUSY
-            wolk.ACTUATOR_STATE_ERROR
+        The possible actuator states are:
 
-        :param reference: reference of the actuator
+        - ``wolk.ACTUATOR_STATE_READY``
+        - ``wolk.ACTUATOR_STATE_BUSY``
+        - ``wolk.ACTUATOR_STATE_ERROR``
+
+
+        :param reference: Actuator reference
         :type reference: str
-
         :returns: (state, value)
-        :rtype: (int, int or float or str)
+        :rtype: (wolk.ActuatorState, int or float or str)
         """
         pass

@@ -5,12 +5,12 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="wolk-connect",
-    version="3.0.6",
+    version="3.1.0",
     install_requires=["paho_mqtt==1.3.1", "python-persistent-queue==1.3.0"],
     include_package_data=True,
     license="Apache License 2.0",
-    author="Danilo Jesic",
-    author_email="danilo.jesic@wolkabout.com",
+    author="WolkAbout",
+    author_email="info@wolkabout.com",
     description="Python 3 library for connecting to WolkAbout IoT Platform",
     long_description=long_description,
     long_description_content_type="text/markdown",

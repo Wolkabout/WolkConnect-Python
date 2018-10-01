@@ -11,13 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-OS Outbound Message Factory module.
 
-Contains OSOutboundMessageFactory class used to create serialized messages
-that are ready to be sent to the WolkAbout IoT Platform.
-"""
-
+"""OSOutboundMessageFactory Module."""
 
 from wolk.wolkcore import ActuatorState
 from wolk.wolkcore import FirmwareErrorType
@@ -29,18 +24,19 @@ from wolk import LoggerFactory
 
 class OSOutboundMessageFactory(OutboundMessageFactory):
     """
-    Serializes messages to be sent to the WolkAbout IoT Platform.
+    Serialize messages to be sent to WolkAbout IoT Platform.
 
-    :ivar device_key: The key to use when serializing messages
+    :ivar device_key: Device key to use when serializing messages
     :vartype device_key: str
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     """
 
     def __init__(self, device_key):
-        """Create a factory for serializing messages.
+        """
+        Create a factory for serializing messages.
 
-        :param device_key: The device key to use when serializing messages
+        :param device_key: Device key to use when serializing messages
         :type device_key: str
         """
         self.device_key = device_key
@@ -51,12 +47,12 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
     def make_from_sensor_reading(self, reading):
         """
-        Serialize the sensor reading to be sent to the WolkAbout IoT Platform.
+        Serialize the sensor reading to be sent to WolkAbout IoT Platform.
 
-        :param reading: sensor reading to be serialized
-        :type reading: SensorReading
+        :param reading: Sensor reading to be serialized
+        :type reading: wolk.wolkcore.SensorReading.SensorReading
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_sensor_reading called")
         if reading.timestamp is None:
@@ -151,12 +147,12 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
     def make_from_alarm(self, alarm):
         """
-        Serialize the alarm to be sent to the WolkAbout IoT Platform.
+        Serialize the alarm to be sent to WolkAbout IoT Platform.
 
         :param alarm: Alarm event to be serialized
-        :type alarm: Alarm
+        :type alarm: wolk.wolkcore.Alarm.Alarm
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_alarm called")
         if alarm.timestamp is None:
@@ -201,12 +197,12 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
     def make_from_actuator_status(self, actuator):
         """
-        Serialize the actuator status to be sent to the WolkAbout IoT Platform.
+        Serialize the actuator status to be sent to WolkAbout IoT Platform.
 
-        :param actuator: actuator status to be serialized
-        :type actuator: ActuatorStatus
+        :param actuator: Actuator status to be serialized
+        :type actuator: wolk.wolkcore.ActuatorStatus.ActuatorStatus
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_actuator_status called")
         if actuator.state == ActuatorState.ACTUATOR_STATE_READY:
@@ -244,12 +240,12 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
     def make_from_firmware_status(self, firmware_status):
         """
-        Serialize the firmware status to be sent to the WolkAbout IoT Platform.
+        Serialize the firmware status to be sent to WolkAbout IoT Platform.
 
-        :param firmware_status: firmware status to be serialized
-        :type firmware_status: FirmwareStatus
+        :param firmware_status: Firmware status to be serialized
+        :type firmware_status: wolk.wolkcore.FirmwareStatus.FirmwareStatus
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_firmware_status called")
         if (
@@ -362,16 +358,16 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
     def make_from_chunk_request(self, file_name, chunk_index, chunk_size):
         """
-        Request a firmware chunk from the WolkAbout IoT Platform.
+        Request a firmware file chunk from WolkAbout IoT Platform.
 
-        :param file_name: name of the file to which the chunk belongs
+        :param file_name: Name of the file to which the chunk belongs
         :type file_name: str
-        :param chunk_index: index of the requested chunk
+        :param chunk_index: Index of the requested chunk
         :type chunk_index: int
-        :param chunk_size: size of the requested chunk
+        :param chunk_size: Size of the requested chunk
         :type chunk_size: int
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_chunk_request called")
         message = OutboundMessage(
@@ -393,12 +389,12 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
     def make_from_firmware_version(self, version):
         """
-        Report the current version of firmware to the WolkAbout IoT Platform.
+        Report the current version of firmware to WolkAbout IoT Platform.
 
-        :param version: firmware version to report
+        :param version: Firmware version to report
         :type version: str
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_firmware_version called")
         message = OutboundMessage(
@@ -416,7 +412,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         Create a ping message.
 
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_keep_alive_message called")
         message = OutboundMessage("ping/" + self.device_key, None)
@@ -431,11 +427,11 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         """
         Report device's configuration to WolkAbout IoT Platform.
 
-        :param configuration: device's current configuration
+        :param configuration: Device's current configuration
         :type configuration: dict
 
         :returns: message
-        :rtype: OutboundMessage
+        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_configuration called")
         values = str()

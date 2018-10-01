@@ -11,27 +11,25 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Actuation Handler module.
 
-Contains ActuationHandler "interface".
-"""
+"""ActuationHandler Module."""
 
 
 class ActuationHandler:
-    """
-    Must be implemented in order to execute actuation commands.
-
-    Commands are issued from WolkAbout IoT Platform.
-    """
+    """Handle actuation commands received from WolkAbout IoT Platform."""
 
     def handle_actuation(self, reference, value):
         """
-        Set the actuator, identified by reference, to the value specified.
+        Set actuator to value.
 
-        :param reference: reference of the actuator
+        When the actuation command is given from WolkAbout IoT Platform, it will be delivered to this method.
+        This method should pass the new value to the device's actuator.
+        Must be implemented as non blocking.
+        Must be implemented as thread safe.
+
+        :param reference: Reference of the actuator
         :type reference: str
-        :param value: value to set to
+        :param value: Value to which to set the actuator
         :type value: int or float or str
         """
         pass

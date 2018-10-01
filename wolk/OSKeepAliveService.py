@@ -11,12 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-OS Keep Alive Service module.
 
-Contains OSKeepAliveService class used to send ping messages to the platform.
-Contains RepeatingTimer class used to keep sending pings in an interval.
-"""
+"""OS Keep Alive Service module."""
 
 from wolk import LoggerFactory
 from wolk.wolkcore import KeepAliveService
@@ -30,15 +26,15 @@ class OSKeepAliveService(KeepAliveService):
     Used for cases where no data is being sent by device for over 30 minutes.
 
     :ivar connectivity_service: Connectivity service used to publish
-    :vartype connectivity_service: ConnectivityService
-    :ivar interval: number of seconds between each keep alive message
+    :vartype connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService
+    :ivar interval: Number of seconds between each keep alive message
     :vartype interval: int
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     :ivar outbound_message_factory: message factory used to create pings
-    :vartype outbound_message_factory: OutboundMessageFactory
+    :vartype outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory
     :ivar timer: timer for sending ping messages
-    :vartype timer: RepeatingTimer
+    :vartype timer: wolk.OSKeepAliveService.RepeatingTimer
     """
 
     def __init__(
@@ -48,11 +44,11 @@ class OSKeepAliveService(KeepAliveService):
         Service for sending keep alive messages.
 
         :param connectivity_service: Connectivity service used to publish
-        :type connectivity_service: ConnectivityService
-        :param outbound_message_factory: message factory used to create pings
-        :type outbound_message_factory: OutboundMessageFactory
-        :param interval: number of seconds between each keep alive message
-        :type interval: int, optional
+        :type connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService
+        :param outbound_message_factory: Message factory used to create pings
+        :type outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory
+        :param interval: Number of seconds between each keep alive message
+        :type interval: int or None
         """
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
@@ -116,13 +112,13 @@ class RepeatingTimer:
     :ivar args: list of arguments
     :vartype args: list
     :ivar f: function to call
-    :vartype f: method
+    :vartype f: function
     :ivar interval: number of seconds after which to call function
     :vartype interval: int
     :ivar kwargs: keyword arguments
     :vartype kwargs: kwargs
     :ivar timer: timer
-    :vartype timer: Timer
+    :vartype timer: threading.Timer
     """
 
     def __init__(self, interval, f, *args, **kwargs):
@@ -132,11 +128,11 @@ class RepeatingTimer:
         :param interval: number of seconds after which to call function
         :type interval: int
         :param f: function to call
-        :type f: method
-        :param *args: list of arguments
-        :type *args: list
-        :param **kwargs: keyword arguments
-        :type **kwargs: kwargs
+        :type f: function
+        :param \*args: list of arguments
+        :type \*args: list
+        :param \*\*kwargs: keyword arguments
+        :type \*\*kwargs: kwargs
         """
         self.interval = interval
         self.f = f
