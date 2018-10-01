@@ -8,7 +8,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
 dist/
 downloads/
@@ -25,7 +24,8 @@ wheels/
 *.egg
 
 # Sphinx documentation
-docs/_build/
+docs/_static/
+docs/_templates/
 
 # pyenv
 .python-version

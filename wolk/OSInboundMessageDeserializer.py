@@ -11,11 +11,9 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-OS Inbound Message Deserializer module.
 
-Contains OSInboundMessageDeserializer class.
-"""
+"""OSInboundMessageDeserializer Module."""
+
 import json
 
 from wolk.wolkcore import ActuatorCommand
@@ -31,10 +29,10 @@ from wolk import LoggerFactory
 
 class OSInboundMessageDeserializer(InboundMessageDeserializer):
     """
-    Deserializes messages received from the WolkAbout IoT Platform.
+    Deserialize messages received from the WolkAbout IoT Platform.
 
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     """
 
     def __init__(self):
@@ -48,11 +46,11 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         """
         Deserialize the message into an actuation command.
 
-        :param message: message to be deserialized
-        :type message: InboundMessage
+        :param message: Message to be deserialized
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
 
         :returns: actuation
-        :rtype: ActuatorCommand
+        :rtype: wolk.wolkcore.ActuatorCommand.ActuatorCommand
         """
         self.logger.debug("deserialize_actuator_command called")
         reference = message.channel.split("/")[-1]
@@ -107,11 +105,11 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         """
         Deserialize the message into a firmware command.
 
-        :param message: message to be deserialized
-        :type message: InboundMessage
+        :param message: Message to be deserialized
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
 
         :returns: firmware_command
-        :rtype: FirmwareCommand
+        :rtype: wolk.wolkcore.FirmwareCommand.FirmwareCommand
         """
         self.logger.debug("deserialize_firmware_command called")
         payload = json.loads(message.payload)
@@ -193,11 +191,11 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         """
         Split the message into a packet.
 
-        :param message: message to be deserialized
-        :type message: InboundMessage
+        :param message: Message to be deserialized
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
 
         :returns: packet
-        :rtype: FileTransferPacket
+        :rtype: wolk.wolkcore.FileTransferPacket.FileTransferPacket
         """
         self.logger.debug("deserialize_firmware_chunk called")
         previous_hash = message.payload[:32]
@@ -219,10 +217,10 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Deserialize the message into a configuration command.
 
         :param message: message to be deserialized
-        :type message: InboundMessage
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
 
         :returns: configuration
-        :rtype: ConfigurationCommand
+        :rtype: wolk.wolkcore.ConfigurationCommand.ConfigurationCommand
         """
         self.logger.debug("deserialize_configuration_command called")
         payload = json.loads(message.payload)

@@ -11,11 +11,9 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-File System Firmware Handler module.
 
-Contains FileSystemFirmwareHandler class used for storing firmware file.
-"""
+"""FileSystemFirmwareHandler Module."""
+
 import os
 import shutil
 import tempfile
@@ -30,34 +28,34 @@ from wolk.wolkcore import FirmwareHandler
 
 class FileSystemFirmwareHandler(FirmwareHandler):
     """
-    Implementation of FirmwareHandler interface that stores the file on disk.
+    Firmware handler that uses OS provided disk storage for firmware files.
 
-    :ivar chunk_size: desired chunk size in bytes
+    :ivar chunk_size: Desired chunk size in bytes
     :vartype chunk_size: int
-    :ivar download_location: where to store the completed firmware file
+    :ivar download_location: Where to store the completed firmware file
     :vartype download_location: str
-    :ivar file_name: name of firmware file
+    :ivar file_name: Name of firmware file
     :vartype file_name: str
-    :ivar file_size: size of firmware file in bytes
+    :ivar file_size: Size of firmware file in bytes
     :vartype file_size: int
     :ivar file_url: URL where there firmware file is located
     :vartype file_url: str
-    :ivar firmware_installer: implementation of FirmwareInstaller
-    :vartype firmware_installer: FirmwareInstaller
+    :ivar firmware_installer: Installer of firmware file
+    :vartype firmware_installer: wolk.FirmwareInstaller.FirmwareInstaller
     :ivar firmware_url_download_handler: URL downloader
-    :vartype firmware_url_download_handler: FirmwareURLDownloadHandler
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
-    :ivar max_file_size: maximum file size supported by device in bytes
+    :vartype firmware_url_download_handler: wolk.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler or None
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
+    :ivar max_file_size: Maximum file size supported by device in bytes
     :vartype max_file_size: int
     :ivar report_result_callback: Callback for reporting URL download result
-    :vartype report_result_callback: method
-    :ivar temp_file: handle of temp file used to store incomplete firmware file
+    :vartype report_result_callback: function
+    :ivar temp_file: Handle of temp file used to store incomplete firmware file
     :vartype temp_file: file object
-    :ivar version: current version of the device firmware
+    :ivar version: Current version of the device firmware
     :vartype version: str
-    :ivar version_persister: means of storing current version on disk
-    :vartype version_persister: PersistentQueue
+    :ivar version_persister: Means of storing current version on disk
+    :vartype version_persister: persistent_queue.PersistentQueue
     """
 
     def __init__(
@@ -70,20 +68,20 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         firmware_url_download_handler=None,
     ):
         """
-        Handle file manipulation on disk.
+        Handle file manipulation on disk storage.
 
-        :param version: current version of the device firmware
+        :param version: Current version of the device firmware
         :type version: str
-        :param chunk_size: desired chunk size in bytes
+        :param chunk_size: Desired chunk size in bytes
         :type chunk_size: int
-        :param max_file_size: maximum file size supported by device in bytes
+        :param max_file_size: Maximum file size supported by device in bytes
         :type max_file_size: int
-        :param firmware_installer: implementation of FirmwareInstaller
-        :type firmware_installer: FirmwareInstaller
-        :param download_location: where to store the completed firmware file
+        :param firmware_installer: Installer of firmware file
+        :type firmware_installer: wolk.FirmwareInstaller.FirmwareInstaller
+        :param download_location: Where to store the completed firmware file
         :type download_location: str
-        :param firmware_url_download_handler: URL downloader
-        :type firmware_url_download_handler: FirmwareURLDownloadHandler or None
+        :param firmware_url_download_handler: Optional URL downloader
+        :type firmware_url_download_handler: wolk.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler or None
         """
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
@@ -116,9 +114,9 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         """
         Start receiving the firmware file.
 
-        :param file_name: name of the firmware file
+        :param file_name: Name of the firmware file
         :type file_name: str
-        :param file_size: size of the firmware file in bytes
+        :param file_size: Size of the firmware file in bytes
         :type file_size: int
 
         :returns: result
@@ -197,7 +195,7 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         Write a chunk of the firmware file to the temporary file.
 
         :param chunk: A piece of the firmware file
-        :type chunk: Bytes
+        :type chunk: bytes
 
         :returns: result
         :rtype: bool
@@ -214,7 +212,7 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         """
         Read a chunk of the temporary firmware file.
 
-        :param index: offset from the beginning of the file
+        :param index: Offset from the beginning of the file
         :type index: int
 
         :returns: chunk
@@ -234,7 +232,7 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         Later to be used to determine the result
         of the firmware update process
 
-        :param version: The current firmware version
+        :param version: Current firmware version
         :type version: str
 
         :returns: result
@@ -278,8 +276,8 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         """
         Set callback for reporting URL download result.
 
-        :param callback: method to call
-        :type callback: method
+        :param callback: Function to call
+        :type callback: function
         """
         self.logger.debug(
             "set_url_download_result_callback called - Callback: %s", callback
@@ -291,9 +289,9 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         Start firmware file URL download process.
 
         Calls download function from firmware_url_download_handler.
-        Returns the validity of the URL and calls download method if valid.
+        Returns the validity of the URL and calls download function if valid.
 
-        :param file_url: The URL that contains the firmware file
+        :param file_url: URL that contains the firmware file
         :type file_url: str
 
         :returns: result

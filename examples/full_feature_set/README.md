@@ -16,26 +16,24 @@
                                                                                                  
 
 ```
+----
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
 Supported device communication protocol(s):
 * JsonSingleReferenceProtocol
 
-Prerequisite
-------------
+## Prerequisite
 
 * Python 3
 
 
-Installation
-------------
+## Installation
 
 ```sh
 pip3 install wolk-connect
 ```
 
-Installing from source
-----------------------
+### Installing from source
 
 This repository must be cloned from the command line using:
 ```sh
@@ -49,8 +47,8 @@ Install the package by running:
 py setup.py install
 ```
 
-Example Usage
--------------
+## Example Usage
+
 **Establishing connection with WolkAbout IoT platform:**
 
 Create a device on WolkAbout IoT platform by importing [full-example-manifest.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/full-example-manifest.json) .<br />
@@ -122,7 +120,7 @@ wolk_device = wolk.WolkConnect(
 wolk_device.connect()
 ```
 
-**Publishing sensor readings:**
+### Publishing sensor readings
 ```python
 wolk_device.add_sensor_reading("T", 26.93)
 
@@ -130,7 +128,7 @@ wolk_device.add_sensor_reading("T", 26.93)
 wolk_device.add_sensor_reading("ACL", (4, 2, 0))
 ```
 
-**Publishing events:**
+### Publishing events
 ```python
 # Activate alarm
 wolk_device.add_alarm("ALARM_REFERENCE", True)
@@ -138,21 +136,21 @@ wolk_device.add_alarm("ALARM_REFERENCE", True)
 wolk_device.add_alarm("ALARM_REFERENCE", False)
 ```
 
-**Publishing actuator statuses:**
+### Publishing actuator statuses
 ```python
 wolk_device.publish_actuator_status("ACTUATOR_REFERENCE_ONE")
 ```
 This will call the `ActuatorStatusProvider` to read the actuator status, and publish actuator status.
 
 
-**Publishing configuration**
+### Publishing configuration
 ```python
 wolk_device.publish_configuration()
 ```
 This will call the `ConfigurationProvider` to read the current configuration and publish it to the platform
 
 
-**Data publish strategy:**
+### Data publish strategy
 
 Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
 ```python
@@ -165,12 +163,12 @@ Whereas actuator statuses are published automatically by calling:
 wolk_device.publish_actuator_status("ACTUATOR_REFERENCE_ONE")
 ```
 
-**Disconnecting from the platform:**
+### Disconnecting from the platform
 ```python
 wolk_device.disconnect()
 ```
 
-**Data persistence:**
+### Data persistence
 
 WolkAbout Python Connector provides a mechanism for persisting data in situations where readings can not be sent to WolkAbout IoT platform.
 
@@ -192,7 +190,7 @@ wolk_device.connect()
 For more info on persistence mechanism see `OutboundMessageQueue` class
 
 
-**Firmware update:**
+### Firmware update
 
 WolkAbout Python Connector provides a mechanism for updating device firmware.
 By default this feature is disabled. See code snippet below on how to enable device firmware update.
@@ -233,7 +231,7 @@ wolk_device = wolk.WolkConnect(
 )
 ```
 
-**Keep Alive Mechanism:**
+### Keep Alive Mechanism
 
 WolkAbout Python Connector by default uses Keep Alive mechanism to notify WolkAbout IoT Platform that device is still connected. Keep alive message is sent to WolkAbout IoT Platform every 10 minutes.
 
@@ -248,7 +246,7 @@ wolk_device = wolk.WolkConnect(
 )
 ```
 
-**Debugging:**
+### Debugging
 Logging is enabled by default to info level.
 
 Call the following function to change logging level to:

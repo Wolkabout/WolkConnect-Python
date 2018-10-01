@@ -1,13 +1,15 @@
 {
-  "id": 305,
+  "id": 664,
   "name": "Full example manifest",
   "protocol": "JsonSingleReferenceProtocol",
-  "firmwareUpdateProtocol": "DFUProtocol",
-  "description": "This device manifest covers all the functionality provided by WolkConnectors",
+  "description": "This device manifest covers all the functionality provided by WolkConnect libraries",
+  "deviceType": "STANDARD",
+  "connectivityType": "MQTT_BROKER",
+  "firmwareUpdateType": "DFU",
   "published": false,
   "feeds": [
     {
-      "id": 517,
+      "id": 1108,
       "name": "Temperature",
       "reference": "T",
       "description": "",
@@ -16,7 +18,9 @@
         "name": "CELSIUS",
         "symbol": "℃",
         "readingTypeId": 2,
-        "system": "SI"
+        "system": "SI",
+        "context": null,
+        "inUse": true
       },
       "minimum": -40,
       "maximum": 85,
@@ -26,11 +30,12 @@
         "dataType": "NUMERIC",
         "size": 1,
         "precision": 1,
-        "labels": null
+        "labels": null,
+        "iconName": "ico_temperature"
       }
     },
     {
-      "id": 518,
+      "id": 1109,
       "name": "Pressure",
       "reference": "P",
       "description": "",
@@ -39,7 +44,9 @@
         "name": "MILLIBAR",
         "symbol": "mb",
         "readingTypeId": 3,
-        "system": "NON_SI"
+        "system": "NON_SI",
+        "context": null,
+        "inUse": true
       },
       "minimum": 300,
       "maximum": 1100,
@@ -49,11 +56,12 @@
         "dataType": "NUMERIC",
         "size": 1,
         "precision": 1,
-        "labels": null
+        "labels": null,
+        "iconName": "ico_pressure"
       }
     },
     {
-      "id": 519,
+      "id": 1110,
       "name": "Humidity",
       "reference": "H",
       "description": "",
@@ -62,7 +70,9 @@
         "name": "HUMIDITY_PERCENT",
         "symbol": "%",
         "readingTypeId": 4,
-        "system": "NON_SI"
+        "system": "NON_SI",
+        "context": null,
+        "inUse": true
       },
       "minimum": 0,
       "maximum": 100,
@@ -72,11 +82,12 @@
         "dataType": "NUMERIC",
         "size": 1,
         "precision": 1,
-        "labels": null
+        "labels": null,
+        "iconName": "ico_humidity"
       }
     },
     {
-      "id": 520,
+      "id": 1111,
       "name": "Accelerometer",
       "reference": "ACL",
       "description": "",
@@ -85,7 +96,9 @@
         "name": "METRES_PER_SQUARE_SECOND",
         "symbol": "m/s²",
         "readingTypeId": 8,
-        "system": "SI"
+        "system": "SI",
+        "context": null,
+        "inUse": true
       },
       "minimum": 0,
       "maximum": 100,
@@ -99,13 +112,14 @@
           "x",
           "y",
           "z"
-        ]
+        ],
+        "iconName": "ico_accelerometer"
       }
     }
   ],
   "actuators": [
     {
-      "id": 365,
+      "id": 702,
       "name": "Switch",
       "reference": "SW",
       "description": "",
@@ -114,7 +128,9 @@
         "name": "BOOLEAN(ACTUATOR)",
         "symbol": null,
         "readingTypeId": 31,
-        "system": "CUSTOM"
+        "system": "CUSTOM",
+        "context": null,
+        "inUse": true
       },
       "minimum": 0,
       "maximum": 1,
@@ -124,11 +140,12 @@
         "dataType": "BOOLEAN",
         "size": 1,
         "precision": 1,
-        "labels": null
+        "labels": null,
+        "iconName": "ico_switcher"
       }
     },
     {
-      "id": 366,
+      "id": 703,
       "name": "Slider",
       "reference": "SL",
       "description": "",
@@ -137,7 +154,9 @@
         "name": "COUNT(ACTUATOR)",
         "symbol": "count",
         "readingTypeId": 13,
-        "system": "CUSTOM"
+        "system": "CUSTOM",
+        "context": null,
+        "inUse": true
       },
       "minimum": 0,
       "maximum": 100,
@@ -147,23 +166,24 @@
         "dataType": "NUMERIC",
         "size": 1,
         "precision": 1,
-        "labels": null
+        "labels": null,
+        "iconName": "ico_slider"
       }
     }
   ],
   "alarms": [
     {
-      "id": 88,
+      "id": 180,
       "name": "High Humidity",
       "description": "This alarm will trigger if humidity is over a certain threshold",
-      "message": "High humidity has been detected",
+      "message": "High Humidity has been detected",
       "severity": "ALERT",
       "reference": "HH"
     }
   ],
   "configs": [
     {
-      "id": 54,
+      "id": 268,
       "name": "configuration_1",
       "reference": "config_1",
       "defaultValue": "",
@@ -176,12 +196,12 @@
       "labels": null
     },
     {
-      "id": 55,
+      "id": 269,
       "name": "configuration_2",
       "reference": "config_2",
       "defaultValue": "",
       "nullValue": null,
-      "description": "",
+      "description": null,
       "minimum": null,
       "maximum": null,
       "dataType": "BOOLEAN",
@@ -189,7 +209,7 @@
       "labels": null
     },
     {
-      "id": 56,
+      "id": 270,
       "name": "configuration_3",
       "reference": "config_3",
       "defaultValue": "",
@@ -202,7 +222,7 @@
       "labels": null
     },
     {
-      "id": 57,
+      "id": 271,
       "name": "configuration_4",
       "reference": "config_4",
       "defaultValue": "",
@@ -219,6 +239,5 @@
       ]
     }
   ],
-  "inUse": false,
   "generallyAvailable": false
 }

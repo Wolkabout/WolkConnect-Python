@@ -11,21 +11,18 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-Firmware Installer module.
 
-Contains FirmwareInstaller "interface" that handles firmware installation.
-"""
+"""FirmwareInstaller Module."""
 
 
 class FirmwareInstaller:
-    """Implement to handle installation of the firmware file itself."""
+    """Responsible for handling the installation of the firmware file."""
 
     def install_firmware(self, firmware_file_path):
         """
         Handle the installation of the firmware file.
 
-        :param firmware_file_path: path where the firmware file is located
+        :param firmware_file_path: Path where the firmware file is located
         :type firmware_file_path: str
         """
         pass

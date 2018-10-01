@@ -11,11 +11,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""
-OS Firmware Update module.
 
-Contains OSFirmwareUpdate class that handles the firmware update process.
-"""
+"""OSFirmwareUpdate Module."""
 
 import base64
 import hashlib
@@ -45,13 +42,13 @@ class OSFirmwareUpdate(FirmwareUpdate):
     :ivar file_size: firmware file size
     :vartype file_size: int
     :ivar firmware_handler: implementation of FirmwareHandler interface
-    :vartype firmware_handler: FirmwareHandler
+    :vartype firmware_handler: wolk.wolkcore.FirmwareHandler.FirmwareHandler
     :ivar install_timer: timer for install countdown
-    :vartype install_timer: Timer
+    :vartype install_timer: threading.Timer
     :ivar last_packet_hash: hash of last valid packet received
     :vartype last_packet_hash: str
-    :ivar logger: Logger instance issued from the LoggerFactory class
-    :vartype logger: logger
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     :ivar max_retries: number of retries for a firmware packet
     :vartype max_retries: int
     :ivar minimum_packet_size: minimal size of a firmware chunk
@@ -59,23 +56,23 @@ class OSFirmwareUpdate(FirmwareUpdate):
     :ivar next_chunk_index: index of next firmware chunk
     :vartype next_chunk_index: int
     :ivar on_file_packet_request_callback: callback for chunk request
-    :vartype on_file_packet_request_callback: method
+    :vartype on_file_packet_request_callback: function
     :ivar on_status_callback: callback for reporting firmware update status
-    :vartype on_status_callback: method
+    :vartype on_status_callback: function
     :ivar request_timeout: countdown timer for request timeout
-    :vartype request_timeout: Timer
+    :vartype request_timeout: threading.Timer
     :ivar retry_count: current retry count
     :vartype retry_count: int
     :ivar state: current firmware installation state
-    :vartype state: FirmwareUpdateStateType
+    :vartype state: wolk.wolkcore.FirmwareUpdateStateType
     """
 
     def __init__(self, firmware_handler=None):
         """
         Responsible for firmware update flow.
 
-        :param firmware_handler: implementation of FirmwareHandler interface
-        :type firmware_handler: None, optional
+        :param firmware_handler: Responsible for the firmware file itself
+        :type firmware_handler: wolk.wolkcore.FirmwareHandler.FirmwareHandler or None
         """
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
@@ -110,8 +107,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         """
         Set the callback function for requesting file packets.
 
-        :param on_file_packet_request_callback: The method to be called
-        :type on_file_packet_request_callback: Callable
+        :param on_file_packet_request_callback: Function to be called
+        :type on_file_packet_request_callback: function
         """
         self.logger.debug(
             "set_on_file_packet_request_callback called - "
@@ -124,8 +121,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         """
         Set the callback function for reporting firmware status.
 
-        :param on_status_callback: method to be called
-        :type on_status_callback: method
+        :param on_status_callback: Function to be called
+        :type on_status_callback: function
         """
         self.logger.debug(
             "set_on_status_callback called - " "on_status_callback = %s",
@@ -135,13 +132,10 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
     def handle_url_download_result(self, result):
         """
-        Receive the result of the url download from the firmware handler.
+        Receive the result of URL download from the firmware handler.
 
-        :param result: result of the URL download
+        :param result: Result of the URL download
         :type result: bool
-
-        :returns: Nothing
-        :rtype: None
         """
         self.logger.debug(
             "handle_url_download_result called - Result: %s", result
@@ -199,11 +193,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         """
         Handle the file upload command received from the platform.
 
-        :param firmware_command: firmware command received
-        :type firmware_command: FirmwareCommand
-
-        :returns: Nothing
-        :rtype: None
+        :param firmware_command: Firmware command received
+        :type firmware_command: wolk.wolkcore.FirmwareCommand.FirmwareCommand
         """
         self.logger.info(
             "Received firmware command - Command: FILE_UPLOAD ; "
@@ -306,11 +297,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         """
         Handle the URL download command received from the platform.
 
-        :param firmware_command: firmware command received
-        :type firmware_command: FirmwareCommand
-
-        :returns: Nothing
-        :rtype: None
+        :param firmware_command: Firmware command received
+        :type firmware_command: wolk.wolkcore.FirmwareCommand.FirmwareCommand
         """
         self.logger.info(
             "Received URL download command; File URL: %s ; Auto install:%s",
@@ -358,12 +346,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.on_status_callback(status)
 
     def handle_install(self):
-        """
-        Handle the install command received from the platform.
-
-        :returns: Nothing
-        :rtype: None
-        """
+        """Handle the install command received from the platform."""
         self.logger.debug("handle_install called")
         if not self.firmware_handler:
 
@@ -432,12 +415,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self.on_status_callback(status)
 
     def handle_abort(self):
-        """
-        Handle the abort command received from the platform.
-
-        :returns: Nothing
-        :rtype: None
-        """
+        """Handle the abort command received from the platform."""
         self.logger.debug("handle_abort called")
         if self.install_timer:
 
@@ -477,11 +455,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         """
         Handle the firmware file chunk packet received from the platform.
 
-        :param packet: The packet received
-        :type packet: FileTransferPacket
-
-        :returns: Nothing
-        :rtype: None
+        :param packet: Firmware file chunk received
+        :type packet: wolk.wolkcore.FileTransferPacket.FileTransferPacket
         """
         self.logger.debug(
             "handle_packet called - Previous hash: %s ; "
@@ -649,12 +624,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self.handle_install()
 
     def report_result(self):
-        """
-        Report the result of the firmware installation process.
-
-        :returns: Nothing
-        :rtype: None
-        """
+        """Report the result of the firmware installation process."""
         self.logger.debug("report_result called")
         if self.firmware_handler is not None:
 
@@ -706,8 +676,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         and checks if the sha256 hash of the data matches the hash
         received from the platform
 
-        :param packet: packet to validate
-        :type packet: FileTransferPacket
+        :param packet: Packet to validate
+        :type packet: wolk.wolkcore.FileTransferPacket.FileTransferPacket
 
         :returns: valid
         :rtype: bool
@@ -749,7 +719,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         Validate the completed firmware file.
 
         Compares the sha256 hash of the received file with the file hash
-        received from the platform
+        received from the platform.
 
         :returns: valid
         :rtype: bool

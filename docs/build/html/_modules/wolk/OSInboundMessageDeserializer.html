@@ -1,0 +1,500 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wolk.OSInboundMessageDeserializer &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> WolkConnect-Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functional.html">Functional documentaition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wolk.html">Wolk Package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">WolkConnect-Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>wolk.OSInboundMessageDeserializer</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for wolk.OSInboundMessageDeserializer</h1><div class="highlight"><pre>
+<span></span><span class="c1">#   Copyright 2018 WolkAbout Technology s.r.o.</span>
+<span class="c1">#</span>
+<span class="c1">#   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#   you may not use this file except in compliance with the License.</span>
+<span class="c1">#   You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#       http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#   Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#   See the License for the specific language governing permissions and</span>
+<span class="c1">#   limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;OSInboundMessageDeserializer Module.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ActuatorCommand</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ActuatorCommandType</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ConfigurationCommand</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ConfigurationCommandType</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">FileTransferPacket</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">FirmwareCommand</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">FirmwareCommandType</span>
+<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">InboundMessageDeserializer</span>
+<span class="kn">from</span> <span class="nn">wolk</span> <span class="k">import</span> <span class="n">LoggerFactory</span>
+
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer">[docs]</a><span class="k">class</span> <span class="nc">OSInboundMessageDeserializer</span><span class="p">(</span><span class="n">InboundMessageDeserializer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deserialize messages received from the WolkAbout IoT Platform.</span>
+
+<span class="sd">    :ivar logger: Logger instance issued by wolk.LoggerFactory</span>
+<span class="sd">    :vartype logger: logging.Logger</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Just logger init.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="n">logger_factory</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Init&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.deserialize_actuator_command"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_actuator_command">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_actuator_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deserialize the message into an actuation command.</span>
+
+<span class="sd">        :param message: Message to be deserialized</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+
+<span class="sd">        :returns: actuation</span>
+<span class="sd">        :rtype: wolk.wolkcore.ActuatorCommand.ActuatorCommand</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;deserialize_actuator_command called&quot;</span><span class="p">)</span>
+        <span class="n">reference</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;SET&quot;</span><span class="p">:</span>
+
+            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">ACTUATOR_COMMAND_TYPE_SET</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="n">actuation</span> <span class="o">=</span> <span class="n">ActuatorCommand</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">command_type</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Received actuation command - Reference: </span><span class="si">%s</span><span class="s2"> ; Command: SET ;&quot;</span>
+                <span class="s2">&quot; Value: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">actuation</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
+                <span class="n">actuation</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">actuation</span>
+
+        <span class="k">elif</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;STATUS&quot;</span><span class="p">:</span>
+
+            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">ACTUATOR_COMMAND_TYPE_STATUS</span>
+            <span class="n">actuation</span> <span class="o">=</span> <span class="n">ActuatorCommand</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">command_type</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Received actuation command - Reference: </span><span class="si">%s</span><span class="s2"> ;&quot;</span>
+                <span class="s2">&quot; Command: STATUS &quot;</span><span class="p">,</span>
+                <span class="n">actuation</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">actuation</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">ACTUATOR_COMMAND_TYPE_UNKNOWN</span>
+            <span class="n">actuation</span> <span class="o">=</span> <span class="n">ActuatorCommand</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">command_type</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Received actuation command - Reference: </span><span class="si">%s</span><span class="s2"> ;&quot;</span>
+                <span class="s2">&quot; Command: </span><span class="si">%s</span><span class="s2"> (UNKNOWN)&quot;</span><span class="p">,</span>
+                <span class="n">actuation</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
+                <span class="n">actuation</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">actuation</span></div>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.deserialize_firmware_command"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_command">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_firmware_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deserialize the message into a firmware command.</span>
+
+<span class="sd">        :param message: Message to be deserialized</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+
+<span class="sd">        :returns: firmware_command</span>
+<span class="sd">        :rtype: wolk.wolkcore.FirmwareCommand.FirmwareCommand</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;deserialize_firmware_command called&quot;</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;FILE_UPLOAD&quot;</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_FILE_UPLOAD</span>
+            <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span>
+                <span class="n">command</span><span class="p">,</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fileName&quot;</span><span class="p">),</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fileSize&quot;</span><span class="p">),</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fileHash&quot;</span><span class="p">),</span>
+                <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autoInstall&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;deserialize_firmware_command - Command: </span><span class="si">%s</span><span class="s2"> (FILE_UPLOAD) ; &quot;</span>
+                <span class="s2">&quot;File name: </span><span class="si">%s</span><span class="s2"> ; File size: </span><span class="si">%s</span><span class="s2"> ; &quot;</span>
+                <span class="s2">&quot;File hash: </span><span class="si">%s</span><span class="s2"> ; Auto install: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">file_size</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">file_hash</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">auto_install</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">firmware_command</span>
+
+        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;URL_DOWNLOAD&quot;</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_URL_DOWNLOAD</span>
+            <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span>
+                <span class="n">command</span><span class="p">,</span>
+                <span class="n">file_url</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fileUrl&quot;</span><span class="p">),</span>
+                <span class="n">auto_install</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;autoInstall&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;deserialize_firmware_command - Command: </span><span class="si">%s</span><span class="s2"> (URL_DOWNLOAD) ; &quot;</span>
+                <span class="s2">&quot;File url: </span><span class="si">%s</span><span class="s2"> ; Auto install: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">file_url</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">auto_install</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">firmware_command</span>
+
+        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;INSTALL&quot;</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_INSTALL</span>
+
+            <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;deserialize_firmware_command - Command: </span><span class="si">%s</span><span class="s2"> (INSTALL)&quot;</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">firmware_command</span>
+
+        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;ABORT&quot;</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_ABORT</span>
+
+            <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;deserialize_firmware_command - Command: </span><span class="si">%s</span><span class="s2"> (ABORT)&quot;</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">firmware_command</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_UNKNOWN</span>
+
+            <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;deserialize_firmware_command - Command: </span><span class="si">%s</span><span class="s2"> (UNKNOWN)&quot;</span><span class="p">,</span>
+                <span class="n">firmware_command</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">firmware_command</span></div>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.deserialize_firmware_chunk"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_chunk">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_firmware_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split the message into a packet.</span>
+
+<span class="sd">        :param message: Message to be deserialized</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+
+<span class="sd">        :returns: packet</span>
+<span class="sd">        :rtype: wolk.wolkcore.FileTransferPacket.FileTransferPacket</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;deserialize_firmware_chunk called&quot;</span><span class="p">)</span>
+        <span class="n">previous_hash</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">[:</span><span class="mi">32</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="mi">32</span> <span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span> <span class="o">-</span> <span class="mi">32</span><span class="p">]</span>
+        <span class="n">current_hash</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="o">-</span><span class="mi">32</span><span class="p">:]</span>
+
+        <span class="n">packet</span> <span class="o">=</span> <span class="n">FileTransferPacket</span><span class="p">(</span><span class="n">previous_hash</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">current_hash</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;deserialize_firmware_chunk - Previous hash: </span><span class="si">%s</span><span class="s2"> ; &quot;</span>
+            <span class="s2">&quot;Data size: </span><span class="si">%s</span><span class="s2"> ; Current hash: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">packet</span><span class="o">.</span><span class="n">previous_hash</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
+            <span class="n">packet</span><span class="o">.</span><span class="n">current_hash</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">packet</span></div>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.deserialize_configuration_command"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_configuration_command">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_configuration_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deserialize the message into a configuration command.</span>
+
+<span class="sd">        :param message: message to be deserialized</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+
+<span class="sd">        :returns: configuration</span>
+<span class="sd">        :rtype: wolk.wolkcore.ConfigurationCommand.ConfigurationCommand</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;deserialize_configuration_command called&quot;</span><span class="p">)</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;SET&quot;</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CONFIGURATION_COMMAND_TYPE_SET</span>
+
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">ConfigurationCommand</span><span class="p">(</span>
+                <span class="n">command</span><span class="p">,</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;values&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Received configuration command - Command: SET  Values: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">reference</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">configuration</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+                    <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;,&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="n">values_list</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_list</span><span class="p">):</span>
+                                <span class="n">values_list</span> <span class="o">=</span> <span class="p">[</span>
+                                    <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_list</span>
+                                <span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">values_list</span> <span class="o">=</span> <span class="p">[</span>
+                                    <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values_list</span>
+                                <span class="p">]</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="k">pass</span>
+
+                        <span class="n">configuration</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">reference</span><span class="p">]</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">values_list</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">configuration</span>
+
+        <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;CURRENT&quot;</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CONFIGURATION_COMMAND_TYPE_CURRENT</span>
+            <span class="p">)</span>
+
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">ConfigurationCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Received configuration command - Command: CURRENT&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">configuration</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="n">command</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CONFIGURATION_COMMAND_TYPE_UNKNOWN</span>
+            <span class="p">)</span>
+
+            <span class="n">configuration</span> <span class="o">=</span> <span class="n">ConfigurationCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Received configuration command - Command: </span><span class="si">%s</span><span class="s2"> (UNKONWN)&quot;</span><span class="p">,</span>
+                <span class="n">configuration</span><span class="o">.</span><span class="n">command</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">configuration</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, WolkAbout.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'3.1.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

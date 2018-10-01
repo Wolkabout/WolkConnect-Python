@@ -12,9 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 """
-WolkAbout IoT Platform Library.
-
-Contains WolkConnect class that represents the top level API.
+WolkConnect Module.
 """
 import os
 
@@ -31,24 +29,24 @@ from wolk.wolkcore import WolkCore
 
 class WolkConnect:
     """
-    Send sensor readings, actuator statuses and data to WolkAbout IoT platform.
+    Exchange data with WolkAbout IoT Platform.
 
-    :ivar connectivity_service: means of sending/receiving data
-    :vartype connectivity_service: OSMQTTConnectivityService
-    :ivar deserializer: deserializer of inbound messages
-    :vartype deserializer: OSInboundMessageDeserializer
+    :ivar connectivity_service: Means of sending/receiving data
+    :vartype connectivity_service: wolk.OSMQTTConnectivityService.OSMQTTConnectivityService
+    :ivar deserializer: Deserializer of inbound messages
+    :vartype deserializer: wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer
     :ivar device: Contains device key and password, and actuator references
-    :vartype device: Device
+    :vartype device: wolk.Device.Device
     :ivar firmware_update: Firmware update handler
-    :vartype firmware_update: OSFirmwareUpdate
+    :vartype firmware_update: wolk.OSFirmwareUpdate.OSFirmwareUpdate
     :ivar keep_alive_service: Keep device connected when not sending data
-    :vartype keep_alive_service: OSKeepAliveService
-    :ivar logger: Logger instance issued by the LoggerFactory class
-    :vartype logger: logger
+    :vartype keep_alive_service: wolk.OSKeepAliveService.OSKeepAliveService
+    :ivar logger: Logger instance issued by wolk.LoggerFactory
+    :vartype logger: logging.Logger
     :ivar outbound_message_factory: Create messages to send
-    :vartype outbound_message_factory: OSOutboundMessageFactory
+    :vartype outbound_message_factory: wolk.OSOutboundMessageFactory.OSOutboundMessageFactory
     :ivar outbound_message_queue: Store data before sending
-    :vartype outbound_message_queue: OSOutboundMessageQueue
+    :vartype outbound_message_queue: wolk.wolkcore.OutboundMessageQueue.OutboundMessageQueue
     """
 
     def __init__(
@@ -69,23 +67,23 @@ class WolkConnect:
         Provide communication with WolkAbout IoT Platform.
 
         :param device: Contains key and password, and actuator references
-        :type device: Device
+        :type device:  wolk.Device.Device
         :param actuation_handler: Handle actuation commands
-        :type actuation_handler: ActuationHandler, optional
+        :type actuation_handler: wolk.ActuationHandler.ActuationHandler or None
         :param actuator_status_provider: Read actuator status
-        :type actuator_status_provider: ActuatorStatusProvider, optional
+        :type actuator_status_provider:  wolk.ActuatorStatusProvider.ActuatorStatusProvider or None
         :param outbound_message_queue: Store messages before sending
-        :type outbound_message_queue: OutboundMessageQueue, optional
+        :type outbound_message_queue: wolk.wolkcore.OutboundMessageQueue.OutboundMessageQueue or None
         :param keep_alive_enabled: Enable or disable the keep alive service
-        :type keep_alive_enabled: bool, default True
+        :type keep_alive_enabled: bool
         :param firmware_handler: Firmware update support
-        :type firmware_handler: FirmwareHandler, optional
-        :param host: The host name or IP address of the remote broker
-        :type host: str, optional
-        :param port: The network port of the server host to connect to
-        :type port: int, optional
+        :type firmware_handler: wolk.FileSystemFirmwareHandler.FileSystemFirmwareHandler or None
+        :param host: Host name or IP address of the remote broker
+        :type host: str or None
+        :param port: Network port of the server host to connect to
+        :type port: int or None
         :param ca_cert: String path to Certificate Authority certificate file
-        :type ca_cert: str, optional
+        :type ca_cert: str or None
         """
         self.logger = logger_factory.get_logger(str(self.__class__.__name__))
         self.logger.debug(
@@ -187,7 +185,7 @@ class WolkConnect:
             raise e
 
     def disconnect(self):
-        """Disconnect the device from the WolkAbout IoT Platform."""
+        """Disconnect the device from WolkAbout IoT Platform."""
         self.logger.debug("disconnect started")
         self._wolk.disconnect()
         self.logger.debug("disconnect ended")
@@ -199,9 +197,9 @@ class WolkConnect:
         :param reference: The reference of the sensor
         :type reference: str
         :param value: The value of the sensor reading
-        :type value: int, float
+        :type value: int or float or str
         :param timestamp: Unix timestamp. If not provided, platform will assign
-        :type timestamp: int, optional
+        :type timestamp: int or None
         """
         self.logger.debug("add_sensor_reading started")
         self._wolk.add_sensor_reading(reference, value, timestamp)
@@ -209,14 +207,14 @@ class WolkConnect:
 
     def add_alarm(self, reference, active, timestamp=None):
         """
-        Publish an alarm to the WolkAbout IoT Platform.
+        Publish an alarm to WolkAbout IoT Platform.
 
         :param reference: Reference of the alarm
         :type reference: str
         :param active: Current state of the alarm
         :type active: bool
         :param timestamp: Unix timestamp. If not provided, platform will assign
-        :type timestamp: int
+        :type timestamp: int or None
         """
         self.logger.debug("add_alarm started")
         self._wolk.add_alarm(reference, active, timestamp)
@@ -231,7 +229,7 @@ class WolkConnect:
 
     def publish_actuator_status(self, reference):
         """
-        Publish the current actuator status to the WolkAbout IoT Platform.
+        Publish the current actuator status to WolkAbout IoT Platform.
 
         :param reference: reference of the actuator
         :type reference: str
@@ -241,7 +239,7 @@ class WolkConnect:
         self.logger.debug("publish_actuator_status ended")
 
     def publish_configuration(self):
-        """Publish the current device configuration to the platform."""
+        """Publish current device configuration to WolkAbout IoT Platform."""
         self.logger.debug("publish_configuration started")
         self._wolk.publish_configuration()
         self.logger.debug("publish_configuration ended")
@@ -251,7 +249,7 @@ class WolkConnect:
         Handle inbound messages.
 
         :param message: message received from the platform
-        :type message: InboundMessage
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
         """
         self.logger.debug("_on_inbound_message started")
         self._wolk._on_inbound_message(message)
@@ -277,7 +275,7 @@ class WolkConnect:
         Report firmware update status to WolkAbout IoT Platform.
 
         :param status: The status to be reported to the platform
-        :type status: FirmwareStatus
+        :type status: wolk.wolkcore.FirmwareStatus.FirmwareStatus
         """
         self.logger.debug("_on_status started")
         self._wolk._on_status(status)
