@@ -55,6 +55,8 @@ Create a device on WolkAbout IoT platform by importing [full-example-manifest.js
 This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/wolk_example.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
+import wolk
+
 # Setup device credentials which you got
 # when the device was created on the platform
 device = wolk.Device(
@@ -114,7 +116,10 @@ wolk_device = wolk.WolkConnect(
     actuation_handler=ActuationHandlerImpl(),
     actuator_status_provider=ActuatorStatusProviderImpl(),
     configuration_handler=ConfigurationHandlerImpl(),
-    configuration_provider=ConfigurationProviderImpl()
+    configuration_provider=ConfigurationProviderImpl(),
+    host="api-demo.wolkabout.com",
+    port=8883,
+    ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt"
 )
 
 wolk_device.connect()
@@ -257,6 +262,6 @@ Call the following function to change logging level to:
 Optionally, specify a log file to which to store logging messages.
 
 ```python
-# Enable debug logging to file 
+# Enable debug logging to file
 wolk.logging_config("debug", "wolk.log")
 ```
