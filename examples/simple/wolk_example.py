@@ -29,9 +29,17 @@ def main():
     """Connect to WolkAbout IoT Platform and send a random sensor reading."""
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    device = wolk.Device(key="device_key", password="some_password")
+    device = wolk.Device(
+        key="device_key",
+        password="some_password"
+    )
 
-    wolk_device = wolk.WolkConnect(device)
+    wolk_device = wolk.WolkConnect(
+        device,
+        host="api-demo.wolkabout.com",
+        port=8883,
+        ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+    )
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")

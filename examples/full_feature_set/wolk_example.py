@@ -174,6 +174,9 @@ def main():
             configuration_provider=ConfigurationProviderImpl(),
             outbound_message_queue=filesystemOutboundMessageQueue,
             firmware_handler=firmware_handler,
+            host="api-demo.wolkabout.com",
+            port=8883,
+            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt"
         )
     except RuntimeError as e:
         print(str(e))
