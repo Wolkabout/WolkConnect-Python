@@ -53,7 +53,7 @@ py setup.py install
 ## Example Usage
 
 This guide covers the essential functionality of WolkConnect-Python.
-A complete example usage guide to all supported features are shown [HERE](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set).
+A complete guide to all supported features are shown [HERE](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set).
 
 ### Establishing connection with WolkAbout IoT platform
 
