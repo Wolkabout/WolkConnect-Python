@@ -52,9 +52,6 @@ py setup.py install
 
 ## Example Usage
 
-This guide covers the essential functionality of WolkConnect-Python.
-A complete guide to all supported features are shown [HERE](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set).
-
 ### Establishing connection with WolkAbout IoT platform
 
 Create a device on WolkAbout IoT platform by importing [simple-example-manifest.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/simple-example-manifest.json).<br />
@@ -82,6 +79,7 @@ wolk_device.connect()
 ```
 
 ### Publishing sensor readings
+
 ```python
 wolk_device.add_sensor_reading("T", 26.93)
 ```
@@ -94,10 +92,11 @@ wolk_device.publish()
 ```
 
 ### Disconnecting from the platform
+
 ```python
 wolk_device.disconnect()
 ```
 
 ## Additional functionality
 
-WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Read more about full feature set example.
+WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Read more about full feature set example [HERE](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set).
