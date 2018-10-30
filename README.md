@@ -97,7 +97,3 @@ wolk_device.publish()
 ```python
 wolk_device.disconnect()
 ```
-
-## Additional functionality
-
-WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Read more about full feature set example.
