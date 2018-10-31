@@ -79,14 +79,9 @@ class OSKeepAliveService(KeepAliveService):
         """
         self.logger.debug("start called")
 
-        # Timer to give connectivity service time to realize it is connected
-        t = Timer(5, self.send_keep_alive)
-        t.start()
-
-        # First message will fail to send
-        # due to connectivity service not realizing it is connected
         self.timer = RepeatingTimer(self.interval, self.send_keep_alive)
-        self.timer.start()
+        t = Timer(5, self.timer.start)
+        t.start()
 
     def stop(self):
         """Stop the repeating timer."""
