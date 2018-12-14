@@ -125,7 +125,7 @@ wolk_device = wolk.WolkConnect(
 wolk_device.connect()
 ```
 
-### Publishing sensor readings
+### Adding sensor readings
 ```python
 wolk_device.add_sensor_reading("T", 26.93)
 
@@ -133,12 +133,18 @@ wolk_device.add_sensor_reading("T", 26.93)
 wolk_device.add_sensor_reading("ACL", (4, 2, 0))
 ```
 
-### Publishing events
+### Adding events
 ```python
 # Activate alarm
 wolk_device.add_alarm("ALARM_REFERENCE", True)
 # Disable alarm
 wolk_device.add_alarm("ALARM_REFERENCE", False)
+```
+
+### Data publish strategy
+Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
+```python
+wolk_device.publish()
 ```
 
 ### Publishing actuator statuses
@@ -154,19 +160,6 @@ wolk_device.publish_configuration()
 ```
 This will call the `ConfigurationProvider` to read the current configuration and publish it to the platform
 
-
-### Data publish strategy
-
-Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
-```python
-wolk_device.publish()
-```
-
-Whereas actuator statuses are published automatically by calling:
-
-```python
-wolk_device.publish_actuator_status("ACTUATOR_REFERENCE_ONE")
-```
 
 ### Disconnecting from the platform
 ```python
