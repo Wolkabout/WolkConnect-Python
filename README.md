@@ -78,7 +78,7 @@ wolk_device = wolk.WolkConnect(
 wolk_device.connect()
 ```
 
-### Publishing sensor readings
+### Adding sensor readings
 
 ```python
 wolk_device.add_sensor_reading("T", 26.93)

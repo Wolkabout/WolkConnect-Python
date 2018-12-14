@@ -62,27 +62,27 @@ import wolk
 device = wolk.Device(
     key="device_key",
     password="some_password",
-    actuator_references=["ACTUATOR_REFERENCE_ONE", "ACTUATOR_REFERENCE_TWO"]
+    actuator_references=["SW", "SL"]
 )
 
 # Provide implementation of a way to read actuator status
 class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
     def get_actuator_status(self, reference):
-        if reference == "ACTUATOR_REFERENCE_ONE":
-            return wolk.ACTUATOR_STATE_READY, actuator_1.value
-        elif reference == "ACTUATOR_REFERENCE_TWO":
-            return wolk.ACTUATOR_STATE_READY, actuator_2.value
+        if reference == "SW":
+            return wolk.ACTUATOR_STATE_READY, switch.value
+        elif reference == "SL":
+            return wolk.ACTUATOR_STATE_READY, slider.value
 
 
 # Provide implementation of an actuation handler
 class ActuationHandlerImpl(wolk.ActuationHandler):
     def handle_actuation(self, reference, value):
         print("Setting actuator " + reference + " to value: " + str(value))
-        if reference == "ACTUATOR_REFERENCE_ONE":
-            actuator_1.value = value
+        if reference == "SW":
+            switch.value = value
 
-        elif reference == "ACTUATOR_REFERENCE_TWO":
-            actuator_2.value = value
+        elif reference == "SL":
+            slider.value = value
 
 # Provide implementation of a configuration handler
 class ConfigurationHandlerImpl(wolk.ConfigurationHandler):
@@ -125,7 +125,7 @@ wolk_device = wolk.WolkConnect(
 wolk_device.connect()
 ```
 
-### Publishing sensor readings
+### Adding sensor readings
 ```python
 wolk_device.add_sensor_reading("T", 26.93)
 
@@ -133,17 +133,23 @@ wolk_device.add_sensor_reading("T", 26.93)
 wolk_device.add_sensor_reading("ACL", (4, 2, 0))
 ```
 
-### Publishing events
+### Adding events
 ```python
 # Activate alarm
-wolk_device.add_alarm("ALARM_REFERENCE", True)
+wolk_device.add_alarm("HH", True)
 # Disable alarm
-wolk_device.add_alarm("ALARM_REFERENCE", False)
+wolk_device.add_alarm("HH", False)
+```
+
+### Data publish strategy
+Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
+```python
+wolk_device.publish()
 ```
 
 ### Publishing actuator statuses
 ```python
-wolk_device.publish_actuator_status("ACTUATOR_REFERENCE_ONE")
+wolk_device.publish_actuator_status("SW")
 ```
 This will call the `ActuatorStatusProvider` to read the actuator status, and publish actuator status.
 
@@ -154,19 +160,6 @@ wolk_device.publish_configuration()
 ```
 This will call the `ConfigurationProvider` to read the current configuration and publish it to the platform
 
-
-### Data publish strategy
-
-Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
-```python
-wolk_device.publish()
-```
-
-Whereas actuator statuses are published automatically by calling:
-
-```python
-wolk_device.publish_actuator_status("ACTUATOR_REFERENCE_ONE")
-```
 
 ### Disconnecting from the platform
 ```python
