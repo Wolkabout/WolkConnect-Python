@@ -71,6 +71,8 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
                     if "\n" in str(value):
                         value = value.replace("\n", "\\n")
                         value = value.replace("\r", "")
+                    if '\"' in str(value):
+                        value = value.replace("\"", '\\\"')
                     values_list.append(value)
                     values_list.append(delimiter)
 
@@ -86,6 +88,8 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
             if "\n" in str(reading.value):
                 reading.value = reading.value.replace("\n", "\\n")
                 reading.value = reading.value.replace("\r", "")
+            if "\"" in str(reading.value):
+                reading.value = reading.value.replace("\"", "\\\"")
 
             message = OutboundMessage(
                 "readings/" + self.device_key + "/" + reading.reference,
@@ -222,6 +226,8 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         if "\n" in str(actuator.value):
             actuator.value = actuator.value.replace("\n", "\\n")
             actuator.value = actuator.value.replace("\r", "")
+        if "\"" in str(actuator.value):
+            actuator.value = actuator.value.replace("\"", "\\\"")
 
         message = OutboundMessage(
             "actuators/status/" + self.device_key + "/" + actuator.reference,
