@@ -1,14 +1,14 @@
 {
-  "id": 663,
-  "name": "Simple example manifest",
+  "id": 883,
+  "name": "Simple-example",
   "protocol": "JsonSingleReferenceProtocol",
-  "description": "A minimal manifest with one sensor",
+  "description": "A minimal template with one sensor",
   "deviceType": "STANDARD",
   "connectivityType": "MQTT_BROKER",
   "published": false,
   "feeds": [
     {
-      "id": 1107,
+      "id": 1472,
       "name": "Temperature",
       "reference": "T",
       "description": "",
@@ -18,8 +18,10 @@
         "symbol": "℃",
         "readingTypeId": 2,
         "system": "SI",
+        "precision": 1,
         "context": null,
-        "inUse": true
+        "inUse": true,
+        "readingTypeName": "TEMPERATURE"
       },
       "minimum": -20,
       "maximum": 80,
@@ -28,7 +30,6 @@
         "name": "TEMPERATURE",
         "dataType": "NUMERIC",
         "size": 1,
-        "precision": 1,
         "labels": null,
         "iconName": "ico_temperature"
       }
