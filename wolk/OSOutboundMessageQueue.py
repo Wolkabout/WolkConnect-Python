@@ -59,6 +59,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
                 message.channel,
                 message.payload,
             )
+            return
 
         reading_reference = message.channel.split("/")[-1]
 
