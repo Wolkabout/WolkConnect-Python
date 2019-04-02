@@ -56,7 +56,7 @@ class WolkConnect:
         actuator_status_provider=None,
         configuration_handler=None,
         configuration_provider=None,
-        outbound_message_queue=OSOutboundMessageQueue(),
+        outbound_message_queue=None,
         keep_alive_enabled=True,
         firmware_handler=None,
         host=None,
@@ -107,7 +107,10 @@ class WolkConnect:
         )
         self.device = device
         self.outbound_message_factory = OSOutboundMessageFactory(device.key)
-        self.outbound_message_queue = outbound_message_queue
+        if outbound_message_queue is None:
+            self.outbound_message_queue = OSOutboundMessageQueue()
+        else:
+            self.outbound_message_queue = outbound_message_queue
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
