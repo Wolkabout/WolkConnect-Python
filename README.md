@@ -68,11 +68,12 @@ device = wolk.Device(
 )
 
 # Pass your device and server information
+# defaults to secure connection to Demo instance
 wolk_device = wolk.WolkConnect(
     device,
     host="api-demo.wolkabout.com",
     port=8883,
-    ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt"
+    ca_cert="path/to/ca.crt"
 )
 
 wolk_device.connect()
