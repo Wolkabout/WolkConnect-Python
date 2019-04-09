@@ -38,9 +38,9 @@ pip3 install wolk-connect
 ### Installing from source
 
 
-This repository must be cloned from the command line using:
+Clone this repository from the command line using:
 ```sh
-git clone --recurse-submodules https://github.com/Wolkabout/WolkConnect-Python.git
+git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
 Install dependencies by invoking `pip3 install -r requirements.txt`
