@@ -68,7 +68,7 @@ device = wolk.Device(
 )
 
 # Pass your device and server information
-# defaults to secure connection to Demo instance
+# defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device,
     host="api-demo.wolkabout.com",

@@ -112,7 +112,7 @@ class ConfigurationProviderImpl(wolk.ConfigurationProvider):
 # Pass your device, actuation handler and actuator status provider
 # Pass configuration handler and provider
 # Pass server info and path to ca.crt for secure connection
-# defaults to secure connection to Demo instance
+# defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device=device,
     actuation_handler=ActuationHandlerImpl(),
