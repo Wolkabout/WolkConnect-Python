@@ -12,23 +12,20 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""FirmwareURLDownloadHandler Module."""
+from abc import ABC, abstractmethod
+
+"""FirmwareInstaller Module."""
 
 
-class FirmwareURLDownloadHandler:
-    """Responsible for providing means of downloading firmware file from a URL."""
+class FirmwareInstaller(ABC):
+    """Responsible for handling the installation of the firmware file."""
 
-    def download(self, url, file, result_callback):
+    @abstractmethod
+    def install_firmware(self, firmware_file_path):
         """
-        Download the resource located at the url to the file.
+        Handle the installation of the firmware file.
 
-        Return the result of the download process as a bool to result_callback
-
-        :param url: URL from where to download the file
-        :type url: str
-        :param file: Name of file to which to download
-        :type file: str
-        :param result_callback: Function to which to report the outcome
-        :type result_callback: function
+        :param firmware_file_path: Path where the firmware file is located
+        :type firmware_file_path: str
         """
         pass

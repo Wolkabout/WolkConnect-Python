@@ -16,7 +16,7 @@
 
 from collections import deque
 
-from wolk.wolkcore import OutboundMessageQueue
+from wolk.interfaces.OutboundMessageQueue import OutboundMessageQueue
 from wolk import LoggerFactory
 
 

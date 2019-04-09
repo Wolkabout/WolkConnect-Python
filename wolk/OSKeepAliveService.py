@@ -15,7 +15,7 @@
 """OS Keep Alive Service module."""
 
 from wolk import LoggerFactory
-from wolk.wolkcore import KeepAliveService
+from wolk.interfaces.KeepAliveService import KeepAliveService
 from threading import Timer
 
 

@@ -10,28 +10,27 @@ and pass it to an instance of WolkConnect class.
 
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
-
-
-Throughout this package usage of enumerations and ABCs are omitted
-due to a constraint caused by the necessity to have
-a single base (wolkcore) for two versions of Python: CPython and Zerynth.
 """
-from .ActuationHandler import ActuationHandler
-from .ActuatorStatusProvider import ActuatorStatusProvider
-from .ConfigurationHandler import ConfigurationHandler
-from .ConfigurationProvider import ConfigurationProvider
-from .Device import Device
+from .interfaces.ActuationHandler import ActuationHandler
+from .interfaces.ActuatorStatusProvider import ActuatorStatusProvider
+from .models.ActuatorState import ActuatorState
+from .interfaces.ConfigurationHandler import ConfigurationHandler
+from .interfaces.ConfigurationProvider import ConfigurationProvider
+from .models.Device import Device
 from .FileSystemFirmwareHandler import FileSystemFirmwareHandler
-from .FirmwareInstaller import FirmwareInstaller
-from .FirmwareURLDownloadHandler import FirmwareURLDownloadHandler
+from .interfaces.FirmwareInstaller import FirmwareInstaller
+from .interfaces.FirmwareURLDownloadHandler import FirmwareURLDownloadHandler
 from .LoggerFactory import logging_config
-from .wolkcore.OutboundMessageQueue import OutboundMessageQueue
+from .interfaces.OutboundMessageQueue import OutboundMessageQueue
+from .interfaces.OutboundMessageFactory import OutboundMessageFactory
+from .interfaces.InboundMessageDeserializer import InboundMessageDeserializer
 from .WolkConnect import WolkConnect
 
 
 __all__ = [
     "ActuationHandler",
     "ActuatorStatusProvider",
+    "ActuatorState",
     "ConfigurationHandler",
     "ConfigurationProvider",
     "Device",
@@ -41,16 +40,12 @@ __all__ = [
     "LoggerFactory",
     "logging_config",
     "OutboundMessageQueue",
+    "OutboundMessageFactory",
+    "InboundMessageDeserializer",
     "WolkConnect",
 ]
 
-# "Enum" of actuator states
-ACTUATOR_STATE_READY = 0
-ACTUATOR_STATE_BUSY = 1
-ACTUATOR_STATE_ERROR = 2
-
-
 # "Enum" of connector version
 VERSION_MAJOR = 3
-VERSION_MINOR = 1
-VERSION_PATCH = 3
+VERSION_MINOR = 2
+VERSION_PATCH = 0

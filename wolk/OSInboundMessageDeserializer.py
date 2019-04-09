@@ -16,14 +16,14 @@
 
 import json
 
-from wolk.wolkcore import ActuatorCommand
-from wolk.wolkcore import ActuatorCommandType
-from wolk.wolkcore import ConfigurationCommand
-from wolk.wolkcore import ConfigurationCommandType
-from wolk.wolkcore import FileTransferPacket
-from wolk.wolkcore import FirmwareCommand
-from wolk.wolkcore import FirmwareCommandType
-from wolk.wolkcore import InboundMessageDeserializer
+from wolk.models.ActuatorCommand import ActuatorCommand
+from wolk.models.ActuatorCommandType import ActuatorCommandType
+from wolk.models.ConfigurationCommand import ConfigurationCommand
+from wolk.models.ConfigurationCommandType import ConfigurationCommandType
+from wolk.models.FileTransferPacket import FileTransferPacket
+from wolk.models.FirmwareCommand import FirmwareCommand
+from wolk.models.FirmwareCommandType import FirmwareCommandType
+from wolk.interfaces.InboundMessageDeserializer import InboundMessageDeserializer
 from wolk import LoggerFactory
 
 
@@ -42,6 +42,59 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         )
         self.logger.debug("Init")
 
+    def is_actuation_command(self, message):
+        """
+        Check if message is actuation command
+
+        :param message: The message received
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :returns: actuation_command
+        :rtype: bool
+        """
+        if message.channel.startswith("actuators/commands/"):
+            return True
+        return False
+
+    def is_firmware_command(self, message):
+        """
+        Check if message is firmware command
+
+        :param message: The message received
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :returns: firmware_command
+        :rtype: bool
+        """
+        if message.channel.startswith("service/commands/firmware/"):
+            return True
+        return False
+
+    def is_file_chunk(self, message):
+        """
+        Check if message is file chunk
+
+        :param message: The message received
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :returns: file_chunk
+        :rtype: bool
+        """
+        if message.channel.startswith("service/binary/"):
+            return True
+        return False
+
+    def is_configuration(self, message):
+        """
+        Check if message is configuration
+
+        :param message: The message received
+        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :returns: configuration
+        :rtype: bool
+        """
+        if message.channel.startswith("configurations/commands/"):
+            return True
+        return False
+
+
     def deserialize_actuator_command(self, message):
         """
         Deserialize the message into an actuation command.
@@ -59,7 +112,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         if str(command) == "SET":
 
-            command_type = ActuatorCommandType.ACTUATOR_COMMAND_TYPE_SET
+            command_type = ActuatorCommandType.SET
             value = payload.get("value")
             if "\n" in value:
                 value = value.replace("\n", "\\n")
@@ -80,7 +133,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         elif str(command) == "STATUS":
 
-            command_type = ActuatorCommandType.ACTUATOR_COMMAND_TYPE_STATUS
+            command_type = ActuatorCommandType.STATUS
             actuation = ActuatorCommand(reference, command_type)
             self.logger.info(
                 "Received actuation command - Reference: %s ;"
@@ -91,7 +144,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         else:
 
-            command_type = ActuatorCommandType.ACTUATOR_COMMAND_TYPE_UNKNOWN
+            command_type = ActuatorCommandType.UNKNOWN
             actuation = ActuatorCommand(reference, command_type)
             self.logger.warning(
                 "Received actuation command - Reference: %s ;"
@@ -117,7 +170,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         if command == "FILE_UPLOAD":
 
-            command = FirmwareCommandType.FIRMWARE_COMMAND_TYPE_FILE_UPLOAD
+            command = FirmwareCommandType.FILE_UPLOAD
             firmware_command = FirmwareCommand(
                 command,
                 payload.get("fileName"),
@@ -139,7 +192,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         elif command == "URL_DOWNLOAD":
 
-            command = FirmwareCommandType.FIRMWARE_COMMAND_TYPE_URL_DOWNLOAD
+            command = FirmwareCommandType.URL_DOWNLOAD
             firmware_command = FirmwareCommand(
                 command,
                 file_url=payload.get("fileUrl"),
@@ -156,7 +209,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         elif command == "INSTALL":
 
-            command = FirmwareCommandType.FIRMWARE_COMMAND_TYPE_INSTALL
+            command = FirmwareCommandType.INSTALL
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
@@ -167,7 +220,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         elif command == "ABORT":
 
-            command = FirmwareCommandType.FIRMWARE_COMMAND_TYPE_ABORT
+            command = FirmwareCommandType.ABORT
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
@@ -178,7 +231,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         else:
 
-            command = FirmwareCommandType.FIRMWARE_COMMAND_TYPE_UNKNOWN
+            command = FirmwareCommandType.UNKNOWN
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
@@ -228,7 +281,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         if command == "SET":
 
-            command = ConfigurationCommandType.CONFIGURATION_COMMAND_TYPE_SET
+            command = ConfigurationCommandType.SET
 
             configuration = ConfigurationCommand(
                 command, payload.get("values")
@@ -272,7 +325,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         elif command == "CURRENT":
 
             command = (
-                ConfigurationCommandType.CONFIGURATION_COMMAND_TYPE_CURRENT
+                ConfigurationCommandType.CURRENT
             )
 
             configuration = ConfigurationCommand(command)
@@ -284,7 +337,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         else:
 
             command = (
-                ConfigurationCommandType.CONFIGURATION_COMMAND_TYPE_UNKNOWN
+                ConfigurationCommandType.UNKNOWN
             )
 
             configuration = ConfigurationCommand(command)

@@ -12,17 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""FirmwareInstaller Module."""
+"""
+FirmwareStatus Module.
+"""
 
 
-class FirmwareInstaller:
-    """Responsible for handling the installation of the firmware file."""
+class FirmwareStatus:
+    """Contains the status of the firmware update process."""
 
-    def install_firmware(self, firmware_file_path):
+    def __init__(self, status, error=None):
         """
-        Handle the installation of the firmware file.
+        Status of firmware update process.
 
-        :param firmware_file_path: Path where the firmware file is located
-        :type firmware_file_path: str
+        :param status: The status of the firmware update process
+        :type status: wolk.wolkcore.FirmwareStatusType
+        :param error: The type of error that occurred
+        :type error: wolk.wolkcore.FirmwareErrorType or None
         """
-        pass
+        self.status = status
+        self.error = error

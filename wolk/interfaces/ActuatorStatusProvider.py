@@ -12,31 +12,29 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""ActuatorStatusProvider Module."""
+from abc import ABC, abstractmethod
+
+"""
+ActuatorStatusProvider Module.
+"""
 
 
-class ActuatorStatusProvider:
+class ActuatorStatusProvider(ABC):
     """Read the status of device's actuators."""
 
+    @abstractmethod
     def get_actuator_status(self, reference):
         """
         Get current actuator status.
 
-        Reads the status of actuator from device
-        and returns as tuple containing actuator state and current value.
+        Reads the status of actuator from the device
+        and returns it as a tuple containing the ActuatorState and current value.
         Must be implemented as non blocking.
         Must be implemented as thread safe.
-
-        The possible actuator states are:
-
-        - ``wolk.ACTUATOR_STATE_READY``
-        - ``wolk.ACTUATOR_STATE_BUSY``
-        - ``wolk.ACTUATOR_STATE_ERROR``
-
 
         :param reference: Actuator reference
         :type reference: str
         :returns: (state, value)
-        :rtype: (wolk.ActuatorState, int or float or str)
+        :rtype: (wolk.wolkcore.ActuatorState, int or float or str)
         """
         pass

@@ -16,8 +16,8 @@
 
 from paho.mqtt import client as mqtt
 
-from wolk.wolkcore import ConnectivityService
-from wolk.wolkcore import InboundMessage
+from wolk.interfaces.ConnectivityService import ConnectivityService
+from wolk.models.InboundMessage import InboundMessage
 from wolk import LoggerFactory
 
 

@@ -69,9 +69,9 @@ device = wolk.Device(
 class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
     def get_actuator_status(self, reference):
         if reference == "SW":
-            return wolk.ACTUATOR_STATE_READY, switch.value
+            return wolk.ActuatorState.READY, switch.value
         elif reference == "SL":
-            return wolk.ACTUATOR_STATE_READY, slider.value
+            return wolk.ActuatorState.READY, slider.value
 
 
 # Provide implementation of an actuation handler

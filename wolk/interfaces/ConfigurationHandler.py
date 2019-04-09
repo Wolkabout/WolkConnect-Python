@@ -12,24 +12,28 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""ActuationHandler Module."""
+from abc import ABC, abstractmethod
 
 
-class ActuationHandler:
-    """Handle actuation commands received from WolkAbout IoT Platform."""
+"""
+ConfigurationHandler Module.
+"""
 
-    def handle_actuation(self, reference, value):
+
+class ConfigurationHandler(ABC):
+    """Set device's configuration options."""
+
+    @abstractmethod
+    def handle_configuration(self, configuration):
         """
-        Set actuator to value.
+        Change device's configuration options.
 
-        When the actuation command is given from WolkAbout IoT Platform, it will be delivered to this method.
-        This method should pass the new value to the device's actuator.
+        When the configuration command is given from the platform, it will be delivered to this method.
+        This function should update device configuration with received configuration values.
         Must be implemented as non blocking.
         Must be implemented as thread safe.
 
-        :param reference: Reference of the actuator
-        :type reference: str
-        :param value: Value to which to set the actuator
-        :type value: int or float or str
+        :param configuration: Configuration option reference:value pairs
+        :type configuration: dict
         """
         pass

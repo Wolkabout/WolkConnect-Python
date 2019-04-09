@@ -12,22 +12,22 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""ConfigurationHandler Module."""
+"""
+InboundMessage Module.
+"""
 
 
-class ConfigurationHandler:
-    """Set device's configuration options."""
+class InboundMessage:
+    """Inbound Messages that get received from the platform."""
 
-    def handle_configuration(self, configuration):
+    def __init__(self, channel, payload):
         """
-        Change device's configuration options.
+        Inbound MQTT message.
 
-        When the configuration command is given from WolkAbout IoT Platform, it will be delivered to this method.
-        This function should update device configuration with received configuration values.
-        Must be implemented as non blocking.
-        Must be implemented as thread safe.
-
-        :param configuration: Configuration option reference:value pairs
-        :type configuration: dict
+        :param channel: Channel where the message was published to
+        :type channel: str
+        :param payload: Payload of the message that was published to channel
+        :type payload: str or bytes
         """
-        pass
+        self.channel = channel
+        self.payload = payload

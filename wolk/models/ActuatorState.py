@@ -12,24 +12,14 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""ConfigurationProvider Module."""
+from enum import Enum
+
+"""
+     Types of actuator states on the device.
+"""
 
 
-class ConfigurationProvider:
-    """Read the device's current configuration options."""
-
-    def get_configuration(self):
-        """
-        Get current configuration options.
-
-        Reads device configuration and returns it as a dictionary
-        with device configuration reference as key,
-        and device configuration value as value.
-
-        Must be implemented as non blocking.
-        Must be implemented as thread safe.
-
-        :returns: configuration
-        :rtype: dict
-        """
-        pass
+class ActuatorState(Enum):
+    READY = 0
+    BUSY = 1
+    ERROR = 2

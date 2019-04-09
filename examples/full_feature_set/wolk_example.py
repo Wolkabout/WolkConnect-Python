@@ -51,9 +51,7 @@ def main():
     # from WolkAbout IoT Platform when creating the device
     # List actuator references included on your device
     device = wolk.Device(
-        key="device_key",
-        password="some_password",
-        actuator_references=["SW", "SL"],
+        key="device_key", password="some_password", actuator_references=["SW", "SL"]
     )
 
     class ActuatorSimulator:
@@ -78,9 +76,9 @@ def main():
     class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
         def get_actuator_status(self, reference):
             if reference == "SW":
-                return wolk.ACTUATOR_STATE_READY, switch.value
+                return wolk.ActuatorState.READY, switch.value
             elif reference == "SL":
-                return wolk.ACTUATOR_STATE_READY, slider.value
+                return wolk.ActuatorState.READY, slider.value
 
     # Provide an actuation handler if your device has actuators
     class ActuationHandlerImpl(wolk.ActuationHandler):
@@ -176,7 +174,7 @@ def main():
             firmware_handler=firmware_handler,
             host="api-demo.wolkabout.com",
             port=8883,
-            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt"
+            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
         )
     except RuntimeError as e:
         print(str(e))

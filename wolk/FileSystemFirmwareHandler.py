@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 from persistent_queue import PersistentQueue
 
 from wolk import LoggerFactory
-from wolk.wolkcore import FirmwareHandler
+from wolk.interfaces.FirmwareHandler import FirmwareHandler
 
 
 class FileSystemFirmwareHandler(FirmwareHandler):

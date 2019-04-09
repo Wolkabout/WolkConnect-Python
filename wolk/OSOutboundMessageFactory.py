@@ -14,11 +14,11 @@
 
 """OSOutboundMessageFactory Module."""
 
-from wolk.wolkcore import ActuatorState
-from wolk.wolkcore import FirmwareErrorType
-from wolk.wolkcore import FirmwareStatusType
-from wolk.wolkcore import OutboundMessage
-from wolk.wolkcore import OutboundMessageFactory
+from wolk.models.ActuatorState import ActuatorState
+from wolk.models.FirmwareErrorType import FirmwareErrorType
+from wolk.models.FirmwareStatusType import FirmwareStatusType
+from wolk.models.OutboundMessage import OutboundMessage
+from wolk.interfaces.OutboundMessageFactory import OutboundMessageFactory
 from wolk import LoggerFactory
 
 
@@ -209,13 +209,13 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_actuator_status called")
-        if actuator.state == ActuatorState.ACTUATOR_STATE_READY:
+        if actuator.state == ActuatorState.READY:
             actuator.state = "READY"
 
-        elif actuator.state == ActuatorState.ACTUATOR_STATE_BUSY:
+        elif actuator.state == ActuatorState.BUSY:
             actuator.state = "BUSY"
 
-        elif actuator.state == ActuatorState.ACTUATOR_STATE_ERROR:
+        elif actuator.state == ActuatorState.ERROR:
             actuator.state = "ERROR"
 
         if actuator.value is True:
@@ -256,36 +256,36 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         self.logger.debug("make_from_firmware_status called")
         if (
             firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_FILE_TRANSFER
+            == FirmwareStatusType.FILE_TRANSFER
         ):
             firmware_status.status = "FILE_TRANSFER"
 
         elif (
             firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_FILE_READY
+            == FirmwareStatusType.FILE_READY
         ):
             firmware_status.status = "FILE_READY"
 
         elif (
             firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_INSTALLATION
+            == FirmwareStatusType.INSTALLATION
         ):
             firmware_status.status = "INSTALLATION"
 
         elif (
             firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_COMPLETED
+            == FirmwareStatusType.COMPLETED
         ):
             firmware_status.status = "COMPLETED"
 
         elif (
             firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_ABORTED
+            == FirmwareStatusType.ABORTED
         ):
             firmware_status.status = "ABORTED"
 
         elif (
-            firmware_status.status == FirmwareStatusType.FIRMWARE_STATUS_ERROR
+            firmware_status.status == FirmwareStatusType.ERROR
         ):
             firmware_status.status = "ERROR"
 
@@ -293,43 +293,43 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
             if (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_UNSPECIFIED_ERROR
+                == FirmwareErrorType.UNSPECIFIED_ERROR
             ):
                 firmware_status.error = "0"
 
             elif (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_FILE_UPLOAD_DISABLED
+                == FirmwareErrorType.FILE_UPLOAD_DISABLED
             ):
                 firmware_status.error = "1"
 
             elif (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_UNSUPPORTED_FILE_SIZE
+                == FirmwareErrorType.UNSUPPORTED_FILE_SIZE
             ):
                 firmware_status.error = "2"
 
             elif (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_INSTALLATION_FAILED
+                == FirmwareErrorType.INSTALLATION_FAILED
             ):
                 firmware_status.error = "3"
 
             elif (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_MALFORMED_URL
+                == FirmwareErrorType.MALFORMED_URL
             ):
                 firmware_status.error = "4"
 
             elif (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_FILE_SYSTEM_ERROR
+                == FirmwareErrorType.FILE_SYSTEM_ERROR
             ):
                 firmware_status.error = "5"
 
             elif (
                 firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_RETRY_COUNT_EXCEEDED
+                == FirmwareErrorType.RETRY_COUNT_EXCEEDED
             ):
                 firmware_status.error = "10"
 
