@@ -146,9 +146,3 @@ wolk.OSOutboundMessageQueue module
     :members:
     :undoc-members:
     :show-inheritance:
-
-
-wolk.wolkcore subpackage
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Additional internal dependencies are located in the `wolkcore subpackage <wolk.wolkcore.html>`_

@@ -1,16 +1,14 @@
-========
 Examples
 ========
 
 
-To see how to utilize WolkConnect library APIs, visit one of the following files and look up detailed information in the Example Usage section:
+To see how to utilize WolkConnect library APIs, visit one of the following pages and look up detailed information in the Example Usage section:
 
---------------
 Simple Example
 --------------
 * `Simple example <README_simple.html>`_  - demonstrates the sending of a temperature sensor reading
 
-------------
+
 Full Example
 ------------
 * `Full Example <README_full.html>`_ - demonstrates full WolkAbout IoT Platform potential

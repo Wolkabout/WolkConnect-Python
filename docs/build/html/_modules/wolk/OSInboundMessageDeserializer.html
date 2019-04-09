@@ -17,32 +17,33 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -162,14 +163,14 @@
 
 <span class="kn">import</span> <span class="nn">json</span>
 
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ActuatorCommand</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ActuatorCommandType</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ConfigurationCommand</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">ConfigurationCommandType</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">FileTransferPacket</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">FirmwareCommand</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">FirmwareCommandType</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">InboundMessageDeserializer</span>
+<span class="kn">from</span> <span class="nn">wolk.models.ActuatorCommand</span> <span class="k">import</span> <span class="n">ActuatorCommand</span>
+<span class="kn">from</span> <span class="nn">wolk.models.ActuatorCommandType</span> <span class="k">import</span> <span class="n">ActuatorCommandType</span>
+<span class="kn">from</span> <span class="nn">wolk.models.ConfigurationCommand</span> <span class="k">import</span> <span class="n">ConfigurationCommand</span>
+<span class="kn">from</span> <span class="nn">wolk.models.ConfigurationCommandType</span> <span class="k">import</span> <span class="n">ConfigurationCommandType</span>
+<span class="kn">from</span> <span class="nn">wolk.models.FileTransferPacket</span> <span class="k">import</span> <span class="n">FileTransferPacket</span>
+<span class="kn">from</span> <span class="nn">wolk.models.FirmwareCommand</span> <span class="k">import</span> <span class="n">FirmwareCommand</span>
+<span class="kn">from</span> <span class="nn">wolk.models.FirmwareCommandType</span> <span class="k">import</span> <span class="n">FirmwareCommandType</span>
+<span class="kn">from</span> <span class="nn">wolk.interfaces.InboundMessageDeserializer</span> <span class="k">import</span> <span class="n">InboundMessageDeserializer</span>
 <span class="kn">from</span> <span class="nn">wolk</span> <span class="k">import</span> <span class="n">LoggerFactory</span>
 
 
@@ -188,6 +189,59 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Init&quot;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="OSInboundMessageDeserializer.is_actuation_command"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_actuation_command">[docs]</a>    <span class="k">def</span> <span class="nf">is_actuation_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if message is actuation command</span>
+
+<span class="sd">        :param message: The message received</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+<span class="sd">        :returns: actuation_command</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;actuators/commands/&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.is_firmware_command"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_firmware_command">[docs]</a>    <span class="k">def</span> <span class="nf">is_firmware_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if message is firmware command</span>
+
+<span class="sd">        :param message: The message received</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+<span class="sd">        :returns: firmware_command</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;service/commands/firmware/&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.is_file_chunk"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_file_chunk">[docs]</a>    <span class="k">def</span> <span class="nf">is_file_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if message is file chunk</span>
+
+<span class="sd">        :param message: The message received</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+<span class="sd">        :returns: file_chunk</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;service/binary/&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="OSInboundMessageDeserializer.is_configuration"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">is_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if message is configuration</span>
+
+<span class="sd">        :param message: The message received</span>
+<span class="sd">        :type message: wolk.wolkcore.InboundMessage.InboundMessage</span>
+<span class="sd">        :returns: configuration</span>
+<span class="sd">        :rtype: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;configurations/commands/&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
 <div class="viewcode-block" id="OSInboundMessageDeserializer.deserialize_actuator_command"><a class="viewcode-back" href="../../wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_actuator_command">[docs]</a>    <span class="k">def</span> <span class="nf">deserialize_actuator_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Deserialize the message into an actuation command.</span>
@@ -205,7 +259,7 @@
 
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;SET&quot;</span><span class="p">:</span>
 
-            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">ACTUATOR_COMMAND_TYPE_SET</span>
+            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">SET</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
@@ -226,7 +280,7 @@
 
         <span class="k">elif</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;STATUS&quot;</span><span class="p">:</span>
 
-            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">ACTUATOR_COMMAND_TYPE_STATUS</span>
+            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">STATUS</span>
             <span class="n">actuation</span> <span class="o">=</span> <span class="n">ActuatorCommand</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">command_type</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Received actuation command - Reference: </span><span class="si">%s</span><span class="s2"> ;&quot;</span>
@@ -237,7 +291,7 @@
 
         <span class="k">else</span><span class="p">:</span>
 
-            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">ACTUATOR_COMMAND_TYPE_UNKNOWN</span>
+            <span class="n">command_type</span> <span class="o">=</span> <span class="n">ActuatorCommandType</span><span class="o">.</span><span class="n">UNKNOWN</span>
             <span class="n">actuation</span> <span class="o">=</span> <span class="n">ActuatorCommand</span><span class="p">(</span><span class="n">reference</span><span class="p">,</span> <span class="n">command_type</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Received actuation command - Reference: </span><span class="si">%s</span><span class="s2"> ;&quot;</span>
@@ -263,7 +317,7 @@
 
         <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;FILE_UPLOAD&quot;</span><span class="p">:</span>
 
-            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_FILE_UPLOAD</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FILE_UPLOAD</span>
             <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span>
                 <span class="n">command</span><span class="p">,</span>
                 <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fileName&quot;</span><span class="p">),</span>
@@ -285,7 +339,7 @@
 
         <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;URL_DOWNLOAD&quot;</span><span class="p">:</span>
 
-            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_URL_DOWNLOAD</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">URL_DOWNLOAD</span>
             <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span>
                 <span class="n">command</span><span class="p">,</span>
                 <span class="n">file_url</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fileUrl&quot;</span><span class="p">),</span>
@@ -302,7 +356,7 @@
 
         <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;INSTALL&quot;</span><span class="p">:</span>
 
-            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_INSTALL</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">INSTALL</span>
 
             <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -313,7 +367,7 @@
 
         <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;ABORT&quot;</span><span class="p">:</span>
 
-            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_ABORT</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">ABORT</span>
 
             <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -324,7 +378,7 @@
 
         <span class="k">else</span><span class="p">:</span>
 
-            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">FIRMWARE_COMMAND_TYPE_UNKNOWN</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">FirmwareCommandType</span><span class="o">.</span><span class="n">UNKNOWN</span>
 
             <span class="n">firmware_command</span> <span class="o">=</span> <span class="n">FirmwareCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -374,7 +428,7 @@
 
         <span class="k">if</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;SET&quot;</span><span class="p">:</span>
 
-            <span class="n">command</span> <span class="o">=</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CONFIGURATION_COMMAND_TYPE_SET</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">SET</span>
 
             <span class="n">configuration</span> <span class="o">=</span> <span class="n">ConfigurationCommand</span><span class="p">(</span>
                 <span class="n">command</span><span class="p">,</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;values&quot;</span><span class="p">)</span>
@@ -418,7 +472,7 @@
         <span class="k">elif</span> <span class="n">command</span> <span class="o">==</span> <span class="s2">&quot;CURRENT&quot;</span><span class="p">:</span>
 
             <span class="n">command</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CONFIGURATION_COMMAND_TYPE_CURRENT</span>
+                <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CURRENT</span>
             <span class="p">)</span>
 
             <span class="n">configuration</span> <span class="o">=</span> <span class="n">ConfigurationCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
@@ -430,7 +484,7 @@
         <span class="k">else</span><span class="p">:</span>
 
             <span class="n">command</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CONFIGURATION_COMMAND_TYPE_UNKNOWN</span>
+                <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">UNKNOWN</span>
             <span class="p">)</span>
 
             <span class="n">configuration</span> <span class="o">=</span> <span class="n">ConfigurationCommand</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
@@ -451,7 +505,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout.
+        &copy; Copyright 2018, WolkAbout
 
     </p>
   </div>
@@ -468,33 +522,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'3.1.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>
