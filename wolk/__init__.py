@@ -11,37 +11,70 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
+from .models.ActuatorCommand import ActuatorCommand
+from .models.ActuatorCommandType import ActuatorCommandType
+from .models.ActuatorState import ActuatorState
+from .models.ActuatorStatus import ActuatorStatus
+from .models.Alarm import Alarm
+from .models.ConfigurationCommand import ConfigurationCommand
+from .models.ConfigurationCommandType import ConfigurationCommandType
+from .models.Device import Device
+from .models.FileTransferPacket import FileTransferPacket
+from .models.FirmwareCommand import FirmwareCommand
+from .models.FirmwareCommandType import FirmwareCommandType
+from .models.FirmwareErrorType import FirmwareErrorType
+from .models.FirmwareStatus import FirmwareStatus
+from .models.FirmwareStatusType import FirmwareStatusType
+from .models.FirmwareUpdateStateType import FirmwareUpdateStateType
+from .models.InboundMessage import InboundMessage
+from .models.OutboundMessage import OutboundMessage
+from .models.SensorReading import SensorReading
 from .interfaces.ActuationHandler import ActuationHandler
 from .interfaces.ActuatorStatusProvider import ActuatorStatusProvider
-from .models.ActuatorState import ActuatorState
 from .interfaces.ConfigurationHandler import ConfigurationHandler
 from .interfaces.ConfigurationProvider import ConfigurationProvider
-from .models.Device import Device
-from .FileSystemFirmwareHandler import FileSystemFirmwareHandler
+from .interfaces.ConnectivityService import ConnectivityService
 from .interfaces.FirmwareInstaller import FirmwareInstaller
 from .interfaces.FirmwareURLDownloadHandler import FirmwareURLDownloadHandler
-from .LoggerFactory import logging_config
-from .interfaces.OutboundMessageQueue import OutboundMessageQueue
-from .interfaces.OutboundMessageFactory import OutboundMessageFactory
 from .interfaces.InboundMessageDeserializer import InboundMessageDeserializer
+from .interfaces.OutboundMessageFactory import OutboundMessageFactory
+from .interfaces.OutboundMessageQueue import OutboundMessageQueue
+from .FileSystemFirmwareHandler import FileSystemFirmwareHandler
+from .LoggerFactory import logging_config
 from .WolkConnect import WolkConnect
 
 
 __all__ = [
+    "ActuatorCommand",
+    "ActuatorCommandType",
+    "ActuatorState",
+    "ActuatorStatus",
+    "Alarm",
+    "ConfigurationCommand",
+    "ConfigurationCommandType",
+    "Device",
+    "FileTransferPacket",
+    "FirmwareCommand",
+    "FirmwareCommandType",
+    "FirmwareErrorType",
+    "FirmwareStatus",
+    "FirmwareStatusType",
+    "FirmwareUpdateStateType",
+    "InboundMessage",
+    "OutboundMessage",
+    "SensorReading",
     "ActuationHandler",
     "ActuatorStatusProvider",
-    "ActuatorState",
     "ConfigurationHandler",
     "ConfigurationProvider",
-    "Device",
+    "ConnectivityService",
     "FileSystemFirmwareHandler",
     "FirmwareInstaller",
     "FirmwareURLDownloadHandler",
-    "LoggerFactory",
     "logging_config",
-    "OutboundMessageQueue",
-    "OutboundMessageFactory",
     "InboundMessageDeserializer",
+    "OutboundMessageFactory",
+    "OutboundMessageQueue",
     "WolkConnect",
 ]
 

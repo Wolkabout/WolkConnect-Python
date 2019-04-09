@@ -1,2 +1,4 @@
 include LICENSE
-include wolk\*.crt
+include wolk/*.crt
+include wolk/models/*.py
+include wolk/interfaces/*.py
