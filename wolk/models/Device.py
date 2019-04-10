@@ -45,7 +45,10 @@ class Device:
         """
         self.key = key
         self.password = password
-        self.actuator_references = actuator_references
+        if actuator_references:
+            self.actuator_references = actuator_references
+        else:
+            self.actuator_references = list()
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
