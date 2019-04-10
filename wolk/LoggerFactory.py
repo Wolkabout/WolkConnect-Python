@@ -31,13 +31,13 @@ class LoggerFactory:
         Create a factory that will give loggers through calls to get_logger().
 
         :param level: Set the desired logging level
-        :type level: int, optional
+        :type level: int or None
         :param log_format: Desired logging format
-        :type log_format: str, optional
+        :type log_format: str or None
         :param console: Should the log messages be outputted to the console
-        :type console: bool, optional
+        :type console: bool or None
         :param log_file: Name of the log file to output to
-        :type log_file: None, optional
+        :type log_file: str or None
         """
         self.level = level
         self.log_format = log_format

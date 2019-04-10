@@ -40,7 +40,7 @@ class ConnectivityService(ABC):
         Returns true on success, false otherwise.
 
         :param outbound_message: Message to send
-        :type outbound_message: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :type outbound_message: wolk.models.OutboundMessage.OutboundMessage
         :returns: success
         :rtype: bool
         """
@@ -51,7 +51,7 @@ class ConnectivityService(ABC):
         """
         Set a callback to ``WolkConnect._on_inbound_message`` method.
 
-        callback function passes back an ``wolk.wolkcore.InboundMessage`` object.
+        callback function passes back an ``wolk.models.InboundMessage.InboundMessage`` object.
 
         :param listener: WolkConnect instance
         :type listener: wolk.WolkConnect.WolkConnect

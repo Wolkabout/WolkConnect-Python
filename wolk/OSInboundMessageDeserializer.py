@@ -35,19 +35,38 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
     :vartype logger: logging.Logger
     """
 
-    def __init__(self):
-        """Just logger init."""
+    def __init__(self, device):
+        """
+        Create inbound topics from device key.
+
+        :param device: Device with key and actuator references used for inbound topics 
+        :type message: wolk.models.Device.Device
+        """
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
-        self.logger.debug("Init")
+        self.logger.debug("Init: device %s", device)
+
+        inbound_topics = [
+            "service/commands/firmware/" + device.key,
+            "service/binary" + device.key,
+            "configurations/commands/" + device.key,
+            "pong/" + device.key,
+        ]
+
+        for reference in device.actuator_references:
+            inbound_topics.append(
+                "actuators/commands/" + device.key + "/" + reference
+            )
+
+        super().__init__(inbound_topics)
 
     def is_actuation_command(self, message):
         """
         Check if message is actuation command
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: actuation_command
         :rtype: bool
         """
@@ -60,7 +79,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Check if message is firmware command
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: firmware_command
         :rtype: bool
         """
@@ -73,7 +92,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Check if message is file chunk
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: file_chunk
         :rtype: bool
         """
@@ -86,7 +105,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Check if message is configuration
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: configuration
         :rtype: bool
         """
@@ -94,20 +113,19 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
             return True
         return False
 
-
     def deserialize_actuator_command(self, message):
         """
         Deserialize the message into an actuation command.
 
         :param message: Message to be deserialized
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
 
         :returns: actuation
-        :rtype: wolk.wolkcore.ActuatorCommand.ActuatorCommand
+        :rtype: wolk.models.ActuatorCommand.ActuatorCommand
         """
         self.logger.debug("deserialize_actuator_command called")
         reference = message.channel.split("/")[-1]
-        payload = json.loads(message.payload)
+        payload = json.loads(message.payload.decode("utf-8"))
         command = payload.get("command")
 
         if str(command) == "SET":
@@ -136,8 +154,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.STATUS
             actuation = ActuatorCommand(reference, command_type)
             self.logger.info(
-                "Received actuation command - Reference: %s ;"
-                " Command: STATUS ",
+                "Received actuation command - Reference: %s ;" " Command: STATUS ",
                 actuation.reference,
             )
             return actuation
@@ -147,8 +164,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.UNKNOWN
             actuation = ActuatorCommand(reference, command_type)
             self.logger.warning(
-                "Received actuation command - Reference: %s ;"
-                " Command: %s (UNKNOWN)",
+                "Received actuation command - Reference: %s ;" " Command: %s",
                 actuation.reference,
                 actuation.command,
             )
@@ -159,13 +175,13 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Deserialize the message into a firmware command.
 
         :param message: Message to be deserialized
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
 
         :returns: firmware_command
-        :rtype: wolk.wolkcore.FirmwareCommand.FirmwareCommand
+        :rtype: wolk.models.FirmwareCommand.FirmwareCommand
         """
         self.logger.debug("deserialize_firmware_command called")
-        payload = json.loads(message.payload)
+        payload = json.loads(message.payload.decode("utf-8"))
         command = payload.get("command")
 
         if command == "FILE_UPLOAD":
@@ -179,7 +195,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
                 payload.get("autoInstall"),
             )
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s (FILE_UPLOAD) ; "
+                "deserialize_firmware_command - Command: %s ; "
                 "File name: %s ; File size: %s ; "
                 "File hash: %s ; Auto install: %s",
                 firmware_command.command,
@@ -199,7 +215,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
                 auto_install=payload.get("autoInstall"),
             )
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s (URL_DOWNLOAD) ; "
+                "deserialize_firmware_command - Command: %s ; "
                 "File url: %s ; Auto install: %s",
                 firmware_command.command,
                 firmware_command.file_url,
@@ -213,8 +229,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s (INSTALL)",
-                firmware_command.command,
+                "deserialize_firmware_command - Command: %s", firmware_command.command
             )
             return firmware_command
 
@@ -224,8 +239,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s (ABORT)",
-                firmware_command.command,
+                "deserialize_firmware_command - Command: %s", firmware_command.command
             )
             return firmware_command
 
@@ -235,8 +249,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s (UNKNOWN)",
-                firmware_command.command,
+                "deserialize_firmware_command - Command: %s", firmware_command.command
             )
             return firmware_command
 
@@ -245,10 +258,10 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Split the message into a packet.
 
         :param message: Message to be deserialized
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
 
         :returns: packet
-        :rtype: wolk.wolkcore.FileTransferPacket.FileTransferPacket
+        :rtype: wolk.models.FileTransferPacket.FileTransferPacket
         """
         self.logger.debug("deserialize_firmware_chunk called")
         previous_hash = message.payload[:32]
@@ -270,22 +283,20 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         Deserialize the message into a configuration command.
 
         :param message: message to be deserialized
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
 
         :returns: configuration
-        :rtype: wolk.wolkcore.ConfigurationCommand.ConfigurationCommand
+        :rtype: wolk.models.ConfigurationCommand.ConfigurationCommand
         """
         self.logger.debug("deserialize_configuration_command called")
-        payload = json.loads(message.payload)
+        payload = json.loads(message.payload.decode("utf-8"))
         command = payload.get("command")
 
         if command == "SET":
 
             command = ConfigurationCommandType.SET
 
-            configuration = ConfigurationCommand(
-                command, payload.get("values")
-            )
+            configuration = ConfigurationCommand(command, payload.get("values"))
 
             self.logger.info(
                 "Received configuration command - Command: SET  Values: %s",
@@ -308,13 +319,9 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
                         values_list = value.split(",")
                         try:
                             if any("." in value for value in values_list):
-                                values_list = [
-                                    float(value) for value in values_list
-                                ]
+                                values_list = [float(value) for value in values_list]
                             else:
-                                values_list = [
-                                    int(value) for value in values_list
-                                ]
+                                values_list = [int(value) for value in values_list]
                         except ValueError:
                             pass
 
@@ -324,25 +331,18 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
 
         elif command == "CURRENT":
 
-            command = (
-                ConfigurationCommandType.CURRENT
-            )
+            command = ConfigurationCommandType.CURRENT
 
             configuration = ConfigurationCommand(command)
-            self.logger.info(
-                "Received configuration command - Command: CURRENT"
-            )
+            self.logger.info("Received configuration command - Command: CURRENT")
             return configuration
 
         else:
 
-            command = (
-                ConfigurationCommandType.UNKNOWN
-            )
+            command = ConfigurationCommandType.UNKNOWN
 
             configuration = ConfigurationCommand(command)
             self.logger.warning(
-                "Received configuration command - Command: %s (UNKONWN)",
-                configuration.command,
+                "Received configuration command - Command: %s", configuration.command
             )
             return configuration

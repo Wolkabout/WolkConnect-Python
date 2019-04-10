@@ -46,7 +46,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         into a single message.
 
         :param message: Message to place in the queue
-        :type message: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :type message: wolk.models.OutboundMessage.OutboundMessage
         """
         if not message:
             return
@@ -130,7 +130,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         Take the first message from the queue.
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage or None
+        :rtype: wolk.models.OutboundMessage.OutboundMessage or None
         """
         if len(self.queue) == 0:
             return None
@@ -149,7 +149,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         Return the first message from the queue without removing it.
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage or None
+        :rtype: wolk.models.OutboundMessage.OutboundMessage or None
         """
         if len(self.queue) == 0:
 

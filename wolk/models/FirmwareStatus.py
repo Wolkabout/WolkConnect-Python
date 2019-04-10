@@ -25,9 +25,9 @@ class FirmwareStatus:
         Status of firmware update process.
 
         :param status: The status of the firmware update process
-        :type status: wolk.wolkcore.FirmwareStatusType
+        :type status: wolk.models.FirmwareStatusType.FirmwareStatusType
         :param error: The type of error that occurred
-        :type error: wolk.wolkcore.FirmwareErrorType or None
+        :type error: wolk.models.FirmwareErrorType.FirmwareErrorType or None
         """
         self.status = status
         self.error = error

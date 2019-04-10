@@ -27,7 +27,7 @@ class ActuatorStatus:
         :param reference: Reference of the actuator
         :type reference: str
         :param state: Actuators current state
-        :type state: wolk.wolkcore.ActuatorState
+        :type state: wolk.models.ActuatorState.ActuatorState
         :param value: Actuators current value
         :type value: int or float or str
         """

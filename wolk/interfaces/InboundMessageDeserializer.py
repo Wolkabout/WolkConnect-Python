@@ -12,15 +12,25 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from abc import ABC, abstractmethod
+from abc import ABCMeta, abstractmethod
 
 """
 InboundMessageDeserializer Module.
 """
 
 
-class InboundMessageDeserializer(ABC):
+class InboundMessageDeserializer(metaclass=ABCMeta):
     """Deserialize messages received from the platform."""
+
+    def __init__(self, inbound_topics):
+        """
+        Set inbound topics
+
+        :param inbound_topics: List of topics where messages will be delivered to
+        :type inbound_topics: list
+        """
+        self.inbound_topics = inbound_topics
+
 
     @abstractmethod
     def is_actuation_command(self, message):
@@ -28,7 +38,7 @@ class InboundMessageDeserializer(ABC):
         Check if message is actuation command
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: actuation_command
         :rtype: bool
         """
@@ -40,7 +50,7 @@ class InboundMessageDeserializer(ABC):
         Check if message is firmware command
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: firmware_command
         :rtype: bool
         """
@@ -52,7 +62,7 @@ class InboundMessageDeserializer(ABC):
         Check if message is file chunk
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: file_chunk
         :rtype: bool
         """
@@ -64,7 +74,7 @@ class InboundMessageDeserializer(ABC):
         Check if message is configuration
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: configuration
         :rtype: bool
         """
@@ -76,9 +86,9 @@ class InboundMessageDeserializer(ABC):
         Deserialize the message into an ActuatorCommand.
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: actuation
-        :rtype: wolk.wolkcore.ActuatorCommand.ActuatorCommand
+        :rtype: wolk.models.ActuatorCommand.ActuatorCommand
         """
         pass
 
@@ -88,9 +98,9 @@ class InboundMessageDeserializer(ABC):
         Deserialize the message into a FirmwareCommand.
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: firmware_command
-        :rtype: wolk.wolkcore.FirmwareCommand.FirmwareCommand
+        :rtype: wolk.models.FirmwareCommand.FirmwareCommand
         """
         pass
 
@@ -100,7 +110,7 @@ class InboundMessageDeserializer(ABC):
         Deserialize the message into a tuple of bytes.
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: (previous_hash, chunk, chunk_hash)
         :rtype: (bytes, bytes, bytes)
         """
@@ -112,8 +122,8 @@ class InboundMessageDeserializer(ABC):
         Deserialize the message into a ConfigurationCommand.
 
         :param message: The message received
-        :type message: wolk.wolkcore.InboundMessage.InboundMessage
+        :type message: wolk.models.InboundMessage.InboundMessage
         :returns: configuration
-        :rtype: wolk.wolkcore.ConfigurationCommand.ConfigurationCommand
+        :rtype: wolk.models.ConfigurationCommand.ConfigurationCommand
         """
         pass

@@ -28,7 +28,7 @@ class OutboundMessageQueue(ABC):
         Place a message in storage.
 
         :param message: Message to be stored
-        :type message: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :type message: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -38,7 +38,7 @@ class OutboundMessageQueue(ABC):
         Get a message from storage.
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -48,6 +48,6 @@ class OutboundMessageQueue(ABC):
         Get a message without removing from storage.
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass

@@ -27,7 +27,7 @@ class ActuatorCommand:
         :param reference: Reference of the actuator
         :type reference: str
         :param command: Command to be executed
-        :type command: wolk.wolkcore.ActuatorCommandType
+        :type command: wolk.models.ActuatorCommandType.ActuatorCommandType
         :param value: Value to be set to
         :type value: int or float or str or None
         """

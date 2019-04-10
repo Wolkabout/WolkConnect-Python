@@ -35,6 +35,6 @@ class ActuatorStatusProvider(ABC):
         :param reference: Actuator reference
         :type reference: str
         :returns: (state, value)
-        :rtype: (wolk.wolkcore.ActuatorState, int or float or str)
+        :rtype: (wolk.models.ActuatorState.ActuatorState, int or float or str)
         """
         pass

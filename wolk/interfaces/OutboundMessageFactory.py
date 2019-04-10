@@ -28,9 +28,9 @@ class OutboundMessageFactory(ABC):
         Serialize a sensor reading to be sent to WolkAbout IoT Platform.
 
         :param reading: Reading to be serialized
-        :type reading: wolk.wolkcore.SensorReading.SensorReading
+        :type reading: wolk.models.SensorReading.SensorReading
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -40,9 +40,9 @@ class OutboundMessageFactory(ABC):
         Serialize an alarm event to be sent to WolkAbout IoT Platform.
 
         :param alarm: Alarm to be serialized
-        :type alarm: wolk.wolkcore.Alarm.Alarm
+        :type alarm: wolk.models.Alarm.Alarm
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -52,9 +52,9 @@ class OutboundMessageFactory(ABC):
         Serialize an actuator status to be sent to WolkAbout IoT Platform.
 
         :param actuator: Actuator status to be serialized
-        :type actuator: wolk.wolkcore.ActuatorStatus.ActuatorStatus
+        :type actuator: wolk.models.ActuatorStatus.ActuatorStatus
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -64,9 +64,9 @@ class OutboundMessageFactory(ABC):
         Report the current status of the firmware update process.
 
         :param firmware_status: Current status of the firmware update process
-        :type firmware_status: wolk.wolkcore.FirmwareStatus.FirmwareStatus
+        :type firmware_status: wolk.models.FirmwareStatus.FirmwareStatus
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -82,7 +82,7 @@ class OutboundMessageFactory(ABC):
         :param chunk_size: Size of the requested chunk
         :type chunk_size: int
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -94,7 +94,7 @@ class OutboundMessageFactory(ABC):
         :param version: Current firmware version
         :type version: str
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -104,7 +104,7 @@ class OutboundMessageFactory(ABC):
         Make a ping message to be sent to WolkAbout IoT Platform.
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass
 
@@ -116,6 +116,6 @@ class OutboundMessageFactory(ABC):
         :param configuration: Device's current configuration
         :type configuration: dict
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         pass

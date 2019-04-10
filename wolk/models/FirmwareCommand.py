@@ -33,7 +33,7 @@ class FirmwareCommand:
         Firmware command that was received.
 
         :param command: Command to be executed
-        :type command: wolk.wolkcore.FirmwareCommandType
+        :type command: wolk.models.FirmwareCommandType.FirmwareCommandType
         :param file_name: Name of the file to be received
         :type file_name: str or None
         :param file_size: Size of the file to be received
