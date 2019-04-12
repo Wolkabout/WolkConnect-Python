@@ -38,3 +38,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# PyCharm
+.idea/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
