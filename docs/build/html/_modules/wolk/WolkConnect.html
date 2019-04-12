@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.WolkConnect &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.WolkConnect &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -198,7 +198,7 @@
 <span class="sd">    :ivar inbound_message_deserializer: Deserializer of inbound messages</span>
 <span class="sd">    :vartype inbound_message_deserializer: wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer</span>
 <span class="sd">    :ivar device: Contains device key and password, and actuator references</span>
-<span class="sd">    :vartype device: wolk.Device.Device</span>
+<span class="sd">    :vartype device: wolk.models.Device.Device</span>
 <span class="sd">    :ivar firmware_update: Firmware update handler</span>
 <span class="sd">    :vartype firmware_update: wolk.OSFirmwareUpdate.OSFirmwareUpdate</span>
 <span class="sd">    :ivar keep_alive_service: Keep device connected when not sending data</span>
@@ -232,11 +232,11 @@
 <span class="sd">        Provide communication with WolkAbout IoT Platform.</span>
 
 <span class="sd">        :param device: Contains key and password, and actuator references</span>
-<span class="sd">        :type device:  wolk.Device.Device</span>
+<span class="sd">        :type device:  wolk.models.Device.Device</span>
 <span class="sd">        :param actuation_handler: Handle actuation commands</span>
-<span class="sd">        :type actuation_handler: wolk.interaces.ActuationHandler or None</span>
+<span class="sd">        :type actuation_handler: wolk.interfaces.ActuationHandler.ActuationHandler or None</span>
 <span class="sd">        :param actuator_status_provider: Read actuator status</span>
-<span class="sd">        :type actuator_status_provider:  wolk.interfaces.ActuatorStatusProvider or None</span>
+<span class="sd">        :type actuator_status_provider:  wolk.interfaces.ActuatorStatusProvider.ActuatorStatusProvider or None</span>
 <span class="sd">        :param outbound_message_queue: Store messages before sending</span>
 <span class="sd">        :type outbound_message_queue: wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue or None</span>
 <span class="sd">        :param keep_alive_enabled: Enable or disable the keep alive service</span>
@@ -250,11 +250,11 @@
 <span class="sd">        :param ca_cert: String path to Certificate Authority certificate file</span>
 <span class="sd">        :type ca_cert: str or None</span>
 <span class="sd">        :param outbound_message_factory: Creator of messages to be sent</span>
-<span class="sd">        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory or None</span>
+<span class="sd">        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory or None</span>
 <span class="sd">        :param inbound_message_deserializer: Deserializer of messages from the Platform</span>
-<span class="sd">        :type inbound_message_deserializer: wolk.interfaces.InboundMessageDeserializer or None</span>
+<span class="sd">        :type inbound_message_deserializer: wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer or None</span>
 <span class="sd">        :param connectivity_service: Provider of connection to Platform</span>
-<span class="sd">        :type connectivity_service: wolk.interfaces.ConnectivityService or None</span>
+<span class="sd">        :type connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger_factory</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -333,15 +333,23 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_queue</span> <span class="o">=</span> <span class="n">outbound_message_queue</span>
 
+        <span class="k">if</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">OSInboundMessageDeserializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inbound_message_deserializer</span><span class="p">,</span> <span class="n">InboundMessageDeserializer</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid inbound message deserializer provided&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">inbound_message_deserializer</span>
+        
         <span class="n">wolk_ca_cert</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;ca.crt&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">host</span> <span class="ow">and</span> <span class="n">port</span> <span class="ow">and</span> <span class="n">ca_cert</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">OSMQTTConnectivityService</span><span class="p">(</span>
-                <span class="n">device</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span> <span class="n">ca_cert</span><span class="o">=</span><span class="n">ca_cert</span>
+                <span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span> <span class="n">ca_cert</span><span class="o">=</span><span class="n">ca_cert</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">host</span> <span class="ow">and</span> <span class="n">port</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">OSMQTTConnectivityService</span><span class="p">(</span>
-                <span class="n">device</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+                <span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">connectivity_service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -351,7 +359,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">connectivity_service</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">OSMQTTConnectivityService</span><span class="p">(</span>
-                    <span class="n">device</span><span class="p">,</span> <span class="n">ca_cert</span><span class="o">=</span><span class="n">wolk_ca_cert</span>
+                    <span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span> <span class="n">ca_cert</span><span class="o">=</span><span class="n">wolk_ca_cert</span>
                 <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span><span class="o">.</span><span class="n">set_inbound_message_listener</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_inbound_message</span><span class="p">)</span>
@@ -369,13 +377,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">keep_alive_service</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">if</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">OSInboundMessageDeserializer</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inbound_message_deserializer</span><span class="p">,</span> <span class="n">InboundMessageDeserializer</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid inbound message deserializer provided&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">inbound_message_deserializer</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">firmware_update</span> <span class="o">=</span> <span class="n">OSFirmwareUpdate</span><span class="p">(</span><span class="n">firmware_handler</span><span class="p">)</span>
 
@@ -659,7 +660,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>

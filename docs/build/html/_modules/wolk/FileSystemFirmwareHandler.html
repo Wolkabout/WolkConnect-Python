@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.FileSystemFirmwareHandler &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.FileSystemFirmwareHandler &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -188,9 +188,9 @@
 <span class="sd">    :ivar file_url: URL where there firmware file is located</span>
 <span class="sd">    :vartype file_url: str</span>
 <span class="sd">    :ivar firmware_installer: Installer of firmware file</span>
-<span class="sd">    :vartype firmware_installer: wolk.FirmwareInstaller.FirmwareInstaller</span>
+<span class="sd">    :vartype firmware_installer: wolk.interfaces.FirmwareInstaller.FirmwareInstaller</span>
 <span class="sd">    :ivar firmware_url_download_handler: URL downloader</span>
-<span class="sd">    :vartype firmware_url_download_handler: wolk.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler or None</span>
+<span class="sd">    :vartype firmware_url_download_handler: wolk.interfaces.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler or None</span>
 <span class="sd">    :ivar logger: Logger instance issued by wolk.LoggerFactory</span>
 <span class="sd">    :vartype logger: logging.Logger</span>
 <span class="sd">    :ivar max_file_size: Maximum file size supported by device in bytes</span>
@@ -224,11 +224,11 @@
 <span class="sd">        :param max_file_size: Maximum file size supported by device in bytes</span>
 <span class="sd">        :type max_file_size: int</span>
 <span class="sd">        :param firmware_installer: Installer of firmware file</span>
-<span class="sd">        :type firmware_installer: wolk.FirmwareInstaller.FirmwareInstaller</span>
+<span class="sd">        :type firmware_installer: wolk.interfaces.FirmwareInstaller.FirmwareInstaller</span>
 <span class="sd">        :param download_location: Where to store the completed firmware file</span>
 <span class="sd">        :type download_location: str</span>
 <span class="sd">        :param firmware_url_download_handler: Optional URL downloader</span>
-<span class="sd">        :type firmware_url_download_handler: wolk.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler or None</span>
+<span class="sd">        :type firmware_url_download_handler: wolk.interfaces.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="n">logger_factory</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -270,22 +270,16 @@
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;update_start called - File name: </span><span class="si">%s</span><span class="s2"> ; File size: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">file_name</span><span class="p">,</span>
-            <span class="n">file_size</span><span class="p">,</span>
+            <span class="s2">&quot;update_start called - File name: </span><span class="si">%s</span><span class="s2"> ; File size: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">file_size</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">file_size</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_file_size</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;update_start - File size too big, returning False&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;update_start - File size too big, returning False&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">False</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a+b&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span> <span class="o">=</span> <span class="n">file_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file_size</span> <span class="o">=</span> <span class="n">file_size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;update_start - Temporary file created, returning True&quot;</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;update_start - Temporary file created, returning True&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="FileSystemFirmwareHandler.update_finalize"><a class="viewcode-back" href="../../wolk.html#wolk.FileSystemFirmwareHandler.FileSystemFirmwareHandler.update_finalize">[docs]</a>    <span class="k">def</span> <span class="nf">update_finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -312,9 +306,7 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span><span class="p">:</span>
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">firmware_file_path</span>
-            <span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">firmware_file_path</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">temp_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -390,9 +382,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">version_persister</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">version_persister</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">version_persister</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;persist_version - Persisted version, returning True&quot;</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;persist_version - Persisted version, returning True&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="FileSystemFirmwareHandler.unpersist_version"><a class="viewcode-back" href="../../wolk.html#wolk.FileSystemFirmwareHandler.FileSystemFirmwareHandler.unpersist_version">[docs]</a>    <span class="k">def</span> <span class="nf">unpersist_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -414,8 +404,7 @@
             <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">version_persister</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">version_persister</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;unpersist_version - Persisted version found, returning </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">version</span><span class="p">,</span>
+                <span class="s2">&quot;unpersist_version - Persisted version found, returning </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">version</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">version</span></div>
 
@@ -444,9 +433,7 @@
 <span class="sd">        :returns: result</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;update_start_url_download called - File URL: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file_url</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;update_start_url_download called - File URL: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file_url</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_url_download_handler</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -491,7 +478,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.OSKeepAliveService &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.OSKeepAliveService &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -173,27 +173,25 @@
 <span class="sd">    Used for cases where no data is being sent by device for over 30 minutes.</span>
 
 <span class="sd">    :ivar connectivity_service: Connectivity service used to publish</span>
-<span class="sd">    :vartype connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService</span>
+<span class="sd">    :vartype connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService</span>
 <span class="sd">    :ivar interval: Number of seconds between each keep alive message</span>
 <span class="sd">    :vartype interval: int</span>
 <span class="sd">    :ivar logger: Logger instance issued by wolk.LoggerFactory</span>
 <span class="sd">    :vartype logger: logging.Logger</span>
 <span class="sd">    :ivar outbound_message_factory: message factory used to create pings</span>
-<span class="sd">    :vartype outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory</span>
+<span class="sd">    :vartype outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory</span>
 <span class="sd">    :ivar timer: timer for sending ping messages</span>
 <span class="sd">    :vartype timer: wolk.OSKeepAliveService.RepeatingTimer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">connectivity_service</span><span class="p">,</span> <span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">600</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connectivity_service</span><span class="p">,</span> <span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">600</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Service for sending keep alive messages.</span>
 
 <span class="sd">        :param connectivity_service: Connectivity service used to publish</span>
-<span class="sd">        :type connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService</span>
+<span class="sd">        :type connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService</span>
 <span class="sd">        :param outbound_message_factory: Message factory used to create pings</span>
-<span class="sd">        :type outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory</span>
+<span class="sd">        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory</span>
 <span class="sd">        :param interval: Number of seconds between each keep alive message</span>
 <span class="sd">        :type interval: int or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -308,7 +306,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.OSOutboundMessageFactory &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.OSOutboundMessageFactory &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -197,9 +197,9 @@
 <span class="sd">        Serialize the sensor reading to be sent to WolkAbout IoT Platform.</span>
 
 <span class="sd">        :param reading: Sensor reading to be serialized</span>
-<span class="sd">        :type reading: wolk.wolkcore.SensorReading.SensorReading</span>
+<span class="sd">        :type reading: wolk.models.SensorReading.SensorReading</span>
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_sensor_reading called&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">reading</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -218,8 +218,8 @@
                     <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
                         <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
                         <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\\&quot;</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
                     <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
                     <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
 
@@ -235,8 +235,8 @@
             <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
                 <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
                 <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
 
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;readings/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">reading</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
@@ -301,9 +301,9 @@
 <span class="sd">        Serialize the alarm to be sent to WolkAbout IoT Platform.</span>
 
 <span class="sd">        :param alarm: Alarm event to be serialized</span>
-<span class="sd">        :type alarm: wolk.wolkcore.Alarm.Alarm</span>
+<span class="sd">        :type alarm: wolk.models.Alarm.Alarm</span>
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_alarm called&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">alarm</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -351,9 +351,9 @@
 <span class="sd">        Serialize the actuator status to be sent to WolkAbout IoT Platform.</span>
 
 <span class="sd">        :param actuator: Actuator status to be serialized</span>
-<span class="sd">        :type actuator: wolk.wolkcore.ActuatorStatus.ActuatorStatus</span>
+<span class="sd">        :type actuator: wolk.models.ActuatorStatus.ActuatorStatus</span>
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_actuator_status called&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">actuator</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">ActuatorState</span><span class="o">.</span><span class="n">READY</span><span class="p">:</span>
@@ -373,8 +373,8 @@
         <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
             <span class="n">actuator</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
             <span class="n">actuator</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-            <span class="n">actuator</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">actuator</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
 
         <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
             <span class="s2">&quot;actuators/status/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">actuator</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
@@ -396,88 +396,50 @@
 <span class="sd">        Serialize the firmware status to be sent to WolkAbout IoT Platform.</span>
 
 <span class="sd">        :param firmware_status: Firmware status to be serialized</span>
-<span class="sd">        :type firmware_status: wolk.wolkcore.FirmwareStatus.FirmwareStatus</span>
+<span class="sd">        :type firmware_status: wolk.models.FirmwareStatus.FirmwareStatus</span>
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_firmware_status called&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span>
-            <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span><span class="p">:</span>
             <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;FILE_TRANSFER&quot;</span>
 
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span>
-            <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_READY</span>
-        <span class="p">):</span>
+        <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_READY</span><span class="p">:</span>
             <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;FILE_READY&quot;</span>
 
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span>
-            <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">INSTALLATION</span>
-        <span class="p">):</span>
+        <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">INSTALLATION</span><span class="p">:</span>
             <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;INSTALLATION&quot;</span>
 
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span>
-            <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">COMPLETED</span>
-        <span class="p">):</span>
+        <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">:</span>
             <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;COMPLETED&quot;</span>
 
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span>
-            <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ABORTED</span>
-        <span class="p">):</span>
+        <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ABORTED</span><span class="p">:</span>
             <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;ABORTED&quot;</span>
 
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span>
-        <span class="p">):</span>
+        <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">:</span>
             <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
 
         <span class="k">if</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
-            <span class="p">):</span>
+            <span class="k">if</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
 
-            <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
-            <span class="p">):</span>
+            <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
 
-            <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSUPPORTED_FILE_SIZE</span>
-            <span class="p">):</span>
+            <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSUPPORTED_FILE_SIZE</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
 
-            <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span>
-            <span class="p">):</span>
+            <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;3&quot;</span>
 
-            <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">MALFORMED_URL</span>
-            <span class="p">):</span>
+            <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">MALFORMED_URL</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;4&quot;</span>
 
-            <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_SYSTEM_ERROR</span>
-            <span class="p">):</span>
+            <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_SYSTEM_ERROR</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;5&quot;</span>
 
-            <span class="k">elif</span> <span class="p">(</span>
-                <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
-                <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">RETRY_COUNT_EXCEEDED</span>
-            <span class="p">):</span>
+            <span class="k">elif</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">==</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">RETRY_COUNT_EXCEEDED</span><span class="p">:</span>
                 <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span> <span class="o">=</span> <span class="s2">&quot;10&quot;</span>
 
         <span class="k">if</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
@@ -520,7 +482,7 @@
 <span class="sd">        :param chunk_size: Size of the requested chunk</span>
 <span class="sd">        :type chunk_size: int</span>
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_chunk_request called&quot;</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
@@ -547,12 +509,10 @@
 <span class="sd">        :param version: Firmware version to report</span>
 <span class="sd">        :type version: str</span>
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_firmware_version called&quot;</span><span class="p">)</span>
-        <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
-            <span class="s2">&quot;firmware/version/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span><span class="s2">&quot;firmware/version/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;make_from_firmware_version - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
@@ -565,7 +525,7 @@
 <span class="sd">        Create a ping message.</span>
 
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_keep_alive_message called&quot;</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span><span class="s2">&quot;ping/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -584,7 +544,7 @@
 <span class="sd">        :type configuration: dict</span>
 
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_configuration called&quot;</span><span class="p">)</span>
         <span class="n">values</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
@@ -625,8 +585,7 @@
         <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
-            <span class="s2">&quot;configurations/current/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span>
-            <span class="s1">&#39;{&quot;values&quot;:{&#39;</span> <span class="o">+</span> <span class="n">values</span> <span class="o">+</span> <span class="s2">&quot;}}&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;configurations/current/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span> <span class="s1">&#39;{&quot;values&quot;:{&#39;</span> <span class="o">+</span> <span class="n">values</span> <span class="o">+</span> <span class="s2">&quot;}}&quot;</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;make_from_configuration - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -646,7 +605,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -153,21 +153,21 @@
 <li class="toctree-l1"><a class="reference internal" href="wolk.html">wolk package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#connection-management">Connection Management</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.WolkConnect">wolk.WolkConnect module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.Device">wolk.Device module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.models.Device">wolk.Device module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.OSKeepAliveService">wolk.OSKeepAliveService module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#data-handling">Data Handling</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.ActuationHandler">wolk.ActuationHandler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.ActuatorStatusProvider">wolk.ActuatorStatusProvider module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ActuationHandler">wolk.ActuationHandler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ActuatorStatusProvider">wolk.ActuatorStatusProvider module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#device-management">Device Management</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.ConfigurationHandler">wolk.ConfigurationHandler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.ConfigurationProvider">wolk.ConfigurationProvider module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ConfigurationHandler">wolk.ConfigurationHandler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ConfigurationProvider">wolk.ConfigurationProvider module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.FileSystemFirmwareHandler">wolk.FileSystemFirmwareHandler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.FirmwareInstaller">wolk.FirmwareInstaller module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.FirmwareURLDownloadHandler">wolk.FirmwareURLDownloadHandler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.FirmwareInstaller">wolk.FirmwareInstaller module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.FirmwareURLDownloadHandler">wolk.FirmwareURLDownloadHandler module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#internal-dependencies">Internal dependencies</a><ul>
@@ -179,6 +179,42 @@
 <li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.OSOutboundMessageQueue">wolk.OSOutboundMessageQueue module</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wolk.models.html">wolk.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.ActuatorCommand">wolk.ActuatorCommand module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.ActuatorCommandType">wolk.ActuatorCommandType module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.ActuatorState">wolk.ActuatorState module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.ActuatorStatus">wolk.ActuatorStatus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.Alarm">wolk.Alarm module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.ConfigurationCommand">wolk.ConfigurationCommand module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.ConfigurationCommandType">wolk.ConfigurationCommandType module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.Device">wolk.Device module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#id1">wolk.Device module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FileTransferPacket">wolk.FileTransferPacket module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FirmwareCommand">wolk.FirmwareCommand module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FirmwareCommandType">wolk.FirmwareCommandType module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FirmwareErrorType">wolk.FirmwareErrorType module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FirmwareStatus">wolk.FirmwareStatus module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FirmwareStatusType">wolk.FirmwareStatusType module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.FirmwareUpdateStateType">wolk.FirmwareUpdateStateType module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.InboundMessage">wolk.InboundMessage module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.OutboundMessage">wolk.OutboundMessage module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.models.html#module-wolk.models.SensorReading">wolk.SensorReading module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wolk.interfaces.html">wolk.interfaces package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.ActuationHandler">wolk.ActuationHandler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.ActuatorStatusProvider">wolk.ActuatorStatusProvider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.ConfigurationHandler">wolk.ConfigurationHandler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.ConfigurationProvider">wolk.ConfigurationProvider module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.ConnectivityService">wolk.ConnectivityService module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.FirmwareInstaller">wolk.FirmwareInstaller module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.FirmwareHandler">wolk.FirmwareHandler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.FirmwareURLDownloadHandler">wolk.FirmwareURLDownloadHandler module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.InboundMessageDeserializer">wolk.InboundMessageDeserializer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.OutboundMessageFactory">wolk.OutboundMessageFactory module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="wolk.interfaces.html#module-wolk.interfaces.OutboundMessageQueue">wolk.OutboundMessageQueue module</a></li>
 </ul>
 </li>
 </ul>
@@ -196,7 +232,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.OSOutboundMessageQueue &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.OSOutboundMessageQueue &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -193,7 +193,7 @@
 <span class="sd">        into a single message.</span>
 
 <span class="sd">        :param message: Message to place in the queue</span>
-<span class="sd">        :type message: wolk.wolkcore.OutboundMessage.OutboundMessage</span>
+<span class="sd">        :type message: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">message</span><span class="p">:</span>
             <span class="k">return</span>
@@ -277,7 +277,7 @@
 <span class="sd">        Take the first message from the queue.</span>
 
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage or None</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
@@ -296,7 +296,7 @@
 <span class="sd">        Return the first message from the queue without removing it.</span>
 
 <span class="sd">        :returns: message</span>
-<span class="sd">        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage or None</span>
+<span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
@@ -324,7 +324,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>

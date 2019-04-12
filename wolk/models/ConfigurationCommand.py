@@ -25,7 +25,7 @@ class ConfigurationCommand:
         Configuration command issued from WolkAbout IoT Platform.
 
         :param command: Command to be executed
-        :type command: wolk.wolkcore.ConfigurationCommandType
+        :type command: wolk.models.ConfigurationCommandType.ConfigurationCommandType
         :param values: Values to be set to
         :type values: dict
         """

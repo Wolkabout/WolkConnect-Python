@@ -51,7 +51,7 @@ class WolkConnect:
     :ivar inbound_message_deserializer: Deserializer of inbound messages
     :vartype inbound_message_deserializer: wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer
     :ivar device: Contains device key and password, and actuator references
-    :vartype device: wolk.Device.Device
+    :vartype device: wolk.models.Device.Device
     :ivar firmware_update: Firmware update handler
     :vartype firmware_update: wolk.OSFirmwareUpdate.OSFirmwareUpdate
     :ivar keep_alive_service: Keep device connected when not sending data
@@ -85,11 +85,11 @@ class WolkConnect:
         Provide communication with WolkAbout IoT Platform.
 
         :param device: Contains key and password, and actuator references
-        :type device:  wolk.Device.Device
+        :type device:  wolk.models.Device.Device
         :param actuation_handler: Handle actuation commands
-        :type actuation_handler: wolk.interaces.ActuationHandler or None
+        :type actuation_handler: wolk.interfaces.ActuationHandler.ActuationHandler or None
         :param actuator_status_provider: Read actuator status
-        :type actuator_status_provider:  wolk.interfaces.ActuatorStatusProvider or None
+        :type actuator_status_provider:  wolk.interfaces.ActuatorStatusProvider.ActuatorStatusProvider or None
         :param outbound_message_queue: Store messages before sending
         :type outbound_message_queue: wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue or None
         :param keep_alive_enabled: Enable or disable the keep alive service
@@ -103,11 +103,11 @@ class WolkConnect:
         :param ca_cert: String path to Certificate Authority certificate file
         :type ca_cert: str or None
         :param outbound_message_factory: Creator of messages to be sent
-        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory or None
+        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory or None
         :param inbound_message_deserializer: Deserializer of messages from the Platform
-        :type inbound_message_deserializer: wolk.interfaces.InboundMessageDeserializer or None
+        :type inbound_message_deserializer: wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer or None
         :param connectivity_service: Provider of connection to Platform
-        :type connectivity_service: wolk.interfaces.ConnectivityService or None
+        :type connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService or None
         """
         self.logger = logger_factory.get_logger(str(self.__class__.__name__))
         self.logger.debug(

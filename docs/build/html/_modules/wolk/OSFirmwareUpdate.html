@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.OSFirmwareUpdate &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.OSFirmwareUpdate &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -189,7 +189,7 @@
 <span class="sd">    :ivar file_size: firmware file size</span>
 <span class="sd">    :vartype file_size: int</span>
 <span class="sd">    :ivar firmware_handler: implementation of FirmwareHandler interface</span>
-<span class="sd">    :vartype firmware_handler: wolk.wolkcore.FirmwareHandler.FirmwareHandler</span>
+<span class="sd">    :vartype firmware_handler: wolk.interfaces.FirmwareHandler.FirmwareHandler</span>
 <span class="sd">    :ivar install_timer: timer for install countdown</span>
 <span class="sd">    :vartype install_timer: threading.Timer</span>
 <span class="sd">    :ivar last_packet_hash: hash of last valid packet received</span>
@@ -211,7 +211,7 @@
 <span class="sd">    :ivar retry_count: current retry count</span>
 <span class="sd">    :vartype retry_count: int</span>
 <span class="sd">    :ivar state: current firmware installation state</span>
-<span class="sd">    :vartype state: wolk.wolkcore.FirmwareUpdateStateType</span>
+<span class="sd">    :vartype state: wolk.models.FirmwareUpdateStateType.FirmwareUpdateStateType</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firmware_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -219,7 +219,7 @@
 <span class="sd">        Responsible for firmware update flow.</span>
 
 <span class="sd">        :param firmware_handler: Responsible for the firmware file itself</span>
-<span class="sd">        :type firmware_handler: wolk.wolkcore.FirmwareHandler.FirmwareHandler or None</span>
+<span class="sd">        :type firmware_handler: wolk.interfaces.FirmwareHandler.FirmwareHandler or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">LoggerFactory</span><span class="o">.</span><span class="n">logger_factory</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span>
             <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
@@ -248,9 +248,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">handle_url_download_result</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="OSFirmwareUpdate.set_on_file_packet_request_callback"><a class="viewcode-back" href="../../wolk.html#wolk.OSFirmwareUpdate.OSFirmwareUpdate.set_on_file_packet_request_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_on_file_packet_request_callback</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">on_file_packet_request_callback</span>
-    <span class="p">):</span>
+<div class="viewcode-block" id="OSFirmwareUpdate.set_on_file_packet_request_callback"><a class="viewcode-back" href="../../wolk.html#wolk.OSFirmwareUpdate.OSFirmwareUpdate.set_on_file_packet_request_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_on_file_packet_request_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_file_packet_request_callback</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set the callback function for requesting file packets.</span>
 
@@ -284,14 +282,11 @@
 <span class="sd">        :param result: Result of the URL download</span>
 <span class="sd">        :type result: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;handle_url_download_result called - Result: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;handle_url_download_result called - Result: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;handle_url_download_result - No firmware_handler, &quot;</span>
@@ -302,15 +297,10 @@
 
         <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_OBTAINED</span>
-            <span class="p">)</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_READY</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_OBTAINED</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span><span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_READY</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;handle_url_download_result - result valid, &quot;</span>
-                <span class="s2">&quot;reporting file ready&quot;</span>
+                <span class="s2">&quot;handle_url_download_result - result valid, &quot;</span> <span class="s2">&quot;reporting file ready&quot;</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
@@ -325,14 +315,12 @@
         <span class="k">else</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;handle_url_download_result - result invalid, &quot;</span>
-                <span class="s2">&quot;abort and report error&quot;</span>
+                <span class="s2">&quot;handle_url_download_result - result invalid, &quot;</span> <span class="s2">&quot;abort and report error&quot;</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
 
@@ -341,7 +329,7 @@
 <span class="sd">        Handle the file upload command received from the platform.</span>
 
 <span class="sd">        :param firmware_command: Firmware command received</span>
-<span class="sd">        :type firmware_command: wolk.wolkcore.FirmwareCommand.FirmwareCommand</span>
+<span class="sd">        :type firmware_command: wolk.models.FirmwareCommand.FirmwareCommand</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;Received firmware command - Command: FILE_UPLOAD ; &quot;</span>
@@ -355,8 +343,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No firmware_handler, reporting DFU disabled&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -365,8 +352,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">IDLE</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;State not idle, reporting unspecified error&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -378,20 +364,16 @@
         <span class="p">):</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;firmware_handler not configured, reporting DFU disabled&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;firmware_handler not configured, reporting DFU disabled&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">max_file_size</span> <span class="o">&lt;</span> <span class="n">firmware_command</span><span class="o">.</span><span class="n">file_size</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSUPPORTED_FILE_SIZE</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSUPPORTED_FILE_SIZE</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;File size not supported, reporting size error&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -402,8 +384,7 @@
         <span class="p">):</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">&quot;Failed to create temporary file, reporting unspecified error&quot;</span>
@@ -420,21 +401,13 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">retry_count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span>
 
-        <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-            <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Initializing file transfer and requesting first chunk...&quot;</span>
-        <span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span><span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initializing file transfer and requesting first chunk...&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_file_packet_request_callback</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">+</span> <span class="mi">64</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">+</span> <span class="mi">64</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="mf">60.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_abort</span><span class="p">)</span>
@@ -445,7 +418,7 @@
 <span class="sd">        Handle the URL download command received from the platform.</span>
 
 <span class="sd">        :param firmware_command: Firmware command received</span>
-<span class="sd">        :type firmware_command: wolk.wolkcore.FirmwareCommand.FirmwareCommand</span>
+<span class="sd">        :type firmware_command: wolk.models.FirmwareCommand.FirmwareCommand</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;Received URL download command; File URL: </span><span class="si">%s</span><span class="s2"> ; Auto install:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -455,8 +428,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No firmware_handler, reporting DFU disabled&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -465,8 +437,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">IDLE</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;State not idle, reporting unspecified error&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -477,8 +448,7 @@
         <span class="p">):</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">MALFORMED_URL</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">MALFORMED_URL</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Malformed URL!&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
@@ -486,9 +456,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_install</span> <span class="o">=</span> <span class="n">firmware_command</span><span class="o">.</span><span class="n">auto_install</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">URL_DOWNLOAD</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-            <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span>
-        <span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span><span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Initializing URL file transfer...&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
 
@@ -498,39 +466,29 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="p">:</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No firmware_handler, reporting DFU disabled&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
-            <span class="o">==</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_OBTAINED</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_OBTAINED</span><span class="p">:</span>
 
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">persist_version</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">version</span>
-            <span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">persist_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">version</span><span class="p">):</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="s2">&quot;Unable to persist version, &quot;</span>
-                    <span class="s2">&quot;aborting firmware update process&quot;</span>
+                    <span class="s2">&quot;Unable to persist version, &quot;</span> <span class="s2">&quot;aborting firmware update process&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                    <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span><span class="p">,</span>
+                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
                 <span class="k">return</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">INSTALL</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">INSTALLATION</span>
-            <span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span><span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">INSTALLATION</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Beginning firmware installation process&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
 
@@ -539,9 +497,7 @@
             <span class="p">)</span>  <span class="c1"># For possible abort command</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">INSTALL</span>
-        <span class="p">):</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">INSTALL</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;handle_install - Ignore install command, &quot;</span>
@@ -550,14 +506,11 @@
 
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Returns an error in all other states</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Invalid flow, aborting and reporting unspecified error&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid flow, aborting and reporting unspecified error&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
 
@@ -575,8 +528,7 @@
                 <span class="s2">&quot;handle_abort - No firmware_handler, reporting DFU disabled&quot;</span>
             <span class="p">)</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
@@ -593,8 +545,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Invalid flow, reporting unspecified error&quot;</span><span class="p">)</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
 
@@ -603,7 +554,7 @@
 <span class="sd">        Handle the firmware file chunk packet received from the platform.</span>
 
 <span class="sd">        :param packet: Firmware file chunk received</span>
-<span class="sd">        :type packet: wolk.wolkcore.FileTransferPacket.FileTransferPacket</span>
+<span class="sd">        :type packet: wolk.models.FileTransferPacket.FileTransferPacket</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;handle_packet called - Previous hash: </span><span class="si">%s</span><span class="s2"> ; &quot;</span>
@@ -612,10 +563,7 @@
             <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">data</span><span class="p">),</span>
             <span class="n">packet</span><span class="o">.</span><span class="n">current_hash</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span>
-            <span class="o">!=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_TRANSFER</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;handle_packet - State not file transfer, ignoring packet&quot;</span>
@@ -623,17 +571,14 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;handle_packet - Canceling request timeout timer&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;handle_packet - Canceling request timeout timer&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No firmware_handler, reporting DFU disabled&quot;</span><span class="p">)</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
@@ -651,17 +596,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                    <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">RETRY_COUNT_EXCEEDED</span><span class="p">,</span>
+                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">RETRY_COUNT_EXCEEDED</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
                 <span class="k">return</span>
 
             <span class="k">else</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Requesting chunk #</span><span class="si">%s</span><span class="s2"> again&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting chunk #</span><span class="si">%s</span><span class="s2"> again&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_file_packet_request_callback</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span><span class="p">,</span>
@@ -685,17 +627,14 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                    <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">RETRY_COUNT_EXCEEDED</span><span class="p">,</span>
+                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">RETRY_COUNT_EXCEEDED</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
                 <span class="k">return</span>
 
             <span class="k">else</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="s2">&quot;Requesting chunk #</span><span class="si">%s</span><span class="s2"> again&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Requesting chunk #</span><span class="si">%s</span><span class="s2"> again&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_file_packet_request_callback</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span><span class="p">,</span>
@@ -716,8 +655,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_SYSTEM_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_SYSTEM_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
@@ -727,8 +665,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_chunk_index</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_number_of_chunks</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;handle_packet - Wrote chunk successfully, &quot;</span>
-                <span class="s2">&quot;requesting next chunk&quot;</span>
+                <span class="s2">&quot;handle_packet - Wrote chunk successfully, &quot;</span> <span class="s2">&quot;requesting next chunk&quot;</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_file_packet_request_callback</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">file_name</span><span class="p">,</span>
@@ -748,15 +685,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">firmware_handler</span><span class="o">.</span><span class="n">update_abort</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reset_state</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_SYSTEM_ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_SYSTEM_ERROR</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_OBTAINED</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">FirmwareUpdateStateType</span><span class="o">.</span><span class="n">FILE_OBTAINED</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">request_timeout</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Firmware file validated, ready for installation&quot;</span><span class="p">)</span>
@@ -765,9 +699,7 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_install</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Auto install is enabled, beginning installation..&quot;</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Auto install is enabled, beginning installation..&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">handle_install</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="OSFirmwareUpdate.report_result"><a class="viewcode-back" href="../../wolk.html#wolk.OSFirmwareUpdate.OSFirmwareUpdate.report_result">[docs]</a>    <span class="k">def</span> <span class="nf">report_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -786,8 +718,7 @@
                     <span class="s2">&quot;Firmware version unchanged, reporting installation failed&quot;</span>
                 <span class="p">)</span>
                 <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                    <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span><span class="p">,</span>
+                    <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
                 <span class="k">return</span>
@@ -795,9 +726,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Firmware version changed, reporting installation completed&quot;</span>
             <span class="p">)</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">COMPLETED</span>
-            <span class="p">)</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span><span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">COMPLETED</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="OSFirmwareUpdate.reset_state"><a class="viewcode-back" href="../../wolk.html#wolk.OSFirmwareUpdate.OSFirmwareUpdate.reset_state">[docs]</a>    <span class="k">def</span> <span class="nf">reset_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -824,16 +753,14 @@
 <span class="sd">        received from the platform</span>
 
 <span class="sd">        :param packet: Packet to validate</span>
-<span class="sd">        :type packet: wolk.wolkcore.FileTransferPacket.FileTransferPacket</span>
+<span class="sd">        :type packet: wolk.models.FileTransferPacket.FileTransferPacket</span>
 
 <span class="sd">        :returns: valid</span>
 <span class="sd">        :rtype: bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;validate_packet called&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">previous_hash</span><span class="p">)</span>
-            <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-            <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">current_hash</span><span class="p">)</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">previous_hash</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">packet</span><span class="o">.</span><span class="n">current_hash</span><span class="p">)</span>
             <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">minimum_packet_size</span>
         <span class="p">):</span>
 
@@ -876,8 +803,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No firmware_handler, reporting DFU disabled&quot;</span><span class="p">)</span>
             <span class="n">status</span> <span class="o">=</span> <span class="n">FirmwareStatus</span><span class="p">(</span>
-                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
-                <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span><span class="p">,</span>
+                <span class="n">FirmwareStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">FirmwareErrorType</span><span class="o">.</span><span class="n">FILE_UPLOAD_DISABLED</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_status_callback</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
             <span class="k">return</span>
@@ -899,9 +825,7 @@
         <span class="n">sha256_file_hash</span> <span class="o">=</span> <span class="n">sha256_file_hash</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
 
         <span class="n">valid</span> <span class="o">=</span> <span class="n">sha256_command_file_hash</span> <span class="o">==</span> <span class="n">sha256_file_hash</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="s2">&quot;validate_firmware_file - returning valid: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">valid</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;validate_firmware_file - returning valid: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">valid</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">valid</span></div></div>
 </pre></div>
 
@@ -915,7 +839,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>
