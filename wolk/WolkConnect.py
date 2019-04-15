@@ -170,14 +170,6 @@ class WolkConnect:
             else:
                 self.configuration_provider = configuration_provider
 
-        if outbound_message_factory is None:
-            self.outbound_message_factory = OSOutboundMessageFactory(device.key)
-        else:
-            if not isinstance(outbound_message_factory, OutboundMessageFactory):
-                raise RuntimeError("Invalid outbound message factory provided")
-            else:
-                self.outbound_message_factory = outbound_message_factory
-
         if outbound_message_queue is None:
             self.outbound_message_queue = OSOutboundMessageQueue()
         else:
@@ -186,23 +178,52 @@ class WolkConnect:
             else:
                 self.outbound_message_queue = outbound_message_queue
 
+        if (
+            outbound_message_factory is None
+            and inbound_message_deserializer is not None
+        ) or (
+            outbound_message_factory is not None
+            and inbound_message_deserializer is None
+        ):
+            raise RuntimeError(
+                "Both OutboundMessageFactory and "
+                "InboundMessageDeserializer must be provided"
+            )
+
+        if outbound_message_factory is None:
+            self.outbound_message_factory = OSOutboundMessageFactory(device.key)
+        else:
+            if not isinstance(outbound_message_factory, OutboundMessageFactory):
+                raise RuntimeError("Invalid outbound message factory provided")
+            else:
+                self.outbound_message_factory = outbound_message_factory
+
         if inbound_message_deserializer is None:
-            self.inbound_message_deserializer = OSInboundMessageDeserializer(self.device)
+            self.inbound_message_deserializer = OSInboundMessageDeserializer(
+                self.device
+            )
         else:
             if not isinstance(inbound_message_deserializer, InboundMessageDeserializer):
                 raise RuntimeError("Invalid inbound message deserializer provided")
             else:
                 self.inbound_message_deserializer = inbound_message_deserializer
-        
+
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
         if host and port and ca_cert:
             self.connectivity_service = OSMQTTConnectivityService(
-                device, self.inbound_message_deserializer.inbound_topics, host=host, port=int(port), ca_cert=ca_cert
+                device,
+                self.inbound_message_deserializer.inbound_topics,
+                host=host,
+                port=int(port),
+                ca_cert=ca_cert,
             )
         elif host and port:
             self.connectivity_service = OSMQTTConnectivityService(
-                device, self.inbound_message_deserializer.inbound_topics, host=host, port=int(port)
+                device,
+                self.inbound_message_deserializer.inbound_topics,
+                host=host,
+                port=int(port),
             )
         else:
             if connectivity_service is not None:
@@ -212,7 +233,9 @@ class WolkConnect:
                     self.connectivity_service = connectivity_service
             else:
                 self.connectivity_service = OSMQTTConnectivityService(
-                    device, self.inbound_message_deserializer.inbound_topics, ca_cert=wolk_ca_cert
+                    device,
+                    self.inbound_message_deserializer.inbound_topics,
+                    ca_cert=wolk_ca_cert,
                 )
 
         self.connectivity_service.set_inbound_message_listener(self._on_inbound_message)
@@ -229,7 +252,6 @@ class WolkConnect:
             )
         else:
             self.keep_alive_service = None
-
 
         self.firmware_update = OSFirmwareUpdate(firmware_handler)
 
