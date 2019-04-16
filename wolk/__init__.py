@@ -77,8 +77,3 @@ __all__ = [
     "OutboundMessageQueue",
     "WolkConnect",
 ]
-
-# "Enum" of connector version
-VERSION_MAJOR = 3
-VERSION_MINOR = 2
-VERSION_PATCH = 0

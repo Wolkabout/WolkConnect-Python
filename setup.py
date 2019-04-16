@@ -1,11 +1,14 @@
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+from os import path
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
+    long_description = f.read()
 
 setuptools.setup(
     name="wolk-connect",
-    version="3.2.0",
+    version="3.2.1",
     install_requires=["paho_mqtt==1.4.0", "python-persistent-queue==1.3.0"],
     include_package_data=True,
     license="Apache License 2.0",
