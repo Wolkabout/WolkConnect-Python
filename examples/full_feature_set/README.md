@@ -35,9 +35,9 @@ pip3 install wolk-connect
 
 ### Installing from source
 
-This repository must be cloned from the command line using:
+Clone this repository from the command line using:
 ```sh
-git clone --recurse-submodules https://github.com/Wolkabout/WolkConnect-Python.git
+git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
 Install dependencies by invoking `pip3 install -r requirements.txt`
@@ -69,9 +69,9 @@ device = wolk.Device(
 class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
     def get_actuator_status(self, reference):
         if reference == "SW":
-            return wolk.ACTUATOR_STATE_READY, switch.value
+            return wolk.ActuatorState.READY, switch.value
         elif reference == "SL":
-            return wolk.ACTUATOR_STATE_READY, slider.value
+            return wolk.ActuatorState.READY, slider.value
 
 
 # Provide implementation of an actuation handler
@@ -112,7 +112,7 @@ class ConfigurationProviderImpl(wolk.ConfigurationProvider):
 # Pass your device, actuation handler and actuator status provider
 # Pass configuration handler and provider
 # Pass server info and path to ca.crt for secure connection
-# defaults to secure connection to Demo instance
+# defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device=device,
     actuation_handler=ActuationHandlerImpl(),

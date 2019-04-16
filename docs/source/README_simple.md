@@ -19,8 +19,8 @@
 ----
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
-Supported device communication protocol(s): **JsonSingleReferenceProtocol**
-
+Supported device communication protocol(s):
+* JsonSingleReferenceProtocol
 
 ## Prerequisite
 
@@ -38,9 +38,9 @@ pip3 install wolk-connect
 ### Installing from source
 
 
-This repository must be cloned from the command line using:
+Clone this repository from the command line using:
 ```sh
-git clone --recurse-submodules https://github.com/Wolkabout/WolkConnect-Python.git
+git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
 Install dependencies by invoking `pip3 install -r requirements.txt`
@@ -54,10 +54,12 @@ py setup.py install
 
 ### Establishing connection with WolkAbout IoT platform
 
-Create a device on WolkAbout IoT platform by importing [simple-example-manifest.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/simple-example-manifest.json).<br />
-This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/wolk_example.py) and demonstrates the sending of a temperature sensor reading.
+Create a device on WolkAbout IoT platform by importing [Simple-example-deviceTemplate.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/Simple-example-deviceTemplate.json).<br />
+This template fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/wolk_example.py) and demonstrates the sending of a temperature sensor reading.
 
 ```python
+import wolk
+
 # Setup the device credentials which you received
 # when the device was created on the platform
 device = wolk.Device(
@@ -65,13 +67,20 @@ device = wolk.Device(
     password="some_password"
 )
 
-# Pass your device
-wolk_device = wolk.WolkConnect(device)
+# Pass your device and server information
+# defaults to secure connection to Demo instance - comment out host, port and ca_cert
+wolk_device = wolk.WolkConnect(
+    device,
+    host="api-demo.wolkabout.com",
+    port=8883,
+    ca_cert="path/to/ca.crt"
+)
 
 wolk_device.connect()
 ```
 
-### Publishing sensor readings
+### Adding sensor readings
+
 ```python
 wolk_device.add_sensor_reading("T", 26.93)
 ```
@@ -84,6 +93,7 @@ wolk_device.publish()
 ```
 
 ### Disconnecting from the platform
+
 ```python
 wolk_device.disconnect()
 ```

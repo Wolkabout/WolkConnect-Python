@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Prerequisite &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>Prerequisite &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -17,32 +17,33 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -162,7 +163,10 @@
 </div>
 <hr class="docutils" />
 <p>WolkAbout Python Connector library for connecting devices to <a class="reference external" href="https://demo.wolkabout.com/#/login">WolkAbout IoT Platform</a>.</p>
-<p>Supported device communication protocol(s): <strong>JsonSingleReferenceProtocol</strong></p>
+<p>Supported device communication protocol(s):</p>
+<ul class="simple">
+<li>JsonSingleReferenceProtocol</li>
+</ul>
 <div class="section" id="prerequisite">
 <h1>Prerequisite<a class="headerlink" href="#prerequisite" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
@@ -176,8 +180,8 @@
 </div>
 <div class="section" id="installing-from-source">
 <h2>Installing from source<a class="headerlink" href="#installing-from-source" title="Permalink to this headline">¶</a></h2>
-<p>This repository must be cloned from the command line using:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone --recurse-submodules https://github.com/Wolkabout/WolkConnect-Python.git
+<p>Clone this repository from the command line using:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/Wolkabout/WolkConnect-Python.git
 </pre></div>
 </div>
 <p>Install dependencies by invoking <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p>
@@ -191,24 +195,32 @@
 <h1>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="establishing-connection-with-wolkabout-iot-platform">
 <h2>Establishing connection with WolkAbout IoT platform<a class="headerlink" href="#establishing-connection-with-wolkabout-iot-platform" title="Permalink to this headline">¶</a></h2>
-<p>Create a device on WolkAbout IoT platform by importing <a class="reference external" href="https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/simple-example-manifest.json">simple-example-manifest.json</a>.<span class="raw-html-m2r"><br /></span>
-This manifest fits <a class="reference external" href="https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/wolk_example.py">wolk_example.py</a> and demonstrates the sending of a temperature sensor reading.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Setup the device credentials which you received</span>
+<p>Create a device on WolkAbout IoT platform by importing <a class="reference external" href="https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/Simple-example-deviceTemplate.json">Simple-example-deviceTemplate.json</a>.<span class="raw-html-m2r"><br /></span>
+This template fits <a class="reference external" href="https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/wolk_example.py">wolk_example.py</a> and demonstrates the sending of a temperature sensor reading.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">wolk</span>
+
+<span class="c1"># Setup the device credentials which you received</span>
 <span class="c1"># when the device was created on the platform</span>
 <span class="n">device</span> <span class="o">=</span> <span class="n">wolk</span><span class="o">.</span><span class="n">Device</span><span class="p">(</span>
     <span class="n">key</span><span class="o">=</span><span class="s2">&quot;device_key&quot;</span><span class="p">,</span>
     <span class="n">password</span><span class="o">=</span><span class="s2">&quot;some_password&quot;</span>
 <span class="p">)</span>
 
-<span class="c1"># Pass your device</span>
-<span class="n">wolk_device</span> <span class="o">=</span> <span class="n">wolk</span><span class="o">.</span><span class="n">WolkConnect</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="c1"># Pass your device and server information</span>
+<span class="c1"># defaults to secure connection to Demo instance - comment out host, port and ca_cert</span>
+<span class="n">wolk_device</span> <span class="o">=</span> <span class="n">wolk</span><span class="o">.</span><span class="n">WolkConnect</span><span class="p">(</span>
+    <span class="n">device</span><span class="p">,</span>
+    <span class="n">host</span><span class="o">=</span><span class="s2">&quot;api-demo.wolkabout.com&quot;</span><span class="p">,</span>
+    <span class="n">port</span><span class="o">=</span><span class="mi">8883</span><span class="p">,</span>
+    <span class="n">ca_cert</span><span class="o">=</span><span class="s2">&quot;path/to/ca.crt&quot;</span>
+<span class="p">)</span>
 
 <span class="n">wolk_device</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="publishing-sensor-readings">
-<h2>Publishing sensor readings<a class="headerlink" href="#publishing-sensor-readings" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="adding-sensor-readings">
+<h2>Adding sensor readings<a class="headerlink" href="#adding-sensor-readings" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">wolk_device</span><span class="o">.</span><span class="n">add_sensor_reading</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">,</span> <span class="mf">26.93</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -243,7 +255,7 @@ This manifest fits <a class="reference external" href="https://github.com/Wolkab
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout.
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>
@@ -260,33 +272,16 @@ This manifest fits <a class="reference external" href="https://github.com/Wolkab
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'3.1.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

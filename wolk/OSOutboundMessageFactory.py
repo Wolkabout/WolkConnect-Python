@@ -14,11 +14,11 @@
 
 """OSOutboundMessageFactory Module."""
 
-from wolk.wolkcore import ActuatorState
-from wolk.wolkcore import FirmwareErrorType
-from wolk.wolkcore import FirmwareStatusType
-from wolk.wolkcore import OutboundMessage
-from wolk.wolkcore import OutboundMessageFactory
+from wolk.models.ActuatorState import ActuatorState
+from wolk.models.FirmwareErrorType import FirmwareErrorType
+from wolk.models.FirmwareStatusType import FirmwareStatusType
+from wolk.models.OutboundMessage import OutboundMessage
+from wolk.interfaces.OutboundMessageFactory import OutboundMessageFactory
 from wolk import LoggerFactory
 
 
@@ -50,9 +50,9 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         Serialize the sensor reading to be sent to WolkAbout IoT Platform.
 
         :param reading: Sensor reading to be serialized
-        :type reading: wolk.wolkcore.SensorReading.SensorReading
+        :type reading: wolk.models.SensorReading.SensorReading
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_sensor_reading called")
         if reading.timestamp is None:
@@ -71,8 +71,8 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
                     if "\n" in str(value):
                         value = value.replace("\n", "\\n")
                         value = value.replace("\r", "")
-                    if '\"' in str(value):
-                        value = value.replace("\"", '\\\"')
+                    if '"' in str(value):
+                        value = value.replace('"', '\\"')
                     values_list.append(value)
                     values_list.append(delimiter)
 
@@ -88,8 +88,8 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
             if "\n" in str(reading.value):
                 reading.value = reading.value.replace("\n", "\\n")
                 reading.value = reading.value.replace("\r", "")
-            if "\"" in str(reading.value):
-                reading.value = reading.value.replace("\"", "\\\"")
+            if '"' in str(reading.value):
+                reading.value = reading.value.replace('"', '\\"')
 
             message = OutboundMessage(
                 "readings/" + self.device_key + "/" + reading.reference,
@@ -154,9 +154,9 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         Serialize the alarm to be sent to WolkAbout IoT Platform.
 
         :param alarm: Alarm event to be serialized
-        :type alarm: wolk.wolkcore.Alarm.Alarm
+        :type alarm: wolk.models.Alarm.Alarm
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_alarm called")
         if alarm.timestamp is None:
@@ -204,18 +204,18 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         Serialize the actuator status to be sent to WolkAbout IoT Platform.
 
         :param actuator: Actuator status to be serialized
-        :type actuator: wolk.wolkcore.ActuatorStatus.ActuatorStatus
+        :type actuator: wolk.models.ActuatorStatus.ActuatorStatus
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_actuator_status called")
-        if actuator.state == ActuatorState.ACTUATOR_STATE_READY:
+        if actuator.state == ActuatorState.READY:
             actuator.state = "READY"
 
-        elif actuator.state == ActuatorState.ACTUATOR_STATE_BUSY:
+        elif actuator.state == ActuatorState.BUSY:
             actuator.state = "BUSY"
 
-        elif actuator.state == ActuatorState.ACTUATOR_STATE_ERROR:
+        elif actuator.state == ActuatorState.ERROR:
             actuator.state = "ERROR"
 
         if actuator.value is True:
@@ -226,8 +226,8 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         if "\n" in str(actuator.value):
             actuator.value = actuator.value.replace("\n", "\\n")
             actuator.value = actuator.value.replace("\r", "")
-        if "\"" in str(actuator.value):
-            actuator.value = actuator.value.replace("\"", "\\\"")
+        if '"' in str(actuator.value):
+            actuator.value = actuator.value.replace('"', '\\"')
 
         message = OutboundMessage(
             "actuators/status/" + self.device_key + "/" + actuator.reference,
@@ -249,88 +249,50 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         Serialize the firmware status to be sent to WolkAbout IoT Platform.
 
         :param firmware_status: Firmware status to be serialized
-        :type firmware_status: wolk.wolkcore.FirmwareStatus.FirmwareStatus
+        :type firmware_status: wolk.models.FirmwareStatus.FirmwareStatus
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_firmware_status called")
-        if (
-            firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_FILE_TRANSFER
-        ):
+        if firmware_status.status == FirmwareStatusType.FILE_TRANSFER:
             firmware_status.status = "FILE_TRANSFER"
 
-        elif (
-            firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_FILE_READY
-        ):
+        elif firmware_status.status == FirmwareStatusType.FILE_READY:
             firmware_status.status = "FILE_READY"
 
-        elif (
-            firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_INSTALLATION
-        ):
+        elif firmware_status.status == FirmwareStatusType.INSTALLATION:
             firmware_status.status = "INSTALLATION"
 
-        elif (
-            firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_COMPLETED
-        ):
+        elif firmware_status.status == FirmwareStatusType.COMPLETED:
             firmware_status.status = "COMPLETED"
 
-        elif (
-            firmware_status.status
-            == FirmwareStatusType.FIRMWARE_STATUS_ABORTED
-        ):
+        elif firmware_status.status == FirmwareStatusType.ABORTED:
             firmware_status.status = "ABORTED"
 
-        elif (
-            firmware_status.status == FirmwareStatusType.FIRMWARE_STATUS_ERROR
-        ):
+        elif firmware_status.status == FirmwareStatusType.ERROR:
             firmware_status.status = "ERROR"
 
         if firmware_status.status == "ERROR":
 
-            if (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_UNSPECIFIED_ERROR
-            ):
+            if firmware_status.error == FirmwareErrorType.UNSPECIFIED_ERROR:
                 firmware_status.error = "0"
 
-            elif (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_FILE_UPLOAD_DISABLED
-            ):
+            elif firmware_status.error == FirmwareErrorType.FILE_UPLOAD_DISABLED:
                 firmware_status.error = "1"
 
-            elif (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_UNSUPPORTED_FILE_SIZE
-            ):
+            elif firmware_status.error == FirmwareErrorType.UNSUPPORTED_FILE_SIZE:
                 firmware_status.error = "2"
 
-            elif (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_INSTALLATION_FAILED
-            ):
+            elif firmware_status.error == FirmwareErrorType.INSTALLATION_FAILED:
                 firmware_status.error = "3"
 
-            elif (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_MALFORMED_URL
-            ):
+            elif firmware_status.error == FirmwareErrorType.MALFORMED_URL:
                 firmware_status.error = "4"
 
-            elif (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_FILE_SYSTEM_ERROR
-            ):
+            elif firmware_status.error == FirmwareErrorType.FILE_SYSTEM_ERROR:
                 firmware_status.error = "5"
 
-            elif (
-                firmware_status.error
-                == FirmwareErrorType.FIRMWARE_ERROR_RETRY_COUNT_EXCEEDED
-            ):
+            elif firmware_status.error == FirmwareErrorType.RETRY_COUNT_EXCEEDED:
                 firmware_status.error = "10"
 
         if firmware_status.error:
@@ -373,7 +335,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         :param chunk_size: Size of the requested chunk
         :type chunk_size: int
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_chunk_request called")
         message = OutboundMessage(
@@ -400,12 +362,10 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         :param version: Firmware version to report
         :type version: str
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_firmware_version called")
-        message = OutboundMessage(
-            "firmware/version/" + self.device_key, str(version)
-        )
+        message = OutboundMessage("firmware/version/" + self.device_key, str(version))
         self.logger.debug(
             "make_from_firmware_version - Channel: %s ; Payload: %s",
             message.channel,
@@ -418,7 +378,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         Create a ping message.
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_keep_alive_message called")
         message = OutboundMessage("ping/" + self.device_key, None)
@@ -437,7 +397,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         :type configuration: dict
 
         :returns: message
-        :rtype: wolk.wolkcore.OutboundMessage.OutboundMessage
+        :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_configuration called")
         values = str()
@@ -478,8 +438,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         values = values[:-1]
 
         message = OutboundMessage(
-            "configurations/current/" + self.device_key,
-            '{"values":{' + values + "}}",
+            "configurations/current/" + self.device_key, '{"values":{' + values + "}}"
         )
         self.logger.debug(
             "make_from_configuration - Channel: %s ; Payload: %s",

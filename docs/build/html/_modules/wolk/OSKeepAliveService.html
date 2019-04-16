@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.OSKeepAliveService &mdash; WolkConnect-Python 3.1.0 documentation</title>
+  <title>wolk.OSKeepAliveService &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -17,32 +17,33 @@
   
 
   
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
-
-  
-  <script src="../../_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
@@ -161,7 +162,7 @@
 <span class="sd">&quot;&quot;&quot;OS Keep Alive Service module.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">wolk</span> <span class="k">import</span> <span class="n">LoggerFactory</span>
-<span class="kn">from</span> <span class="nn">wolk.wolkcore</span> <span class="k">import</span> <span class="n">KeepAliveService</span>
+<span class="kn">from</span> <span class="nn">wolk.interfaces.KeepAliveService</span> <span class="k">import</span> <span class="n">KeepAliveService</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Timer</span>
 
 
@@ -172,27 +173,25 @@
 <span class="sd">    Used for cases where no data is being sent by device for over 30 minutes.</span>
 
 <span class="sd">    :ivar connectivity_service: Connectivity service used to publish</span>
-<span class="sd">    :vartype connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService</span>
+<span class="sd">    :vartype connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService</span>
 <span class="sd">    :ivar interval: Number of seconds between each keep alive message</span>
 <span class="sd">    :vartype interval: int</span>
 <span class="sd">    :ivar logger: Logger instance issued by wolk.LoggerFactory</span>
 <span class="sd">    :vartype logger: logging.Logger</span>
 <span class="sd">    :ivar outbound_message_factory: message factory used to create pings</span>
-<span class="sd">    :vartype outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory</span>
+<span class="sd">    :vartype outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory</span>
 <span class="sd">    :ivar timer: timer for sending ping messages</span>
 <span class="sd">    :vartype timer: wolk.OSKeepAliveService.RepeatingTimer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">connectivity_service</span><span class="p">,</span> <span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">600</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connectivity_service</span><span class="p">,</span> <span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">600</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Service for sending keep alive messages.</span>
 
 <span class="sd">        :param connectivity_service: Connectivity service used to publish</span>
-<span class="sd">        :type connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService</span>
+<span class="sd">        :type connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService</span>
 <span class="sd">        :param outbound_message_factory: Message factory used to create pings</span>
-<span class="sd">        :type outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory</span>
+<span class="sd">        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory</span>
 <span class="sd">        :param interval: Number of seconds between each keep alive message</span>
 <span class="sd">        :type interval: int or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -225,14 +224,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;start called&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Timer to give connectivity service time to realize it is connected</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_keep_alive</span><span class="p">)</span>
-        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-
-        <span class="c1"># First message will fail to send</span>
-        <span class="c1"># due to connectivity service not realizing it is connected</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timer</span> <span class="o">=</span> <span class="n">RepeatingTimer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">send_keep_alive</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="OSKeepAliveService.stop"><a class="viewcode-back" href="../../wolk.html#wolk.OSKeepAliveService.OSKeepAliveService.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Stop the repeating timer.&quot;&quot;&quot;</span>
@@ -312,7 +306,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, WolkAbout.
+        &copy; Copyright 2019, WolkAbout
 
     </p>
   </div>
@@ -329,33 +323,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'../../',
-            VERSION:'3.1.0',
-            LANGUAGE:'None',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="../../_static/jquery.js"></script>
-      <script type="text/javascript" src="../../_static/underscore.js"></script>
-      <script type="text/javascript" src="../../_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

@@ -18,7 +18,7 @@ wolk.WolkConnect module
 wolk.Device module
 ~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.Device
+.. automodule:: wolk.models.Device
     :members:
     :undoc-members:
     :show-inheritance:
@@ -38,7 +38,7 @@ Data Handling
 wolk.ActuationHandler module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.ActuationHandler
+.. automodule:: wolk.interfaces.ActuationHandler
     :members:
     :undoc-members:
     :show-inheritance:
@@ -46,7 +46,7 @@ wolk.ActuationHandler module
 wolk.ActuatorStatusProvider module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.ActuatorStatusProvider
+.. automodule:: wolk.interfaces.ActuatorStatusProvider
     :members:
     :undoc-members:
     :show-inheritance:
@@ -58,7 +58,7 @@ Device Management
 wolk.ConfigurationHandler module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.ConfigurationHandler
+.. automodule:: wolk.interfaces.ConfigurationHandler
     :members:
     :undoc-members:
     :show-inheritance:
@@ -66,7 +66,7 @@ wolk.ConfigurationHandler module
 wolk.ConfigurationProvider module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.ConfigurationProvider
+.. automodule:: wolk.interfaces.ConfigurationProvider
     :members:
     :undoc-members:
     :show-inheritance:
@@ -83,7 +83,7 @@ wolk.FileSystemFirmwareHandler module
 wolk.FirmwareInstaller module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.FirmwareInstaller
+.. automodule:: wolk.interfaces.FirmwareInstaller
     :members:
     :undoc-members:
     :show-inheritance:
@@ -91,7 +91,7 @@ wolk.FirmwareInstaller module
 wolk.FirmwareURLDownloadHandler module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.FirmwareURLDownloadHandler
+.. automodule:: wolk.interfaces.FirmwareURLDownloadHandler
     :members:
     :undoc-members:
     :show-inheritance:
@@ -146,9 +146,3 @@ wolk.OSOutboundMessageQueue module
     :members:
     :undoc-members:
     :show-inheritance:
-
-
-wolk.wolkcore subpackage
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Additional internal dependencies are located in the `wolkcore subpackage <wolk.wolkcore.html>`_

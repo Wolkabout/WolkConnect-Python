@@ -15,7 +15,7 @@
 """OS Keep Alive Service module."""
 
 from wolk import LoggerFactory
-from wolk.wolkcore import KeepAliveService
+from wolk.interfaces.KeepAliveService import KeepAliveService
 from threading import Timer
 
 
@@ -26,27 +26,25 @@ class OSKeepAliveService(KeepAliveService):
     Used for cases where no data is being sent by device for over 30 minutes.
 
     :ivar connectivity_service: Connectivity service used to publish
-    :vartype connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService
+    :vartype connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService
     :ivar interval: Number of seconds between each keep alive message
     :vartype interval: int
     :ivar logger: Logger instance issued by wolk.LoggerFactory
     :vartype logger: logging.Logger
     :ivar outbound_message_factory: message factory used to create pings
-    :vartype outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory
+    :vartype outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory
     :ivar timer: timer for sending ping messages
     :vartype timer: wolk.OSKeepAliveService.RepeatingTimer
     """
 
-    def __init__(
-        self, connectivity_service, outbound_message_factory, interval=600
-    ):
+    def __init__(self, connectivity_service, outbound_message_factory, interval=600):
         """
         Service for sending keep alive messages.
 
         :param connectivity_service: Connectivity service used to publish
-        :type connectivity_service: wolk.wolkcore.ConnectivityService.ConnectivityService
+        :type connectivity_service: wolk.interfaces.ConnectivityService.ConnectivityService
         :param outbound_message_factory: Message factory used to create pings
-        :type outbound_message_factory: wolk.wolkcore.OutboundMessageFactory.OutboundMessageFactory
+        :type outbound_message_factory: wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory
         :param interval: Number of seconds between each keep alive message
         :type interval: int or None
         """

@@ -38,9 +38,9 @@ pip3 install wolk-connect
 ### Installing from source
 
 
-This repository must be cloned from the command line using:
+Clone this repository from the command line using:
 ```sh
-git clone --recurse-submodules https://github.com/Wolkabout/WolkConnect-Python.git
+git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
 Install dependencies by invoking `pip3 install -r requirements.txt`
@@ -68,7 +68,7 @@ device = wolk.Device(
 )
 
 # Pass your device and server information
-# defaults to secure connection to Demo instance
+# defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device,
     host="api-demo.wolkabout.com",

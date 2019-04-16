@@ -1,0 +1,958 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wolk.interfaces package &mdash; WolkConnect-Python 3.2.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> WolkConnect-Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functional.html">Functional documentaition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolk.html">Wolk Package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WolkConnect-Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>wolk.interfaces package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/wolk.interfaces.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-wolk.interfaces">
+<span id="wolk-interfaces-package"></span><h1>wolk.interfaces package<a class="headerlink" href="#module-wolk.interfaces" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-wolk.interfaces.ActuationHandler">
+<span id="wolk-actuationhandler-module"></span><h2>wolk.ActuationHandler module<a class="headerlink" href="#module-wolk.interfaces.ActuationHandler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.ActuationHandler.ActuationHandler">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.ActuationHandler.</code><code class="descname">ActuationHandler</code><a class="reference internal" href="_modules/wolk/interfaces/ActuationHandler.html#ActuationHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ActuationHandler.ActuationHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Handle actuation commands received from WolkAbout IoT platform.</p>
+<dl class="method">
+<dt id="wolk.interfaces.ActuationHandler.ActuationHandler.handle_actuation">
+<code class="descname">handle_actuation</code><span class="sig-paren">(</span><em>reference</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ActuationHandler.html#ActuationHandler.handle_actuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ActuationHandler.ActuationHandler.handle_actuation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set actuator to value.</p>
+<p>When the actuation command is given from the platform, it will be delivered to this method.
+This method should pass the new value to the device’s actuator.
+Must be implemented as non blocking.
+Must be implemented as thread safe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Reference of the actuator</li>
+<li><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Value to which to set the actuator</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.ActuatorStatusProvider">
+<span id="wolk-actuatorstatusprovider-module"></span><h2>wolk.ActuatorStatusProvider module<a class="headerlink" href="#module-wolk.interfaces.ActuatorStatusProvider" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.ActuatorStatusProvider.ActuatorStatusProvider">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.ActuatorStatusProvider.</code><code class="descname">ActuatorStatusProvider</code><a class="reference internal" href="_modules/wolk/interfaces/ActuatorStatusProvider.html#ActuatorStatusProvider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ActuatorStatusProvider.ActuatorStatusProvider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Read the status of device’s actuators.</p>
+<dl class="method">
+<dt id="wolk.interfaces.ActuatorStatusProvider.ActuatorStatusProvider.get_actuator_status">
+<code class="descname">get_actuator_status</code><span class="sig-paren">(</span><em>reference</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ActuatorStatusProvider.html#ActuatorStatusProvider.get_actuator_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ActuatorStatusProvider.ActuatorStatusProvider.get_actuator_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current actuator status.</p>
+<p>Reads the status of actuator from the device
+and returns it as a tuple containing the ActuatorState and current value.
+Must be implemented as non blocking.
+Must be implemented as thread safe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Actuator reference</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(state, value)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference internal" href="wolk.models.html#wolk.models.ActuatorState.ActuatorState" title="wolk.models.ActuatorState.ActuatorState">wolk.models.ActuatorState.ActuatorState</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)">int</a> or <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)">float</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.ConfigurationHandler">
+<span id="wolk-configurationhandler-module"></span><h2>wolk.ConfigurationHandler module<a class="headerlink" href="#module-wolk.interfaces.ConfigurationHandler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.ConfigurationHandler.ConfigurationHandler">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.ConfigurationHandler.</code><code class="descname">ConfigurationHandler</code><a class="reference internal" href="_modules/wolk/interfaces/ConfigurationHandler.html#ConfigurationHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConfigurationHandler.ConfigurationHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Set device’s configuration options.</p>
+<dl class="method">
+<dt id="wolk.interfaces.ConfigurationHandler.ConfigurationHandler.handle_configuration">
+<code class="descname">handle_configuration</code><span class="sig-paren">(</span><em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ConfigurationHandler.html#ConfigurationHandler.handle_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConfigurationHandler.ConfigurationHandler.handle_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Change device’s configuration options.</p>
+<p>When the configuration command is given from the platform, it will be delivered to this method.
+This function should update device configuration with received configuration values.
+Must be implemented as non blocking.
+Must be implemented as thread safe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configuration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Configuration option reference:value pairs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.ConfigurationProvider">
+<span id="wolk-configurationprovider-module"></span><h2>wolk.ConfigurationProvider module<a class="headerlink" href="#module-wolk.interfaces.ConfigurationProvider" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.ConfigurationProvider.ConfigurationProvider">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.ConfigurationProvider.</code><code class="descname">ConfigurationProvider</code><a class="reference internal" href="_modules/wolk/interfaces/ConfigurationProvider.html#ConfigurationProvider"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConfigurationProvider.ConfigurationProvider" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Read the device’s current configuration options.</p>
+<dl class="method">
+<dt id="wolk.interfaces.ConfigurationProvider.ConfigurationProvider.get_configuration">
+<code class="descname">get_configuration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ConfigurationProvider.html#ConfigurationProvider.get_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConfigurationProvider.ConfigurationProvider.get_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current configuration options.</p>
+<p>Reads device configuration and returns it as a dictionary
+with device configuration reference as key,
+and device configuration value as value.</p>
+<p>Must be implemented as non blocking.
+Must be implemented as thread safe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)">dict</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.ConnectivityService">
+<span id="wolk-connectivityservice-module"></span><h2>wolk.ConnectivityService module<a class="headerlink" href="#module-wolk.interfaces.ConnectivityService" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.ConnectivityService.ConnectivityService">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.ConnectivityService.</code><code class="descname">ConnectivityService</code><a class="reference internal" href="_modules/wolk/interfaces/ConnectivityService.html#ConnectivityService"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConnectivityService.ConnectivityService" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Enable communication with WolkAbout IoT Platform.</p>
+<dl class="method">
+<dt id="wolk.interfaces.ConnectivityService.ConnectivityService.connect">
+<code class="descname">connect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ConnectivityService.html#ConnectivityService.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConnectivityService.ConnectivityService.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connect to WolkAbout IoT Platform.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.ConnectivityService.ConnectivityService.disconnect">
+<code class="descname">disconnect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ConnectivityService.html#ConnectivityService.disconnect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConnectivityService.ConnectivityService.disconnect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect from WolkAbout IoT Platform.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.ConnectivityService.ConnectivityService.publish">
+<code class="descname">publish</code><span class="sig-paren">(</span><em>outbound_message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ConnectivityService.html#ConnectivityService.publish"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConnectivityService.ConnectivityService.publish" title="Permalink to this definition">¶</a></dt>
+<dd><p>Publish a message to WolkAbout IoT Platform.</p>
+<p>Returns true on success, false otherwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>outbound_message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage"><em>wolk.models.OutboundMessage.OutboundMessage</em></a>) – Message to send</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">success</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.ConnectivityService.ConnectivityService.set_inbound_message_listener">
+<code class="descname">set_inbound_message_listener</code><span class="sig-paren">(</span><em>listener</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/ConnectivityService.html#ConnectivityService.set_inbound_message_listener"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.ConnectivityService.ConnectivityService.set_inbound_message_listener" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a callback to <code class="docutils literal notranslate"><span class="pre">WolkConnect._on_inbound_message</span></code> method.</p>
+<p>callback function passes back an <code class="docutils literal notranslate"><span class="pre">wolk.models.InboundMessage.InboundMessage</span></code> object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>listener</strong> (<a class="reference internal" href="wolk.html#wolk.WolkConnect.WolkConnect" title="wolk.WolkConnect.WolkConnect"><em>wolk.WolkConnect.WolkConnect</em></a>) – WolkConnect instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.FirmwareInstaller">
+<span id="wolk-firmwareinstaller-module"></span><h2>wolk.FirmwareInstaller module<a class="headerlink" href="#module-wolk.interfaces.FirmwareInstaller" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.FirmwareInstaller.FirmwareInstaller">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.FirmwareInstaller.</code><code class="descname">FirmwareInstaller</code><a class="reference internal" href="_modules/wolk/interfaces/FirmwareInstaller.html#FirmwareInstaller"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareInstaller.FirmwareInstaller" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Responsible for handling the installation of the firmware file.</p>
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareInstaller.FirmwareInstaller.install_firmware">
+<code class="descname">install_firmware</code><span class="sig-paren">(</span><em>firmware_file_path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareInstaller.html#FirmwareInstaller.install_firmware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareInstaller.FirmwareInstaller.install_firmware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handle the installation of the firmware file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>firmware_file_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Path where the firmware file is located</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.FirmwareHandler">
+<span id="wolk-firmwarehandler-module"></span><h2>wolk.FirmwareHandler module<a class="headerlink" href="#module-wolk.interfaces.FirmwareHandler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.FirmwareHandler.</code><code class="descname">FirmwareHandler</code><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Handle firmware update process.</p>
+<p>Implement this class to write and read files in persistent memory,
+persist firmware version and handle the process
+of installation of firmware file itself.
+Optionally provide implementation for URL download</p>
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.persist_version">
+<code class="descname">persist_version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.persist_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.persist_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place the current firmware version into persistent storage.</p>
+<p>Later to be used to determine the result
+of the firmware update process</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The current firmware version</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">result</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.read_chunk">
+<code class="descname">read_chunk</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.read_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.read_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a chunk of the temporary firmware file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – offset from the beginning of the file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">chunk</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.set_url_download_result_callback">
+<code class="descname">set_url_download_result_callback</code><span class="sig-paren">(</span><em>callback</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.set_url_download_result_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.set_url_download_result_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the callback function for reporting the result of URL file download.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>callback</strong> (<em>function</em>) – function to call</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.unpersist_version">
+<code class="descname">unpersist_version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.unpersist_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.unpersist_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the firmware version from persistent storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">version</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)">None</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.update_abort">
+<code class="descname">update_abort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.update_abort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.update_abort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abort the process of firmware update.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.update_finalize">
+<code class="descname">update_finalize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.update_finalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.update_finalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finish the process of firmware update.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.update_start">
+<code class="descname">update_start</code><span class="sig-paren">(</span><em>file_name</em>, <em>file_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.update_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.update_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start receiving the firmware file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – name of the firmware file</li>
+<li><strong>file_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – size of the firmware file in bytes</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">result</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.update_start_url_download">
+<code class="descname">update_start_url_download</code><span class="sig-paren">(</span><em>file_url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.update_start_url_download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.update_start_url_download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prepare the device for the URL file transfer.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – The URL that contains the firmware file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">result</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareHandler.FirmwareHandler.write_chunk">
+<code class="descname">write_chunk</code><span class="sig-paren">(</span><em>chunk</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareHandler.html#FirmwareHandler.write_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareHandler.FirmwareHandler.write_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a chunk of the firmware file to the temporary file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>chunk</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – A piece of the firmware file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">result</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.FirmwareURLDownloadHandler">
+<span id="wolk-firmwareurldownloadhandler-module"></span><h2>wolk.FirmwareURLDownloadHandler module<a class="headerlink" href="#module-wolk.interfaces.FirmwareURLDownloadHandler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.FirmwareURLDownloadHandler.</code><code class="descname">FirmwareURLDownloadHandler</code><a class="reference internal" href="_modules/wolk/interfaces/FirmwareURLDownloadHandler.html#FirmwareURLDownloadHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Responsible for providing means of downloading firmware file from a URL.</p>
+<dl class="method">
+<dt id="wolk.interfaces.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler.download">
+<code class="descname">download</code><span class="sig-paren">(</span><em>url</em>, <em>file</em>, <em>result_callback</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/FirmwareURLDownloadHandler.html#FirmwareURLDownloadHandler.download"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.FirmwareURLDownloadHandler.FirmwareURLDownloadHandler.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download the resource located at the url to the file.</p>
+<p>Return the result of the download process as a bool to result_callback</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>url</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – URL from where to download the file</li>
+<li><strong>file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of file to which to download</li>
+<li><strong>result_callback</strong> (<em>function</em>) – Function to which to report the outcome</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.InboundMessageDeserializer">
+<span id="wolk-inboundmessagedeserializer-module"></span><h2>wolk.InboundMessageDeserializer module<a class="headerlink" href="#module-wolk.interfaces.InboundMessageDeserializer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.InboundMessageDeserializer.</code><code class="descname">InboundMessageDeserializer</code><span class="sig-paren">(</span><em>inbound_topics</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Deserialize messages received from the platform.</p>
+<p>Set inbound topics</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inbound_topics</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.7)"><em>list</em></a>) – List of topics where messages will be delivered to</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_actuator_command">
+<code class="descname">deserialize_actuator_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.deserialize_actuator_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_actuator_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into an ActuatorCommand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ActuatorCommand.ActuatorCommand" title="wolk.models.ActuatorCommand.ActuatorCommand">wolk.models.ActuatorCommand.ActuatorCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_configuration_command">
+<code class="descname">deserialize_configuration_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.deserialize_configuration_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_configuration_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a ConfigurationCommand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ConfigurationCommand.ConfigurationCommand" title="wolk.models.ConfigurationCommand.ConfigurationCommand">wolk.models.ConfigurationCommand.ConfigurationCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_firmware_chunk">
+<code class="descname">deserialize_firmware_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.deserialize_firmware_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_firmware_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a tuple of bytes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(previous_hash, chunk, chunk_hash)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)">bytes</a>)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_firmware_command">
+<code class="descname">deserialize_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.deserialize_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_firmware_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a FirmwareCommand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FirmwareCommand.FirmwareCommand" title="wolk.models.FirmwareCommand.FirmwareCommand">wolk.models.FirmwareCommand.FirmwareCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_actuation_command">
+<code class="descname">is_actuation_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.is_actuation_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_actuation_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is actuation command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_configuration">
+<code class="descname">is_configuration</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.is_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is configuration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_file_chunk">
+<code class="descname">is_file_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.is_file_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_file_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is file chunk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">file_chunk</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_firmware_command">
+<code class="descname">is_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/InboundMessageDeserializer.html#InboundMessageDeserializer.is_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_firmware_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is firmware command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.OutboundMessageFactory">
+<span id="wolk-outboundmessagefactory-module"></span><h2>wolk.OutboundMessageFactory module<a class="headerlink" href="#module-wolk.interfaces.OutboundMessageFactory" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.OutboundMessageFactory.</code><code class="descname">OutboundMessageFactory</code><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Serialize messages to be sent to WolkAbout IoT Platform.</p>
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_actuator_status">
+<code class="descname">make_from_actuator_status</code><span class="sig-paren">(</span><em>actuator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_actuator_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_actuator_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize an actuator status to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>actuator</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.ActuatorStatus.ActuatorStatus" title="wolk.models.ActuatorStatus.ActuatorStatus"><em>wolk.models.ActuatorStatus.ActuatorStatus</em></a>) – Actuator status to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_alarm">
+<code class="descname">make_from_alarm</code><span class="sig-paren">(</span><em>alarm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_alarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_alarm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize an alarm event to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alarm</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.Alarm.Alarm" title="wolk.models.Alarm.Alarm"><em>wolk.models.Alarm.Alarm</em></a>) – Alarm to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_chunk_request">
+<code class="descname">make_from_chunk_request</code><span class="sig-paren">(</span><em>file_name</em>, <em>chunk_index</em>, <em>chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_chunk_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_chunk_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request a chunk of the firmware file from WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the file that contains the requested chunk</li>
+<li><strong>chunk_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Index of the requested chunk</li>
+<li><strong>chunk_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Size of the requested chunk</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">message</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_configuration">
+<code class="descname">make_from_configuration</code><span class="sig-paren">(</span><em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize device’s configuration to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configuration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Device’s current configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_firmware_status">
+<code class="descname">make_from_firmware_status</code><span class="sig-paren">(</span><em>firmware_status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_firmware_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_firmware_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the current status of the firmware update process.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>firmware_status</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.FirmwareStatus.FirmwareStatus" title="wolk.models.FirmwareStatus.FirmwareStatus"><em>wolk.models.FirmwareStatus.FirmwareStatus</em></a>) – Current status of the firmware update process</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_firmware_version">
+<code class="descname">make_from_firmware_version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_firmware_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_firmware_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the current firmware version to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Current firmware version</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_keep_alive_message">
+<code class="descname">make_from_keep_alive_message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_keep_alive_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_keep_alive_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a ping message to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_sensor_reading">
+<code class="descname">make_from_sensor_reading</code><span class="sig-paren">(</span><em>reading</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageFactory.html#OutboundMessageFactory.make_from_sensor_reading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_sensor_reading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize a sensor reading to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reading</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.SensorReading.SensorReading" title="wolk.models.SensorReading.SensorReading"><em>wolk.models.SensorReading.SensorReading</em></a>) – Reading to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.interfaces.OutboundMessageQueue">
+<span id="wolk-outboundmessagequeue-module"></span><h2>wolk.OutboundMessageQueue module<a class="headerlink" href="#module-wolk.interfaces.OutboundMessageQueue" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue">
+<em class="property">class </em><code class="descclassname">wolk.interfaces.OutboundMessageQueue.</code><code class="descname">OutboundMessageQueue</code><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageQueue.html#OutboundMessageQueue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></a></p>
+<p>Store messages on device before publishing to WolkAbout IoT Platform.</p>
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageQueue.html#OutboundMessageQueue.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a message from storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue.peek">
+<code class="descname">peek</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageQueue.html#OutboundMessageQueue.peek"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue.peek" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a message without removing from storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue.put">
+<code class="descname">put</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/interfaces/OutboundMessageQueue.html#OutboundMessageQueue.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Place a message in storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage"><em>wolk.models.OutboundMessage.OutboundMessage</em></a>) – Message to be stored</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, WolkAbout
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
