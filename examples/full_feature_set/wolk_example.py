@@ -25,7 +25,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-wolk.logging_config("debug", "wolk.log")
+# wolk.logging_config("debug", "wolk.log")
 
 
 def main():
@@ -51,7 +51,7 @@ def main():
     # from WolkAbout IoT Platform when creating the device
     # List actuator references included on your device
     device = wolk.Device(
-        key="o3e5w4knu7gx4jfs", password="c2a1e80b-9fa7-48de-a20a-c8167edfa5ad", actuator_references=["SW", "SL"]
+        key="device_key", password="some_password", actuator_references=["SW", "SL"]
     )
 
     class ActuatorSimulator:
