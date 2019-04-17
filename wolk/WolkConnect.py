@@ -18,8 +18,14 @@ import os
 
 from wolk.OSOutboundMessageQueue import OSOutboundMessageQueue
 from wolk.OSMQTTConnectivityService import OSMQTTConnectivityService
-from wolk.OSOutboundMessageFactory import OSOutboundMessageFactory
-from wolk.OSInboundMessageDeserializer import OSInboundMessageDeserializer
+from wolk.JsonSingleOutboundMessageFactory import JsonSingleOutboundMessageFactory
+from wolk.JsonSingleInboundMessageDeserializer import (
+    JsonSingleInboundMessageDeserializer
+)
+from wolk.JsonProtocolOutboundMessageFactory import JsonProtocolOutboundMessageFactory
+from wolk.JsonProtocolInboundMessageDeserializer import (
+    JsonProtocolInboundMessageDeserializer
+)
 from wolk.OSFirmwareUpdate import OSFirmwareUpdate
 from wolk.OSKeepAliveService import OSKeepAliveService
 from wolk.LoggerFactory import logger_factory
@@ -32,6 +38,7 @@ from wolk.models.FirmwareCommandType import FirmwareCommandType
 from wolk.models.FirmwareStatus import FirmwareStatus
 from wolk.models.FirmwareStatusType import FirmwareStatusType
 from wolk.models.FirmwareErrorType import FirmwareErrorType
+from wolk.models.Protocol import Protocol
 from wolk.interfaces.ActuationHandler import ActuationHandler
 from wolk.interfaces.ActuatorStatusProvider import ActuatorStatusProvider
 from wolk.interfaces.ConfigurationHandler import ConfigurationHandler
@@ -49,7 +56,7 @@ class WolkConnect:
     :ivar connectivity_service: Means of sending/receiving data
     :vartype connectivity_service: wolk.OSMQTTConnectivityService.OSMQTTConnectivityService
     :ivar inbound_message_deserializer: Deserializer of inbound messages
-    :vartype inbound_message_deserializer: wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer
+    :vartype inbound_message_deserializer: wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer
     :ivar device: Contains device key and password, and actuator references
     :vartype device: wolk.models.Device.Device
     :ivar firmware_update: Firmware update handler
@@ -59,7 +66,7 @@ class WolkConnect:
     :ivar logger: Logger instance issued by wolk.LoggerFactory
     :vartype logger: logging.Logger
     :ivar outbound_message_factory: Create messages to send
-    :vartype outbound_message_factory: wolk.OSOutboundMessageFactory.OSOutboundMessageFactory
+    :vartype outbound_message_factory: wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory
     :ivar outbound_message_queue: Store data before sending
     :vartype outbound_message_queue: wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue
     """
@@ -67,6 +74,7 @@ class WolkConnect:
     def __init__(
         self,
         device,
+        protocol=Protocol.JSON_SINGLE,
         actuation_handler=None,
         actuator_status_provider=None,
         configuration_handler=None,
@@ -190,23 +198,53 @@ class WolkConnect:
                 "InboundMessageDeserializer must be provided"
             )
 
-        if outbound_message_factory is None:
-            self.outbound_message_factory = OSOutboundMessageFactory(device.key)
-        else:
-            if not isinstance(outbound_message_factory, OutboundMessageFactory):
-                raise RuntimeError("Invalid outbound message factory provided")
+        if protocol == Protocol.JSON_SINGLE:
+            if outbound_message_factory is None:
+                self.outbound_message_factory = JsonSingleOutboundMessageFactory(
+                    device.key
+                )
             else:
-                self.outbound_message_factory = outbound_message_factory
+                if not isinstance(outbound_message_factory, OutboundMessageFactory):
+                    raise RuntimeError("Invalid outbound message factory provided")
+                else:
+                    self.outbound_message_factory = outbound_message_factory
 
-        if inbound_message_deserializer is None:
-            self.inbound_message_deserializer = OSInboundMessageDeserializer(
-                self.device
-            )
-        else:
-            if not isinstance(inbound_message_deserializer, InboundMessageDeserializer):
-                raise RuntimeError("Invalid inbound message deserializer provided")
+            if inbound_message_deserializer is None:
+                self.inbound_message_deserializer = JsonSingleInboundMessageDeserializer(
+                    self.device
+                )
             else:
-                self.inbound_message_deserializer = inbound_message_deserializer
+                if not isinstance(
+                    inbound_message_deserializer, InboundMessageDeserializer
+                ):
+                    raise RuntimeError("Invalid inbound message deserializer provided")
+                else:
+                    self.inbound_message_deserializer = inbound_message_deserializer
+
+        elif protocol == Protocol.JSON_PROTOCOL:
+            if outbound_message_factory is None:
+                self.outbound_message_factory = JsonProtocolOutboundMessageFactory(
+                    device.key
+                )
+            else:
+                if not isinstance(outbound_message_factory, OutboundMessageFactory):
+                    raise RuntimeError("Invalid outbound message factory provided")
+                else:
+                    self.outbound_message_factory = outbound_message_factory
+
+            if inbound_message_deserializer is None:
+                self.inbound_message_deserializer = JsonProtocolInboundMessageDeserializer(
+                    self.device
+                )
+            else:
+                if not isinstance(
+                    inbound_message_deserializer, InboundMessageDeserializer
+                ):
+                    raise RuntimeError("Invalid inbound message deserializer provided")
+                else:
+                    self.inbound_message_deserializer = inbound_message_deserializer
+        else:
+            raise RuntimeError("Unknown protocol specified - ", protocol)
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
@@ -240,7 +278,7 @@ class WolkConnect:
 
         self.connectivity_service.set_inbound_message_listener(self._on_inbound_message)
 
-        if keep_alive_enabled:
+        if keep_alive_enabled and protocol != Protocol.JSON_PROTOCOL:
             keep_alive_interval_seconds = 600
             self.logger.debug(
                 "Keep alive enabled, interval: %s", keep_alive_interval_seconds
@@ -419,6 +457,22 @@ class WolkConnect:
 
                 self.publish_actuator_status(actuation.reference)
 
+        elif self.inbound_message_deserializer.is_configuration(message):
+
+            if not self.configuration_provider or not self.configuration_handler:
+                return
+
+            configuration = self.inbound_message_deserializer.deserialize_configuration_command(
+                message
+            )
+
+            if configuration.command == ConfigurationCommandType.SET:
+                self.configuration_handler.handle_configuration(configuration.values)
+                self.publish_configuration()
+
+            elif configuration.command == ConfigurationCommandType.CURRENT:
+                self.publish_configuration()
+
         elif self.inbound_message_deserializer.is_firmware_command(message):
 
             if not self.firmware_update:
@@ -475,21 +529,6 @@ class WolkConnect:
             )
             self.firmware_update.handle_packet(packet)
 
-        elif self.inbound_message_deserializer.is_configuration(message):
-
-            if not self.configuration_provider or not self.configuration_handler:
-                return
-
-            configuration = self.inbound_message_deserializer.deserialize_configuration_command(
-                message
-            )
-
-            if configuration.command == ConfigurationCommandType.SET:
-                self.configuration_handler.handle_configuration(configuration.values)
-                self.publish_configuration()
-
-            elif configuration.command == ConfigurationCommandType.CURRENT:
-                self.publish_configuration()
         self.logger.debug("_on_inbound_message ended")
 
     def _on_packet_request(self, file_name, chunk_index, chunk_size):

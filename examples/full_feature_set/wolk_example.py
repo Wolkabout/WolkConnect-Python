@@ -12,7 +12,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-import math
 import os
 import random
 import sys
@@ -166,6 +165,7 @@ def main():
     try:
         wolk_device = wolk.WolkConnect(
             device=device,
+            protocol=wolk.Protocol.JSON_SINGLE,
             actuation_handler=ActuationHandlerImpl(),
             actuator_status_provider=ActuatorStatusProviderImpl(),
             configuration_handler=ConfigurationHandlerImpl(),
@@ -196,7 +196,7 @@ def main():
 
     while True:
         try:
-            timestamp = math.trunc(time.time())
+            timestamp = int(round(time.time() * 1000))
             temperature = random.uniform(15, 30)
             humidity = random.uniform(10, 55)
             pressure = random.uniform(975, 1030)

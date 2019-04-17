@@ -51,7 +51,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         if not message:
             return
 
-        if "readings" not in message.channel:
+        if "reading" not in message.channel:
             self.queue.append(message)
             self.logger.debug(
                 "put - Queue size: %s ; Channel: %s ; Payload: %s",
@@ -66,7 +66,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         present_in_queue = False
 
         for stored_message in self.queue:
-            if "readings" not in message.channel:
+            if "reading" not in message.channel:
                 continue
             if reading_reference == stored_message.channel.split("/")[-1]:
                 present_in_queue = True
@@ -86,7 +86,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         max_data = 1
 
         for stored_message in self.queue:
-            if "readings" not in stored_message.channel:
+            if "reading" not in stored_message.channel:
                 continue
             if reading_reference == stored_message.channel.split("/")[-1]:
                 readings += 1
@@ -109,7 +109,7 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
 
         if max_data > 1:
             for stored_message in self.queue:
-                if "readings" not in stored_message.channel:
+                if "reading" not in stored_message.channel:
                     continue
                 if reading_reference == stored_message.channel.split("/")[-1]:
                     data_count = stored_message.payload.count('"data"')

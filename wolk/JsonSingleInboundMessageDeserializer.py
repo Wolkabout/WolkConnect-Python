@@ -12,7 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""OSInboundMessageDeserializer Module."""
+"""JsonSingleInboundMessageDeserializer Module."""
 
 import json
 
@@ -27,7 +27,7 @@ from wolk.interfaces.InboundMessageDeserializer import InboundMessageDeserialize
 from wolk import LoggerFactory
 
 
-class OSInboundMessageDeserializer(InboundMessageDeserializer):
+class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
     """
     Deserialize messages received from the WolkAbout IoT Platform.
 
@@ -55,9 +55,7 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
         ]
 
         for reference in device.actuator_references:
-            inbound_topics.append(
-                "actuators/commands/" + device.key + "/" + reference
-            )
+            inbound_topics.append("actuators/commands/" + device.key + "/" + reference)
 
         super().__init__(inbound_topics)
 
@@ -164,9 +162,9 @@ class OSInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.UNKNOWN
             actuation = ActuatorCommand(reference, command_type)
             self.logger.warning(
-                "Received actuation command - Reference: %s ;" " Command: %s",
-                actuation.reference,
-                actuation.command,
+                "Received unknown actuation command on channel - : %s ; Payload: %s",
+                message.channel,
+                message.payload,
             )
             return actuation
 
