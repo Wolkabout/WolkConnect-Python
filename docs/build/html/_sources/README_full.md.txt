@@ -19,9 +19,11 @@
 ----
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
-Supported device communication protocol(s):
-* JsonSingleReferenceProtocol
+Supported device communication protocols:
+* JSON_SINGLE
+* JSON_PROTOCOL
 
+*Note:* Firmware update is currently not available for JSON_PROTOCOL
 ## Prerequisite
 
 * Python 3
@@ -110,11 +112,13 @@ class ConfigurationProviderImpl(wolk.ConfigurationProvider):
         return configuration
 
 # Pass your device, actuation handler and actuator status provider
+# Select formatting protocol: JSON_SINGLE (default) or JSON_PROTOCOL
 # Pass configuration handler and provider
 # Pass server info and path to ca.crt for secure connection
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device=device,
+    protocol=wolk.Protocol.JSON_SINGLE,
     actuation_handler=ActuationHandlerImpl(),
     actuator_status_provider=ActuatorStatusProviderImpl(),
     configuration_handler=ConfigurationHandlerImpl(),

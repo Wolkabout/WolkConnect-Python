@@ -105,9 +105,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#internal-dependencies">Internal dependencies</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-wolk.LoggerFactory">wolk.LoggerFactory module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-wolk.OSFirmwareUpdate">wolk.OSFirmwareUpdate module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-wolk.OSInboundMessageDeserializer">wolk.OSInboundMessageDeserializer module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-wolk.OSMQTTConnectivityService">wolk.OSMQTTConnectivityService module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-wolk.OSOutboundMessageFactory">wolk.OSOutboundMessageFactory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-wolk.JsonSingleInboundMessageDeserializer">wolk.JsonSingleInboundMessageDeserializer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-wolk.JsonSingleOutboundMessageFactory">wolk.JsonSingleOutboundMessageFactory module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-wolk.JsonProtocolInboundMessageDeserializer">wolk.JsonProtocolInboundMessageDeserializer module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-wolk.JsonProtocolOutboundMessageFactory">wolk.JsonProtocolOutboundMessageFactory module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-wolk.OSOutboundMessageQueue">wolk.OSOutboundMessageQueue module</a></li>
 </ul>
 </li>
@@ -192,7 +194,7 @@ and pass it to an instance of WolkConnect class.</p>
 <p>WolkConnect Module.</p>
 <dl class="class">
 <dt id="wolk.WolkConnect.WolkConnect">
-<em class="property">class </em><code class="descclassname">wolk.WolkConnect.</code><code class="descname">WolkConnect</code><span class="sig-paren">(</span><em>device</em>, <em>actuation_handler=None</em>, <em>actuator_status_provider=None</em>, <em>configuration_handler=None</em>, <em>configuration_provider=None</em>, <em>outbound_message_queue=None</em>, <em>keep_alive_enabled=True</em>, <em>firmware_handler=None</em>, <em>host=None</em>, <em>port=None</em>, <em>ca_cert=None</em>, <em>outbound_message_factory=None</em>, <em>inbound_message_deserializer=None</em>, <em>connectivity_service=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/WolkConnect.html#WolkConnect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.WolkConnect.WolkConnect" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">wolk.WolkConnect.</code><code class="descname">WolkConnect</code><span class="sig-paren">(</span><em>device</em>, <em>protocol=&lt;Protocol.JSON_SINGLE: 0&gt;</em>, <em>actuation_handler=None</em>, <em>actuator_status_provider=None</em>, <em>configuration_handler=None</em>, <em>configuration_provider=None</em>, <em>outbound_message_queue=None</em>, <em>keep_alive_enabled=True</em>, <em>firmware_handler=None</em>, <em>host=None</em>, <em>port=None</em>, <em>ca_cert=None</em>, <em>outbound_message_factory=None</em>, <em>inbound_message_deserializer=None</em>, <em>connectivity_service=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/WolkConnect.html#WolkConnect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.WolkConnect.WolkConnect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Exchange data with WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -201,12 +203,12 @@ and pass it to an instance of WolkConnect class.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
 <li><strong>connectivity_service</strong> (<a class="reference internal" href="#wolk.OSMQTTConnectivityService.OSMQTTConnectivityService" title="wolk.OSMQTTConnectivityService.OSMQTTConnectivityService"><em>wolk.OSMQTTConnectivityService.OSMQTTConnectivityService</em></a>) – Means of sending/receiving data</li>
-<li><strong>inbound_message_deserializer</strong> (<a class="reference internal" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer" title="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer"><em>wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer</em></a>) – Deserializer of inbound messages</li>
+<li><strong>inbound_message_deserializer</strong> (<a class="reference internal" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer" title="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer"><em>wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer</em></a>) – Deserializer of inbound messages</li>
 <li><strong>device</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.Device.Device" title="wolk.models.Device.Device"><em>wolk.models.Device.Device</em></a>) – Contains device key and password, and actuator references</li>
 <li><strong>firmware_update</strong> (<a class="reference internal" href="#wolk.OSFirmwareUpdate.OSFirmwareUpdate" title="wolk.OSFirmwareUpdate.OSFirmwareUpdate"><em>wolk.OSFirmwareUpdate.OSFirmwareUpdate</em></a>) – Firmware update handler</li>
 <li><strong>keep_alive_service</strong> (<a class="reference internal" href="#wolk.OSKeepAliveService.OSKeepAliveService" title="wolk.OSKeepAliveService.OSKeepAliveService"><em>wolk.OSKeepAliveService.OSKeepAliveService</em></a>) – Keep device connected when not sending data</li>
 <li><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.7)"><em>logging.Logger</em></a>) – Logger instance issued by wolk.LoggerFactory</li>
-<li><strong>outbound_message_factory</strong> (<a class="reference internal" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory" title="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory"><em>wolk.OSOutboundMessageFactory.OSOutboundMessageFactory</em></a>) – Create messages to send</li>
+<li><strong>outbound_message_factory</strong> (<a class="reference internal" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory" title="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory"><em>wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory</em></a>) – Create messages to send</li>
 <li><strong>outbound_message_queue</strong> (<a class="reference internal" href="wolk.interfaces.html#wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue" title="wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue"><em>wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue</em></a>) – Store data before sending</li>
 </ul>
 </td>
@@ -1130,178 +1132,6 @@ received from the platform</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-wolk.OSInboundMessageDeserializer">
-<span id="wolk-osinboundmessagedeserializer-module"></span><h3>wolk.OSInboundMessageDeserializer module<a class="headerlink" href="#module-wolk.OSInboundMessageDeserializer" title="Permalink to this headline">¶</a></h3>
-<p>OSInboundMessageDeserializer Module.</p>
-<dl class="class">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer">
-<em class="property">class </em><code class="descclassname">wolk.OSInboundMessageDeserializer.</code><code class="descname">OSInboundMessageDeserializer</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer" title="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer</span></code></a></p>
-<p>Deserialize messages received from the WolkAbout IoT Platform.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.7)"><em>logging.Logger</em></a>) – Logger instance issued by wolk.LoggerFactory</td>
-</tr>
-</tbody>
-</table>
-<p>Create inbound topics from device key.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>device</strong> – Device with key and actuator references used for inbound topics</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_actuator_command">
-<code class="descname">deserialize_actuator_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.deserialize_actuator_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_actuator_command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserialize the message into an actuation command.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ActuatorCommand.ActuatorCommand" title="wolk.models.ActuatorCommand.ActuatorCommand">wolk.models.ActuatorCommand.ActuatorCommand</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_configuration_command">
-<code class="descname">deserialize_configuration_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.deserialize_configuration_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_configuration_command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserialize the message into a configuration command.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – message to be deserialized</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ConfigurationCommand.ConfigurationCommand" title="wolk.models.ConfigurationCommand.ConfigurationCommand">wolk.models.ConfigurationCommand.ConfigurationCommand</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_chunk">
-<code class="descname">deserialize_firmware_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.deserialize_firmware_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_chunk" title="Permalink to this definition">¶</a></dt>
-<dd><p>Split the message into a packet.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">packet</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FileTransferPacket.FileTransferPacket" title="wolk.models.FileTransferPacket.FileTransferPacket">wolk.models.FileTransferPacket.FileTransferPacket</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_command">
-<code class="descname">deserialize_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.deserialize_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deserialize the message into a firmware command.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FirmwareCommand.FirmwareCommand" title="wolk.models.FirmwareCommand.FirmwareCommand">wolk.models.FirmwareCommand.FirmwareCommand</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_actuation_command">
-<code class="descname">is_actuation_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.is_actuation_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_actuation_command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if message is actuation command</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation_command</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_configuration">
-<code class="descname">is_configuration</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.is_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_configuration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if message is configuration</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_file_chunk">
-<code class="descname">is_file_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.is_file_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_file_chunk" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if message is file chunk</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">file_chunk</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_firmware_command">
-<code class="descname">is_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSInboundMessageDeserializer.html#OSInboundMessageDeserializer.is_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_firmware_command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if message is firmware command</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-</div>
 <div class="section" id="module-wolk.OSMQTTConnectivityService">
 <span id="wolk-osmqttconnectivityservice-module"></span><h3>wolk.OSMQTTConnectivityService module<a class="headerlink" href="#module-wolk.OSMQTTConnectivityService" title="Permalink to this headline">¶</a></h3>
 <p>OSMQTTConnectivityService Module.</p>
@@ -1468,12 +1298,184 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="module-wolk.OSOutboundMessageFactory">
-<span id="wolk-osoutboundmessagefactory-module"></span><h3>wolk.OSOutboundMessageFactory module<a class="headerlink" href="#module-wolk.OSOutboundMessageFactory" title="Permalink to this headline">¶</a></h3>
-<p>OSOutboundMessageFactory Module.</p>
+<div class="section" id="module-wolk.JsonSingleInboundMessageDeserializer">
+<span id="wolk-jsonsingleinboundmessagedeserializer-module"></span><h3>wolk.JsonSingleInboundMessageDeserializer module<a class="headerlink" href="#module-wolk.JsonSingleInboundMessageDeserializer" title="Permalink to this headline">¶</a></h3>
+<p>JsonSingleInboundMessageDeserializer Module.</p>
 <dl class="class">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory">
-<em class="property">class </em><code class="descclassname">wolk.OSOutboundMessageFactory.</code><code class="descname">OSOutboundMessageFactory</code><span class="sig-paren">(</span><em>device_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer">
+<em class="property">class </em><code class="descclassname">wolk.JsonSingleInboundMessageDeserializer.</code><code class="descname">JsonSingleInboundMessageDeserializer</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer" title="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer</span></code></a></p>
+<p>Deserialize messages received from the WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.7)"><em>logging.Logger</em></a>) – Logger instance issued by wolk.LoggerFactory</td>
+</tr>
+</tbody>
+</table>
+<p>Create inbound topics from device key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>device</strong> – Device with key and actuator references used for inbound topics</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_actuator_command">
+<code class="descname">deserialize_actuator_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.deserialize_actuator_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_actuator_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into an actuation command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ActuatorCommand.ActuatorCommand" title="wolk.models.ActuatorCommand.ActuatorCommand">wolk.models.ActuatorCommand.ActuatorCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_configuration_command">
+<code class="descname">deserialize_configuration_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.deserialize_configuration_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_configuration_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a configuration command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ConfigurationCommand.ConfigurationCommand" title="wolk.models.ConfigurationCommand.ConfigurationCommand">wolk.models.ConfigurationCommand.ConfigurationCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_firmware_chunk">
+<code class="descname">deserialize_firmware_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.deserialize_firmware_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_firmware_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the message into a packet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">packet</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FileTransferPacket.FileTransferPacket" title="wolk.models.FileTransferPacket.FileTransferPacket">wolk.models.FileTransferPacket.FileTransferPacket</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_firmware_command">
+<code class="descname">deserialize_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.deserialize_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_firmware_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a firmware command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FirmwareCommand.FirmwareCommand" title="wolk.models.FirmwareCommand.FirmwareCommand">wolk.models.FirmwareCommand.FirmwareCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_actuation_command">
+<code class="descname">is_actuation_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.is_actuation_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_actuation_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is actuation command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_configuration">
+<code class="descname">is_configuration</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.is_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is configuration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_file_chunk">
+<code class="descname">is_file_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.is_file_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_file_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is file chunk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">file_chunk</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_firmware_command">
+<code class="descname">is_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleInboundMessageDeserializer.html#JsonSingleInboundMessageDeserializer.is_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_firmware_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is firmware command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.JsonSingleOutboundMessageFactory">
+<span id="wolk-jsonsingleoutboundmessagefactory-module"></span><h3>wolk.JsonSingleOutboundMessageFactory module<a class="headerlink" href="#module-wolk.JsonSingleOutboundMessageFactory" title="Permalink to this headline">¶</a></h3>
+<p>JsonSingleOutboundMessageFactory Module.</p>
+<dl class="class">
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory">
+<em class="property">class </em><code class="descclassname">wolk.JsonSingleOutboundMessageFactory.</code><code class="descname">JsonSingleOutboundMessageFactory</code><span class="sig-paren">(</span><em>device_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory" title="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory</span></code></a></p>
 <p>Serialize messages to be sent to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1498,8 +1500,8 @@ Starts a loop to handle inbound messages.</p>
 </tbody>
 </table>
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_actuator_status">
-<code class="descname">make_from_actuator_status</code><span class="sig-paren">(</span><em>actuator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_actuator_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_actuator_status" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_actuator_status">
+<code class="descname">make_from_actuator_status</code><span class="sig-paren">(</span><em>actuator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_actuator_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_actuator_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize the actuator status to be sent to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1516,8 +1518,8 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_alarm">
-<code class="descname">make_from_alarm</code><span class="sig-paren">(</span><em>alarm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_alarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_alarm" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_alarm">
+<code class="descname">make_from_alarm</code><span class="sig-paren">(</span><em>alarm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_alarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_alarm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize the alarm to be sent to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1534,8 +1536,8 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_chunk_request">
-<code class="descname">make_from_chunk_request</code><span class="sig-paren">(</span><em>file_name</em>, <em>chunk_index</em>, <em>chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_chunk_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_chunk_request" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_chunk_request">
+<code class="descname">make_from_chunk_request</code><span class="sig-paren">(</span><em>file_name</em>, <em>chunk_index</em>, <em>chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_chunk_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_chunk_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>Request a firmware file chunk from WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1559,8 +1561,8 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_configuration">
-<code class="descname">make_from_configuration</code><span class="sig-paren">(</span><em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_configuration" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_configuration">
+<code class="descname">make_from_configuration</code><span class="sig-paren">(</span><em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_configuration" title="Permalink to this definition">¶</a></dt>
 <dd><p>Report device’s configuration to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1577,8 +1579,8 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_status">
-<code class="descname">make_from_firmware_status</code><span class="sig-paren">(</span><em>firmware_status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_firmware_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_status" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_status">
+<code class="descname">make_from_firmware_status</code><span class="sig-paren">(</span><em>firmware_status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_firmware_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_status" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize the firmware status to be sent to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1595,8 +1597,8 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_version">
-<code class="descname">make_from_firmware_version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_firmware_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_version" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_version">
+<code class="descname">make_from_firmware_version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_firmware_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_version" title="Permalink to this definition">¶</a></dt>
 <dd><p>Report the current version of firmware to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1613,8 +1615,8 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_keep_alive_message">
-<code class="descname">make_from_keep_alive_message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_keep_alive_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_keep_alive_message" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_keep_alive_message">
+<code class="descname">make_from_keep_alive_message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_keep_alive_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_keep_alive_message" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a ping message.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1629,8 +1631,361 @@ Starts a loop to handle inbound messages.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_sensor_reading">
-<code class="descname">make_from_sensor_reading</code><span class="sig-paren">(</span><em>reading</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/OSOutboundMessageFactory.html#OSOutboundMessageFactory.make_from_sensor_reading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_sensor_reading" title="Permalink to this definition">¶</a></dt>
+<dt id="wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_sensor_reading">
+<code class="descname">make_from_sensor_reading</code><span class="sig-paren">(</span><em>reading</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonSingleOutboundMessageFactory.html#JsonSingleOutboundMessageFactory.make_from_sensor_reading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_sensor_reading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the sensor reading to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>reading</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.SensorReading.SensorReading" title="wolk.models.SensorReading.SensorReading"><em>wolk.models.SensorReading.SensorReading</em></a>) – Sensor reading to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.JsonProtocolInboundMessageDeserializer">
+<span id="wolk-jsonprotocolinboundmessagedeserializer-module"></span><h3>wolk.JsonProtocolInboundMessageDeserializer module<a class="headerlink" href="#module-wolk.JsonProtocolInboundMessageDeserializer" title="Permalink to this headline">¶</a></h3>
+<p>JsonProtocolInboundMessageDeserializer Module.</p>
+<dl class="class">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer">
+<em class="property">class </em><code class="descclassname">wolk.JsonProtocolInboundMessageDeserializer.</code><code class="descname">JsonProtocolInboundMessageDeserializer</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer" title="wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer</span></code></a></p>
+<p>Deserialize messages received from the WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.7)"><em>logging.Logger</em></a>) – Logger instance issued by wolk.LoggerFactory</td>
+</tr>
+</tbody>
+</table>
+<p>Create inbound topics from device key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>device</strong> – Device with key and actuator references used for inbound topics</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_actuator_command">
+<code class="descname">deserialize_actuator_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.deserialize_actuator_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_actuator_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into an actuation command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ActuatorCommand.ActuatorCommand" title="wolk.models.ActuatorCommand.ActuatorCommand">wolk.models.ActuatorCommand.ActuatorCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_configuration_command">
+<code class="descname">deserialize_configuration_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.deserialize_configuration_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_configuration_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a configuration command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.ConfigurationCommand.ConfigurationCommand" title="wolk.models.ConfigurationCommand.ConfigurationCommand">wolk.models.ConfigurationCommand.ConfigurationCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_firmware_chunk">
+<code class="descname">deserialize_firmware_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.deserialize_firmware_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_firmware_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the message into a packet.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">packet</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FileTransferPacket.FileTransferPacket" title="wolk.models.FileTransferPacket.FileTransferPacket">wolk.models.FileTransferPacket.FileTransferPacket</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_firmware_command">
+<code class="descname">deserialize_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.deserialize_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_firmware_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deserialize the message into a firmware command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – Message to be deserialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.FirmwareCommand.FirmwareCommand" title="wolk.models.FirmwareCommand.FirmwareCommand">wolk.models.FirmwareCommand.FirmwareCommand</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_actuation_command">
+<code class="descname">is_actuation_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.is_actuation_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_actuation_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is actuation command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">actuation_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_configuration">
+<code class="descname">is_configuration</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.is_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is configuration</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_file_chunk">
+<code class="descname">is_file_chunk</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.is_file_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_file_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is file chunk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">file_chunk</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_firmware_command">
+<code class="descname">is_firmware_command</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolInboundMessageDeserializer.html#JsonProtocolInboundMessageDeserializer.is_firmware_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_firmware_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if message is firmware command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.InboundMessage.InboundMessage" title="wolk.models.InboundMessage.InboundMessage"><em>wolk.models.InboundMessage.InboundMessage</em></a>) – The message received</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">firmware_command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)">bool</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.JsonProtocolOutboundMessageFactory">
+<span id="wolk-jsonprotocoloutboundmessagefactory-module"></span><h3>wolk.JsonProtocolOutboundMessageFactory module<a class="headerlink" href="#module-wolk.JsonProtocolOutboundMessageFactory" title="Permalink to this headline">¶</a></h3>
+<p>JsonProtocolOutboundMessageFactory Module.</p>
+<dl class="class">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory">
+<em class="property">class </em><code class="descclassname">wolk.JsonProtocolOutboundMessageFactory.</code><code class="descname">JsonProtocolOutboundMessageFactory</code><span class="sig-paren">(</span><em>device_key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory" title="wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory</span></code></a></p>
+<p>Serialize messages to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><ul class="first last simple">
+<li><strong>device_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device key to use when serializing messages</li>
+<li><strong>logger</strong> (<a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.Logger" title="(in Python v3.7)"><em>logging.Logger</em></a>) – Logger instance issued by wolk.LoggerFactory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Create a factory for serializing messages.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>device_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device key to use when serializing messages</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_actuator_status">
+<code class="descname">make_from_actuator_status</code><span class="sig-paren">(</span><em>actuator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_actuator_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_actuator_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the actuator status to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>actuator</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.ActuatorStatus.ActuatorStatus" title="wolk.models.ActuatorStatus.ActuatorStatus"><em>wolk.models.ActuatorStatus.ActuatorStatus</em></a>) – Actuator status to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_alarm">
+<code class="descname">make_from_alarm</code><span class="sig-paren">(</span><em>alarm</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_alarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_alarm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the alarm to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alarm</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.Alarm.Alarm" title="wolk.models.Alarm.Alarm"><em>wolk.models.Alarm.Alarm</em></a>) – Alarm event to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_chunk_request">
+<code class="descname">make_from_chunk_request</code><span class="sig-paren">(</span><em>file_name</em>, <em>chunk_index</em>, <em>chunk_size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_chunk_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_chunk_request" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request a firmware file chunk from WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Name of the file to which the chunk belongs</li>
+<li><strong>chunk_index</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Index of the requested chunk</li>
+<li><strong>chunk_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Size of the requested chunk</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">message</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_configuration">
+<code class="descname">make_from_configuration</code><span class="sig-paren">(</span><em>configuration</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report device’s configuration to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>configuration</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a>) – Device’s current configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_firmware_status">
+<code class="descname">make_from_firmware_status</code><span class="sig-paren">(</span><em>firmware_status</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_firmware_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_firmware_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serialize the firmware status to be sent to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>firmware_status</strong> (<a class="reference internal" href="wolk.models.html#wolk.models.FirmwareStatus.FirmwareStatus" title="wolk.models.FirmwareStatus.FirmwareStatus"><em>wolk.models.FirmwareStatus.FirmwareStatus</em></a>) – Firmware status to be serialized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_firmware_version">
+<code class="descname">make_from_firmware_version</code><span class="sig-paren">(</span><em>version</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_firmware_version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_firmware_version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Report the current version of firmware to WolkAbout IoT Platform.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>version</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Firmware version to report</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_keep_alive_message">
+<code class="descname">make_from_keep_alive_message</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_keep_alive_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_keep_alive_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a ping message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">message</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="wolk.models.html#wolk.models.OutboundMessage.OutboundMessage" title="wolk.models.OutboundMessage.OutboundMessage">wolk.models.OutboundMessage.OutboundMessage</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_sensor_reading">
+<code class="descname">make_from_sensor_reading</code><span class="sig-paren">(</span><em>reading</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/JsonProtocolOutboundMessageFactory.html#JsonProtocolOutboundMessageFactory.make_from_sensor_reading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_sensor_reading" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serialize the sensor reading to be sent to WolkAbout IoT Platform.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

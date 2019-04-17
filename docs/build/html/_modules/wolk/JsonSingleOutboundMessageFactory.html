@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>wolk.OSOutboundMessageFactory &mdash; WolkConnect-Python 3.2.0 documentation</title>
+  <title>wolk.JsonSingleOutboundMessageFactory &mdash; WolkConnect-Python 3.2.0 documentation</title>
   
 
   
@@ -129,7 +129,7 @@
         
           <li><a href="../index.html">Module code</a> &raquo;</li>
         
-      <li>wolk.OSOutboundMessageFactory</li>
+      <li>wolk.JsonSingleOutboundMessageFactory</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -144,7 +144,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for wolk.OSOutboundMessageFactory</h1><div class="highlight"><pre>
+  <h1>Source code for wolk.JsonSingleOutboundMessageFactory</h1><div class="highlight"><pre>
 <span></span><span class="c1">#   Copyright 2018 WolkAbout Technology s.r.o.</span>
 <span class="c1">#</span>
 <span class="c1">#   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
@@ -159,7 +159,7 @@
 <span class="c1">#   See the License for the specific language governing permissions and</span>
 <span class="c1">#   limitations under the License.</span>
 
-<span class="sd">&quot;&quot;&quot;OSOutboundMessageFactory Module.&quot;&quot;&quot;</span>
+<span class="sd">&quot;&quot;&quot;JsonSingleOutboundMessageFactory Module.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">wolk.models.ActuatorState</span> <span class="k">import</span> <span class="n">ActuatorState</span>
 <span class="kn">from</span> <span class="nn">wolk.models.FirmwareErrorType</span> <span class="k">import</span> <span class="n">FirmwareErrorType</span>
@@ -169,7 +169,7 @@
 <span class="kn">from</span> <span class="nn">wolk</span> <span class="k">import</span> <span class="n">LoggerFactory</span>
 
 
-<div class="viewcode-block" id="OSOutboundMessageFactory"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory">[docs]</a><span class="k">class</span> <span class="nc">OSOutboundMessageFactory</span><span class="p">(</span><span class="n">OutboundMessageFactory</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory">[docs]</a><span class="k">class</span> <span class="nc">JsonSingleOutboundMessageFactory</span><span class="p">(</span><span class="n">OutboundMessageFactory</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Serialize messages to be sent to WolkAbout IoT Platform.</span>
 
@@ -192,7 +192,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Init - Device key: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">device_key</span><span class="p">)</span>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_sensor_reading"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_sensor_reading">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_sensor_reading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reading</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_sensor_reading"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_sensor_reading">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_sensor_reading</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reading</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize the sensor reading to be sent to WolkAbout IoT Platform.</span>
 
@@ -202,101 +202,64 @@
 <span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_sensor_reading called&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+
+            <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
+
+            <span class="n">values_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+                <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+                <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+                <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
+
+            <span class="n">values_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+            <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">values_list</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
+        <span class="k">elif</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
+
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
+            <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="n">reading</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-
-                <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
-
-                <span class="n">values_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-                <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
-                    <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
-                    <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-                    <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
-
-                <span class="n">values_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">values_list</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
-            <span class="k">elif</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
-
-            <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="s1">&#39;&quot;&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;readings/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">reading</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
-                <span class="s1">&#39;{ &quot;data&quot; : &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot; }&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;{&quot;data&quot;:&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;make_from_sensor_reading - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">message</span>
-
         <span class="k">else</span><span class="p">:</span>
-
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
-
-                <span class="n">delimiter</span> <span class="o">=</span> <span class="s2">&quot;,&quot;</span>
-
-                <span class="n">values_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-
-                <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
-                    <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
-                    <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
-                        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                    <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                    <span class="n">values_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delimiter</span><span class="p">)</span>
-
-                <span class="n">values_list</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
-
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">values_list</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;true&quot;</span>
-            <span class="k">elif</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s2">&quot;false&quot;</span>
-
-            <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span><span class="p">)</span>
-                <span class="n">reading</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;readings/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">reading</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
-                <span class="s1">&#39;{ &quot;utc&quot; : &quot;&#39;</span>
+                <span class="s1">&#39;{&quot;utc&quot;:&quot;&#39;</span>
                 <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;data&quot; : &quot;&#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;,&quot;data&quot;:&quot;&#39;</span>
                 <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">reading</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot; }&#39;</span><span class="p">,</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;make_from_sensor_reading - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_alarm"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_alarm">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_alarm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alarm</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;make_from_sensor_reading - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">message</span></div>
+
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_alarm"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_alarm">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_alarm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alarm</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize the alarm to be sent to WolkAbout IoT Platform.</span>
 
@@ -306,47 +269,33 @@
 <span class="sd">        :rtype: wolk.models.OutboundMessage.OutboundMessage</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_alarm called&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span>
+        <span class="k">elif</span> <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="s2">&quot;OFF&quot;</span>
         <span class="k">if</span> <span class="n">alarm</span><span class="o">.</span><span class="n">timestamp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-
-            <span class="k">if</span> <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span>
-            <span class="k">elif</span> <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="s2">&quot;OFF&quot;</span>
-
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;events/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">alarm</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
-                <span class="s1">&#39;{ &quot;data&quot; : &quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">alarm</span><span class="o">.</span><span class="n">active</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot; }&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;{&quot;data&quot;:&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">alarm</span><span class="o">.</span><span class="n">active</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;make_from_alarm - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">message</span>
-
         <span class="k">else</span><span class="p">:</span>
-
-            <span class="k">if</span> <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="s2">&quot;ON&quot;</span>
-            <span class="k">elif</span> <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
-                <span class="n">alarm</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="s2">&quot;OFF&quot;</span>
-
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;events/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">alarm</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
-                <span class="s1">&#39;{ &quot;utc&quot; : &quot;&#39;</span>
+                <span class="s1">&#39;{&quot;utc&quot;:&quot;&#39;</span>
                 <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">alarm</span><span class="o">.</span><span class="n">timestamp</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;data&quot; : &quot;&#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;,&quot;data&quot;:&quot;&#39;</span>
                 <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">alarm</span><span class="o">.</span><span class="n">active</span><span class="p">)</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot; }&#39;</span><span class="p">,</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;make_from_alarm - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
-                <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_actuator_status"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_actuator_status">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_actuator_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actuator</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;make_from_alarm - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">message</span></div>
+
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_actuator_status"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_actuator_status">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_actuator_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">actuator</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize the actuator status to be sent to WolkAbout IoT Platform.</span>
 
@@ -378,11 +327,7 @@
 
         <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
             <span class="s2">&quot;actuators/status/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">actuator</span><span class="o">.</span><span class="n">reference</span><span class="p">,</span>
-            <span class="s1">&#39;{ &quot;status&quot; : &quot;&#39;</span>
-            <span class="o">+</span> <span class="n">actuator</span><span class="o">.</span><span class="n">state</span>
-            <span class="o">+</span> <span class="s1">&#39;&quot; , &quot;value&quot; : &quot;&#39;</span>
-            <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-            <span class="o">+</span> <span class="s1">&#39;&quot; }&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;{&quot;status&quot;:&quot;&#39;</span> <span class="o">+</span> <span class="n">actuator</span><span class="o">.</span><span class="n">state</span> <span class="o">+</span> <span class="s1">&#39;&quot;,&quot;value&quot;:&quot;&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">actuator</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;make_from_actuator_status - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -391,7 +336,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_firmware_status"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_status">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_firmware_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firmware_status</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_firmware_status"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_status">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_firmware_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firmware_status</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Serialize the firmware status to be sent to WolkAbout IoT Platform.</span>
 
@@ -446,9 +391,9 @@
 
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;service/status/firmware/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span>
-                <span class="s1">&#39;{&quot;status&quot; : &quot;&#39;</span>
+                <span class="s1">&#39;{&quot;status&quot;:&quot;&#39;</span>
                 <span class="o">+</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span>
-                <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;error&quot; : &#39;</span>
+                <span class="o">+</span> <span class="s1">&#39;&quot;,&quot;error&quot;:&#39;</span>
                 <span class="o">+</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">error</span>
                 <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span>
             <span class="p">)</span>
@@ -462,7 +407,7 @@
 
             <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
                 <span class="s2">&quot;service/status/firmware/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span>
-                <span class="s1">&#39;{&quot;status&quot; : &quot;&#39;</span> <span class="o">+</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;{&quot;status&quot;:&quot;&#39;</span> <span class="o">+</span> <span class="n">firmware_status</span><span class="o">.</span><span class="n">status</span> <span class="o">+</span> <span class="s1">&#39;&quot;}&#39;</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;make_from_firmware_status - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -471,7 +416,7 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_chunk_request"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_chunk_request">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_chunk_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">chunk_index</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_chunk_request"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_chunk_request">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_chunk_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">chunk_index</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Request a firmware file chunk from WolkAbout IoT Platform.</span>
 
@@ -487,13 +432,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;make_from_chunk_request called&quot;</span><span class="p">)</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">OutboundMessage</span><span class="p">(</span>
             <span class="s2">&quot;service/status/file/&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">device_key</span><span class="p">,</span>
-            <span class="s1">&#39;{ &quot;fileName&quot; : &quot;&#39;</span>
+            <span class="s1">&#39;{&quot;fileName&quot;:&quot;&#39;</span>
             <span class="o">+</span> <span class="n">file_name</span>
-            <span class="o">+</span> <span class="s1">&#39;&quot;, &quot;chunkIndex&quot; : &#39;</span>
+            <span class="o">+</span> <span class="s1">&#39;&quot;,&quot;chunkIndex&quot;:&#39;</span>
             <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">chunk_index</span><span class="p">)</span>
-            <span class="o">+</span> <span class="s1">&#39;, &quot;chunkSize&quot; : &#39;</span>
+            <span class="o">+</span> <span class="s1">&#39;,&quot;chunkSize&quot;:&#39;</span>
             <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">chunk_size</span><span class="p">)</span>
-            <span class="o">+</span> <span class="s2">&quot; }&quot;</span><span class="p">,</span>
+            <span class="o">+</span> <span class="s2">&quot;}&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="s2">&quot;make_from_chunk_request - Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -502,7 +447,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_firmware_version"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_version">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_firmware_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_firmware_version"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_version">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_firmware_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Report the current version of firmware to WolkAbout IoT Platform.</span>
 
@@ -520,7 +465,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_keep_alive_message"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_keep_alive_message">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_keep_alive_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_keep_alive_message"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_keep_alive_message">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_keep_alive_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a ping message.</span>
 
@@ -536,7 +481,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">message</span></div>
 
-<div class="viewcode-block" id="OSOutboundMessageFactory.make_from_configuration"><a class="viewcode-back" href="../../wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
+<div class="viewcode-block" id="JsonSingleOutboundMessageFactory.make_from_configuration"><a class="viewcode-back" href="../../wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_configuration">[docs]</a>    <span class="k">def</span> <span class="nf">make_from_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">configuration</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Report device&#39;s configuration to WolkAbout IoT Platform.</span>
 

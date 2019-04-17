@@ -150,6 +150,14 @@ wolk.OutboundMessage module
     :undoc-members:
     :show-inheritance:
 
+wolk.Protocol module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: wolk.models.Protocol
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 wolk.SensorReading module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

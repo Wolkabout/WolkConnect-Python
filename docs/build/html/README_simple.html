@@ -163,10 +163,12 @@
 </div>
 <hr class="docutils" />
 <p>WolkAbout Python Connector library for connecting devices to <a class="reference external" href="https://demo.wolkabout.com/#/login">WolkAbout IoT Platform</a>.</p>
-<p>Supported device communication protocol(s):</p>
+<p>Supported device communication protocols:</p>
 <ul class="simple">
-<li>JsonSingleReferenceProtocol</li>
+<li>JSON_SINGLE</li>
+<li>JSON_PROTOCOL</li>
 </ul>
+<p><em>Note:</em> Firmware update is currently not available for JSON_PROTOCOL</p>
 <div class="section" id="prerequisite">
 <h1>Prerequisite<a class="headerlink" href="#prerequisite" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
@@ -207,9 +209,11 @@ This template fits <a class="reference external" href="https://github.com/Wolkab
 <span class="p">)</span>
 
 <span class="c1"># Pass your device and server information</span>
+<span class="c1"># Select formatting protocol: JSON_SINGLE (default) or JSON_PROTOCOL</span>
 <span class="c1"># defaults to secure connection to Demo instance - comment out host, port and ca_cert</span>
 <span class="n">wolk_device</span> <span class="o">=</span> <span class="n">wolk</span><span class="o">.</span><span class="n">WolkConnect</span><span class="p">(</span>
     <span class="n">device</span><span class="p">,</span>
+    <span class="n">protocol</span><span class="o">=</span><span class="n">wolk</span><span class="o">.</span><span class="n">Protocol</span><span class="o">.</span><span class="n">JSON_SINGLE</span>
     <span class="n">host</span><span class="o">=</span><span class="s2">&quot;api-demo.wolkabout.com&quot;</span><span class="p">,</span>
     <span class="n">port</span><span class="o">=</span><span class="mi">8883</span><span class="p">,</span>
     <span class="n">ca_cert</span><span class="o">=</span><span class="s2">&quot;path/to/ca.crt&quot;</span>

@@ -198,7 +198,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">message</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="k">if</span> <span class="s2">&quot;readings&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;reading&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;put - Queue size: </span><span class="si">%s</span><span class="s2"> ; Channel: </span><span class="si">%s</span><span class="s2"> ; Payload: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -213,7 +213,7 @@
         <span class="n">present_in_queue</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">for</span> <span class="n">stored_message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;readings&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;reading&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">reading_reference</span> <span class="o">==</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">present_in_queue</span> <span class="o">=</span> <span class="kc">True</span>
@@ -233,7 +233,7 @@
         <span class="n">max_data</span> <span class="o">=</span> <span class="mi">1</span>
 
         <span class="k">for</span> <span class="n">stored_message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;readings&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;reading&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
                 <span class="k">continue</span>
             <span class="k">if</span> <span class="n">reading_reference</span> <span class="o">==</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                 <span class="n">readings</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -256,7 +256,7 @@
 
         <span class="k">if</span> <span class="n">max_data</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">stored_message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="p">:</span>
-                <span class="k">if</span> <span class="s2">&quot;readings&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;reading&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="p">:</span>
                     <span class="k">continue</span>
                 <span class="k">if</span> <span class="n">reading_reference</span> <span class="o">==</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
                     <span class="n">data_count</span> <span class="o">=</span> <span class="n">stored_message</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;&quot;data&quot;&#39;</span><span class="p">)</span>

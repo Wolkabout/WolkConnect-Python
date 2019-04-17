@@ -73,7 +73,7 @@ wolk.ConfigurationProvider module
 
 
 wolk.FileSystemFirmwareHandler module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: wolk.FileSystemFirmwareHandler
     :members:
@@ -89,7 +89,7 @@ wolk.FirmwareInstaller module
     :show-inheritance:
 
 wolk.FirmwareURLDownloadHandler module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: wolk.interfaces.FirmwareURLDownloadHandler
     :members:
@@ -115,26 +115,42 @@ wolk.OSFirmwareUpdate module
     :undoc-members:
     :show-inheritance:
 
-wolk.OSInboundMessageDeserializer module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.OSInboundMessageDeserializer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 wolk.OSMQTTConnectivityService module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: wolk.OSMQTTConnectivityService
     :members:
     :undoc-members:
     :show-inheritance:
 
-wolk.OSOutboundMessageFactory module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+wolk.JsonSingleInboundMessageDeserializer module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.OSOutboundMessageFactory
+.. automodule:: wolk.JsonSingleInboundMessageDeserializer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+wolk.JsonSingleOutboundMessageFactory module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: wolk.JsonSingleOutboundMessageFactory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+wolk.JsonProtocolInboundMessageDeserializer module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: wolk.JsonProtocolInboundMessageDeserializer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+wolk.JsonProtocolOutboundMessageFactory module
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: wolk.JsonProtocolOutboundMessageFactory
     :members:
     :undoc-members:
     :show-inheritance:

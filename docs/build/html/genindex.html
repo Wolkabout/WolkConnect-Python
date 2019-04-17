@@ -158,6 +158,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -247,19 +248,25 @@
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_actuator_command">deserialize_actuator_command() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_actuator_command">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_actuator_command">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_actuator_command">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_configuration_command">deserialize_configuration_command() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_configuration_command">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_configuration_command">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_configuration_command">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_firmware_chunk">deserialize_firmware_chunk() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_chunk">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_firmware_chunk">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_firmware_chunk">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -267,7 +274,9 @@
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.deserialize_firmware_command">deserialize_firmware_command() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.deserialize_firmware_command">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.deserialize_firmware_command">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.deserialize_firmware_command">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.html#wolk.models.Device.Device">Device (class in wolk.models.Device)</a>, <a href="wolk.models.html#wolk.models.Device.Device">[1]</a>, <a href="wolk.models.html#wolk.models.Device.Device">[2]</a>
@@ -410,32 +419,60 @@
 </li>
       <li><a href="wolk.models.html#wolk.models.FirmwareErrorType.FirmwareErrorType.INSTALLATION_FAILED">INSTALLATION_FAILED (wolk.models.FirmwareErrorType.FirmwareErrorType attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_actuation_command">is_actuation_command() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_actuation_command">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_actuation_command">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_actuation_command">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_configuration">is_configuration() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_configuration">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_configuration">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_configuration">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_file_chunk">is_file_chunk() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_file_chunk">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_file_chunk">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_file_chunk">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer.is_firmware_command">is_firmware_command() (wolk.interfaces.InboundMessageDeserializer.InboundMessageDeserializer method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer.is_firmware_command">(wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer.is_firmware_command">(wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer.is_firmware_command">(wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer method)</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="wolk.models.html#wolk.models.Protocol.Protocol.JSON_PROTOCOL">JSON_PROTOCOL (wolk.models.Protocol.Protocol attribute)</a>
+</li>
+      <li><a href="wolk.models.html#wolk.models.Protocol.Protocol.JSON_SINGLE">JSON_SINGLE (wolk.models.Protocol.Protocol attribute)</a>
+</li>
+      <li><a href="wolk.html#wolk.JsonProtocolInboundMessageDeserializer.JsonProtocolInboundMessageDeserializer">JsonProtocolInboundMessageDeserializer (class in wolk.JsonProtocolInboundMessageDeserializer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory">JsonProtocolOutboundMessageFactory (class in wolk.JsonProtocolOutboundMessageFactory)</a>
+</li>
+      <li><a href="wolk.html#wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer">JsonSingleInboundMessageDeserializer (class in wolk.JsonSingleInboundMessageDeserializer)</a>
+</li>
+      <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory">JsonSingleOutboundMessageFactory (class in wolk.JsonSingleOutboundMessageFactory)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -457,25 +494,33 @@
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_actuator_status">make_from_actuator_status() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_actuator_status">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_actuator_status">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_actuator_status">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_alarm">make_from_alarm() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_alarm">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_alarm">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_alarm">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_chunk_request">make_from_chunk_request() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_chunk_request">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_chunk_request">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_chunk_request">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_configuration">make_from_configuration() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_configuration">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_configuration">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_configuration">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -483,25 +528,33 @@
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_firmware_status">make_from_firmware_status() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_status">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_firmware_status">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_status">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_firmware_version">make_from_firmware_version() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_firmware_version">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_firmware_version">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_firmware_version">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_keep_alive_message">make_from_keep_alive_message() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_keep_alive_message">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_keep_alive_message">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_keep_alive_message">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory.make_from_sensor_reading">make_from_sensor_reading() (wolk.interfaces.OutboundMessageFactory.OutboundMessageFactory method)</a>
 
       <ul>
-        <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory.make_from_sensor_reading">(wolk.OSOutboundMessageFactory.OSOutboundMessageFactory method)</a>
+        <li><a href="wolk.html#wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory.make_from_sensor_reading">(wolk.JsonProtocolOutboundMessageFactory.JsonProtocolOutboundMessageFactory method)</a>
+</li>
+        <li><a href="wolk.html#wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory.make_from_sensor_reading">(wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory method)</a>
 </li>
       </ul></li>
       <li><a href="wolk.models.html#wolk.models.FirmwareErrorType.FirmwareErrorType.MALFORMED_URL">MALFORMED_URL (wolk.models.FirmwareErrorType.FirmwareErrorType attribute)</a>
@@ -520,15 +573,11 @@
 </li>
       <li><a href="wolk.html#wolk.OSFirmwareUpdate.OSFirmwareUpdate">OSFirmwareUpdate (class in wolk.OSFirmwareUpdate)</a>
 </li>
-      <li><a href="wolk.html#wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer">OSInboundMessageDeserializer (class in wolk.OSInboundMessageDeserializer)</a>
-</li>
       <li><a href="wolk.html#wolk.OSKeepAliveService.OSKeepAliveService">OSKeepAliveService (class in wolk.OSKeepAliveService)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="wolk.html#wolk.OSMQTTConnectivityService.OSMQTTConnectivityService">OSMQTTConnectivityService (class in wolk.OSMQTTConnectivityService)</a>
-</li>
-      <li><a href="wolk.html#wolk.OSOutboundMessageFactory.OSOutboundMessageFactory">OSOutboundMessageFactory (class in wolk.OSOutboundMessageFactory)</a>
 </li>
       <li><a href="wolk.html#wolk.OSOutboundMessageQueue.OSOutboundMessageQueue">OSOutboundMessageQueue (class in wolk.OSOutboundMessageQueue)</a>
 </li>
@@ -556,6 +605,8 @@
         <li><a href="wolk.interfaces.html#wolk.interfaces.FirmwareHandler.FirmwareHandler.persist_version">(wolk.interfaces.FirmwareHandler.FirmwareHandler method)</a>
 </li>
       </ul></li>
+      <li><a href="wolk.models.html#wolk.models.Protocol.Protocol">Protocol (class in wolk.models.Protocol)</a>
+</li>
       <li><a href="wolk.interfaces.html#wolk.interfaces.ConnectivityService.ConnectivityService.publish">publish() (wolk.interfaces.ConnectivityService.ConnectivityService method)</a>
 
       <ul>
@@ -746,6 +797,14 @@
 </li>
       <li><a href="wolk.interfaces.html#module-wolk.interfaces.OutboundMessageQueue">wolk.interfaces.OutboundMessageQueue (module)</a>
 </li>
+      <li><a href="wolk.html#module-wolk.JsonProtocolInboundMessageDeserializer">wolk.JsonProtocolInboundMessageDeserializer (module)</a>
+</li>
+      <li><a href="wolk.html#module-wolk.JsonProtocolOutboundMessageFactory">wolk.JsonProtocolOutboundMessageFactory (module)</a>
+</li>
+      <li><a href="wolk.html#module-wolk.JsonSingleInboundMessageDeserializer">wolk.JsonSingleInboundMessageDeserializer (module)</a>
+</li>
+      <li><a href="wolk.html#module-wolk.JsonSingleOutboundMessageFactory">wolk.JsonSingleOutboundMessageFactory (module)</a>
+</li>
       <li><a href="wolk.html#module-wolk.LoggerFactory">wolk.LoggerFactory (module)</a>
 </li>
       <li><a href="wolk.models.html#module-wolk.models">wolk.models (module)</a>
@@ -756,14 +815,14 @@
 </li>
       <li><a href="wolk.models.html#module-wolk.models.ActuatorState">wolk.models.ActuatorState (module)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="wolk.models.html#module-wolk.models.ActuatorStatus">wolk.models.ActuatorStatus (module)</a>
 </li>
       <li><a href="wolk.models.html#module-wolk.models.Alarm">wolk.models.Alarm (module)</a>
 </li>
       <li><a href="wolk.models.html#module-wolk.models.ConfigurationCommand">wolk.models.ConfigurationCommand (module)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="wolk.models.html#module-wolk.models.ConfigurationCommandType">wolk.models.ConfigurationCommandType (module)</a>
 </li>
       <li><a href="wolk.html#module-wolk.models.Device">wolk.models.Device (module)</a>, <a href="wolk.models.html#module-wolk.models.Device">[1]</a>, <a href="wolk.models.html#module-wolk.models.Device">[2]</a>
@@ -786,17 +845,15 @@
 </li>
       <li><a href="wolk.models.html#module-wolk.models.OutboundMessage">wolk.models.OutboundMessage (module)</a>
 </li>
+      <li><a href="wolk.models.html#module-wolk.models.Protocol">wolk.models.Protocol (module)</a>
+</li>
       <li><a href="wolk.models.html#module-wolk.models.SensorReading">wolk.models.SensorReading (module)</a>
 </li>
       <li><a href="wolk.html#module-wolk.OSFirmwareUpdate">wolk.OSFirmwareUpdate (module)</a>
 </li>
-      <li><a href="wolk.html#module-wolk.OSInboundMessageDeserializer">wolk.OSInboundMessageDeserializer (module)</a>
-</li>
       <li><a href="wolk.html#module-wolk.OSKeepAliveService">wolk.OSKeepAliveService (module)</a>
 </li>
       <li><a href="wolk.html#module-wolk.OSMQTTConnectivityService">wolk.OSMQTTConnectivityService (module)</a>
-</li>
-      <li><a href="wolk.html#module-wolk.OSOutboundMessageFactory">wolk.OSOutboundMessageFactory (module)</a>
 </li>
       <li><a href="wolk.html#module-wolk.OSOutboundMessageQueue">wolk.OSOutboundMessageQueue (module)</a>
 </li>
