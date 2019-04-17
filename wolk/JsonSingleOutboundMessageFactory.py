@@ -12,7 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""OSOutboundMessageFactory Module."""
+"""JsonSingleOutboundMessageFactory Module."""
 
 from wolk.models.ActuatorState import ActuatorState
 from wolk.models.FirmwareErrorType import FirmwareErrorType
@@ -22,7 +22,7 @@ from wolk.interfaces.OutboundMessageFactory import OutboundMessageFactory
 from wolk import LoggerFactory
 
 
-class OSOutboundMessageFactory(OutboundMessageFactory):
+class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
     """
     Serialize messages to be sent to WolkAbout IoT Platform.
 
@@ -55,99 +55,62 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_sensor_reading called")
+
+        if isinstance(reading.value, tuple):
+
+            delimiter = ","
+
+            values_list = list()
+
+            for value in reading.value:
+                if value is True:
+                    value = "true"
+                elif value is False:
+                    value = "false"
+                if "\n" in str(value):
+                    value = value.replace("\n", "\\n")
+                    value = value.replace("\r", "")
+                if '"' in str(value):
+                    value = value.replace('"', '\\"')
+                values_list.append(value)
+                values_list.append(delimiter)
+
+            values_list.pop()
+
+            reading.value = "".join(map(str, values_list))
+
+        if reading.value is True:
+            reading.value = "true"
+        elif reading.value is False:
+            reading.value = "false"
+
+        if "\n" in str(reading.value):
+            reading.value = reading.value.replace("\n", "\\n")
+            reading.value = reading.value.replace("\r", "")
+        if '"' in str(reading.value):
+            reading.value = reading.value.replace('"', '\\"')
+
         if reading.timestamp is None:
-
-            if isinstance(reading.value, tuple):
-
-                delimiter = ","
-
-                values_list = list()
-
-                for value in reading.value:
-                    if value is True:
-                        value = "true"
-                    elif value is False:
-                        value = "false"
-                    if "\n" in str(value):
-                        value = value.replace("\n", "\\n")
-                        value = value.replace("\r", "")
-                    if '"' in str(value):
-                        value = value.replace('"', '\\"')
-                    values_list.append(value)
-                    values_list.append(delimiter)
-
-                values_list.pop()
-
-                reading.value = "".join(map(str, values_list))
-
-            if reading.value is True:
-                reading.value = "true"
-            elif reading.value is False:
-                reading.value = "false"
-
-            if "\n" in str(reading.value):
-                reading.value = reading.value.replace("\n", "\\n")
-                reading.value = reading.value.replace("\r", "")
-            if '"' in str(reading.value):
-                reading.value = reading.value.replace('"', '\\"')
-
             message = OutboundMessage(
                 "readings/" + self.device_key + "/" + reading.reference,
-                '{ "data" : "' + str(reading.value) + '" }',
+                '{"data":"' + str(reading.value) + '"}',
             )
-            self.logger.debug(
-                "make_from_sensor_reading - Channel: %s ; Payload: %s",
-                message.channel,
-                message.payload,
-            )
-            return message
-
         else:
-
-            if isinstance(reading.value, tuple):
-
-                delimiter = ","
-
-                values_list = list()
-
-                for value in reading.value:
-                    if value is True:
-                        value = "true"
-                    elif value is False:
-                        value = "false"
-                    if "\n" in str(value):
-                        value = value.replace("\n", "\\n")
-                        value = value.replace("\r", "")
-                    values_list.append(value)
-                    values_list.append(delimiter)
-
-                values_list.pop()
-
-                reading.value = "".join(map(str, values_list))
-
-            if reading.value is True:
-                reading.value = "true"
-            elif reading.value is False:
-                reading.value = "false"
-
-            if "\n" in str(reading.value):
-                reading.value = reading.value.replace("\n", "\\n")
-                reading.value = reading.value.replace("\r", "")
-
             message = OutboundMessage(
                 "readings/" + self.device_key + "/" + reading.reference,
-                '{ "utc" : "'
+                '{"utc":"'
                 + str(reading.timestamp)
-                + '", "data" : "'
+                + '","data":"'
                 + str(reading.value)
-                + '" }',
+                + '"}',
             )
-            self.logger.debug(
-                "make_from_sensor_reading - Channel: %s ; Payload: %s",
-                message.channel,
-                message.payload,
-            )
-            return message
+
+        self.logger.debug(
+            "make_from_sensor_reading - Channel: %s ; Payload: %s",
+            message.channel,
+            message.payload,
+        )
+        return message
 
     def make_from_alarm(self, alarm):
         """
@@ -159,45 +122,31 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_alarm called")
+        if alarm.active is True:
+            alarm.active = "ON"
+        elif alarm.active is False:
+            alarm.active = "OFF"
         if alarm.timestamp is None:
-
-            if alarm.active is True:
-                alarm.active = "ON"
-            elif alarm.active is False:
-                alarm.active = "OFF"
-
             message = OutboundMessage(
                 "events/" + self.device_key + "/" + alarm.reference,
-                '{ "data" : "' + str(alarm.active) + '" }',
+                '{"data":"' + str(alarm.active) + '"}',
             )
-            self.logger.debug(
-                "make_from_alarm - Channel: %s ; Payload: %s",
-                message.channel,
-                message.payload,
-            )
-            return message
-
         else:
-
-            if alarm.active is True:
-                alarm.active = "ON"
-            elif alarm.active is False:
-                alarm.active = "OFF"
-
             message = OutboundMessage(
                 "events/" + self.device_key + "/" + alarm.reference,
-                '{ "utc" : "'
+                '{"utc":"'
                 + str(alarm.timestamp)
-                + '", "data" : "'
+                + '","data":"'
                 + str(alarm.active)
-                + '" }',
+                + '"}',
             )
-            self.logger.debug(
-                "make_from_alarm - Channel: %s ; Payload: %s",
-                message.channel,
-                message.payload,
-            )
-            return message
+
+        self.logger.debug(
+            "make_from_alarm - Channel: %s ; Payload: %s",
+            message.channel,
+            message.payload,
+        )
+        return message
 
     def make_from_actuator_status(self, actuator):
         """
@@ -231,11 +180,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
         message = OutboundMessage(
             "actuators/status/" + self.device_key + "/" + actuator.reference,
-            '{ "status" : "'
-            + actuator.state
-            + '" , "value" : "'
-            + str(actuator.value)
-            + '" }',
+            '{"status":"' + actuator.state + '","value":"' + str(actuator.value) + '"}',
         )
         self.logger.debug(
             "make_from_actuator_status - Channel: %s ; Payload: %s",
@@ -299,9 +244,9 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
             message = OutboundMessage(
                 "service/status/firmware/" + self.device_key,
-                '{"status" : "'
+                '{"status":"'
                 + firmware_status.status
-                + '", "error" : '
+                + '","error":'
                 + firmware_status.error
                 + "}",
             )
@@ -315,7 +260,7 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
 
             message = OutboundMessage(
                 "service/status/firmware/" + self.device_key,
-                '{"status" : "' + firmware_status.status + '"}',
+                '{"status":"' + firmware_status.status + '"}',
             )
             self.logger.debug(
                 "make_from_firmware_status - Channel: %s ; Payload: %s",
@@ -340,13 +285,13 @@ class OSOutboundMessageFactory(OutboundMessageFactory):
         self.logger.debug("make_from_chunk_request called")
         message = OutboundMessage(
             "service/status/file/" + self.device_key,
-            '{ "fileName" : "'
+            '{"fileName":"'
             + file_name
-            + '", "chunkIndex" : '
+            + '","chunkIndex":'
             + str(chunk_index)
-            + ', "chunkSize" : '
+            + ',"chunkSize":'
             + str(chunk_size)
-            + " }",
+            + "}",
         )
         self.logger.debug(
             "make_from_chunk_request - Channel: %s ; Payload: %s",

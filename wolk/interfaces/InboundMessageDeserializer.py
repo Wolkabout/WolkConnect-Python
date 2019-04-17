@@ -31,7 +31,6 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         """
         self.inbound_topics = inbound_topics
 
-
     @abstractmethod
     def is_actuation_command(self, message):
         """

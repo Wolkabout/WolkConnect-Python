@@ -255,7 +255,6 @@ class OSMQTTConnectivityService(ConnectivityService):
                 raise RuntimeError("Connection refused - not authorised")
                 break
 
-
         self.logger.debug("calling subscribe with topics: %s", self.topics)
         for topic in self.topics:
             self.client.subscribe(topic, 2)

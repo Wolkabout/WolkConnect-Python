@@ -28,6 +28,7 @@ from .models.FirmwareStatusType import FirmwareStatusType
 from .models.FirmwareUpdateStateType import FirmwareUpdateStateType
 from .models.InboundMessage import InboundMessage
 from .models.OutboundMessage import OutboundMessage
+from .models.Protocol import Protocol
 from .models.SensorReading import SensorReading
 from .interfaces.ActuationHandler import ActuationHandler
 from .interfaces.ActuatorStatusProvider import ActuatorStatusProvider
@@ -62,6 +63,7 @@ __all__ = [
     "FirmwareUpdateStateType",
     "InboundMessage",
     "OutboundMessage",
+    "Protocol",
     "SensorReading",
     "ActuationHandler",
     "ActuatorStatusProvider",

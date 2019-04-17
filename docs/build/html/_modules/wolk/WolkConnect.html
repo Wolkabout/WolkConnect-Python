@@ -165,8 +165,14 @@
 
 <span class="kn">from</span> <span class="nn">wolk.OSOutboundMessageQueue</span> <span class="k">import</span> <span class="n">OSOutboundMessageQueue</span>
 <span class="kn">from</span> <span class="nn">wolk.OSMQTTConnectivityService</span> <span class="k">import</span> <span class="n">OSMQTTConnectivityService</span>
-<span class="kn">from</span> <span class="nn">wolk.OSOutboundMessageFactory</span> <span class="k">import</span> <span class="n">OSOutboundMessageFactory</span>
-<span class="kn">from</span> <span class="nn">wolk.OSInboundMessageDeserializer</span> <span class="k">import</span> <span class="n">OSInboundMessageDeserializer</span>
+<span class="kn">from</span> <span class="nn">wolk.JsonSingleOutboundMessageFactory</span> <span class="k">import</span> <span class="n">JsonSingleOutboundMessageFactory</span>
+<span class="kn">from</span> <span class="nn">wolk.JsonSingleInboundMessageDeserializer</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">JsonSingleInboundMessageDeserializer</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">wolk.JsonProtocolOutboundMessageFactory</span> <span class="k">import</span> <span class="n">JsonProtocolOutboundMessageFactory</span>
+<span class="kn">from</span> <span class="nn">wolk.JsonProtocolInboundMessageDeserializer</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">JsonProtocolInboundMessageDeserializer</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">wolk.OSFirmwareUpdate</span> <span class="k">import</span> <span class="n">OSFirmwareUpdate</span>
 <span class="kn">from</span> <span class="nn">wolk.OSKeepAliveService</span> <span class="k">import</span> <span class="n">OSKeepAliveService</span>
 <span class="kn">from</span> <span class="nn">wolk.LoggerFactory</span> <span class="k">import</span> <span class="n">logger_factory</span>
@@ -179,6 +185,7 @@
 <span class="kn">from</span> <span class="nn">wolk.models.FirmwareStatus</span> <span class="k">import</span> <span class="n">FirmwareStatus</span>
 <span class="kn">from</span> <span class="nn">wolk.models.FirmwareStatusType</span> <span class="k">import</span> <span class="n">FirmwareStatusType</span>
 <span class="kn">from</span> <span class="nn">wolk.models.FirmwareErrorType</span> <span class="k">import</span> <span class="n">FirmwareErrorType</span>
+<span class="kn">from</span> <span class="nn">wolk.models.Protocol</span> <span class="k">import</span> <span class="n">Protocol</span>
 <span class="kn">from</span> <span class="nn">wolk.interfaces.ActuationHandler</span> <span class="k">import</span> <span class="n">ActuationHandler</span>
 <span class="kn">from</span> <span class="nn">wolk.interfaces.ActuatorStatusProvider</span> <span class="k">import</span> <span class="n">ActuatorStatusProvider</span>
 <span class="kn">from</span> <span class="nn">wolk.interfaces.ConfigurationHandler</span> <span class="k">import</span> <span class="n">ConfigurationHandler</span>
@@ -196,7 +203,7 @@
 <span class="sd">    :ivar connectivity_service: Means of sending/receiving data</span>
 <span class="sd">    :vartype connectivity_service: wolk.OSMQTTConnectivityService.OSMQTTConnectivityService</span>
 <span class="sd">    :ivar inbound_message_deserializer: Deserializer of inbound messages</span>
-<span class="sd">    :vartype inbound_message_deserializer: wolk.OSInboundMessageDeserializer.OSInboundMessageDeserializer</span>
+<span class="sd">    :vartype inbound_message_deserializer: wolk.JsonSingleInboundMessageDeserializer.JsonSingleInboundMessageDeserializer</span>
 <span class="sd">    :ivar device: Contains device key and password, and actuator references</span>
 <span class="sd">    :vartype device: wolk.models.Device.Device</span>
 <span class="sd">    :ivar firmware_update: Firmware update handler</span>
@@ -206,7 +213,7 @@
 <span class="sd">    :ivar logger: Logger instance issued by wolk.LoggerFactory</span>
 <span class="sd">    :vartype logger: logging.Logger</span>
 <span class="sd">    :ivar outbound_message_factory: Create messages to send</span>
-<span class="sd">    :vartype outbound_message_factory: wolk.OSOutboundMessageFactory.OSOutboundMessageFactory</span>
+<span class="sd">    :vartype outbound_message_factory: wolk.JsonSingleOutboundMessageFactory.JsonSingleOutboundMessageFactory</span>
 <span class="sd">    :ivar outbound_message_queue: Store data before sending</span>
 <span class="sd">    :vartype outbound_message_queue: wolk.interfaces.OutboundMessageQueue.OutboundMessageQueue</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -214,6 +221,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">device</span><span class="p">,</span>
+        <span class="n">protocol</span><span class="o">=</span><span class="n">Protocol</span><span class="o">.</span><span class="n">JSON_SINGLE</span><span class="p">,</span>
         <span class="n">actuation_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">actuator_status_provider</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">configuration_handler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -317,14 +325,6 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">configuration_provider</span> <span class="o">=</span> <span class="n">configuration_provider</span>
 
-        <span class="k">if</span> <span class="n">outbound_message_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_factory</span> <span class="o">=</span> <span class="n">OSOutboundMessageFactory</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">OutboundMessageFactory</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid outbound message factory provided&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_factory</span> <span class="o">=</span> <span class="n">outbound_message_factory</span>
-
         <span class="k">if</span> <span class="n">outbound_message_queue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_queue</span> <span class="o">=</span> <span class="n">OSOutboundMessageQueue</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -333,23 +333,82 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_queue</span> <span class="o">=</span> <span class="n">outbound_message_queue</span>
 
-        <span class="k">if</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">OSInboundMessageDeserializer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inbound_message_deserializer</span><span class="p">,</span> <span class="n">InboundMessageDeserializer</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid inbound message deserializer provided&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">outbound_message_factory</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">outbound_message_factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Both OutboundMessageFactory and &quot;</span>
+                <span class="s2">&quot;InboundMessageDeserializer must be provided&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">protocol</span> <span class="o">==</span> <span class="n">Protocol</span><span class="o">.</span><span class="n">JSON_SINGLE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outbound_message_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_factory</span> <span class="o">=</span> <span class="n">JsonSingleOutboundMessageFactory</span><span class="p">(</span>
+                    <span class="n">device</span><span class="o">.</span><span class="n">key</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">inbound_message_deserializer</span>
-        
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">OutboundMessageFactory</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid outbound message factory provided&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_factory</span> <span class="o">=</span> <span class="n">outbound_message_factory</span>
+
+            <span class="k">if</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">JsonSingleInboundMessageDeserializer</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">device</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">inbound_message_deserializer</span><span class="p">,</span> <span class="n">InboundMessageDeserializer</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid inbound message deserializer provided&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">inbound_message_deserializer</span>
+
+        <span class="k">elif</span> <span class="n">protocol</span> <span class="o">==</span> <span class="n">Protocol</span><span class="o">.</span><span class="n">JSON_PROTOCOL</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">outbound_message_factory</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_factory</span> <span class="o">=</span> <span class="n">JsonProtocolOutboundMessageFactory</span><span class="p">(</span>
+                    <span class="n">device</span><span class="o">.</span><span class="n">key</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">outbound_message_factory</span><span class="p">,</span> <span class="n">OutboundMessageFactory</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid outbound message factory provided&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">outbound_message_factory</span> <span class="o">=</span> <span class="n">outbound_message_factory</span>
+
+            <span class="k">if</span> <span class="n">inbound_message_deserializer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">JsonProtocolInboundMessageDeserializer</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">device</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">inbound_message_deserializer</span><span class="p">,</span> <span class="n">InboundMessageDeserializer</span>
+                <span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Invalid inbound message deserializer provided&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span> <span class="o">=</span> <span class="n">inbound_message_deserializer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown protocol specified - &quot;</span><span class="p">,</span> <span class="n">protocol</span><span class="p">)</span>
+
         <span class="n">wolk_ca_cert</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s2">&quot;ca.crt&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">host</span> <span class="ow">and</span> <span class="n">port</span> <span class="ow">and</span> <span class="n">ca_cert</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">OSMQTTConnectivityService</span><span class="p">(</span>
-                <span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span> <span class="n">ca_cert</span><span class="o">=</span><span class="n">ca_cert</span>
+                <span class="n">device</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
+                <span class="n">ca_cert</span><span class="o">=</span><span class="n">ca_cert</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">host</span> <span class="ow">and</span> <span class="n">port</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">OSMQTTConnectivityService</span><span class="p">(</span>
-                <span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
+                <span class="n">device</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span>
+                <span class="n">host</span><span class="o">=</span><span class="n">host</span><span class="p">,</span>
+                <span class="n">port</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">connectivity_service</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -359,12 +418,14 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">connectivity_service</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span> <span class="o">=</span> <span class="n">OSMQTTConnectivityService</span><span class="p">(</span>
-                    <span class="n">device</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span> <span class="n">ca_cert</span><span class="o">=</span><span class="n">wolk_ca_cert</span>
+                    <span class="n">device</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">inbound_topics</span><span class="p">,</span>
+                    <span class="n">ca_cert</span><span class="o">=</span><span class="n">wolk_ca_cert</span><span class="p">,</span>
                 <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">connectivity_service</span><span class="o">.</span><span class="n">set_inbound_message_listener</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_on_inbound_message</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">keep_alive_enabled</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">keep_alive_enabled</span> <span class="ow">and</span> <span class="n">protocol</span> <span class="o">!=</span> <span class="n">Protocol</span><span class="o">.</span><span class="n">JSON_PROTOCOL</span><span class="p">:</span>
             <span class="n">keep_alive_interval_seconds</span> <span class="o">=</span> <span class="mi">600</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;Keep alive enabled, interval: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">keep_alive_interval_seconds</span>
@@ -376,7 +437,6 @@
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">keep_alive_service</span> <span class="o">=</span> <span class="kc">None</span>
-
 
         <span class="bp">self</span><span class="o">.</span><span class="n">firmware_update</span> <span class="o">=</span> <span class="n">OSFirmwareUpdate</span><span class="p">(</span><span class="n">firmware_handler</span><span class="p">)</span>
 
@@ -544,6 +604,22 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">publish_actuator_status</span><span class="p">(</span><span class="n">actuation</span><span class="o">.</span><span class="n">reference</span><span class="p">)</span>
 
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">is_configuration</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_provider</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_handler</span><span class="p">:</span>
+                <span class="k">return</span>
+
+            <span class="n">configuration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">deserialize_configuration_command</span><span class="p">(</span>
+                <span class="n">message</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">SET</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">configuration_handler</span><span class="o">.</span><span class="n">handle_configuration</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">publish_configuration</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="n">configuration</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CURRENT</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">publish_configuration</span><span class="p">()</span>
+
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">is_firmware_command</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">firmware_update</span><span class="p">:</span>
@@ -600,21 +676,6 @@
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">firmware_update</span><span class="o">.</span><span class="n">handle_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
 
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">is_configuration</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
-
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_provider</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configuration_handler</span><span class="p">:</span>
-                <span class="k">return</span>
-
-            <span class="n">configuration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inbound_message_deserializer</span><span class="o">.</span><span class="n">deserialize_configuration_command</span><span class="p">(</span>
-                <span class="n">message</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">SET</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">configuration_handler</span><span class="o">.</span><span class="n">handle_configuration</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">publish_configuration</span><span class="p">()</span>
-
-            <span class="k">elif</span> <span class="n">configuration</span><span class="o">.</span><span class="n">command</span> <span class="o">==</span> <span class="n">ConfigurationCommandType</span><span class="o">.</span><span class="n">CURRENT</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">publish_configuration</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;_on_inbound_message ended&quot;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_on_packet_request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">chunk_index</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
