@@ -278,7 +278,7 @@ class WolkConnect:
 
         self.connectivity_service.set_inbound_message_listener(self._on_inbound_message)
 
-        if keep_alive_enabled and protocol != Protocol.JSON_PROTOCOL:
+        if keep_alive_enabled and protocol == Protocol.JSON_SINGLE:
             keep_alive_interval_seconds = 600
             self.logger.debug(
                 "Keep alive enabled, interval: %s", keep_alive_interval_seconds
