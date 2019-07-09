@@ -8,7 +8,7 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 setuptools.setup(
     name="wolk-connect",
-    version="3.3.0",
+    version="3.3.1",
     install_requires=["paho_mqtt==1.4.0", "python-persistent-queue==1.3.0"],
     include_package_data=True,
     license="Apache License 2.0",
