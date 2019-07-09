@@ -208,6 +208,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 FirmwareStatusType.ERROR, FirmwareErrorType.UNSPECIFIED_ERROR
             )
             self.logger.error("State not idle, reporting unspecified error")
+            self.state = FirmwareUpdateStateType.IDLE
             self.on_status_callback(status)
             return
 
@@ -259,9 +260,15 @@ class OSFirmwareUpdate(FirmwareUpdate):
         status = FirmwareStatus(FirmwareStatusType.FILE_TRANSFER)
         self.logger.info("Initializing file transfer and requesting first chunk...")
         self.on_status_callback(status)
-        self.on_file_packet_request_callback(
-            self.file_name, self.next_chunk_index, self.firmware_handler.chunk_size + 64
-        )
+
+        if firmware_command.file_size < self.firmware_handler.chunk_size:
+            self.on_file_packet_request_callback(
+                self.file_name, self.next_chunk_index, firmware_command.file_size + 64
+            )
+        else:
+            self.on_file_packet_request_callback(
+                self.file_name, self.next_chunk_index, self.firmware_handler.chunk_size + 64
+            )
 
         self.request_timeout = Timer(60.0, self.handle_abort)
         self.request_timeout.start()
@@ -293,6 +300,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 FirmwareStatusType.ERROR, FirmwareErrorType.UNSPECIFIED_ERROR
             )
             self.logger.error("State not idle, reporting unspecified error")
+            self.state = FirmwareUpdateStateType.IDLE
             self.on_status_callback(status)
             return
 
