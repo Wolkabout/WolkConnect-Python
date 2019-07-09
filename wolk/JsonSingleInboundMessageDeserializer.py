@@ -49,7 +49,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
 
         inbound_topics = [
             "service/commands/firmware/" + device.key,
-            "service/binary" + device.key,
+            "service/binary/" + device.key,
             "configurations/commands/" + device.key,
             "pong/" + device.key,
         ]
