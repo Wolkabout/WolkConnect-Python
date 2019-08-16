@@ -82,7 +82,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         :returns: actuation_command
         :rtype: bool
         """
-        if message.channel.startswith("p2d/actuator"):
+        if message.topic.startswith("p2d/actuator"):
             return True
         return False
 
@@ -117,7 +117,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         :returns: configuration
         :rtype: bool
         """
-        if message.channel.startswith("p2d/configuration"):
+        if message.topic.startswith("p2d/configuration"):
             return True
         return False
 
@@ -132,10 +132,10 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         :rtype: wolk.models.ActuatorCommand.ActuatorCommand
         """
         self.logger.debug("deserialize_actuator_command called")
-        reference = message.channel.split("/")[-1]
+        reference = message.topic.split("/")[-1]
         payload = json.loads(message.payload.decode("utf-8"))
 
-        if "actuator_set" in message.channel:
+        if "actuator_set" in message.topic:
 
             command_type = ActuatorCommandType.SET
             value = payload.get("value")
@@ -156,7 +156,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
             )
             return actuation
 
-        elif "actuator_get" in message.channel:
+        elif "actuator_get" in message.topic:
 
             command_type = ActuatorCommandType.STATUS
             actuation = ActuatorCommand(reference, command_type)
@@ -171,8 +171,8 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.UNKNOWN
             actuation = ActuatorCommand(reference, command_type)
             self.logger.warning(
-                "Received unknown actuation command on channel - : %s ; Payload: %s",
-                message.channel,
+                "Received unknown actuation command on topic - : %s ; Payload: %s",
+                message.topic,
                 message.payload,
             )
             return actuation
@@ -214,7 +214,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         self.logger.debug("deserialize_configuration_command called")
         payload = json.loads(message.payload.decode("utf-8"))
 
-        if "configuration_set" in message.channel:
+        if "configuration_set" in message.topic:
 
             command = ConfigurationCommandType.SET
 
@@ -251,7 +251,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
 
             return configuration
 
-        elif "configuration_get" in message.channel:
+        elif "configuration_get" in message.topic:
 
             command = ConfigurationCommandType.CURRENT
 

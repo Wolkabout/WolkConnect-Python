@@ -20,14 +20,14 @@ InboundMessage Module.
 class InboundMessage:
     """Inbound Messages that get received from the platform."""
 
-    def __init__(self, channel, payload):
+    def __init__(self, topic, payload):
         """
         Inbound MQTT message.
 
-        :param channel: Channel where the message was published to
-        :type channel: str
-        :param payload: Payload of the message that was published to channel
+        :param topic: Topic where the message was published to
+        :type topic: str
+        :param payload: Payload of the message that was published to topic
         :type payload: str or bytes
         """
-        self.channel = channel
+        self.topic = topic
         self.payload = payload

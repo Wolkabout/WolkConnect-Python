@@ -106,8 +106,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             )
 
         self.logger.debug(
-            "make_from_sensor_reading - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_sensor_reading - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -142,8 +142,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             )
 
         self.logger.debug(
-            "make_from_alarm - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_alarm - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -183,8 +183,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             '{"status":"' + actuator.state + '","value":"' + str(actuator.value) + '"}',
         )
         self.logger.debug(
-            "make_from_actuator_status - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_actuator_status - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -251,8 +251,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
                 + "}",
             )
             self.logger.debug(
-                "make_from_firmware_status - Channel: %s ; Payload: %s",
-                message.channel,
+                "make_from_firmware_status - Topic: %s ; Payload: %s",
+                message.topic,
                 message.payload,
             )
             return message
@@ -263,8 +263,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
                 '{"status":"' + firmware_status.status + '"}',
             )
             self.logger.debug(
-                "make_from_firmware_status - Channel: %s ; Payload: %s",
-                message.channel,
+                "make_from_firmware_status - Topic: %s ; Payload: %s",
+                message.topic,
                 message.payload,
             )
             return message
@@ -294,8 +294,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             + "}",
         )
         self.logger.debug(
-            "make_from_chunk_request - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_chunk_request - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -312,8 +312,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
         self.logger.debug("make_from_firmware_version called")
         message = OutboundMessage("firmware/version/" + self.device_key, str(version))
         self.logger.debug(
-            "make_from_firmware_version - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_firmware_version - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -328,8 +328,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
         self.logger.debug("make_from_keep_alive_message called")
         message = OutboundMessage("ping/" + self.device_key, None)
         self.logger.debug(
-            "make_from_keep_alive_message - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_keep_alive_message - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -386,8 +386,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             "configurations/current/" + self.device_key, '{"values":{' + values + "}}"
         )
         self.logger.debug(
-            "make_from_configuration - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_configuration - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message

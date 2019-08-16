@@ -391,7 +391,7 @@ class WolkConnect:
             else:
                 self.logger.warning(
                     "Failed to publish message: ",
-                    outbound_message.channel,
+                    outbound_message.topic,
                     outbound_message.payload,
                 )
                 break

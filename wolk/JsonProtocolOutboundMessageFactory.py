@@ -106,8 +106,8 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
             )
 
         self.logger.debug(
-            "make_from_sensor_reading - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_sensor_reading - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -144,8 +144,8 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
                 + '"}',
             )
         self.logger.debug(
-            "make_from_alarm - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_alarm - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -185,8 +185,8 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
             '{"status":"' + actuator.state + '","value":"' + str(actuator.value) + '"}',
         )
         self.logger.debug(
-            "make_from_actuator_status - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_actuator_status - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
@@ -289,8 +289,8 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
             "d2p/configuration_get/d/" + self.device_key, '{"values":{' + values + "}}"
         )
         self.logger.debug(
-            "make_from_configuration - Channel: %s ; Payload: %s",
-            message.channel,
+            "make_from_configuration - Topic: %s ; Payload: %s",
+            message.topic,
             message.payload,
         )
         return message
