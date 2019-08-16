@@ -68,7 +68,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         :returns: actuation_command
         :rtype: bool
         """
-        if message.channel.startswith("actuators/commands/"):
+        if message.topic.startswith("actuators/commands/"):
             return True
         return False
 
@@ -81,7 +81,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         :returns: firmware_command
         :rtype: bool
         """
-        if message.channel.startswith("service/commands/firmware/"):
+        if message.topic.startswith("service/commands/firmware/"):
             return True
         return False
 
@@ -94,7 +94,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         :returns: file_chunk
         :rtype: bool
         """
-        if message.channel.startswith("service/binary/"):
+        if message.topic.startswith("service/binary/"):
             return True
         return False
 
@@ -107,7 +107,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         :returns: configuration
         :rtype: bool
         """
-        if message.channel.startswith("configurations/commands/"):
+        if message.topic.startswith("configurations/commands/"):
             return True
         return False
 
@@ -122,7 +122,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         :rtype: wolk.models.ActuatorCommand.ActuatorCommand
         """
         self.logger.debug("deserialize_actuator_command called")
-        reference = message.channel.split("/")[-1]
+        reference = message.topic.split("/")[-1]
         payload = json.loads(message.payload.decode("utf-8"))
         command = payload.get("command")
 
@@ -162,8 +162,8 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.UNKNOWN
             actuation = ActuatorCommand(reference, command_type)
             self.logger.warning(
-                "Received unknown actuation command on channel - : %s ; Payload: %s",
-                message.channel,
+                "Received unknown actuation command on topic - : %s ; Payload: %s",
+                message.topic,
                 message.payload,
             )
             return actuation

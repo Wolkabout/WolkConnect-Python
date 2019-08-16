@@ -20,14 +20,14 @@ OutboundMessage Module.
 class OutboundMessage:
     """Outbound Message that gets published to the platform."""
 
-    def __init__(self, channel, payload):
+    def __init__(self, topic, payload):
         """
         Data ready to be sent as an MQTT message.
 
-        :param channel: Channel where the message will be published to
-        :type channel: str
-        :param payload: Payload of message that will be published to channel
+        :param topic: Topic where the message will be published to
+        :type topic: str
+        :param payload: Payload of message that will be published to topic
         :type payload: str or None
         """
-        self.channel = channel
+        self.topic = topic
         self.payload = payload

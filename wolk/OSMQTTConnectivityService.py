@@ -129,8 +129,8 @@ class OSMQTTConnectivityService(ConnectivityService):
 
         self.inbound_message_listener(InboundMessage(message.topic, message.payload))
         self.logger.debug(
-            "Received from channel: %s ; Payload: %s",
-            message.channel,
+            "Received from topic: %s ; Payload: %s",
+            message.topic,
             str(message.payload),
         )
 
@@ -283,21 +283,21 @@ class OSMQTTConnectivityService(ConnectivityService):
 
         if not self.connected:
             self.logger.warning(
-                "Not connected, unable to publish. Channel: %s ; Payload: %s",
-                outbound_message.channel,
+                "Not connected, unable to publish. Topic: %s ; Payload: %s",
+                outbound_message.topic,
                 outbound_message.payload,
             )
             return False
 
         info = self.client.publish(
-            outbound_message.channel, outbound_message.payload, self.qos
+            outbound_message.topic, outbound_message.payload, self.qos
         )
 
         if info.rc == mqtt.MQTT_ERR_SUCCESS:
 
             self.logger.debug(
-                "Published to channel: %s ; Payload: %s",
-                outbound_message.channel,
+                "Published to topic: %s ; Payload: %s",
+                outbound_message.topic,
                 outbound_message.payload,
             )
             return True
@@ -305,8 +305,8 @@ class OSMQTTConnectivityService(ConnectivityService):
         elif info.is_published():
 
             self.logger.debug(
-                "Published to channel: %s ; Payload: %s",
-                outbound_message.channel,
+                "Published to topic: %s ; Payload: %s",
+                outbound_message.topic,
                 outbound_message.payload,
             )
             return True
@@ -314,8 +314,8 @@ class OSMQTTConnectivityService(ConnectivityService):
         else:
 
             self.logger.warning(
-                "Publishing failed! Channel: %s ; Payload: %s",
-                outbound_message.channel,
+                "Publishing failed! Topic: %s ; Payload: %s",
+                outbound_message.topic,
                 outbound_message.payload,
             )
             return False

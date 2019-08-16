@@ -51,33 +51,33 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         if not message:
             return
 
-        if "reading" not in message.channel:
+        if "reading" not in message.topic:
             self.queue.append(message)
             self.logger.debug(
-                "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                "put - Queue size: %s ; Topic: %s ; Payload: %s",
                 len(self.queue),
-                message.channel,
+                message.topic,
                 message.payload,
             )
             return
 
-        reading_reference = message.channel.split("/")[-1]
+        reading_reference = message.topic.split("/")[-1]
 
         present_in_queue = False
 
         for stored_message in self.queue:
-            if "reading" not in message.channel:
+            if "reading" not in message.topic:
                 continue
-            if reading_reference == stored_message.channel.split("/")[-1]:
+            if reading_reference == stored_message.topic.split("/")[-1]:
                 present_in_queue = True
                 break
 
         if not present_in_queue:
             self.queue.append(message)
             self.logger.debug(
-                "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                "put - Queue size: %s ; Topic: %s ; Payload: %s",
                 len(self.queue),
-                message.channel,
+                message.topic,
                 message.payload,
             )
             return
@@ -86,9 +86,9 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         max_data = 1
 
         for stored_message in self.queue:
-            if "reading" not in stored_message.channel:
+            if "reading" not in stored_message.topic:
                 continue
-            if reading_reference == stored_message.channel.split("/")[-1]:
+            if reading_reference == stored_message.topic.split("/")[-1]:
                 readings += 1
                 data_count = stored_message.payload.count('"data"')
                 if data_count > max_data:
@@ -96,22 +96,22 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
 
         if readings > 0 and max_data == 1:
             for stored_message in self.queue:
-                if reading_reference == stored_message.channel.split("/")[-1]:
+                if reading_reference == stored_message.topic.split("/")[-1]:
                     stored_message.payload = "[" + stored_message.payload
                     stored_message.payload += "," + message.payload + "]"
                     self.logger.debug(
-                        "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                        "put - Queue size: %s ; Topic: %s ; Payload: %s",
                         len(self.queue),
-                        message.channel,
+                        message.topic,
                         message.payload,
                     )
                     break
 
         if max_data > 1:
             for stored_message in self.queue:
-                if "reading" not in stored_message.channel:
+                if "reading" not in stored_message.topic:
                     continue
-                if reading_reference == stored_message.channel.split("/")[-1]:
+                if reading_reference == stored_message.topic.split("/")[-1]:
                     data_count = stored_message.payload.count('"data"')
                     if max_data > data_count:
                         continue
@@ -119,9 +119,9 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
                     stored_message.payload = stored_message.payload[:-1]
                     stored_message.payload += "," + message.payload + "]"
                     self.logger.debug(
-                        "put - Queue size: %s ; Channel: %s ; Payload: %s",
+                        "put - Queue size: %s ; Topic: %s ; Payload: %s",
                         len(self.queue),
-                        message.channel,
+                        message.topic,
                         message.payload,
                     )
 
@@ -137,9 +137,9 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
 
         message = self.queue.popleft()
         self.logger.debug(
-            "get - Queue size: %s ; Channel: %s ; Payload: %s",
+            "get - Queue size: %s ; Topic: %s ; Payload: %s",
             len(self.queue),
-            message.channel,
+            message.topic,
             message.payload,
         )
         return message
@@ -159,9 +159,9 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         else:
             message = self.queue[0]
             self.logger.debug(
-                "peek - Queue size: %s ; Channel: %s ; Payload: %s",
+                "peek - Queue size: %s ; Topic: %s ; Payload: %s",
                 len(self.queue),
-                message.channel,
+                message.topic,
                 message.payload,
             )
             return message
