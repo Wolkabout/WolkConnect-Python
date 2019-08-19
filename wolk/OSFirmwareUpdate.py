@@ -101,7 +101,9 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 self.handle_url_download_result
             )
 
-    def set_on_file_packet_request_callback(self, on_file_packet_request_callback):
+    def set_on_file_packet_request_callback(
+        self, on_file_packet_request_callback
+    ):
         """
         Set the callback function for requesting file packets.
 
@@ -135,11 +137,14 @@ class OSFirmwareUpdate(FirmwareUpdate):
         :param result: Result of the URL download
         :type result: bool
         """
-        self.logger.debug("handle_url_download_result called - Result: %s", result)
+        self.logger.debug(
+            "handle_url_download_result called - Result: %s", result
+        )
         if not self.firmware_handler:
 
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.logger.debug(
                 "handle_url_download_result - No firmware_handler, "
@@ -153,7 +158,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self.state = FirmwareUpdateStateType.FILE_OBTAINED
             status = FirmwareStatus(FirmwareStatusType.FILE_READY)
             self.logger.debug(
-                "handle_url_download_result - result valid, " "reporting file ready"
+                "handle_url_download_result - result valid, "
+                "reporting file ready"
             )
             self.on_status_callback(status)
 
@@ -168,7 +174,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         else:
 
             self.logger.debug(
-                "handle_url_download_result - result invalid, " "abort and report error"
+                "handle_url_download_result - result invalid, "
+                "abort and report error"
             )
             self.firmware_handler.update_abort()
             self.reset_state()
@@ -196,7 +203,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if not self.firmware_handler:
 
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.logger.error("No firmware_handler, reporting DFU disabled")
             self.on_status_callback(status)
@@ -218,16 +226,20 @@ class OSFirmwareUpdate(FirmwareUpdate):
         ):
 
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
-            self.logger.error("firmware_handler not configured, reporting DFU disabled")
+            self.logger.error(
+                "firmware_handler not configured, reporting DFU disabled"
+            )
             self.on_status_callback(status)
             return
 
         if self.firmware_handler.max_file_size < firmware_command.file_size:
 
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.UNSUPPORTED_FILE_SIZE
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.UNSUPPORTED_FILE_SIZE,
             )
             self.logger.error("File size not supported, reporting size error")
             self.on_status_callback(status)
@@ -258,16 +270,22 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.state = FirmwareUpdateStateType.FILE_TRANSFER
 
         status = FirmwareStatus(FirmwareStatusType.FILE_TRANSFER)
-        self.logger.info("Initializing file transfer and requesting first chunk...")
+        self.logger.info(
+            "Initializing file transfer and requesting first chunk..."
+        )
         self.on_status_callback(status)
 
         if firmware_command.file_size < self.firmware_handler.chunk_size:
             self.on_file_packet_request_callback(
-                self.file_name, self.next_chunk_index, firmware_command.file_size + 64
+                self.file_name,
+                self.next_chunk_index,
+                firmware_command.file_size + 64,
             )
         else:
             self.on_file_packet_request_callback(
-                self.file_name, self.next_chunk_index, self.firmware_handler.chunk_size + 64
+                self.file_name,
+                self.next_chunk_index,
+                self.firmware_handler.chunk_size + 64,
             )
 
         self.request_timeout = Timer(60.0, self.handle_abort)
@@ -288,7 +306,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if not self.firmware_handler:
 
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.logger.error("No firmware_handler, reporting DFU disabled")
             self.on_status_callback(status)
@@ -327,7 +346,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if not self.firmware_handler:
 
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.logger.error("No firmware_handler, reporting DFU disabled")
             self.on_status_callback(status)
@@ -335,15 +355,19 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
         if self.state == FirmwareUpdateStateType.FILE_OBTAINED:
 
-            if not self.firmware_handler.persist_version(self.firmware_handler.version):
+            if not self.firmware_handler.persist_version(
+                self.firmware_handler.version
+            ):
 
                 self.logger.error(
-                    "Unable to persist version, " "aborting firmware update process"
+                    "Unable to persist version, "
+                    "aborting firmware update process"
                 )
                 self.firmware_handler.update_abort()
                 self.reset_state()
                 status = FirmwareStatus(
-                    FirmwareStatusType.ERROR, FirmwareErrorType.INSTALLATION_FAILED
+                    FirmwareStatusType.ERROR,
+                    FirmwareErrorType.INSTALLATION_FAILED,
                 )
                 self.on_status_callback(status)
                 return
@@ -367,7 +391,9 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
         else:  # Returns an error in all other states
 
-            self.logger.error("Invalid flow, aborting and reporting unspecified error")
+            self.logger.error(
+                "Invalid flow, aborting and reporting unspecified error"
+            )
             self.firmware_handler.update_abort()
             self.reset_state()
             status = FirmwareStatus(
@@ -389,7 +415,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 "handle_abort - No firmware_handler, reporting DFU disabled"
             )
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.on_status_callback(status)
             return
@@ -432,14 +459,17 @@ class OSFirmwareUpdate(FirmwareUpdate):
             return
 
         if self.request_timeout:
-            self.logger.debug("handle_packet - Canceling request timeout timer")
+            self.logger.debug(
+                "handle_packet - Canceling request timeout timer"
+            )
             self.request_timeout.cancel()
 
         if not self.firmware_handler:
 
             self.logger.error("No firmware_handler, reporting DFU disabled")
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.on_status_callback(status)
             return
@@ -457,14 +487,17 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 self.firmware_handler.update_abort()
                 self.reset_state()
                 status = FirmwareStatus(
-                    FirmwareStatusType.ERROR, FirmwareErrorType.RETRY_COUNT_EXCEEDED
+                    FirmwareStatusType.ERROR,
+                    FirmwareErrorType.RETRY_COUNT_EXCEEDED,
                 )
                 self.on_status_callback(status)
                 return
 
             else:
 
-                self.logger.info("Requesting chunk #%s again", self.next_chunk_index)
+                self.logger.info(
+                    "Requesting chunk #%s again", self.next_chunk_index
+                )
                 self.on_file_packet_request_callback(
                     self.file_name,
                     self.next_chunk_index,
@@ -488,14 +521,17 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 self.firmware_handler.update_abort()
                 self.reset_state()
                 status = FirmwareStatus(
-                    FirmwareStatusType.ERROR, FirmwareErrorType.RETRY_COUNT_EXCEEDED
+                    FirmwareStatusType.ERROR,
+                    FirmwareErrorType.RETRY_COUNT_EXCEEDED,
                 )
                 self.on_status_callback(status)
                 return
 
             else:
 
-                self.logger.info("Requesting chunk #%s again", self.next_chunk_index)
+                self.logger.info(
+                    "Requesting chunk #%s again", self.next_chunk_index
+                )
                 self.on_file_packet_request_callback(
                     self.file_name,
                     self.next_chunk_index,
@@ -526,7 +562,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if self.next_chunk_index < self.expected_number_of_chunks:
 
             self.logger.debug(
-                "handle_packet - Wrote chunk successfully, " "requesting next chunk"
+                "handle_packet - Wrote chunk successfully, "
+                "requesting next chunk"
             )
             self.on_file_packet_request_callback(
                 self.file_name,
@@ -560,7 +597,9 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
         if self.auto_install:
 
-            self.logger.info("Auto install is enabled, beginning installation..")
+            self.logger.info(
+                "Auto install is enabled, beginning installation.."
+            )
             self.handle_install()
 
     def report_result(self):
@@ -579,7 +618,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
                     "Firmware version unchanged, reporting installation failed"
                 )
                 status = FirmwareStatus(
-                    FirmwareStatusType.ERROR, FirmwareErrorType.INSTALLATION_FAILED
+                    FirmwareStatusType.ERROR,
+                    FirmwareErrorType.INSTALLATION_FAILED,
                 )
                 self.on_status_callback(status)
                 return
@@ -621,7 +661,9 @@ class OSFirmwareUpdate(FirmwareUpdate):
         """
         self.logger.debug("validate_packet called")
         if (
-            len(packet.previous_hash) + len(packet.data) + len(packet.current_hash)
+            len(packet.previous_hash)
+            + len(packet.data)
+            + len(packet.current_hash)
             < self.minimum_packet_size
         ):
 
@@ -664,7 +706,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
             self.logger.error("No firmware_handler, reporting DFU disabled")
             status = FirmwareStatus(
-                FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                FirmwareStatusType.ERROR,
+                FirmwareErrorType.FILE_UPLOAD_DISABLED,
             )
             self.on_status_callback(status)
             return
@@ -686,5 +729,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         sha256_file_hash = sha256_file_hash.digest()
 
         valid = sha256_command_file_hash == sha256_file_hash
-        self.logger.debug("validate_firmware_file - returning valid: %s", valid)
+        self.logger.debug(
+            "validate_firmware_file - returning valid: %s", valid
+        )
         return valid

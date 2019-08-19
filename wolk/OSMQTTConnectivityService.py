@@ -127,7 +127,9 @@ class OSMQTTConnectivityService(ConnectivityService):
         if not message:
             return
 
-        self.inbound_message_listener(InboundMessage(message.topic, message.payload))
+        self.inbound_message_listener(
+            InboundMessage(message.topic, message.payload)
+        )
         self.logger.debug(
             "Received from topic: %s ; Payload: %s",
             message.topic,
@@ -157,7 +159,9 @@ class OSMQTTConnectivityService(ConnectivityService):
             if self.topics:
                 for topic in self.topics:
                     self.client.subscribe(topic, 2)
-            self.logger.debug("on_mqtt_connect - self.connected : %s", self.connected)
+            self.logger.debug(
+                "on_mqtt_connect - self.connected : %s", self.connected
+            )
         elif rc == 1:  # Connection refused - incorrect protocol version
             self.connected_rc = 1
         elif rc == 2:  # Connection refused - invalid client identifier
@@ -186,7 +190,9 @@ class OSMQTTConnectivityService(ConnectivityService):
             raise RuntimeError("Unexpected disconnection.")
         self.connected = False
         self.connected_rc = None
-        self.logger.debug("on_mqtt_disconnect - self.connected : %s", self.connected)
+        self.logger.debug(
+            "on_mqtt_disconnect - self.connected : %s", self.connected
+        )
 
     def connect(self):
         """
@@ -204,7 +210,9 @@ class OSMQTTConnectivityService(ConnectivityService):
             return
 
         self.logger.debug("connect started")
-        self.client = mqtt.Client(client_id=self.device.key, clean_session=True)
+        self.client = mqtt.Client(
+            client_id=self.device.key, clean_session=True
+        )
         self.client.on_connect = self.on_mqtt_connect
         self.client.on_disconnect = self.on_mqtt_disconnect
         self.client.on_message = self.on_mqtt_message
@@ -212,7 +220,9 @@ class OSMQTTConnectivityService(ConnectivityService):
             self.client.tls_set(self.ca_cert)
             self.client.tls_insecure_set(True)
         self.client.username_pw_set(self.device.key, self.device.password)
-        self.client.will_set("lastwill/" + self.device.key, "Gone offline", 2, False)
+        self.client.will_set(
+            "lastwill/" + self.device.key, "Gone offline", 2, False
+        )
 
         self.logger.debug(
             "client.connect called : host: %s ; port:%s, ca_cert:%s "
@@ -236,11 +246,15 @@ class OSMQTTConnectivityService(ConnectivityService):
                 break
 
             elif self.connected_rc == 1:
-                raise RuntimeError("Connection refused - incorrect protocol version")
+                raise RuntimeError(
+                    "Connection refused - incorrect protocol version"
+                )
                 break
 
             elif self.connected_rc == 2:
-                raise RuntimeError("Connection refused - invalid client identifier")
+                raise RuntimeError(
+                    "Connection refused - invalid client identifier"
+                )
                 break
 
             elif self.connected_rc == 3:
@@ -248,7 +262,9 @@ class OSMQTTConnectivityService(ConnectivityService):
                 break
 
             elif self.connected_rc == 4:
-                raise RuntimeError("Connection refused - bad username or password")
+                raise RuntimeError(
+                    "Connection refused - bad username or password"
+                )
                 break
 
             elif self.connected_rc == 5:

@@ -23,7 +23,9 @@ from wolk.models.ConfigurationCommandType import ConfigurationCommandType
 from wolk.models.FileTransferPacket import FileTransferPacket
 from wolk.models.FirmwareCommand import FirmwareCommand
 from wolk.models.FirmwareCommandType import FirmwareCommandType
-from wolk.interfaces.InboundMessageDeserializer import InboundMessageDeserializer
+from wolk.interfaces.InboundMessageDeserializer import (
+    InboundMessageDeserializer,
+)
 from wolk import LoggerFactory
 
 
@@ -39,7 +41,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         """
         Create inbound topics from device key.
 
-        :param device: Device with key and actuator references used for inbound topics 
+        :param device: Device with key and actuator references used for inbound topics
         :type message: wolk.models.Device.Device
         """
         self.logger = LoggerFactory.logger_factory.get_logger(
@@ -55,7 +57,9 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
         ]
 
         for reference in device.actuator_references:
-            inbound_topics.append("actuators/commands/" + device.key + "/" + reference)
+            inbound_topics.append(
+                "actuators/commands/" + device.key + "/" + reference
+            )
 
         super().__init__(inbound_topics)
 
@@ -152,7 +156,8 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.STATUS
             actuation = ActuatorCommand(reference, command_type)
             self.logger.info(
-                "Received actuation command - Reference: %s ;" " Command: STATUS ",
+                "Received actuation command - Reference: %s ;"
+                " Command: STATUS ",
                 actuation.reference,
             )
             return actuation
@@ -227,7 +232,8 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s", firmware_command.command
+                "deserialize_firmware_command - Command: %s",
+                firmware_command.command,
             )
             return firmware_command
 
@@ -237,7 +243,8 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s", firmware_command.command
+                "deserialize_firmware_command - Command: %s",
+                firmware_command.command,
             )
             return firmware_command
 
@@ -247,7 +254,8 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
 
             firmware_command = FirmwareCommand(command)
             self.logger.debug(
-                "deserialize_firmware_command - Command: %s", firmware_command.command
+                "deserialize_firmware_command - Command: %s",
+                firmware_command.command,
             )
             return firmware_command
 
@@ -294,7 +302,9 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
 
             command = ConfigurationCommandType.SET
 
-            configuration = ConfigurationCommand(command, payload.get("values"))
+            configuration = ConfigurationCommand(
+                command, payload.get("values")
+            )
 
             self.logger.info(
                 "Received configuration command - Command: SET  Values: %s",
@@ -317,9 +327,13 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
                         values_list = value.split(",")
                         try:
                             if any("." in value for value in values_list):
-                                values_list = [float(value) for value in values_list]
+                                values_list = [
+                                    float(value) for value in values_list
+                                ]
                             else:
-                                values_list = [int(value) for value in values_list]
+                                values_list = [
+                                    int(value) for value in values_list
+                                ]
                         except ValueError:
                             pass
 
@@ -332,7 +346,9 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
             command = ConfigurationCommandType.CURRENT
 
             configuration = ConfigurationCommand(command)
-            self.logger.info("Received configuration command - Command: CURRENT")
+            self.logger.info(
+                "Received configuration command - Command: CURRENT"
+            )
             return configuration
 
         else:
@@ -341,6 +357,7 @@ class JsonSingleInboundMessageDeserializer(InboundMessageDeserializer):
 
             configuration = ConfigurationCommand(command)
             self.logger.warning(
-                "Received configuration command - Command: %s", configuration.command
+                "Received configuration command - Command: %s",
+                configuration.command,
             )
             return configuration

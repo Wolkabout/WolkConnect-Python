@@ -63,7 +63,9 @@ class FirmwareUpdate(ABC):
         pass
 
     @abstractmethod
-    def set_on_file_packet_request_callback(self, on_file_packet_request_callback):
+    def set_on_file_packet_request_callback(
+        self, on_file_packet_request_callback
+    ):
         """Set a callback function to handle file packet requests."""
         pass
 

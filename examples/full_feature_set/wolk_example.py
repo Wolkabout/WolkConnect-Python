@@ -50,7 +50,9 @@ def main():
     # from WolkAbout IoT Platform when creating the device
     # List actuator references included on your device
     device = wolk.Device(
-        key="device_key", password="some_password", actuator_references=["SW", "SL"]
+        key="device_key",
+        password="some_password",
+        actuator_references=["SW", "SL"],
     )
 
     class ActuatorSimulator:

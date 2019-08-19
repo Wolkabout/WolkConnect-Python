@@ -15,8 +15,6 @@
 """JsonProtocolOutboundMessageFactory Module."""
 
 from wolk.models.ActuatorState import ActuatorState
-from wolk.models.FirmwareErrorType import FirmwareErrorType
-from wolk.models.FirmwareStatusType import FirmwareStatusType
 from wolk.models.OutboundMessage import OutboundMessage
 from wolk.interfaces.OutboundMessageFactory import OutboundMessageFactory
 from wolk import LoggerFactory
@@ -92,12 +90,18 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
 
         if reading.timestamp is None:
             message = OutboundMessage(
-                "d2p/sensor_reading/d/" + self.device_key + "/r/" + reading.reference,
+                "d2p/sensor_reading/d/"
+                + self.device_key
+                + "/r/"
+                + reading.reference,
                 '{"data":"' + str(reading.value) + '"}',
             )
         else:
             message = OutboundMessage(
-                "d2p/sensor_reading/d/" + self.device_key + "/r/" + reading.reference,
+                "d2p/sensor_reading/d/"
+                + self.device_key
+                + "/r/"
+                + reading.reference,
                 '{"utc":"'
                 + str(reading.timestamp)
                 + '","data":"'
@@ -181,8 +185,15 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
             actuator.value = actuator.value.replace('"', '\\"')
 
         message = OutboundMessage(
-            "d2p/actuator_status/d/" + self.device_key + "/r/" + actuator.reference,
-            '{"status":"' + actuator.state + '","value":"' + str(actuator.value) + '"}',
+            "d2p/actuator_status/d/"
+            + self.device_key
+            + "/r/"
+            + actuator.reference,
+            '{"status":"'
+            + actuator.state
+            + '","value":"'
+            + str(actuator.value)
+            + '"}',
         )
         self.logger.debug(
             "make_from_actuator_status - Topic: %s ; Payload: %s",
@@ -286,7 +297,8 @@ class JsonProtocolOutboundMessageFactory(OutboundMessageFactory):
         values = values[:-1]
 
         message = OutboundMessage(
-            "d2p/configuration_get/d/" + self.device_key, '{"values":{' + values + "}}"
+            "d2p/configuration_get/d/" + self.device_key,
+            '{"values":{' + values + "}}",
         )
         self.logger.debug(
             "make_from_configuration - Topic: %s ; Payload: %s",

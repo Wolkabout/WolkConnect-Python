@@ -37,7 +37,9 @@ class OSKeepAliveService(KeepAliveService):
     :vartype timer: wolk.OSKeepAliveService.RepeatingTimer
     """
 
-    def __init__(self, connectivity_service, outbound_message_factory, interval=600):
+    def __init__(
+        self, connectivity_service, outbound_message_factory, interval=600
+    ):
         """
         Service for sending keep alive messages.
 
@@ -115,7 +117,7 @@ class RepeatingTimer:
     """
 
     def __init__(self, interval, f, *args, **kwargs):
-        """
+        r"""
         Create a repeating timer.
 
         :param interval: number of seconds after which to call function

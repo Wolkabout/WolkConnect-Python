@@ -123,16 +123,22 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         :rtype: bool
         """
         self.logger.debug(
-            "update_start called - File name: %s ; File size: %s", file_name, file_size
+            "update_start called - File name: %s ; File size: %s",
+            file_name,
+            file_size,
         )
         if file_size > self.max_file_size:
-            self.logger.debug("update_start - File size too big, returning False")
+            self.logger.debug(
+                "update_start - File size too big, returning False"
+            )
             return False
 
         self.temp_file = tempfile.NamedTemporaryFile(mode="a+b", delete=False)
         self.file_name = file_name
         self.file_size = file_size
-        self.logger.debug("update_start - Temporary file created, returning True")
+        self.logger.debug(
+            "update_start - Temporary file created, returning True"
+        )
         return True
 
     def update_finalize(self):
@@ -159,7 +165,9 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         )
 
         if self.temp_file:
-            shutil.copy2(os.path.realpath(self.temp_file.name), firmware_file_path)
+            shutil.copy2(
+                os.path.realpath(self.temp_file.name), firmware_file_path
+            )
             self.temp_file.close()
 
         self.logger.info(
@@ -235,7 +243,9 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         self.version_persister.clear()
         self.version_persister.flush()
         self.version_persister.push(version)
-        self.logger.debug("persist_version - Persisted version, returning True")
+        self.logger.debug(
+            "persist_version - Persisted version, returning True"
+        )
         return True
 
     def unpersist_version(self):
@@ -257,7 +267,8 @@ class FileSystemFirmwareHandler(FirmwareHandler):
             version = self.version_persister.pop()
             self.version_persister.flush()
             self.logger.debug(
-                "unpersist_version - Persisted version found, returning %s", version
+                "unpersist_version - Persisted version found, returning %s",
+                version,
             )
             return version
 
@@ -286,7 +297,9 @@ class FileSystemFirmwareHandler(FirmwareHandler):
         :returns: result
         :rtype: bool
         """
-        self.logger.debug("update_start_url_download called - File URL: %s", file_url)
+        self.logger.debug(
+            "update_start_url_download called - File URL: %s", file_url
+        )
 
         if not self.firmware_url_download_handler:
             self.logger.debug(

@@ -180,7 +180,11 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
 
         message = OutboundMessage(
             "actuators/status/" + self.device_key + "/" + actuator.reference,
-            '{"status":"' + actuator.state + '","value":"' + str(actuator.value) + '"}',
+            '{"status":"'
+            + actuator.state
+            + '","value":"'
+            + str(actuator.value)
+            + '"}',
         )
         self.logger.debug(
             "make_from_actuator_status - Topic: %s ; Payload: %s",
@@ -222,13 +226,20 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             if firmware_status.error == FirmwareErrorType.UNSPECIFIED_ERROR:
                 firmware_status.error = "0"
 
-            elif firmware_status.error == FirmwareErrorType.FILE_UPLOAD_DISABLED:
+            elif (
+                firmware_status.error == FirmwareErrorType.FILE_UPLOAD_DISABLED
+            ):
                 firmware_status.error = "1"
 
-            elif firmware_status.error == FirmwareErrorType.UNSUPPORTED_FILE_SIZE:
+            elif (
+                firmware_status.error
+                == FirmwareErrorType.UNSUPPORTED_FILE_SIZE
+            ):
                 firmware_status.error = "2"
 
-            elif firmware_status.error == FirmwareErrorType.INSTALLATION_FAILED:
+            elif (
+                firmware_status.error == FirmwareErrorType.INSTALLATION_FAILED
+            ):
                 firmware_status.error = "3"
 
             elif firmware_status.error == FirmwareErrorType.MALFORMED_URL:
@@ -237,7 +248,9 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
             elif firmware_status.error == FirmwareErrorType.FILE_SYSTEM_ERROR:
                 firmware_status.error = "5"
 
-            elif firmware_status.error == FirmwareErrorType.RETRY_COUNT_EXCEEDED:
+            elif (
+                firmware_status.error == FirmwareErrorType.RETRY_COUNT_EXCEEDED
+            ):
                 firmware_status.error = "10"
 
         if firmware_status.error:
@@ -310,7 +323,9 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
         :rtype: wolk.models.OutboundMessage.OutboundMessage
         """
         self.logger.debug("make_from_firmware_version called")
-        message = OutboundMessage("firmware/version/" + self.device_key, str(version))
+        message = OutboundMessage(
+            "firmware/version/" + self.device_key, str(version)
+        )
         self.logger.debug(
             "make_from_firmware_version - Topic: %s ; Payload: %s",
             message.topic,
@@ -383,7 +398,8 @@ class JsonSingleOutboundMessageFactory(OutboundMessageFactory):
         values = values[:-1]
 
         message = OutboundMessage(
-            "configurations/current/" + self.device_key, '{"values":{' + values + "}}"
+            "configurations/current/" + self.device_key,
+            '{"values":{' + values + "}}",
         )
         self.logger.debug(
             "make_from_configuration - Topic: %s ; Payload: %s",
