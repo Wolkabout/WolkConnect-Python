@@ -20,9 +20,6 @@ from wolk.models.ActuatorCommand import ActuatorCommand
 from wolk.models.ActuatorCommandType import ActuatorCommandType
 from wolk.models.ConfigurationCommand import ConfigurationCommand
 from wolk.models.ConfigurationCommandType import ConfigurationCommandType
-from wolk.models.FileTransferPacket import FileTransferPacket
-from wolk.models.FirmwareCommand import FirmwareCommand
-from wolk.models.FirmwareCommandType import FirmwareCommandType
 from wolk.interfaces.InboundMessageDeserializer import (
     InboundMessageDeserializer,
 )
@@ -41,7 +38,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         """
         Create inbound topics from device key.
 
-        :param device: Device with key and actuator references used for inbound topics
+        :param device: Device key and actuator references for inbound topics
         :type message: wolk.models.Device.Device
         """
         self.logger = LoggerFactory.logger_factory.get_logger(
@@ -77,7 +74,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
 
     def is_actuation_command(self, message):
         """
-        Check if message is actuation command
+        Check if message is actuation command.
 
         :param message: The message received
         :type message: wolk.models.InboundMessage.InboundMessage
@@ -90,7 +87,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
 
     def is_firmware_command(self, message):
         """
-        Check if message is firmware command
+        Check if message is firmware command.
 
         :param message: The message received
         :type message: wolk.models.InboundMessage.InboundMessage
@@ -174,7 +171,8 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
             command_type = ActuatorCommandType.UNKNOWN
             actuation = ActuatorCommand(reference, command_type)
             self.logger.warning(
-                "Received unknown actuation command on topic - : %s ; Payload: %s",
+                "Received unknown actuation command on topic - : %s ;"
+                " Payload: %s",
                 message.topic,
                 message.payload,
             )

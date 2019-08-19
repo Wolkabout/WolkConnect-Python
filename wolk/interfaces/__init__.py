@@ -4,6 +4,7 @@ from .ConfigurationHandler import ConfigurationHandler
 from .ConfigurationProvider import ConfigurationProvider
 from .ConnectivityService import ConnectivityService
 from .FirmwareInstaller import FirmwareInstaller
+from .FileManagement import FileManagement
 from .FirmwareURLDownloadHandler import FirmwareURLDownloadHandler
 from .InboundMessageDeserializer import InboundMessageDeserializer
 from .OutboundMessageFactory import OutboundMessageFactory
@@ -17,6 +18,7 @@ __all__ = [
     "ConfigurationProvider",
     "ConnectivityService",
     "FirmwareInstaller",
+    "FileManagement",
     "FirmwareURLDownloadHandler",
     "InboundMessageDeserializer",
     "OutboundMessageFactory",
