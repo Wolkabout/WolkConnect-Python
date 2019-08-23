@@ -14,8 +14,10 @@
 #   limitations under the License.
 
 from abc import ABC, abstractmethod
+from typing import Callable, Optional, List
 
-from wolk.model.Message import Message
+from wolk.model.file_management_status import FileManagementStatus
+from wolk.model.file_transfer_package import FileTransferPackage
 
 
 class FileManagement(ABC):
@@ -45,59 +47,104 @@ class FileManagement(ABC):
         pass
 
     @abstractmethod
-    def report_file_upload_status(self) -> tuple:
-        """Send current file upload status to WolkAbout IoT Platform."""
+    def _set_file_upload_status_callback(
+        self, callback: Callable[[FileManagementStatus], None]
+    ) -> None:
+        """
+        Set the callback method for reporting current status.
+
+        :param callback: Method to call
+        :type callback: Callable[[FileManagementStatus], None]
+        """
         pass
 
     @abstractmethod
-    def handle_file_upload_abort(
-        self, file_management_command: Message
-    ) -> bool:
+    def _set_request_file_binary_callback(
+        self, callback: Callable[[str, int, int], None]
+    ) -> None:
+        """
+        Set the callback method for requesting file packets.
+
+        :param callback: Method to call
+        :type callback: Callable[[str, int, int], None]
+        """
+        pass
+
+    @abstractmethod
+    def _set_file_url_download_status_callback(
+        self,
+        callback: Callable[[str, FileManagementStatus, Optional[str]], None],
+    ) -> None:
+        """
+        Set the callback method for reporting file url download status.
+
+        :param callback: Method to call
+        :type callback: Callable[[str, FileManagementStatus, Optional[str]], None]
+        """
+        pass
+
+    @abstractmethod
+    def _set_file_list_report_callback(
+        self, callback: Callable[[List[str]], None]
+    ) -> None:
+        """
+        Set the callback method for reporting list of files present on device.
+
+        :param callback: Method to call
+        :type callback: Callable[[List[str]], None]
+        """
+        pass
+
+    @abstractmethod
+    def handle_file_upload_abort(self) -> None:
         """Abort file upload and revert to idle status."""
         pass
 
     @abstractmethod
     def handle_file_binary_response(
-        self, file_management_command: Message
-    ) -> bool:
-        """Store received package and validate."""
+        self, package: FileTransferPackage
+    ) -> None:
+        """
+        Validate received package and store or use callback to request again.
+
+        :param package: Package of file being transfered.
+        :type package: FileTransferPackage
+        """
         pass
 
     @abstractmethod
-    def request_file_binary(self, package_request: dict) -> Message:
-        """Request package from WolkAbout IoT Platform."""
+    def handle_file_url_download_initiation(self, file_url: str) -> bool:
+        """
+        Start file transfer from specified URL.
+
+        :param file_url: URL from where to download file
+        :type file_url: str
+        :returns: valid_url
+        :rtype: bool
+        """
         pass
 
-    def handle_file_url_download_initiation(
-        self, file_management_command: Message
-    ) -> bool:
-        """Start file transfer from specified URL."""
-        raise NotImplementedError()
+    @abstractmethod
+    def handle_file_url_download_abort(self) -> bool:
+        """
+        Abort file URL download.
 
-    def handle_file_url_download_abort(
-        self, file_management_command: Message
-    ) -> bool:
-        """Abort file URL download command from WolkAbout IoT Platform."""
-        raise NotImplementedError()
+        :return: successfully_aborted
+        :rtype: bool
+        """
+        pass
 
-    def report_file_url_download_status(
-        self, file_transfer_status: dict
-    ) -> Message:
-        """Send current file URL download status to WolkAbout IoT Platform."""
-        raise NotImplementedError()
+    @abstractmethod
+    def get_file_list(self) -> List[str]:
+        """
+        Return list of files present on device.
 
-    def handle_file_list_request(
-        self, file_management_command: Message
-    ) -> bool:
-        """Respond with list of files present on device."""
-        raise NotImplementedError()
+        :returns: file_list
+        :rtype: List[str]
+        """
+        pass
 
-    def report_file_list(self, is_response: bool) -> Message:
-        """Send list of files present on device to WolkAbout IoT Platform."""
-        raise NotImplementedError()
-
-    def handle_file_list_confirm(
-        self, file_management_command: Message
-    ) -> None:
+    @abstractmethod
+    def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
-        raise NotImplementedError()
+        pass
