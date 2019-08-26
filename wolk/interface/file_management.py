@@ -81,18 +81,6 @@ class FileManagement(ABC):
         pass
 
     @abstractmethod
-    def _set_file_list_report_callback(
-        self, callback: Callable[[List[str]], None]
-    ) -> None:
-        """
-        Set the callback method for reporting list of files present on device.
-
-        :param callback: Method to call
-        :type callback: Callable[[List[str]], None]
-        """
-        pass
-
-    @abstractmethod
     def handle_file_upload_abort(self) -> None:
         """Abort file upload and revert to idle status."""
         pass
@@ -137,4 +125,19 @@ class FileManagement(ABC):
     @abstractmethod
     def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
+        pass
+
+    @abstractmethod
+    def handle_file_delete(self, file_name: str) -> None:
+        """
+        Delete file from device.
+
+        :param file_name: File to be deleted
+        :type file_name: str
+        """
+        pass
+
+    @abstractmethod
+    def handle_file_purge(self) -> None:
+        """Delete all files from device."""
         pass
