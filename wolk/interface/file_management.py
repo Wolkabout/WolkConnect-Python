@@ -31,7 +31,7 @@ class FileManagement(ABC):
     @abstractmethod
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
-    ) -> bool:
+    ) -> None:
         """Start making package requests and set status to file transfer.
 
         :param file_name: File name
@@ -40,9 +40,6 @@ class FileManagement(ABC):
         :type file_size: int
         :param file_hash: base64 encoded sha256 hash of file
         :type file_hash: str
-
-        :returns: result
-        :rtype: bool
         """
         pass
 
@@ -113,25 +110,18 @@ class FileManagement(ABC):
         pass
 
     @abstractmethod
-    def handle_file_url_download_initiation(self, file_url: str) -> bool:
+    def handle_file_url_download_initiation(self, file_url: str) -> None:
         """
         Start file transfer from specified URL.
 
         :param file_url: URL from where to download file
         :type file_url: str
-        :returns: valid_url
-        :rtype: bool
         """
         pass
 
     @abstractmethod
-    def handle_file_url_download_abort(self) -> bool:
-        """
-        Abort file URL download.
-
-        :return: successfully_aborted
-        :rtype: bool
-        """
+    def handle_file_url_download_abort(self) -> None:
+        """Abort file URL download."""
         pass
 
     @abstractmethod

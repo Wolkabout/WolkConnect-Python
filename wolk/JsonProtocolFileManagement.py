@@ -16,7 +16,10 @@
 import base64
 import hashlib
 import math
+import os
+import shutil
 from threading import Timer
+from urllib.parse import urlparse
 import tempfile
 from typing import Callable, List, Optional
 
@@ -26,6 +29,8 @@ from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.interfaces.file_management import FileManagement
 from wolk import LoggerFactory
+
+import requests
 
 
 class JsonProtocolFileManagement(FileManagement):
@@ -70,12 +75,12 @@ class JsonProtocolFileManagement(FileManagement):
         self.current_status = FileManagementStatus()
 
         self.max_retries = 3
-        self.next_chunk_index = None
-        self.expected_number_of_chunks = None
+        self.next_package_index = None
+        self.expected_number_of_packages = None
         self.retry_count = None
         self.request_timeout = None
         self.install_timer = None
-        self.last_packet_hash = 32 * b"\x00"
+        self.last_package_hash = 32 * b"\x00"
 
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
@@ -116,10 +121,10 @@ class JsonProtocolFileManagement(FileManagement):
         self.file_name = file_name
         self.file_size = file_size
         self.file_hash = file_hash
-        self.expected_number_of_chunks = math.ceil(
+        self.expected_number_of_packages = math.ceil(
             self.file_size / self.firmware_handler.chunk_size
         )
-        self.next_chunk_index = 0
+        self.next_package_index = 0
         self.retry_count = 0
 
         self.logger.info(
@@ -129,12 +134,12 @@ class JsonProtocolFileManagement(FileManagement):
 
         if self.file_size < self.preferred_package_size:
             self.request_file_binary_callback(
-                self.file_name, self.next_chunk_index, self.file_size + 64
+                self.file_name, self.next_package_index, self.file_size + 64
             )
         else:
             self.request_file_binary_callback(
                 self.file_name,
-                self.next_chunk_index,
+                self.next_package_index,
                 self.preferred_package_size + 64,
             )
 
@@ -197,12 +202,12 @@ class JsonProtocolFileManagement(FileManagement):
         self.file_size = None
         self.file_hash = None
         self.current_status = FileManagementStatus()
-        self.next_chunk_index = None
-        self.expected_number_of_chunks = None
+        self.next_package_index = None
+        self.expected_number_of_packages = None
         self.retry_count = None
         self.request_timeout = None
         self.install_timer = None
-        self.last_packet_hash = 32 * b"\x00"
+        self.last_package_hash = 32 * b"\x00"
 
     def handle_file_binary_response(
         self, package: FileTransferPackage
@@ -228,6 +233,9 @@ class JsonProtocolFileManagement(FileManagement):
             )
             return
 
+        if self.request_timeout:
+            self.request_timeout.cancel()
+
         valid_package = False
 
         if (
@@ -246,31 +254,202 @@ class JsonProtocolFileManagement(FileManagement):
                 )
             else:
                 self.logger.debug(
-                    f"Valid package #{self.next_chunk_index} received"
+                    f"Valid package #{self.next_package_index} received"
                 )
                 valid_package = True
 
-        # TODO: Handle valid/invalid package, validate file on last package
+        if (
+            not valid_package
+            or self.last_package_hash != package.previous_hash
+        ):
+            self.logger.warning("Received invalid file package")
+            self.retry_count += 1
 
-    def handle_file_url_download_initiation(self, file_url: str) -> bool:
+            if self.retry_count >= self.max_retries:
+                self.logger.error(
+                    "Retry count exceeded, aborting file transfer"
+                )
+                self.current_status.status = FileManagementStatusType.ERROR
+                self.current_status.error = (
+                    FileManagementErrorType.RETRY_COUNT_EXCEEDED
+                )
+                self.file_upload_status_callback(self.current_status)
+                self.handle_file_upload_abort()
+                return
+
+            else:
+                self.logger.info(
+                    f"Requesting package #{self.next_package_index} again"
+                )
+                self.request_file_binary_callback(
+                    self.file_name,
+                    self.next_package_index,
+                    self.preferred_package_size + 64,
+                )
+
+                self.request_timeout = Timer(60.0, self._timeout)
+                self.request_timeout.start()
+                return
+
+        self.last_package_hash = package.current_hash
+
+        try:
+            self.temp_file.write(package.data)
+            self.temp_file.flush()
+            os.fsync(self.temp_file)
+        except Exception:
+            self.logger.error(
+                "Failed to write package, aborting file transfer"
+            )
+            self.current_status.status = FileManagementStatusType.ERROR
+            self.current_status.error = (
+                FileManagementErrorType.FILE_SYSTEM_ERROR
+            )
+            self.file_upload_status_callback(self.current_status)
+            self.handle_file_upload_abort()
+            return
+
+        self.next_package_index += 1
+
+        if self.next_package_index < self.expected_number_of_packages:
+            self.logger.debug(
+                f"Stored package, requesting "
+                f"#{self.next_package_index}/"
+                f"#{self.expected_number_of_packages}"
+            )
+            self.request_file_binary_callback(
+                self.file_name,
+                self.next_package_index,
+                self.preferred_package_size + 64,
+            )
+
+            self.request_timeout = Timer(60.0, self._timeout)
+            self.request_timeout.start()
+            return
+
+        valid_file = False
+
+        sha256_received_file_hash = base64.b64decode(
+            self.file_hash + ("=" * (-len(self.file_hash) % 4))
+        )
+        sha256_file_hash = hashlib.sha256()
+
+        for x in range(0, self.expected_number_of_chunks):
+
+            self.temp_file.seek(x * self.preferred_package_size)
+            chunk = self.temp_file.read(self.preferred_package_size)
+            if not chunk:
+                self.logger.error("File size too small!")
+                break
+
+            sha256_file_hash.update(chunk)
+
+        sha256_file_hash = sha256_file_hash.digest()
+        valid_file = sha256_received_file_hash == sha256_file_hash
+
+        if not valid_file:
+            self.logger.error("Invalid file - File hash does not match")
+            self.current_status.status = FileManagementStatusType.ERROR
+            self.current_status.error = (
+                FileManagementErrorType.FILE_HASH_MISMATCH
+            )
+            self.file_upload_status_callback(self.current_status)
+            self.handle_file_upload_abort()
+            return
+
+        if not os.path.exists(os.path.abspath(self.download_location)):
+            os.makedirs(os.path.abspath(self.download_location))
+
+            file_path = os.path.join(
+                os.path.abspath(self.download_location), self.file_name
+            )
+
+        # TODO: File already exists?
+        shutil.copy2(os.path.realpath(self.temp_file.name), file_path)
+        self.temp_file.close()
+
+        if not os.path.exists(file_path):
+            self.logger.error(f"File failed to store to at: {file_path}")
+            self.current_status.status = FileManagementStatusType.ERROR
+            self.current_status.error = (
+                FileManagementErrorType.FILE_SYSTEM_ERROR
+            )
+            self.file_upload_status_callback(self.current_status)
+            self.handle_file_upload_abort()
+            return
+
+        self.logger.info(f"Received file '{self.file_name}'")
+        self.current_status.status = FileManagementStatusType.FILE_READY
+        self.current_status.error = None
+        self.file_upload_status_callback(self.current_status)
+
+        self.current_status = FileManagementStatus()
+        self.last_package_hash = 32 * b"\x00"
+
+    def handle_file_url_download_initiation(self, file_url: str) -> None:
         """
         Start file transfer from specified URL.
 
         :param file_url: URL from where to download file
         :type file_url: str
-        :returns: valid_url
-        :rtype: bool
         """
-        pass
+        if self.current_status.status is not None:
+            self.logger.warning(
+                "Not in idle state, ignoring file upload initiation"
+            )
+            return
 
-    def handle_file_url_download_abort(self) -> bool:
-        """
-        Abort file URL download.
+        if not bool(urlparse(file_url).scheme):
+            self.logger.error(f"Received URL '{file_url}' is not valid!")
+            self.current_status.status = FileManagementStatusType.ERROR
+            self.current_status.error = FileManagementErrorType.MALFORMED_URL
+            self.file_url_download_status_callback(
+                file_url, self.current_status
+            )
+            return
 
-        :return: successfully_aborted
-        :rtype: bool
-        """
-        pass
+        self.file_url = file_url
+        self.file_name = self.file_url.split("/")[-1]
+        file_path = os.path.join(
+            os.path.abspath(self.download_location), self.file_name
+        )
+
+        self.current_status.status = FileManagementStatusType.FILE_TRANSFER
+        self.file_url_download_status_callback(file_url, self.current_status)
+
+        response = requests.get(file_url)
+        with open(file_path, "ab", encoding="utf-8") as file:
+            file.write(response.content)
+            file.flush()
+            os.fsync(file)
+
+        if not os.path.exists(file_path):
+            self.logger.error(f"File failed to store to at: {file_path}")
+            self.current_status.status = FileManagementStatusType.ERROR
+            self.current_status.error = (
+                FileManagementErrorType.FILE_SYSTEM_ERROR
+            )
+            self.file_url_download_status_callback(
+                file_url, self.current_status
+            )
+            self.handle_file_url_download_abort()
+            return
+
+        self.logger.info(f"File obtained from URL: '{file_url}'")
+        self.current_status.status = FileManagementStatusType.FILE_READY
+        self.current_status.error = None
+        self.file_url_download_status_callback(
+            file_url, self.current_status, self.file_name
+        )
+
+        self.current_status = FileManagementStatus()
+
+    def handle_file_url_download_abort(self) -> None:
+        """Abort file URL download."""
+        self.logger.info("Aborting URL download")
+        self.file_url = None
+        self.file_name = None
+        self.current_status = FileManagementStatus()
 
     def get_file_list(self) -> List[str]:
         """
@@ -279,7 +458,7 @@ class JsonProtocolFileManagement(FileManagement):
         :returns: file_list
         :rtype: List[str]
         """
-        pass
+        return os.listdir(os.path.abspath(self.download_location)).sort()
 
     def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
