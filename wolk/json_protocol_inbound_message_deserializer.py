@@ -1,3 +1,4 @@
+"""Deserialize messages received in JSON_PROTOCOL format."""
 #   Copyright 2019 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,25 +13,24 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""JsonProtocolInboundMessageDeserializer Module."""
 
 import json
 
-from wolk.models.ActuatorCommand import ActuatorCommand
-from wolk.models.ActuatorCommandType import ActuatorCommandType
-from wolk.models.ConfigurationCommand import ConfigurationCommand
-from wolk.models.ConfigurationCommandType import ConfigurationCommandType
-from wolk.interfaces.InboundMessageDeserializer import (
+from wolk.model.ActuatorCommand import ActuatorCommand
+from wolk.model.ActuatorCommandType import ActuatorCommandType
+from wolk.model.ConfigurationCommand import ConfigurationCommand
+from wolk.model.ConfigurationCommandType import ConfigurationCommandType
+from wolk.interface.inbound_message_deserializer import (
     InboundMessageDeserializer,
 )
-from wolk.models.InboundMessage import InboundMessage
-from wwolk.models.FirmwareUpdateCommand import FirmwareUpdateCommand
-from wwolk.models.FirmwareUpdateCommandType import FirmwareUpdateCommandType
-from wolk.models.FileTransferPackage import FileTransferPackage
+from wolk.model.Message import Message
+from wwolk.model.FirmwareUpdateCommand import FirmwareUpdateCommand
+from wwolk.model.FirmwareUpdateCommandType import FirmwareUpdateCommandType
+from wolk.model.FileTransferPackage import FileTransferPackage
 from wolk import LoggerFactory
 
 
-class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
+class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
     """
     Deserialize messages received from the WolkAbout IoT Platform.
 
@@ -48,7 +48,7 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         self.logger = LoggerFactory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
-        self.logger.debug("Init: device %s", device)
+        self.logger.debug(f"{device}")
 
         inbound_topics = [
             "p2d/configuration_get/d/" + device.key,
@@ -73,125 +73,158 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
             inbound_topics.append(
                 "p2d/actuator_get/d/" + device.key + "/r/" + reference
             )
-
+        self.logger.debug(f"inbound topics: {inbound_topics}")
         super().__init__(inbound_topics)
 
-    def is_actuation_command(self, message: InboundMessage) -> bool:
+    def is_actuation_command(self, message: Message) -> bool:
         """
         Check if message is actuation command.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: actuation_command
         :rtype: bool
         """
         return message.topic.startswith("p2d/actuator")
 
-    def is_firmware_update_command(self, message: InboundMessage) -> bool:
+    def is_firmware_update_install_command(self, message: Message) -> bool:
         """
-        Check if message is firmware command.
+        Check if message is firmware update install command.
 
         :param message: The message received
-        :type message: InboundMessage
-        :returns: firmware_update_command
+        :type message: Message
+        :returns: firmware_update_install_command
         :rtype: bool
         """
-        return message.topic.startswith("p2d/firmware_update")
+        return message.topic.startswith("p2d/firmware_update_install")
 
-    def is_file_binary_response(self, message: InboundMessage) -> bool:
+    def is_firmware_update_abort_command(self, message: Message) -> bool:
+        """
+        Check if message is firmware update command.
+
+        :param message: The message received
+        :type message: Message
+        :returns: firmware_update_abort_command
+        :rtype: bool
+        """
+        return message.topic.startswith("p2d/firmware_update_abort")
+
+    def is_file_binary_response(self, message: Message) -> bool:
         """
         Check if message is file binary message.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_chunk
         :rtype: bool
         """
         return message.topic.startswith("p2d/file_binary")
 
-    def is_configuration_command(self, message: InboundMessage) -> bool:
+    def is_configuration_command(self, message: Message) -> bool:
         """
         Check if message is configuration command.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: configuration
         :rtype: bool
         """
         return message.topic.startswith("p2d/configuration")
 
-    def is_file_delete_command(self, message: InboundMessage) -> bool:
+    def is_file_delete_command(self, message: Message) -> bool:
         """
         Check if message if file delete command.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_delete_command
         :rtype: bool
         """
         return message.topic.startswith("p2d/file_delete")
 
-    def is_file_purge_command(self, message: InboundMessage) -> bool:
+    def is_file_purge_command(self, message: Message) -> bool:
         """
         Check if message if file purge command.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_purge_command
         :rtype: bool
         """
         return message.topic.startswith("p2d/file_purge")
 
-    def is_file_list_confirm(self, message: InboundMessage) -> bool:
+    def is_file_list_confirm(self, message: Message) -> bool:
         """
         Check if message is file list confirm.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_list_confirm
         :rtype: bool
         """
         return message.topic.startswith("p2d/file_list_confirm")
 
-    def is_file_list_request(self, message: InboundMessage) -> bool:
+    def is_file_list_request(self, message: Message) -> bool:
         """
         Check if message is file list request.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_list_request
         :rtype: bool
         """
         return message.topic.startswith("p2d/file_list_request")
 
-    def is_file_upload_command(self, message: InboundMessage) -> bool:
+    def is_file_upload_initiate_command(self, message: Message) -> bool:
         """
         Check if message is file upload command.
 
         :param message: The message received
-        :type message: InboundMessage
-        :returns: file_upload_command
+        :type message: Message
+        :returns: file_upload_initiate_command
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_upload")
+        return message.topic.startswith("p2d/file_upload_initiate")
 
-    def is_file_url_download_command(self, message: InboundMessage) -> bool:
+    def is_file_upload_abort_command(self, message: Message) -> bool:
+        """
+        Check if message is file upload command.
+
+        :param message: The message received
+        :type message: Message
+        :returns: file_upload_abort_command
+        :rtype: bool
+        """
+        return message.topic.startswith("p2d/file_upload_abort")
+
+    def is_file_url_download_initiate_command(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
         :param message: The message received
-        :type message: InboundMessage
-        :returns: file_url_download_command
+        :type message: Message
+        :returns: file_url_download_initiate
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_url")
+        return message.topic.startswith("p2d/file_url_download_initiate")
+
+    def is_file_url_download_abort_command(self, message: Message) -> bool:
+        """
+        Check if message is file URL download command.
+
+        :param message: The message received
+        :type message: Message
+        :returns: file_url_download_abort
+        :rtype: bool
+        """
+        return message.topic.startswith("p2d/file_url_download_abort")
 
     def deserialize_actuator_command(self, message):
         """
         Deserialize the message into an actuation command.
 
         :param message: Message to be deserialized
-        :type message: wolk.models.InboundMessage.InboundMessage
+        :type message: wolk.models.Message.Message
 
         :returns: actuation
         :rtype: wolk.models.ActuatorCommand.ActuatorCommand
@@ -245,13 +278,13 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
             return actuation
 
     def deserialize_firmware_update_command(
-        self, message: InboundMessage
+        self, message: Message
     ) -> FirmwareUpdateCommand:
         """
         Deserialize the message into a FirmwareUpdateCommand.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: firmware_update_command
         :rtype: FirmwareUpdateCommand
         """
@@ -278,14 +311,12 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
 
         return firmware_update_command
 
-    def deserialize_file_binary(
-        self, message: InboundMessage
-    ) -> FileTransferPackage:
+    def deserialize_file_binary(self, message: Message) -> FileTransferPackage:
         """
         Deserialize the message into a file transfer package.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_transfer_package
         :rtype: FileTransferPackage
         """
@@ -306,15 +337,17 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
         )
         return file_transfer_package
 
-    def deserialize_configuration_command(self, message):
+    def deserialize_configuration_command(
+        self, message: Message
+    ) -> ConfigurationCommand:
         """
         Deserialize the message into a configuration command.
 
-        :param message: message to be deserialized
-        :type message: wolk.models.InboundMessage.InboundMessage
+        :param message: The message received
+        :type message: Message
 
         :returns: configuration
-        :rtype: wolk.models.ConfigurationCommand.ConfigurationCommand
+        :rtype: ConfigurationCommand
         """
         self.logger.debug("deserialize_configuration_command called")
         payload = json.loads(message.payload.decode("utf-8"))
@@ -381,16 +414,15 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
             )
             return configuration
 
-    def deserialize_file_delete_command(self, message: InboundMessage) -> str:
+    def deserialize_file_delete_command(self, message: Message) -> str:
         """
         Deserialize the message into a file name to delete.
 
         :param message: The message received
-        :type message: InboundMessage
+        :type message: Message
         :returns: file_name
         :rtype: str
         """
-        self.logger.debug("deserialize_file_delete_command called")
         payload = json.loads(message.payload.decode("utf-8"))
         if "fileName" not in payload:
             self.logger.error(
@@ -398,6 +430,26 @@ class JsonProtocolInboundMessageDeserializer(InboundMessageDeserializer):
                 " with invalid payload! %s",
                 message.payload.decode("utf-8"),
             )
-            return None
+            return
 
         return payload.at("fileName")
+
+    def deserialize_file_url_download_command(self, message: Message) -> str:
+        """
+        Deserialize the message into a URL string.
+
+        :param message: The message received
+        :type message: Message
+        :returns: file_url
+        :rtype: str
+        """
+        payload = json.loads(message.payload.decode("utf-8"))
+        if "fileUrl" not in payload:
+            self.logger.error(
+                "Received firmware update install command"
+                " with invalid payload! %s",
+                message.payload.decode("utf-8"),
+            )
+            return
+
+        return payload.at("fileUrl")

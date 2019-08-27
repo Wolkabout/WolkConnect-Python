@@ -45,7 +45,7 @@ class FileManagement(ABC):
 
     @abstractmethod
     def _set_file_upload_status_callback(
-        self, callback: Callable[[FileManagementStatus], None]
+        self, callback: Callable[[str, FileManagementStatus], None]
     ) -> None:
         """
         Set the callback method for reporting current status.

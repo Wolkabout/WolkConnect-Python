@@ -59,13 +59,25 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_firmware_update_command(self, message: Message) -> bool:
+    def is_firmware_update_install_command(self, message: Message) -> bool:
+        """
+        Check if message is firmware update install command.
+
+        :param message: The message received
+        :type message: Message
+        :returns: firmware_update_install_command
+        :rtype: bool
+        """
+        pass
+
+    @abstractmethod
+    def is_firmware_update_abort_command(self, message: Message) -> bool:
         """
         Check if message is firmware update command.
 
         :param message: The message received
         :type message: Message
-        :returns: firmware_update_command
+        :returns: firmware_update_abort_command
         :rtype: bool
         """
         pass
@@ -131,25 +143,49 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_file_upload_command(self, message: Message) -> bool:
+    def is_file_upload_initiate_command(self, message: Message) -> bool:
         """
         Check if message is file upload command.
 
         :param message: The message received
         :type message: Message
-        :returns: file_upload_command
+        :returns: file_upload_initiate_command
         :rtype: bool
         """
         pass
 
     @abstractmethod
-    def is_file_url_download_command(self, message: Message) -> bool:
+    def is_file_upload_abort_command(self, message: Message) -> bool:
+        """
+        Check if message is file upload command.
+
+        :param message: The message received
+        :type message: Message
+        :returns: file_upload_abort_command
+        :rtype: bool
+        """
+        pass
+
+    @abstractmethod
+    def is_file_url_download_initiate_command(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
         :param message: The message received
         :type message: Message
-        :returns: file_url_download_command
+        :returns: file_url_download_initiate
+        :rtype: bool
+        """
+        pass
+
+    @abstractmethod
+    def is_file_url_download_abort_command(self, message: Message) -> bool:
+        """
+        Check if message is file URL download command.
+
+        :param message: The message received
+        :type message: Message
+        :returns: file_url_download_abort
         :rtype: bool
         """
         pass
@@ -183,9 +219,19 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deserialize_file_binary(
-        self, message: Message
-    ) -> FileTransferPackage:
+    def deserialize_file_url_download_command(self, message: Message) -> str:
+        """
+        Deserialize the message into a URL string.
+
+        :param message: The message received
+        :type message: Message
+        :returns file_url:
+        :rtype: str
+        """
+        pass
+
+    @abstractmethod
+    def deserialize_file_binary(self, message: Message) -> FileTransferPackage:
         """
         Deserialize the message into a file transfer package.
 

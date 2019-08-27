@@ -19,7 +19,7 @@ from enum import Enum
 class FirmwareUpdateStatusType(Enum):
     """Enumeration of available firmware update status types."""
 
-    INSTALLATION = 1
-    COMPLETED = 2
-    ERROR = 3
-    ABORTED = 4
+    INSTALLATION = "INSTALLATION"
+    COMPLETED = "COMPLETED"
+    ERROR = "ERROR"
+    ABORTED = "ABORTED"

@@ -112,7 +112,9 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.UNSUPPORTED_FILE_SIZE
             )
-            self.file_upload_status_callback(self.current_status)
+            self.file_upload_status_callback(
+                self.file_name, self.current_status
+            )
             self.current_status = FileManagementStatus()
             return
 
@@ -130,7 +132,7 @@ class OSFileManagement(FileManagement):
         self.logger.info(
             "Initializing file transfer and requesting first package"
         )
-        self.file_upload_status_callback(self.current_status)
+        self.file_upload_status_callback(self.file_name, self.current_status)
 
         if self.file_size < self.preferred_package_size:
             self.request_file_binary_callback(
@@ -147,13 +149,13 @@ class OSFileManagement(FileManagement):
         self.request_timeout.start()
 
     def _set_file_upload_status_callback(
-        self, callback: Callable[[FileManagementStatus], None]
+        self, callback: Callable[[str, FileManagementStatus], None]
     ) -> None:
         """
         Set the callback method for reporting current status.
 
         :param callback: Method to call
-        :type callback: Callable[[FileManagementStatus], None]
+        :type callback: Callable[[str, FileManagementStatus], None]
         """
         self.file_upload_status_callback = callback
 
@@ -262,7 +264,9 @@ class OSFileManagement(FileManagement):
                 self.current_status.error = (
                     FileManagementErrorType.RETRY_COUNT_EXCEEDED
                 )
-                self.file_upload_status_callback(self.current_status)
+                self.file_upload_status_callback(
+                    self.file_name, self.current_status
+                )
                 self.handle_file_upload_abort()
                 return
 
@@ -294,7 +298,9 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.FILE_SYSTEM_ERROR
             )
-            self.file_upload_status_callback(self.current_status)
+            self.file_upload_status_callback(
+                self.file_name, self.current_status
+            )
             self.handle_file_upload_abort()
             return
 
@@ -342,7 +348,9 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.FILE_HASH_MISMATCH
             )
-            self.file_upload_status_callback(self.current_status)
+            self.file_upload_status_callback(
+                self.file_name, self.current_status
+            )
             self.handle_file_upload_abort()
             return
 
@@ -363,14 +371,16 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.FILE_SYSTEM_ERROR
             )
-            self.file_upload_status_callback(self.current_status)
+            self.file_upload_status_callback(
+                self.file_name, self.current_status
+            )
             self.handle_file_upload_abort()
             return
 
         self.logger.info(f"Received file '{self.file_name}'")
         self.current_status.status = FileManagementStatusType.FILE_READY
         self.current_status.error = None
-        self.file_upload_status_callback(self.current_status)
+        self.file_upload_status_callback(self.file_name, self.current_status)
 
         self.current_status = FileManagementStatus()
         self.last_package_hash = 32 * b"\x00"
@@ -487,5 +497,5 @@ class OSFileManagement(FileManagement):
         self.logger.error("Timed out waiting for next package, aborting")
         self.current_status.status = FileManagementStatusType.ERROR
         self.current_status.error = FileManagementErrorType.UNSPECIFIED_ERROR
-        self.file_upload_status_callback(self.current_status)
+        self.file_upload_status_callback(self.file_name, self.current_status)
         self.handle_file_upload_abort()

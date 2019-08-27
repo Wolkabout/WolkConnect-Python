@@ -19,7 +19,7 @@ from enum import Enum
 class FileManagementStatusType(Enum):
     """Enumeration of available file management statuses."""
 
-    FILE_TRANSFER = 1
-    FILE_READY = 2
-    ERROR = 3
-    ABORTED = 4
+    FILE_TRANSFER = "FILE_TRANSFER"
+    FILE_READY = "FILE_READY"
+    ERROR = "ERROR"
+    ABORTED = "ABORTED"

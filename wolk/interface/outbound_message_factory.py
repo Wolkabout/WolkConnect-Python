@@ -14,10 +14,12 @@
 #   limitations under the License.
 
 from abc import ABC, abstractmethod
+from typing import List, Optional
 
 from wolk.model.alarm import Alarm
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
+from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 
@@ -62,31 +64,31 @@ class OutboundMessageFactory(ABC):
         pass
 
     @abstractmethod
-    def make_from_firmware_status(
-        self, firmware_status: FirmwareUpdateStatus
+    def make_from_firmware_update_status(
+        self, firmware_update_status: FirmwareUpdateStatus
     ) -> Message:
         """
         Report the current status of the firmware update process.
 
-        :param firmware_status: Current status of the firmware update process
-        :type firmware_status: FirmwareUpdateStatus
+        :param firmware_update_status: Current status of the firmware update process
+        :type firmware_update_status: FirmwareUpdateStatus
         :returns: message
         :rtype: Message
         """
         pass
 
     @abstractmethod
-    def make_from_chunk_request(
+    def make_from_package_request(
         self, file_name: str, chunk_index: int, chunk_size: int
     ) -> Message:
         """
-        Request a chunk of the file from WolkAbout IoT Platform.
+        Request a package of the file from WolkAbout IoT Platform.
 
-        :param file_name: Name of the file that contains the requested chunk
+        :param file_name: Name of the file that contains the requested package
         :type file_name: str
-        :param chunk_index: Index of the requested chunk
+        :param chunk_index: Index of the requested package
         :type chunk_index: int
-        :param chunk_size: Size of the requested chunk
+        :param chunk_size: Size of the requested package
         :type chunk_size: int
         :returns: message
         :rtype: Message
@@ -114,5 +116,58 @@ class OutboundMessageFactory(ABC):
         :type configuration: dict
         :returns: message
         :rtype: Message
+        """
+        pass
+
+    @abstractmethod
+    def make_from_file_list_update(self, file_list: List[str]) -> Message:
+        """Serialize list of files present on device.
+
+        :param file_list: Files present on device
+        :type file_list: List[str]
+        :returns: message
+        :rtype: Message
+        """
+        pass
+
+    @abstractmethod
+    def make_from_file_list_request(self, file_list: List[str]) -> Message:
+        """Serialize list of files present on device.
+
+        :param file_list: Files present on device
+        :type file_list: List[str]
+        :returns: message
+        :rtype: Message
+        """
+        pass
+
+    @abstractmethod
+    def make_from_file_management_status(
+        self, status: FileManagementStatus
+    ) -> Message:
+        """Serialize device's current file management status.
+
+        :param status: Current file management status
+        :type status: FileManagementStatus
+        :returns: message
+        :rtype: Message
+        """
+        pass
+
+    @abstractmethod
+    def make_from_file_url_status(
+        self,
+        file_url: str,
+        status: FileManagementStatus,
+        file_name: Optional[str] = None,
+    ) -> Message:
+        """Serialize device's current file URL download status.
+
+        :param file_url: URL from where the file is to be downloaded
+        :type file_url: str
+        :param status: Current file management status
+        :type status: FileManagementStatus
+        :param file_name: Only present when download of file is completed
+        :type file_name: Optional[str]
         """
         pass
