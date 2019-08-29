@@ -16,6 +16,9 @@
 from abc import ABC, abstractmethod
 from typing import Callable
 
+from wolk.model.firmware_update_status import FirmwareUpdateStatus
+from wolk.interface.firmware_handler import FirmwareHandler
+
 
 class FirmwareUpdate(ABC):
     """
@@ -26,26 +29,42 @@ class FirmwareUpdate(ABC):
     """
 
     @abstractmethod
-    def handle_install(self):
-        """Handle received firmware installation command."""
+    def handle_install(self, file_path: str) -> None:
+        """Handle received firmware installation command.
+
+        :param file_path: Firmware file to install
+        :type file_path: str
+        """
         pass
 
     @abstractmethod
-    def handle_abort(self):
+    def handle_abort(self) -> None:
         """Handle received firmware installation abort command."""
         pass
 
     @abstractmethod
-    def report_result(self):
+    def report_result(self) -> None:
         """Report the results of the firmware update process."""
         pass
 
     @abstractmethod
-    def set_on_status_callback(self, on_status_callback):
-        """Set a callback function to handle firmware status reporting."""
+    def _set_on_status_callback(
+        self, on_status_callback: Callable[[FirmwareUpdateStatus], None]
+    ) -> None:
+        """Set a callback function to handle firmware status reporting.
+
+        :param on_status_callback: Method for reporting firmware status
+        :type on_status_callback: Callable[[FirmwareUpdateStatus], None]
+        """
         pass
 
     @abstractmethod
-    def set_installer(self, installer: Callable[[str], None]) -> None:
-        """Set firmware installer function."""
+    def _set_firmware_handler(self, handler: FirmwareHandler) -> None:
+        """Set firmware handler.
+
+        Must set as self.handler.
+
+        :param handler: Installs firmware and reports current version
+        :type handler: FirmwareHandler
+        """
         pass

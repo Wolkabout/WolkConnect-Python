@@ -123,6 +123,18 @@ class FileManagement(ABC):
         pass
 
     @abstractmethod
+    def get_file_path(self, file_name: str) -> Optional[str]:
+        """
+        Return path to file if it exists.
+
+        :param file_name: File for which to get path
+        :type file_name: str
+        :returns: file_path
+        :rtype: Optional[str]
+        """
+        pass
+
+    @abstractmethod
     def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
         pass

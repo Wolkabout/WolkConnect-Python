@@ -463,7 +463,28 @@ class OSFileManagement(FileManagement):
             if not os.path.isfile(item) or item.startswith("."):
                 file_list.remove(item)
 
+        self.logger.debug(f"Files on device: {file_list}")
         return file_list
+
+    def get_file_path(self, file_name: str) -> Optional[str]:
+        """
+        Return path to file if it exists.
+
+        :param file_name: File for which to get path
+        :type file_name: str
+        :returns: file_path
+        :rtype: Optional[str]
+        """
+        self.logger.debug(f"Get file path for file: {file_name}")
+        file_path = None
+        for file in self.get_file_list():
+            if file == file_name:
+                file_path = os.path.join(
+                    os.path.abspath(self.download_location), file_name
+                )
+                break
+        self.logger.debug(f"File path: {file_path}")
+        return file_path
 
     def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
