@@ -17,14 +17,14 @@ import random
 import sys
 import time
 
-from persistent_queue import PersistentQueue
+# from persistent_queue import PersistentQueue
 
 module_path = os.sep + ".." + os.sep + ".." + os.sep
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-# wolk.logging_config("debug", "wolk.log")
+wolk.logging_config("debug", "wolk.log")
 
 
 def main():
@@ -50,8 +50,8 @@ def main():
     # from WolkAbout IoT Platform when creating the device
     # List actuator references included on your device
     device = wolk.Device(
-        key="device_key",
-        password="some_password",
+        key="icnmz1db6sx1hdgr",
+        password="a84afc51-ff84-4f2b-93eb-a31f3d663cdb",
         actuator_references=["SW", "SL"],
     )
 
@@ -74,73 +74,69 @@ def main():
     )
 
     # Provide a way to read actuator status if your device has actuators
-    class ActuatorStatusProviderImpl(wolk.ActuatorStatusProvider):
-        def get_actuator_status(self, reference):
-            if reference == "SW":
-                return wolk.ActuatorState.READY, switch.value
-            elif reference == "SL":
-                return wolk.ActuatorState.READY, slider.value
+    def get_actuator_status(reference):
+        if reference == "SW":
+            return wolk.ActuatorState.READY, switch.value
+        elif reference == "SL":
+            return wolk.ActuatorState.READY, slider.value
 
     # Provide an actuation handler if your device has actuators
-    class ActuationHandlerImpl(wolk.ActuationHandler):
-        def handle_actuation(self, reference, value):
-            print("Setting actuator " + reference + " to value: " + str(value))
-            if reference == "SW":
-                switch.value = value
+    def handle_actuation(reference, value):
+        print("Setting actuator " + reference + " to value: " + str(value))
+        if reference == "SW":
+            switch.value = value
 
-            elif reference == "SL":
-                slider.value = value
+        elif reference == "SL":
+            slider.value = value
 
     # Provide a configuration handler if your device has configuration options
-    class ConfigurationHandlerImpl(wolk.ConfigurationHandler):
-        def handle_configuration(self, configuration):
-            for key, value in configuration.items():
-                if key == "config_1":
-                    configuration_1.value = value
-                elif key == "config_2":
-                    configuration_2.value = value
-                elif key == "config_3":
-                    configuration_3.value = value
-                elif key == "config_4":
-                    configuration_4.value = value
+    def handle_configuration(configuration):
+        for key, value in configuration.items():
+            if key == "config_1":
+                configuration_1.value = value
+            elif key == "config_2":
+                configuration_2.value = value
+            elif key == "config_3":
+                configuration_3.value = value
+            elif key == "config_4":
+                configuration_4.value = value
 
     # Provide a way to read current device configuration
-    class ConfigurationProviderImpl(wolk.ConfigurationProvider):
-        def get_configuration(self):
-            configuration = dict()
-            configuration["config_1"] = configuration_1.value
-            configuration["config_2"] = configuration_2.value
-            configuration["config_3"] = configuration_3.value
-            configuration["config_4"] = configuration_4.value
-            return configuration
+    def get_configuration():
+        configuration = dict()
+        configuration["config_1"] = configuration_1.value
+        configuration["config_2"] = configuration_2.value
+        configuration["config_3"] = configuration_3.value
+        configuration["config_4"] = configuration_4.value
+        return configuration
 
     # Custom queue example
-    class FilesystemOutboundMessageQueue(wolk.OutboundMessageQueue):
-        def __init__(self, path="."):
-            if path == ".":
-                self.queue = PersistentQueue("FileOutboundMessageQueue")
-            else:
-                self.queue = PersistentQueue("FileOutboundMessageQueue", path)
+    # class FilesystemOutboundMessageQueue(wolk.OutboundMessageQueue):
+    #     def __init__(self, path="."):
+    #         if path == ".":
+    #             self.queue = PersistentQueue("FileOutboundMessageQueue")
+    #         else:
+    #             self.queue = PersistentQueue("FileOutboundMessageQueue", path)
 
-        def put(self, message):
-            self.queue.push(message)
+    #     def put(self, message):
+    #         self.queue.push(message)
 
-        def get(self):
-            message = self.queue.pop()
-            self.queue.flush()
-            return message
+    #     def get(self):
+    #         message = self.queue.pop()
+    #         self.queue.flush()
+    #         return message
 
-        def peek(self):
-            if not self.queue.peek():
-                self.queue.clear()
-                return None
-            else:
-                return self.queue.peek()
+    #     def peek(self):
+    #         if not self.queue.peek():
+    #             self.queue.clear()
+    #             return None
+    #         else:
+    #             return self.queue.peek()
 
-    filesystemOutboundMessageQueue = FilesystemOutboundMessageQueue()
+    # filesystemOutboundMessageQueue = FilesystemOutboundMessageQueue()
 
     # Extend this class to handle the installing of the firmware file
-    class MyFirmwareInstaller(wolk.FirmwareInstaller):
+    class MyFirmwareHandler(wolk.FirmwareHandler):
         def __init__(self):
             pass
 
@@ -149,16 +145,9 @@ def main():
             print("Installing firmware from path: " + firmware_file_path)
             os._exit(0)
 
-    # Enable firmware update on your device
-    # Implement wolk.FirmwareURLDownloadHandler to enable URL download
-    firmware_handler = wolk.FileSystemFirmwareHandler(
-        version="1.0",
-        chunk_size=1024 * 1024,
-        max_file_size=100 * 1024 * 1024,
-        download_location="",
-        firmware_installer=MyFirmwareInstaller(),
-        firmware_url_download_handler=None,
-    )
+        def get_current_version(self):
+            """Return current firmware version."""
+            return "1.0"
 
     # Pass your device, actuation handler and actuator status provider
     # Pass configuration handler and provider
@@ -167,16 +156,19 @@ def main():
     try:
         wolk_device = wolk.WolkConnect(
             device=device,
-            protocol=wolk.Protocol.JSON_SINGLE,
-            actuation_handler=ActuationHandlerImpl(),
-            actuator_status_provider=ActuatorStatusProviderImpl(),
-            configuration_handler=ConfigurationHandlerImpl(),
-            configuration_provider=ConfigurationProviderImpl(),
-            outbound_message_queue=filesystemOutboundMessageQueue,
-            firmware_handler=firmware_handler,
-            host="api-demo.wolkabout.com",
-            port=8883,
-            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+            actuation_handler=handle_actuation,
+            actuator_status_provider=get_actuator_status,
+            configuration_handler=handle_configuration,
+            configuration_provider=get_configuration,
+            file_management=wolk.OSFileManagement(
+                preferred_package_size=1024 * 1024,
+                max_file_size=100 * 1024 * 1024,
+                download_location="downloads",
+            ),
+            firmware_update=wolk.OSFirmwareUpdate(MyFirmwareHandler()),
+            # host="api-demo.wolkabout.com",
+            # port=8883,
+            # ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
         )
     except RuntimeError as e:
         print(str(e))
@@ -198,29 +190,29 @@ def main():
 
     while True:
         try:
-            timestamp = int(round(time.time() * 1000))
-            temperature = random.uniform(15, 30)
-            humidity = random.uniform(10, 55)
-            pressure = random.uniform(975, 1030)
-            accelerometer = (
-                random.uniform(0, 100),
-                random.uniform(0, 100),
-                random.uniform(0, 100),
-            )
-            if humidity > 50:
-                # Adds an alarm event to the queue
-                wolk_device.add_alarm("HH", True)
-            else:
-                wolk_device.add_alarm("HH", False)
-            # Adds a sensor reading to the queue
-            wolk_device.add_sensor_reading("T", temperature, timestamp)
-            wolk_device.add_sensor_reading("H", humidity, timestamp)
-            wolk_device.add_sensor_reading("P", pressure, timestamp)
-            wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
+            # timestamp = int(round(time.time() * 1000))
+            # temperature = random.uniform(15, 30)
+            # humidity = random.uniform(10, 55)
+            # pressure = random.uniform(975, 1030)
+            # accelerometer = (
+            #     random.uniform(0, 100),
+            #     random.uniform(0, 100),
+            #     random.uniform(0, 100),
+            # )
+            # if humidity > 50:
+            #     # Adds an alarm event to the queue
+            #     wolk_device.add_alarm("HH", True)
+            # else:
+            #     wolk_device.add_alarm("HH", False)
+            # # Adds a sensor reading to the queue
+            # wolk_device.add_sensor_reading("T", temperature, timestamp)
+            # wolk_device.add_sensor_reading("H", humidity, timestamp)
+            # wolk_device.add_sensor_reading("P", pressure, timestamp)
+            # wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
 
             # Publishes all sensor readings and alarms from the queue
             # to the WolkAbout IoT Platform
-            print("Publishing buffered messages")
+            # print("Publishing buffered messages")
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:

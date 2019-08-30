@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
@@ -30,5 +30,5 @@ class FirmwareUpdateStatus:
     :ivartype error: FirmwareUpdateErrorType or None
     """
 
-    status: Optional[FirmwareUpdateStatusType]
-    error: Optional[FirmwareUpdateErrorType]
+    status: Optional[FirmwareUpdateStatusType] = field(default=None)
+    error: Optional[FirmwareUpdateErrorType] = field(default=None)

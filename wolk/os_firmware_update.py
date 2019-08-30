@@ -53,7 +53,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         :type report_status: Callable[[FirmwareUpdateStatus], None]
         """
         self.logger.debug(f"firmware update status callback: {report_status}")
-        self.report_self.current_status = report_status
+        self.report_status = report_status
 
     def _set_firmware_handler(self, handler: FirmwareHandler) -> None:
         """Set firmware handler.

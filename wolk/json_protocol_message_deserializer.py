@@ -14,6 +14,7 @@
 #   limitations under the License.
 
 import json
+from typing import Tuple
 
 from wolk.model.actuator_command import ActuatorCommand, ActuatorCommandType
 from wolk.model.configuration_command import (
@@ -21,8 +22,8 @@ from wolk.model.configuration_command import (
     ConfigurationCommandType,
 )
 from wolk.model.device import Device
-from wolk.model.FileTransferPackage import FileTransferPackage
-from wolk.model.Message import Message
+from wolk.model.file_transfer_package import FileTransferPackage
+from wolk.model.message import Message
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk import logger_factory
 
@@ -194,7 +195,7 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         """
         return message.topic.startswith("p2d/file_upload_abort")
 
-    def is_file_url_install(self, message: Message) -> bool:
+    def is_file_url_initiate(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
@@ -380,3 +381,27 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
             return
 
         return payload.at("fileUrl")
+
+    def parse_file_initiate(self, message: Message) -> Tuple[str, int, str]:
+        """
+        Return file name, file size and file hash from message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: (file_name, file_size, file_hash)
+        :rtype: Tuple[str, int, str]
+        """
+        payload = json.loads(message.payload.decode("utf-8"))
+        if "fileName" not in payload:
+            self.logger.error(
+                "Received firmware update install command"
+                " with invalid payload! %s",
+                message.payload.decode("utf-8"),
+            )
+            return
+
+        return (
+            payload.at("fileName"),
+            payload.at("fileSize"),
+            payload.at("fileHash"),
+        )

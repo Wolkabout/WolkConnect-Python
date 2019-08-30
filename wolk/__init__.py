@@ -11,38 +11,37 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
-from .models.ActuatorCommand import ActuatorCommand
-from .models.ActuatorCommandType import ActuatorCommandType
-from .models.ActuatorState import ActuatorState
-from .models.ActuatorStatus import ActuatorStatus
-from .models.Alarm import Alarm
-from .models.ConfigurationCommand import ConfigurationCommand
-from .models.ConfigurationCommandType import ConfigurationCommandType
-from .models.Device import Device
-from .models.FileTransferPacket import FileTransferPacket
-from .models.FirmwareCommand import FirmwareCommand
-from .models.FirmwareCommandType import FirmwareCommandType
-from .models.FirmwareErrorType import FirmwareErrorType
-from .models.FirmwareStatus import FirmwareStatus
-from .models.FirmwareStatusType import FirmwareStatusType
-from .models.FirmwareUpdateStateType import FirmwareUpdateStateType
-from .models.InboundMessage import InboundMessage
-from .models.OutboundMessage import OutboundMessage
-from .models.Protocol import Protocol
-from .models.SensorReading import SensorReading
-from .interfaces.ActuationHandler import ActuationHandler
-from .interfaces.ActuatorStatusProvider import ActuatorStatusProvider
-from .interfaces.ConfigurationHandler import ConfigurationHandler
-from .interfaces.ConfigurationProvider import ConfigurationProvider
-from .interfaces.ConnectivityService import ConnectivityService
-from .interfaces.FirmwareInstaller import FirmwareInstaller
-from .interfaces.FirmwareURLDownloadHandler import FirmwareURLDownloadHandler
-from .interfaces.InboundMessageDeserializer import InboundMessageDeserializer
-from .interfaces.OutboundMessageFactory import OutboundMessageFactory
-from .interfaces.OutboundMessageQueue import OutboundMessageQueue
-from .FileSystemFirmwareHandler import FileSystemFirmwareHandler
-from .LoggerFactory import logging_config
-from .WolkConnect import WolkConnect
+from .model.actuator_command import ActuatorCommand, ActuatorCommandType
+from .model.actuator_state import ActuatorState
+from .model.actuator_status import ActuatorStatus
+from .model.alarm import Alarm
+from .model.configuration_command import (
+    ConfigurationCommand,
+    ConfigurationCommandType,
+)
+from .model.device import Device
+from .model.file_transfer_package import FileTransferPackage
+from .model.firmware_update_status import FirmwareUpdateStatus
+from .model.firmware_update_status_type import FirmwareUpdateStatusType
+from .model.firmware_update_error_type import FirmwareUpdateErrorType
+from .model.file_management_status import FileManagementStatus
+from .model.file_management_status_type import FileManagementStatusType
+from .model.file_management_error_type import FileManagementErrorType
+from .model.message import Message
+from .model.sensor_reading import SensorReading
+from .interface.actuation_handler import handle_actuation
+from .interface.actuator_status_provider import get_actuator_status
+from .interface.configuration_handler import handle_configuration
+from .interface.configuration_provider import get_configuration
+from .interface.connectivity_service import ConnectivityService
+from .interface.firmware_handler import FirmwareHandler
+from .interface.message_deserializer import MessageDeserializer
+from .interface.message_factory import MessageFactory
+from .interface.message_queue import MessageQueue
+from .os_file_management import OSFileManagement
+from .os_firmware_update import OSFirmwareUpdate
+from .logger_factory import logging_config
+from .wolk_connect import WolkConnect
 
 
 __all__ = [
@@ -54,28 +53,26 @@ __all__ = [
     "ConfigurationCommand",
     "ConfigurationCommandType",
     "Device",
-    "FileTransferPacket",
-    "FirmwareCommand",
-    "FirmwareCommandType",
-    "FirmwareErrorType",
-    "FirmwareStatus",
-    "FirmwareStatusType",
-    "FirmwareUpdateStateType",
-    "InboundMessage",
-    "OutboundMessage",
-    "Protocol",
+    "FileTransferPackage",
+    "FirmwareUpdateStatus",
+    "FirmwareUpdateStatusType",
+    "FirmwareUpdateErrorType",
+    "FileManagementStatus",
+    "FileManagementStatusType",
+    "FileManagementErrorType",
+    "Message",
     "SensorReading",
-    "ActuationHandler",
-    "ActuatorStatusProvider",
-    "ConfigurationHandler",
-    "ConfigurationProvider",
+    "handle_actuation",
+    "get_actuator_status",
+    "handle_configuration",
+    "get_configuration",
     "ConnectivityService",
-    "FileSystemFirmwareHandler",
-    "FirmwareInstaller",
-    "FirmwareURLDownloadHandler",
+    "FirmwareHandler",
+    "MessageDeserializer",
+    "MessageFactory",
+    "MessageQueue",
+    "OSFileManagement",
+    "OSFirmwareUpdate",
     "logging_config",
-    "InboundMessageDeserializer",
-    "OutboundMessageFactory",
-    "OutboundMessageQueue",
     "WolkConnect",
 ]

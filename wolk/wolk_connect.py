@@ -80,9 +80,7 @@ class WolkConnect:
             Callable[[str, Union[bool, int, float, str]], None]
         ] = None,
         actuator_status_provider: Optional[
-            Callable[
-                [str], Tuple[ActuatorState, Union[bool, int, float, str]]
-            ],
+            Callable[[str], Tuple[ActuatorState, Union[bool, int, float, str]]]
         ] = None,
         configuration_handler: Optional[Callable[[dict], None]] = None,
         configuration_provider: Optional[Callable[[None], dict]] = None,
@@ -333,11 +331,10 @@ class WolkConnect:
         if self.firmware_update:
 
             message = self.message_factory.make_from_firmware_version(
-                firmware_update.version
+                self.firmware_update.handler.get_current_version()
             )
             self.message_queue.put(message)
-
-        self.firmware_update.report_result()
+            self.firmware_update.report_result()
 
     def connect(self) -> None:
         """
@@ -484,7 +481,7 @@ class WolkConnect:
             return
 
         message = self.message_factory.make_from_configuration(
-            self.configuration_provider.get_configuration()
+            self.configuration_provider()
         )
 
         if not self.connectivity_service.publish(message):
@@ -566,6 +563,27 @@ class WolkConnect:
                 return
             self.file_management.handle_file_upload_abort()
 
+        elif self.message_deserializer.is_file_upload_initiate(message):
+            if not self.file_management:
+                self.logger.warning(
+                    "Received unexpected file URL download "
+                    f"abort message: {message}"
+                )
+                status = FileManagementStatus(
+                    FileManagementStatusType.ERROR,
+                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
+                )
+                message = self.message_factory.make_from_file_management_status(
+                    status
+                )
+                if not self.connectivity_service.publish(message):
+                    self.message_queue.put(message)
+                return
+            name, size, fhash = self.message_deserializer.parse_file_initiate(
+                message
+            )
+            self.file_management.handle_upload_initiation(name, size, fhash)
+
         elif self.message_deserializer.is_file_url_abort(message):
             if not self.file_management:
                 self.logger.warning(
@@ -623,7 +641,7 @@ class WolkConnect:
             file_path = self.file_management.get_file_path(file_name)
             self.firmware_update.handle_install(file_path)
 
-        elif self.message_deserializer.is_file_url_install(message):
+        elif self.message_deserializer.is_file_url_initiate(message):
             if not self.file_management:
                 self.logger.warning(
                     "Received unexpected file URL download "

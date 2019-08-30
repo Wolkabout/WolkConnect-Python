@@ -82,6 +82,9 @@ class OSFileManagement(FileManagement):
         self.install_timer = None
         self.last_package_hash = 32 * b"\x00"
 
+        if not os.path.exists(os.path.abspath(self.download_location)):
+            os.mkdir(os.path.abspath(self.download_location))
+
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
     ) -> None:
@@ -94,6 +97,7 @@ class OSFileManagement(FileManagement):
         :param file_hash: base64 encoded sha256 hash of file
         :type file_hash: str
         """
+        self.logger.info("Starting file transfer")
         self.logger.info(
             f"File name: {file_name} ; "
             f"File size: {file_size} ; "
@@ -459,9 +463,12 @@ class OSFileManagement(FileManagement):
         """
         file_list = os.listdir(os.path.abspath(self.download_location)).sort()
 
-        for item in file_list:
-            if not os.path.isfile(item) or item.startswith("."):
-                file_list.remove(item)
+        if file_list:
+            for item in file_list:
+                if not os.path.isfile(item) or item.startswith("."):
+                    file_list.remove(item)
+        else:
+            file_list = []
 
         self.logger.debug(f"Files on device: {file_list}")
         return file_list

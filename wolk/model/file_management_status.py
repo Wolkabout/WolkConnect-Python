@@ -13,7 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 from wolk.model.file_management_status_type import FileManagementStatusType
@@ -31,5 +31,5 @@ class FileManagementStatus:
     :ivartype error: FileManagementErrorType or None
     """
 
-    status: Optional[FileManagementStatusType]
-    error: Optional[FileManagementErrorType]
+    status: Optional[FileManagementStatusType] = field(default=None)
+    error: Optional[FileManagementErrorType] = field(default=None)

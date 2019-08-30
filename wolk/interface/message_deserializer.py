@@ -14,12 +14,11 @@
 #   limitations under the License.
 
 from abc import ABCMeta, abstractmethod
-from typing import List
+from typing import List, Tuple
 
 from wolk.model.actuator_command import ActuatorCommand
 from wolk.model.configuration_command import ConfigurationCommand
 from wolk.model.message import Message
-from wolk.model.firmware_update_command import FirmwareUpdateCommand
 from wolk.model.file_transfer_package import FileTransferPackage
 
 
@@ -168,7 +167,7 @@ class MessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_file_url_install(self, message: Message) -> bool:
+    def is_file_url_initiate(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
@@ -212,6 +211,18 @@ class MessageDeserializer(metaclass=ABCMeta):
         :type message: Message
         :returns: file_name
         :rtype: str
+        """
+        pass
+
+    @abstractmethod
+    def parse_file_initiate(self, message: Message) -> Tuple[str, int, str]:
+        """
+        Return file name, file size and file hash from message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: (file_name, file_size, file_hash)
+        :rtype: Tuple[str, int, str]
         """
         pass
 
