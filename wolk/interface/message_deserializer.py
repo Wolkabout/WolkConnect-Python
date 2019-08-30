@@ -14,6 +14,7 @@
 #   limitations under the License.
 
 from abc import ABCMeta, abstractmethod
+from typing import List
 
 from wolk.model.actuator_command import ActuatorCommand
 from wolk.model.configuration_command import ConfigurationCommand
@@ -22,15 +23,15 @@ from wolk.model.firmware_update_command import FirmwareUpdateCommand
 from wolk.model.file_transfer_package import FileTransferPackage
 
 
-class InboundMessageDeserializer(metaclass=ABCMeta):
+class MessageDeserializer(metaclass=ABCMeta):
     """Deserialize messages received from the platform."""
 
-    def __init__(self, inbound_topics: list):
+    def __init__(self, inbound_topics: List[str]):
         """
         Set inbound topics for device.
 
         :param inbound_topics: List of topics to subscribe to
-        :type inbound_topics: list
+        :type inbound_topics: List[str]
         """
         self.inbound_topics = inbound_topics
 
@@ -59,7 +60,7 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_firmware_update_install_command(self, message: Message) -> bool:
+    def is_firmware_install(self, message: Message) -> bool:
         """
         Check if message is firmware update install command.
 
@@ -71,7 +72,7 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_firmware_update_abort_command(self, message: Message) -> bool:
+    def is_firmware_abort(self, message: Message) -> bool:
         """
         Check if message is firmware update command.
 
@@ -143,7 +144,7 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_file_upload_initiate_command(self, message: Message) -> bool:
+    def is_file_upload_initiate(self, message: Message) -> bool:
         """
         Check if message is file upload command.
 
@@ -155,7 +156,7 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_file_upload_abort_command(self, message: Message) -> bool:
+    def is_file_upload_abort(self, message: Message) -> bool:
         """
         Check if message is file upload command.
 
@@ -167,7 +168,7 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_file_url_download_initiate_command(self, message: Message) -> bool:
+    def is_file_url_install(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
@@ -179,7 +180,7 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_file_url_download_abort_command(self, message: Message) -> bool:
+    def is_file_url_abort(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
@@ -191,11 +192,9 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deserialize_actuator_command(
-        self, message: Message
-    ) -> ActuatorCommand:
+    def parse_actuator_command(self, message: Message) -> ActuatorCommand:
         """
-        Deserialize the message into an ActuatorCommand.
+        Parse the message into an ActuatorCommand.
 
         :param message: The message received
         :type message: Message
@@ -205,23 +204,21 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deserialize_firmware_update_command(
-        self, message: Message
-    ) -> FirmwareUpdateCommand:
+    def parse_firmware_install(self, message: Message) -> str:
         """
-        Deserialize the message into a FirmwareUpdateCommand.
+        Return file name from message.
 
         :param message: The message received
         :type message: Message
-        :returns: firmware_update_command
-        :rtype: FirmwareUpdateCommand
+        :returns: file_name
+        :rtype: str
         """
         pass
 
     @abstractmethod
-    def deserialize_file_url_download_command(self, message: Message) -> str:
+    def parse_file_url(self, message: Message) -> str:
         """
-        Deserialize the message into a URL string.
+        Parse the message into a URL string.
 
         :param message: The message received
         :type message: Message
@@ -231,9 +228,9 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deserialize_file_binary(self, message: Message) -> FileTransferPackage:
+    def parse_file_binary(self, message: Message) -> FileTransferPackage:
         """
-        Deserialize the message into a file transfer package.
+        Parse the message into a file transfer package.
 
         :param message: The message received
         :type message: Message
@@ -243,11 +240,9 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deserialize_configuration_command(
-        self, message: Message
-    ) -> ConfigurationCommand:
+    def parse_configuration(self, message: Message) -> ConfigurationCommand:
         """
-        Deserialize the message into a ConfigurationCommand.
+        Parse the message into a ConfigurationCommand.
 
         :param message: The message received
         :type message: Message
@@ -257,9 +252,9 @@ class InboundMessageDeserializer(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def deserialize_file_delete_command(self, message: Message) -> str:
+    def parse_file_delete_command(self, message: Message) -> str:
         """
-        Deserialize the message into a file name to delete.
+        Parse the message into a file name to delete.
 
         :param message: The message received
         :type message: Message

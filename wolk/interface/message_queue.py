@@ -19,7 +19,7 @@ from typing import Optional
 from wolk.model.message import Message
 
 
-class OutboundMessageQueue(ABC):
+class MessageQueue(ABC):
     """Store messages on device before publishing to WolkAbout IoT Platform."""
 
     @abstractmethod

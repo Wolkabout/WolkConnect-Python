@@ -22,7 +22,7 @@ from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.interface.firmware_update import FirmwareUpdate
 from wolk.interface.firmware_handler import FirmwareHandler
-from wolk import LoggerFactory
+from wolk import logger_factory
 
 
 class OSFirmwareUpdate(FirmwareUpdate):
@@ -35,7 +35,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         :param firmware_handler: Function that will handle the installation
         :type firmware_handler: Callable[[str], None]
         """
-        self.logger = LoggerFactory.logger_factory.get_logger(
+        self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
         self.logger.debug(f"firmware_handler: {firmware_handler}")

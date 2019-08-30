@@ -13,24 +13,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-
 import json
 
-from wolk.model.ActuatorCommand import ActuatorCommand
-from wolk.model.ActuatorCommandType import ActuatorCommandType
-from wolk.model.ConfigurationCommand import ConfigurationCommand
-from wolk.model.ConfigurationCommandType import ConfigurationCommandType
-from wolk.interface.inbound_message_deserializer import (
-    InboundMessageDeserializer,
+from wolk.model.actuator_command import ActuatorCommand, ActuatorCommandType
+from wolk.model.configuration_command import (
+    ConfigurationCommand,
+    ConfigurationCommandType,
 )
-from wolk.model.Message import Message
-from wwolk.model.FirmwareUpdateCommand import FirmwareUpdateCommand
-from wwolk.model.FirmwareUpdateCommandType import FirmwareUpdateCommandType
+from wolk.model.device import Device
 from wolk.model.FileTransferPackage import FileTransferPackage
-from wolk import LoggerFactory
+from wolk.model.Message import Message
+from wolk.interface.message_deserializer import MessageDeserializer
+from wolk import logger_factory
 
 
-class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
+class JSONProtocolMessageDeserializer(MessageDeserializer):
     """
     Deserialize messages received from the WolkAbout IoT Platform.
 
@@ -38,14 +35,14 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
     :vartype logger: logging.Logger
     """
 
-    def __init__(self, device):
+    def __init__(self, device: Device) -> None:
         """
         Create inbound topics from device key.
 
         :param device: Device key and actuator references for inbound topics
-        :type message: wolk.models.Device.Device
+        :type device: Device
         """
-        self.logger = LoggerFactory.logger_factory.get_logger(
+        self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
         self.logger.debug(f"{device}")
@@ -87,7 +84,7 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/actuator")
 
-    def is_firmware_update_install_command(self, message: Message) -> bool:
+    def is_firmware_install(self, message: Message) -> bool:
         """
         Check if message is firmware update install command.
 
@@ -98,7 +95,7 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/firmware_update_install")
 
-    def is_firmware_update_abort_command(self, message: Message) -> bool:
+    def is_firmware_abort(self, message: Message) -> bool:
         """
         Check if message is firmware update command.
 
@@ -175,7 +172,7 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/file_list_request")
 
-    def is_file_upload_initiate_command(self, message: Message) -> bool:
+    def is_file_upload_initiate(self, message: Message) -> bool:
         """
         Check if message is file upload command.
 
@@ -186,7 +183,7 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/file_upload_initiate")
 
-    def is_file_upload_abort_command(self, message: Message) -> bool:
+    def is_file_upload_abort(self, message: Message) -> bool:
         """
         Check if message is file upload command.
 
@@ -197,7 +194,7 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/file_upload_abort")
 
-    def is_file_url_download_initiate_command(self, message: Message) -> bool:
+    def is_file_url_install(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
@@ -208,7 +205,7 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/file_url_download_initiate")
 
-    def is_file_url_download_abort_command(self, message: Message) -> bool:
+    def is_file_url_abort(self, message: Message) -> bool:
         """
         Check if message is file URL download command.
 
@@ -219,9 +216,9 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         """
         return message.topic.startswith("p2d/file_url_download_abort")
 
-    def deserialize_actuator_command(self, message):
+    def parse_actuator_command(self, message):
         """
-        Deserialize the message into an actuation command.
+        Parse the message into an actuation command.
 
         :param message: Message to be deserialized
         :type message: wolk.models.Message.Message
@@ -246,81 +243,39 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
                 value = False
 
             actuation = ActuatorCommand(reference, command_type, value)
-            self.logger.info(
-                "Received actuation command - Reference: %s ; Command: SET ;"
-                " Value: %s",
-                actuation.reference,
-                actuation.value,
-            )
+            self.logger.info(f"Received actuation command: {actuation}")
             return actuation
 
         elif "actuator_get" in message.topic:
 
-            command_type = ActuatorCommandType.STATUS
+            command_type = ActuatorCommandType.GET
             actuation = ActuatorCommand(reference, command_type)
-            self.logger.info(
-                "Received actuation command - Reference: %s ;"
-                " Command: STATUS ",
-                actuation.reference,
-            )
+            self.logger.info(f"Received actuation command: {actuation}")
             return actuation
 
-        else:
-
-            command_type = ActuatorCommandType.UNKNOWN
-            actuation = ActuatorCommand(reference, command_type)
-            self.logger.warning(
-                "Received unknown actuation command on topic - : %s ;"
-                " Payload: %s",
-                message.topic,
-                message.payload,
-            )
-            return actuation
-
-    def deserialize_firmware_update_command(
-        self, message: Message
-    ) -> FirmwareUpdateCommand:
+    def parse_firmware_install(self, message: Message) -> str:
         """
-        Deserialize the message into a FirmwareUpdateCommand.
+        Return file name from message.
 
         :param message: The message received
         :type message: Message
-        :returns: firmware_update_command
-        :rtype: FirmwareUpdateCommand
+        :returns: file_name
+        :rtype: str
         """
-        self.logger.debug("deserialize_firmware_update_command called")
-        firmware_update_command = FirmwareUpdateCommand(
-            FirmwareUpdateCommandType.UNKNOWN
-        )
-        if "abort" in message.topic:
-            firmware_update_command.command = FirmwareUpdateCommandType.ABORT
-        elif "install" in message.topic:
-            payload = json.loads(message.payload.decode("utf-8"))
-            if "fileName" not in payload:
-                self.logger.error(
-                    "Received firmware update install command"
-                    " with invalid payload! %s",
-                    message.payload.decode("utf-8"),
-                )
-                return firmware_update_command
-            else:
-                firmware_update_command.file_name = payload.at("fileName")
-                firmware_update_command.command = (
-                    FirmwareUpdateCommandType.INSTALL
-                )
+        payload = json.loads(message.payload.decode("utf-8"))
+        file_name = payload.at("fileName")
+        self.logger.debug(f"File name: {file_name}")
+        return file_name
 
-        return firmware_update_command
-
-    def deserialize_file_binary(self, message: Message) -> FileTransferPackage:
+    def parse_file_binary(self, message: Message) -> FileTransferPackage:
         """
-        Deserialize the message into a file transfer package.
+        Parse the message into a file transfer package.
 
         :param message: The message received
         :type message: Message
         :returns: file_transfer_package
         :rtype: FileTransferPackage
         """
-        self.logger.debug("deserialize_file_binary called")
         previous_hash = message.payload[:32]
         data = message.payload[32 : len(message.payload) - 32]
         current_hash = message.payload[-32:]
@@ -329,19 +284,13 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
             previous_hash, data, current_hash
         )
         self.logger.debug(
-            "deserialize_firmware_chunk - Previous hash: %s ; "
-            "Data size: %s ; Current hash: %s",
-            file_transfer_package.previous_hash,
-            len(file_transfer_package.data),
-            file_transfer_package.current_hash,
+            f"Received file transfer package: {file_transfer_package}"
         )
         return file_transfer_package
 
-    def deserialize_configuration_command(
-        self, message: Message
-    ) -> ConfigurationCommand:
+    def parse_configuration(self, message: Message) -> ConfigurationCommand:
         """
-        Deserialize the message into a configuration command.
+        Parse the message into a configuration command.
 
         :param message: The message received
         :type message: Message
@@ -349,7 +298,6 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
         :returns: configuration
         :rtype: ConfigurationCommand
         """
-        self.logger.debug("deserialize_configuration_command called")
         payload = json.loads(message.payload.decode("utf-8"))
 
         if "configuration_set" in message.topic:
@@ -357,11 +305,6 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
             command = ConfigurationCommandType.SET
 
             configuration = ConfigurationCommand(command, payload)
-
-            self.logger.info(
-                "Received configuration command - Command: SET  Values: %s",
-                configuration.values,
-            )
 
             for reference, value in configuration.values.items():
                 if "\n" in value:
@@ -391,32 +334,16 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
 
                         configuration.values[reference] = tuple(values_list)
 
-            return configuration
-
         elif "configuration_get" in message.topic:
-
-            command = ConfigurationCommandType.CURRENT
-
+            command = ConfigurationCommandType.GET
             configuration = ConfigurationCommand(command)
-            self.logger.info(
-                "Received configuration command - Command: CURRENT"
-            )
-            return configuration
 
-        else:
+        self.logger.info(f"Received configuration command: {configuration}")
+        return configuration
 
-            command = ConfigurationCommandType.UNKNOWN
-
-            configuration = ConfigurationCommand(command)
-            self.logger.warning(
-                "Received configuration command - Command: %s",
-                configuration.command,
-            )
-            return configuration
-
-    def deserialize_file_delete_command(self, message: Message) -> str:
+    def parse_file_delete_command(self, message: Message) -> str:
         """
-        Deserialize the message into a file name to delete.
+        Parse the message into a file name to delete.
 
         :param message: The message received
         :type message: Message
@@ -434,9 +361,9 @@ class JSONProtocolMessageDeserializer(InboundMessageDeserializer):
 
         return payload.at("fileName")
 
-    def deserialize_file_url_download_command(self, message: Message) -> str:
+    def parse_file_url(self, message: Message) -> str:
         """
-        Deserialize the message into a URL string.
+        Parse the message into a URL string.
 
         :param message: The message received
         :type message: Message

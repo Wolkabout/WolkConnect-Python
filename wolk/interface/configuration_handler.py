@@ -16,7 +16,6 @@ from typing import Dict, Union, Tuple
 
 
 def handle_configuration(
-    device_key: str,
     configuration: Dict[
         str,
         Union[
@@ -39,8 +38,6 @@ def handle_configuration(
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
-    :param device_key: Device identifier
-    :type device_key: str
     :param configuration: Configuration option reference:value pairs
     :type configuration: dict
     """

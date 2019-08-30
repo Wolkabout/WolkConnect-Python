@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 from dataclasses import dataclass, field
-from enum import Enum, auto, unique
+from enum import Enum, unique
 from typing import Dict, Optional, Tuple, Union
 
 
@@ -28,8 +28,8 @@ class ConfigurationCommandType(Enum):
     :vartype SET: int
     """
 
-    GET = auto()
-    SET = auto()
+    GET = "GET"
+    SET = "SET"
 
 
 @dataclass

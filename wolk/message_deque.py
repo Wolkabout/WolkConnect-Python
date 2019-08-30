@@ -1,4 +1,5 @@
-#   Copyright 2018 WolkAbout Technology s.r.o.
+"""Message storage implemented via double ended queue."""
+#   Copyright 2019 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -12,15 +13,15 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-"""OSOutboundMessageQueue Module."""
-
 from collections import deque
+from typing import Optional
 
-from wolk.interfaces.OutboundMessageQueue import OutboundMessageQueue
-from wolk import LoggerFactory
+from wolk.model.message import Message
+from wolk.interface.message_queue import MessageQueue
+from wolk import logger_factory
 
 
-class OSOutboundMessageQueue(OutboundMessageQueue):
+class MessageDeque(MessageQueue):
     """
     Store messages before they are sent to the WolkAbout IoT Platform.
 
@@ -33,12 +34,11 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
     def __init__(self):
         """Create a double ended queue to store messages."""
         self.queue = deque()
-        self.logger = LoggerFactory.logger_factory.get_logger(
+        self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
-        self.logger.debug("Init")
 
-    def put(self, message):
+    def put(self, message: Message) -> bool:
         """
         Add the message to the queue.
 
@@ -46,23 +46,22 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         into a single message.
 
         :param message: Message to place in the queue
-        :type message: wolk.models.OutboundMessage.OutboundMessage
+        :type message: Message
+        :returns: success
+        :rtype: bool
         """
         if not message:
-            return
+            self.logger.error("Nothing to store!")
+            return False
 
         if "reading" not in message.topic:
             self.queue.append(message)
             self.logger.debug(
-                "put - Queue size: %s ; Topic: %s ; Payload: %s",
-                len(self.queue),
-                message.topic,
-                message.payload,
+                f"Stored message: {message} - Queue size: {len(self.queue)}"
             )
-            return
+            return True
 
         reading_reference = message.topic.split("/")[-1]
-
         present_in_queue = False
 
         for stored_message in self.queue:
@@ -75,12 +74,9 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
         if not present_in_queue:
             self.queue.append(message)
             self.logger.debug(
-                "put - Queue size: %s ; Topic: %s ; Payload: %s",
-                len(self.queue),
-                message.topic,
-                message.payload,
+                f"Stored message: {message} - Queue size: {len(self.queue)}"
             )
-            return
+            return True
 
         readings = 0
         max_data = 1
@@ -100,12 +96,10 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
                     stored_message.payload = "[" + stored_message.payload
                     stored_message.payload += "," + message.payload + "]"
                     self.logger.debug(
-                        "put - Queue size: %s ; Topic: %s ; Payload: %s",
-                        len(self.queue),
-                        message.topic,
-                        message.payload,
+                        f"Stored message: {message} "
+                        f"- Queue size: {len(self.queue)}"
                     )
-                    break
+                    return True
 
         if max_data > 1:
             for stored_message in self.queue:
@@ -119,49 +113,40 @@ class OSOutboundMessageQueue(OutboundMessageQueue):
                     stored_message.payload = stored_message.payload[:-1]
                     stored_message.payload += "," + message.payload + "]"
                     self.logger.debug(
-                        "put - Queue size: %s ; Topic: %s ; Payload: %s",
-                        len(self.queue),
-                        message.topic,
-                        message.payload,
+                        f"Stored message: {message} "
+                        f"- Queue size: {len(self.queue)}"
                     )
+                    return True
 
-    def get(self):
+    def get(self) -> Optional[Message]:
         """
         Take the first message from the queue.
 
         :returns: message
-        :rtype: wolk.models.OutboundMessage.OutboundMessage or None
+        :rtype: Optional[Message]
         """
         if len(self.queue) == 0:
             return None
-
         message = self.queue.popleft()
         self.logger.debug(
-            "get - Queue size: %s ; Topic: %s ; Payload: %s",
-            len(self.queue),
-            message.topic,
-            message.payload,
+            f"Returning message: {message} " f"- Queue size: {len(self.queue)}"
         )
         return message
 
-    def peek(self):
+    def peek(self) -> Optional[Message]:
         """
         Return the first message from the queue without removing it.
 
         :returns: message
-        :rtype: wolk.models.OutboundMessage.OutboundMessage or None
+        :rtype: Optional[Message]
         """
         if len(self.queue) == 0:
-
-            self.logger.debug("peek - Queue size: %s", len(self.queue))
+            self.logger.debug("Empty queue")
             return
-
         else:
             message = self.queue[0]
             self.logger.debug(
-                "peek - Queue size: %s ; Topic: %s ; Payload: %s",
-                len(self.queue),
-                message.topic,
-                message.payload,
+                f"Returning message: {message} "
+                f"- Queue size: {len(self.queue)}"
             )
             return message

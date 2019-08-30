@@ -30,7 +30,7 @@ from wolk.model.file_management_status_type import FileManagementStatusType
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.interface.file_management import FileManagement
-from wolk import LoggerFactory
+from wolk import logger_factory
 
 
 class OSFileManagement(FileManagement):
@@ -58,7 +58,7 @@ class OSFileManagement(FileManagement):
         :param download_location: Path to where files are stored
         :type download_location: str
         """
-        self.logger = LoggerFactory.logger_factory.get_logger(
+        self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
 

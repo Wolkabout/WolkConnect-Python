@@ -16,7 +16,7 @@ from typing import Union
 
 
 def handle_actuation(
-    device_key: str, reference: str, value: Union[bool, int, float, str]
+    reference: str, value: Union[bool, int, float, str]
 ) -> None:
     """
     Set device actuator identified by reference to value.
@@ -24,8 +24,6 @@ def handle_actuation(
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
-    :param device_key: Device identifier
-    :type device_key: str
     :param reference: Reference of the actuator
     :type reference: str
     :param value: Value to which to set the actuator

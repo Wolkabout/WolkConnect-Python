@@ -14,7 +14,7 @@
 #   limitations under the License.
 
 from dataclasses import dataclass, field
-from enum import Enum, auto, unique
+from enum import Enum, unique
 from typing import Optional, Union
 
 
@@ -23,13 +23,13 @@ class ActuatorCommandType(Enum):
     """Actuator command type.
 
     :ivar GET: Get current actuator value
-    :vartype GET: int
+    :vartype GET: str
     :ivar SET: Set actuator to value
-    :vartype SET: int
+    :vartype SET: str
     """
 
-    GET = auto()
-    SET = auto()
+    GET = "GET"
+    SET = "SET"
 
 
 @dataclass

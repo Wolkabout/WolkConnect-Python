@@ -24,7 +24,7 @@ from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 
 
-class OutboundMessageFactory(ABC):
+class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
     @abstractmethod

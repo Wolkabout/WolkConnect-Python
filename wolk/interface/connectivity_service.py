@@ -33,6 +33,15 @@ class ConnectivityService(ABC):
         pass
 
     @abstractmethod
+    def is_connected(self) -> bool:
+        """Return current connection state.
+
+        :returns: connected
+        :rtype: bool
+        """
+        pass
+
+    @abstractmethod
     def publish(self, message: Message) -> bool:
         """
         Publish a message to WolkAbout IoT Platform.

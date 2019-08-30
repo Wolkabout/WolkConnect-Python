@@ -18,10 +18,10 @@ from wolk.model.actuator_state import ActuatorState
 
 
 def get_actuator_status(
-    device_key: str, reference: str
+    reference: str
 ) -> Tuple[ActuatorState, Union[bool, int, float, str]]:
     """
-    Get current actuator status identified by device key and reference.
+    Get current actuator status identified by reference.
 
     Reads the status of actuator from the device
     and returns it as a tuple containing the actuator state and current value.
@@ -29,8 +29,6 @@ def get_actuator_status(
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
-    :param device_key: Device key to which the actuator belongs to
-    :type device_key: str
     :param reference: Actuator reference
     :type reference: str
     :returns: (state, value)

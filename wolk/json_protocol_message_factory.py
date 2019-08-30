@@ -23,11 +23,11 @@ from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
-from wolk.interface.outbound_message_factory import OutboundMessageFactory
-from wolk import LoggerFactory
+from wolk.interface.message_factory import MessageFactory
+from wolk import logger_factory
 
 
-class JSONProtocolOutboundMessageFactory(OutboundMessageFactory):
+class JSONProtocolMessageFactory(MessageFactory):
     """
     Serialize messages to be sent to WolkAbout IoT Platform.
 
@@ -45,10 +45,10 @@ class JSONProtocolOutboundMessageFactory(OutboundMessageFactory):
         :type device_key: str
         """
         self.device_key = device_key
-        self.logger = LoggerFactory.logger_factory.get_logger(
+        self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
-        self.logger.debug("Init - Device key: %s", device_key)
+        self.logger.debug(f"Device key: {device_key}")
 
     def make_from_sensor_reading(self, reading: SensorReading) -> Message:
         """

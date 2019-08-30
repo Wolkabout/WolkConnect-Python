@@ -15,9 +15,7 @@
 from typing import Dict, Union, Tuple
 
 
-def get_configuration(
-    device_key: str
-) -> Dict[
+def get_configuration() -> Dict[
     str,
     Union[
         int,
@@ -41,8 +39,6 @@ def get_configuration(
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
-    :param device_key: Device identifier
-    :type device_key: str
     :returns: configuration
     :rtype: dict
     """
