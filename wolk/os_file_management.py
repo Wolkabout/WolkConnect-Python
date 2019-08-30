@@ -128,7 +128,7 @@ class OSFileManagement(FileManagement):
         self.file_size = file_size
         self.file_hash = file_hash
         self.expected_number_of_packages = math.ceil(
-            self.file_size / self.firmware_handler.chunk_size
+            self.file_size / self.preferred_package_size
         )
         self.next_package_index = 0
         self.retry_count = 0
@@ -333,7 +333,7 @@ class OSFileManagement(FileManagement):
         )
         sha256_file_hash = hashlib.sha256()
 
-        for x in range(0, self.expected_number_of_chunks):
+        for x in range(self.expected_number_of_packages):
 
             self.temp_file.seek(x * self.preferred_package_size)
             chunk = self.temp_file.read(self.preferred_package_size)
@@ -361,9 +361,9 @@ class OSFileManagement(FileManagement):
         if not os.path.exists(os.path.abspath(self.download_location)):
             os.makedirs(os.path.abspath(self.download_location))
 
-            file_path = os.path.join(
-                os.path.abspath(self.download_location), self.file_name
-            )
+        file_path = os.path.join(
+            os.path.abspath(self.download_location), self.file_name
+        )
 
         # TODO: File already exists?
         shutil.copy2(os.path.realpath(self.temp_file.name), file_path)
@@ -461,11 +461,13 @@ class OSFileManagement(FileManagement):
         :returns: file_list
         :rtype: List[str]
         """
-        file_list = os.listdir(os.path.abspath(self.download_location)).sort()
+        file_list = os.listdir(os.path.abspath(self.download_location))
 
         if file_list:
             for item in file_list:
-                if not os.path.isfile(item) or item.startswith("."):
+                if not os.path.isfile(
+                    os.path.join(os.path.abspath(self.download_location), item)
+                ) or item.startswith("."):
                     file_list.remove(item)
         else:
             file_list = []

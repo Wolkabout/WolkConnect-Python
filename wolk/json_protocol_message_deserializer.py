@@ -116,7 +116,7 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_chunk
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_binary")
+        return message.topic.startswith("p2d/file_binary_response")
 
     def is_configuration_command(self, message: Message) -> bool:
         """
@@ -392,16 +392,15 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :rtype: Tuple[str, int, str]
         """
         payload = json.loads(message.payload.decode("utf-8"))
-        if "fileName" not in payload:
+        if "fileName" not in payload.keys():
             self.logger.error(
                 "Received firmware update install command"
                 " with invalid payload! %s",
                 message.payload.decode("utf-8"),
             )
             return
+        file_name = payload["fileName"]
+        file_size = payload["fileSize"]
+        file_hash = payload["fileHash"]
 
-        return (
-            payload.at("fileName"),
-            payload.at("fileSize"),
-            payload.at("fileHash"),
-        )
+        return file_name, file_size, file_hash

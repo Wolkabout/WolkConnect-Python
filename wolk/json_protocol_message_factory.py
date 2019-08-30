@@ -335,7 +335,7 @@ class JSONProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
-        payload = "{" + str([{"fileName": file} for file in file_list]) + "}"
+        payload = [{"fileName": file} for file in file_list]
         topic = "d2p/file_list_update/d/" + self.device_key
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
