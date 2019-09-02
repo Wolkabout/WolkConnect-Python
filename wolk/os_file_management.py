@@ -468,7 +468,7 @@ class OSFileManagement(FileManagement):
         self.file_url_download_status_callback(file_url, self.current_status)
 
         response = requests.get(file_url)
-        with open(file_path, "ab", encoding="utf-8") as file:
+        with open(file_path, "ab") as file:
             file.write(response.content)
             file.flush()
             os.fsync(file)

@@ -441,7 +441,7 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
             )
             return
 
-        return payload.at("fileUrl")
+        return payload["fileUrl"]
 
     def parse_file_initiate(self, message: Message) -> Tuple[str, int, str]:
         """
