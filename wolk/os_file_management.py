@@ -122,14 +122,61 @@ class OSFileManagement(FileManagement):
             self.current_status = FileManagementStatus()
             return
 
+        self.expected_number_of_packages = math.ceil(
+            file_size / self.preferred_package_size
+        )
+
+        if os.path.exists(
+            os.path.join(os.path.abspath(self.download_location), file_name)
+        ):
+            valid_file = False
+
+            sha256_received_file_hash = base64.b64decode(
+                file_hash + ("=" * (-len(file_hash) % 4))
+            )
+            sha256_file_hash = hashlib.sha256()
+
+            existing_file = open(
+                os.path.join(
+                    os.path.abspath(self.download_location), file_name
+                ),
+                "rb",
+            )
+
+            for x in range(self.expected_number_of_packages):
+
+                existing_file.seek(x * self.preferred_package_size)
+                chunk = existing_file.read(self.preferred_package_size)
+                if not chunk:
+                    self.logger.error("File size too small!")
+                    break
+
+                sha256_file_hash.update(chunk)
+
+            sha256_file_hash = sha256_file_hash.digest()
+            valid_file = sha256_received_file_hash == sha256_file_hash
+
+            if valid_file:
+                self.logger.info(
+                    "File requested for transfer already on device"
+                )
+                self.current_status.status = (
+                    FileManagementStatusType.FILE_READY
+                )
+                self.current_status.error = None
+                self.file_upload_status_callback(
+                    file_name, self.current_status
+                )
+
+                self.current_status = FileManagementStatus()
+                self.last_package_hash = 32 * b"\x00"
+                return
+
         self.current_status.status = FileManagementStatusType.FILE_TRANSFER
         self.temp_file = tempfile.NamedTemporaryFile(mode="a+b", delete=False)
         self.file_name = file_name
         self.file_size = file_size
         self.file_hash = file_hash
-        self.expected_number_of_packages = math.ceil(
-            self.file_size / self.preferred_package_size
-        )
         self.next_package_index = 0
         self.retry_count = 0
 

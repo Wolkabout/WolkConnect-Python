@@ -148,7 +148,7 @@ class WolkConnect:
 
         if actuation_handler is None:
             self.actuation_handler = None
-        else:  # TODO: Fix check signatures for providers and handlers
+        else:
             if not callable(actuation_handler):
                 raise RuntimeError(f"{actuation_handler} is not a callable!")
             if len(signature(actuation_handler).parameters) != 2:
@@ -494,7 +494,30 @@ class WolkConnect:
         :param message: message received from the platform
         :type message: Message
         """
-        self.logger.debug(f"Received message: {message}")
+        if "binary" in message.topic:
+            self.logger.debug(
+                f"Received message: {message.topic} , "
+                f"{len(message.payload)}"
+            )
+        else:
+            self.logger.debug(f"Received message: {message}")
+
+        file_management_messages = [
+            self.message_deserializer.is_file_purge_command,
+            self.message_deserializer.is_file_delete_command,
+            self.message_deserializer.is_file_binary_response,
+            self.message_deserializer.is_file_upload_initiate,
+            self.message_deserializer.is_file_upload_abort,
+            self.message_deserializer.is_file_list_request,
+            self.message_deserializer.is_file_list_confirm,
+            self.message_deserializer.is_file_url_initiate,
+            self.message_deserializer.is_file_url_abort,
+        ]
+
+        firmware_update_messages = [
+            self.message_deserializer.is_firmware_install,
+            self.message_deserializer.is_firmware_abort,
+        ]
 
         if self.message_deserializer.is_actuation_command(message):
             if not self.actuation_handler or not self.actuator_status_provider:
@@ -512,47 +535,7 @@ class WolkConnect:
                 self.publish_actuator_status(actuation.reference)
             return
 
-        if self.message_deserializer.is_file_upload_initiate(message):
-            if not self.file_management:
-                self.logger.warning(
-                    "Received unexpected file download " f"message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
-            name, size, fhash = self.message_deserializer.parse_file_initiate(
-                message
-            )
-            self.file_management.handle_upload_initiation(name, size, fhash)
-            return
-
-        if self.message_deserializer.is_file_binary_response(message):
-            if not self.file_management:
-                self.logger.warning(
-                    f"Received unexpected file chunk message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
-            package = self.message_deserializer.parse_file_binary(message)
-            self.file_management.handle_file_binary_response(package)
-            return
-
-        if self.message_deserializer.is_configuration(message):
+        if self.message_deserializer.is_configuration_command(message):
             if (
                 not self.configuration_provider
                 or not self.configuration_handler
@@ -565,124 +548,69 @@ class WolkConnect:
                 message
             )
             if configuration.command == ConfigurationCommandType.SET:
-                self.configuration_handler(configuration.values)
+                self.configuration_handler(configuration.value)
                 self.publish_configuration()
             elif configuration.command == ConfigurationCommandType.GET:
                 self.publish_configuration()
             return
 
-        if self.message_deserializer.is_firmware_abort(message):
-            if not self.firmware_update:
-                self.logger.warning(
-                    f"Received unexpected firmware update message: {message}"
-                )
-                firmware_status = FirmwareUpdateStatus(
-                    FirmwareUpdateStatusType.ERROR,
-                    FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
-                )
-                message = self.message_factory.make_from_firmware_update_status(
-                    firmware_status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
-            self.firmware_update.handle_abort()
+        if any(
+            [is_message(message) for is_message in file_management_messages]
+        ):
+            self._on_file_management_message(message)
+            return
+
+        if any(
+            [is_message(message) for is_message in firmware_update_messages]
+        ):
+            self._on_firmware_message(message)
+            return
+
+        self.logger.warning(f"Received unknown message: {message}")
+
+    def _on_file_management_message(self, message: Message) -> None:
+
+        if not self.file_management:
+            self.logger.warning(
+                f"Received unexpected file management message: {message}"
+            )
+            status = FileManagementStatus(
+                FileManagementStatusType.ERROR,
+                FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
+            )
+            message = self.message_factory.make_from_file_management_status(
+                status
+            )
+            if not self.connectivity_service.publish(message):
+                self.message_queue.put(message)
+            return
+
+        if self.message_deserializer.is_file_upload_initiate(message):
+            name, size, fhash = self.message_deserializer.parse_file_initiate(
+                message
+            )
+            self.file_management.handle_upload_initiation(name, size, fhash)
+            return
+
+        if self.message_deserializer.is_file_binary_response(message):
+            package = self.message_deserializer.parse_file_binary(message)
+            self.file_management.handle_file_binary_response(package)
             return
 
         if self.message_deserializer.is_file_upload_abort(message):
-            if not self.file_management:
-                self.logger.warning(
-                    f"Received unexpected file abort message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             self.file_management.handle_file_upload_abort()
             return
 
         if self.message_deserializer.is_file_url_abort(message):
-            if not self.file_management:
-                self.logger.warning(
-                    "Received unexpected file URL download "
-                    f"abort message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             self.file_management.handle_file_upload_abort()
             return
 
-        if self.message_deserializer.is_firmware_install(message):
-            if not self.firmware_update:
-                self.logger.warning(
-                    f"Received unexpected firmware update message: {message}"
-                )
-                firmware_status = FirmwareUpdateStatus(
-                    FirmwareUpdateStatusType.ERROR,
-                    FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
-                )
-                message = self.message_factory.make_from_firmware_update_status(
-                    firmware_status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
-            file_name = self.message_deserializer.parse_firmware_install(
-                message
-            )
-            file_path = self.file_management.get_file_path(file_name)
-            self.firmware_update.handle_install(file_path)
-            return
-
         if self.message_deserializer.is_file_url_initiate(message):
-            if not self.file_management:
-                self.logger.warning(
-                    "Received unexpected file URL download "
-                    f"abort message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             file_url = self.message_deserializer.parse_file_url(message)
             self.file_management.handle_file_url_download_initiation(file_url)
             return
 
         if self.message_deserializer.is_file_list_request(message):
-            if not self.file_management:
-                self.logger.warning(
-                    f"Received unexpected file chunk message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             file_list = self.file_management.get_file_list()
             message = self.message_factory.make_from_file_list_request(
                 file_list
@@ -692,20 +620,6 @@ class WolkConnect:
             return
 
         if self.message_deserializer.is_file_delete_command(message):
-            if not self.file_management:
-                self.logger.warning(
-                    f"Received unexpected file chunk message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             file_name = self.message_deserializer.parse_file_delete_command(
                 message
             )
@@ -719,20 +633,6 @@ class WolkConnect:
             return
 
         if self.message_deserializer.is_file_purge_command(message):
-            if not self.file_management:
-                self.logger.warning(
-                    f"Received unexpected file chunk message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             self.file_management.handle_file_purge()
             file_list = self.file_management.get_file_list()
             message = self.message_factory.make_from_file_list_update(
@@ -743,24 +643,36 @@ class WolkConnect:
             return
 
         if self.message_deserializer.is_file_list_confirm(message):
-            if not self.file_management:
-                self.logger.warning(
-                    f"Received unexpected file chunk message: {message}"
-                )
-                status = FileManagementStatus(
-                    FileManagementStatusType.ERROR,
-                    FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-                )
-                message = self.message_factory.make_from_file_management_status(
-                    status
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
-                return
             self.file_management.handle_file_list_confirm()
             return
 
-        self.logger.warning(f"Received unknown message: {message}")
+    def _on_firmware_message(self, message: Message) -> None:
+        if not self.firmware_update:
+            self.logger.warning(
+                f"Received unexpected firmware update message: {message}"
+            )
+            firmware_status = FirmwareUpdateStatus(
+                FirmwareUpdateStatusType.ERROR,
+                FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
+            )
+            message = self.message_factory.make_from_firmware_update_status(
+                firmware_status
+            )
+            if not self.connectivity_service.publish(message):
+                self.message_queue.put(message)
+            return
+
+        if self.message_deserializer.is_firmware_install(message):
+            file_name = self.message_deserializer.parse_firmware_install(
+                message
+            )
+            file_path = self.file_management.get_file_path(file_name)
+            self.firmware_update.handle_install(file_path)
+            return
+
+        if self.message_deserializer.is_firmware_abort(message):
+            self.firmware_update.handle_abort()
+            return
 
     def _on_package_request(
         self, file_name: str, chunk_index: int, chunk_size: int

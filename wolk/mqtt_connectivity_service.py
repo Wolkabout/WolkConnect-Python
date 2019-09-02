@@ -110,7 +110,13 @@ class MQTTConnectivityService(ConnectivityService):
         if not message:
             return
         received_message = Message(message.topic, message.payload)
-        self.logger.debug(f"Received MQTT message: {received_message}")
+        if "binary" in received_message.topic:  # To skip printing file binary
+            self.logger.debug(
+                f"Received MQTT message: {received_message.topic} , "
+                f"{len(received_message.payload)}"
+            )
+        else:
+            self.logger.debug(f"Received MQTT message: {received_message}")
         self.inbound_message_listener(received_message)
 
     def on_mqtt_connect(

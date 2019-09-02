@@ -93,9 +93,11 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self._reset_state()
             return
 
-        if self.current_status.state is not None:
+        if self.current_status.status is not None:
 
-            self.logger.warning("Not in idle state, ignoring install command.")
+            self.logger.warning(
+                "Not in idle status, ignoring install command."
+            )
             return
 
         if os.path.exists("last_firmware_version.txt"):

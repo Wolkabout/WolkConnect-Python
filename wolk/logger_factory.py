@@ -23,7 +23,7 @@ class LoggerFactory:
     def __init__(
         self,
         level=logging.INFO,
-        log_format="%(asctime)s - %(name)s - %(levelname)s "
+        log_format="%(asctime)s - %(levelname)s "
         "[%(filename)s:%(lineno)s - %(funcName)s() ] - %(message)s",
         console=True,
         log_file=None,

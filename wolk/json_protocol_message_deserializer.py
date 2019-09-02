@@ -83,7 +83,11 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: actuation_command
         :rtype: bool
         """
-        return message.topic.startswith("p2d/actuator")
+        actuation_command = message.topic.startswith("p2d/actuator")
+        self.logger.debug(
+            f"{message.topic} is actuation command: {actuation_command}"
+        )
+        return actuation_command
 
     def is_firmware_install(self, message: Message) -> bool:
         """
@@ -91,10 +95,16 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: firmware_update_install_command
+        :returns: firmware_update_install
         :rtype: bool
         """
-        return message.topic.startswith("p2d/firmware_update_install")
+        firmware_update_install = message.topic.startswith(
+            "p2d/firmware_update_install"
+        )
+        self.logger.debug(
+            f"{message.topic} is firmware install: {firmware_update_install}"
+        )
+        return firmware_update_install
 
     def is_firmware_abort(self, message: Message) -> bool:
         """
@@ -102,10 +112,16 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: firmware_update_abort_command
+        :returns: firmware_update_abort
         :rtype: bool
         """
-        return message.topic.startswith("p2d/firmware_update_abort")
+        firmware_update_abort = message.topic.startswith(
+            "p2d/firmware_update_abort"
+        )
+        self.logger.debug(
+            f"{message.topic} is firmware abort: {firmware_update_abort}"
+        )
+        return firmware_update_abort
 
     def is_file_binary_response(self, message: Message) -> bool:
         """
@@ -113,10 +129,12 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: file_chunk
+        :returns: file_binary
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_binary_response")
+        file_binary = message.topic.startswith("p2d/file_binary_response")
+        self.logger.debug(f"{message.topic} is file binary: {file_binary}")
+        return file_binary
 
     def is_configuration_command(self, message: Message) -> bool:
         """
@@ -127,7 +145,9 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: configuration
         :rtype: bool
         """
-        return message.topic.startswith("p2d/configuration")
+        configuration = message.topic.startswith("p2d/configuration")
+        self.logger.debug(f"{message.topic} is configuration: {configuration}")
+        return configuration
 
     def is_file_delete_command(self, message: Message) -> bool:
         """
@@ -138,7 +158,11 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_delete_command
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_delete")
+        file_delete_command = message.topic.startswith("p2d/file_delete")
+        self.logger.debug(
+            f"{message.topic} is file delete: {file_delete_command}"
+        )
+        return file_delete_command
 
     def is_file_purge_command(self, message: Message) -> bool:
         """
@@ -149,7 +173,11 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_purge_command
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_purge")
+        file_purge_command = message.topic.startswith("p2d/file_purge")
+        self.logger.debug(
+            f"{message.topic} is file purge: {file_purge_command}"
+        )
+        return file_purge_command
 
     def is_file_list_confirm(self, message: Message) -> bool:
         """
@@ -160,7 +188,11 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_list_confirm
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_list_confirm")
+        file_list_confirm = message.topic.startswith("p2d/file_list_confirm")
+        self.logger.debug(
+            f"{message.topic} is file list confirm: {file_list_confirm}"
+        )
+        return file_list_confirm
 
     def is_file_list_request(self, message: Message) -> bool:
         """
@@ -171,7 +203,11 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_list_request
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_list_request")
+        file_list_request = message.topic.startswith("p2d/file_list_request")
+        self.logger.debug(
+            f"{message.topic} is file list request: {file_list_request}"
+        )
+        return file_list_request
 
     def is_file_upload_initiate(self, message: Message) -> bool:
         """
@@ -179,10 +215,16 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: file_upload_initiate_command
+        :returns: file_upload_initiate
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_upload_initiate")
+        file_upload_initiate = message.topic.startswith(
+            "p2d/file_upload_initiate"
+        )
+        self.logger.debug(
+            f"{message.topic} is file upload init: {file_upload_initiate}"
+        )
+        return file_upload_initiate
 
     def is_file_upload_abort(self, message: Message) -> bool:
         """
@@ -193,7 +235,13 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_upload_abort_command
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_upload_abort")
+        file_upload_abort_command = message.topic.startswith(
+            "p2d/file_upload_abort"
+        )
+        self.logger.debug(
+            f"{message.topic} is file purge: {file_upload_abort_command}"
+        )
+        return file_upload_abort_command
 
     def is_file_url_initiate(self, message: Message) -> bool:
         """
@@ -201,10 +249,16 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: file_url_download_initiate
+        :returns: file_url_download_init
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_url_download_initiate")
+        file_url_download_init = message.topic.startswith(
+            "p2d/file_url_download_initiate"
+        )
+        self.logger.debug(
+            f"{message.topic} is file url download: {file_url_download_init}"
+        )
+        return file_url_download_init
 
     def is_file_url_abort(self, message: Message) -> bool:
         """
@@ -215,19 +269,25 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_url_download_abort
         :rtype: bool
         """
-        return message.topic.startswith("p2d/file_url_download_abort")
+        file_url_download_abort = message.topic.startswith(
+            "p2d/file_url_download_abort"
+        )
+        self.logger.debug(
+            f"{message.topic} is file url abort: {file_url_download_abort}"
+        )
+        return file_url_download_abort
 
-    def parse_actuator_command(self, message):
+    def parse_actuator_command(self, message: Message) -> ActuatorCommand:
         """
         Parse the message into an actuation command.
 
         :param message: Message to be deserialized
-        :type message: wolk.models.Message.Message
+        :type message: Message
 
         :returns: actuation
-        :rtype: wolk.models.ActuatorCommand.ActuatorCommand
+        :rtype: ActuatorCommand
         """
-        self.logger.debug("deserialize_actuator_command called")
+        self.logger.debug(f"Deserialize actuation: {message}")
         reference = message.topic.split("/")[-1]
         payload = json.loads(message.payload.decode("utf-8"))
 
@@ -264,7 +324,7 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :rtype: str
         """
         payload = json.loads(message.payload.decode("utf-8"))
-        file_name = payload.at("fileName")
+        file_name = payload["fileName"]
         self.logger.debug(f"File name: {file_name}")
         return file_name
 
@@ -299,6 +359,7 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
         :returns: configuration
         :rtype: ConfigurationCommand
         """
+        self.logger.debug(f"Deserialize configuration : {message}")
         payload = json.loads(message.payload.decode("utf-8"))
 
         if "configuration_set" in message.topic:
@@ -307,14 +368,14 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
 
             configuration = ConfigurationCommand(command, payload)
 
-            for reference, value in configuration.values.items():
+            for reference, value in configuration.value.items():
                 if "\n" in value:
-                    value = value.replace("\n", "\\n")
-                    value = value.replace("\r", "")
+                    configuration.value[reference] = value.replace("\n", "\\n")
+                    configuration.value[reference] = value.replace("\r", "")
                 if value == "true":
-                    value = True
+                    configuration.value[reference] = True
                 elif value == "false":
-                    value = False
+                    configuration.value[reference] = False
 
                 if isinstance(value, bool):
                     pass
@@ -333,7 +394,7 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
                         except ValueError:
                             pass
 
-                        configuration.values[reference] = tuple(values_list)
+                        configuration.value[reference] = tuple(values_list)
 
         elif "configuration_get" in message.topic:
             command = ConfigurationCommandType.GET
