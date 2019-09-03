@@ -25,7 +25,7 @@ Supported device communication protocols:
 ## Prerequisite
 
 
-* Python 3
+* Python 3.7
 
 
 ## Installation
@@ -47,7 +47,7 @@ Install dependencies by invoking `pip3 install -r requirements.txt`
 
 Install the package by running:
 ```python
-py setup.py install
+python3.7 setup.py install
 ```
 
 ## Example Usage
@@ -68,11 +68,9 @@ device = wolk.Device(
 )
 
 # Pass your device and server information
-# Select formatting protocol: JSON_SINGLE (default) or JSON_PROTOCOL
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device,
-    protocol=wolk.Protocol.JSON_SINGLE
     host="api-demo.wolkabout.com",
     port=8883,
     ca_cert="path/to/ca.crt"
