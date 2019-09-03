@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>WolkConnect library &mdash; WolkConnect-Python 3.2.0 documentation</title>
+  <title>WolkConnect library &mdash; WolkConnect-Python v4.0.0 documentation</title>
   
 
   
@@ -17,35 +17,34 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
 
+  
+  
     
 
   
+
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="WolkConnect-Python" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
+
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search">
           
 
           
@@ -81,13 +80,12 @@
             
               <p class="caption"><span class="caption-text">Table of Content</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Functional documentaition</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">WolkConnect library</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api-s-functional-description">API’s functional description</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#connection-management">Connection Management</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#connect">Connect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#disconnect">Disconnect</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#keep-alive-mechanism">Keep Alive Mechanism</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#data-handling">Data Handling</a><ul>
@@ -199,21 +197,23 @@ The API is divided into three parts: connection management, data handling and de
 <h2>API’s functional description<a class="headerlink" href="#api-s-functional-description" title="Permalink to this headline">¶</a></h2>
 <p>WolkConnect libraries separate device’s functionality through the API into three distinct parts:</p>
 <ul class="simple">
-<li><strong>Connection Management</strong> - allows controlling the connected device in order to maintain data delivery integrity:<ul>
-<li>Connect</li>
-<li>Disconnect</li>
-<li>Keep-Alive Mechanism</li>
+<li><p><strong>Connection Management</strong> - allows controlling the connected device in order to maintain data delivery integrity:</p>
+<ul>
+<li><p>Connect</p></li>
+<li><p>Disconnect</p></li>
 </ul>
 </li>
-<li><strong>Data Handling</strong> - valuable data to be exchanged with WolkAbout IoT Platform:<ul>
-<li>Sensors</li>
-<li>Alarms</li>
-<li>Actuators</li>
+<li><p><strong>Data Handling</strong> - valuable data to be exchanged with WolkAbout IoT Platform:</p>
+<ul>
+<li><p>Sensors</p></li>
+<li><p>Alarms</p></li>
+<li><p>Actuators</p></li>
 </ul>
 </li>
-<li><strong>Device management</strong> - dynamical modification of the device properties with the goal to change device behavior:<ul>
-<li>Configuration Options</li>
-<li>Device Software/Firmware Update</li>
+<li><p><strong>Device management</strong> - dynamical modification of the device properties with the goal to change device behavior:</p>
+<ul>
+<li><p>Configuration Options</p></li>
+<li><p>Device Software/Firmware Update</p></li>
 </ul>
 </li>
 </ul>
@@ -225,17 +225,13 @@ The API is divided into three parts: connection management, data handling and de
 <h4>Connect<a class="headerlink" href="#connect" title="Permalink to this headline">¶</a></h4>
 <p>A device can be connected to WolkAbout IoT Platform in two ways:</p>
 <ul class="simple">
-<li><strong>Always connected devices</strong> - connect once and publish data when necessary. Actuations can only be used in this case, as sending actuations from WolkAbout IoT Platform are disabled when the device is offline.</li>
-<li><strong>Periodically connected devices</strong> - connect and publish data when needed. It is important to use disconnect here, as this is a valid device state on WolkAbout IoT Platform -  controlled offline.</li>
+<li><p><strong>Always connected devices</strong> - connect once and publish data when necessary. Actuations can only be used in this case, as sending actuations from WolkAbout IoT Platform are disabled when the device is offline.</p></li>
+<li><p><strong>Periodically connected devices</strong> - connect and publish data when needed. It is important to use disconnect here, as this is a valid device state on WolkAbout IoT Platform -  controlled offline.</p></li>
 </ul>
 </div>
 <div class="section" id="disconnect">
 <h4>Disconnect<a class="headerlink" href="#disconnect" title="Permalink to this headline">¶</a></h4>
 <p>Disconnecting will gracefully terminate the connection and the device will momentarily appear offline on WolkAbout IoT Platform. In cases of ungraceful disconnections, eg. due to a networking error, WolkAbout IoT Platform will be able to determine if the device is offline based on whether the device has send a message from its keep-alive mechanism. After waiting for the keep-alive mechanism timeout with no message, WolkAbout IoT Platform will declare the device offline.</p>
-</div>
-<div class="section" id="keep-alive-mechanism">
-<h4>Keep Alive Mechanism<a class="headerlink" href="#keep-alive-mechanism" title="Permalink to this headline">¶</a></h4>
-<p>In cases where the device is connected to the Platform but is not publishing any data for the period of 30 minutes, the device may be declared offline. This is especially true for devices that only have actuators, for example. To prevent this issue, a keep-alive mechanism will periodically send a message to WolkAbout IoT Platform. This mechanism can also be disabled to reduce bandwidth usage.</p>
 </div>
 </div>
 <div class="section" id="data-handling">
@@ -258,9 +254,9 @@ The API is divided into three parts: connection management, data handling and de
 <p>Actuators are used to enable WolkAbout IoT Platform to set the state of some part of the device, eg. flip a switch or change the gear of a motor.</p>
 <p>Single actuation consists of the command to a device and feedback from the device. A command is a message that arrived at the device. Feedback is the current status of the actuator on the device which needs to be sent to WolkAbout IoT Platform in order to complete a single actuation process. Current status has two parameters: actuator value and actuator state. Value is current value of the actuator, eg. for a switch, it can be true or false. Possible actuator states are:</p>
 <ul class="simple">
-<li><strong>READY</strong> - waiting to receive a command to change its value</li>
-<li><strong>BUSY</strong> - in the process of changing its value</li>
-<li><strong>ERROR</strong> - unable to comply</li>
+<li><p><strong>READY</strong> - waiting to receive a command to change its value</p></li>
+<li><p><strong>BUSY</strong> - in the process of changing its value</p></li>
+<li><p><strong>ERROR</strong> - unable to comply</p></li>
 </ul>
 <p>To perform a successful actuation, user needs to know the actuator references he was required to enter in the manifest, on the Platform, to forward them during the actuation initialization period. The user has to implement an actuation handler that will execute the commands that have been issued from WolkAbout IoT Platform. Then the user has to implement an actuation provider that will update WolkAbout IoT Platform with the current status of the actuator.
 Publishing actuator statuses is performed immediately, but if the actuator takes time to be executed, eg. closing the gate, then the actuator status will update WolkAbout IoT Platform with the current values until it reaches the commanded value.
@@ -279,21 +275,21 @@ If the device is unable to publish the actuator status, then the information wil
 <h4>Device Software/Firmware Update<a class="headerlink" href="#device-software-firmware-update" title="Permalink to this headline">¶</a></h4>
 <p>WolkAbout IoT Platform gives the possibility of updating the device software/firmware. The process is separated into three autonomous stages:</p>
 <ul class="simple">
-<li>Delivering software/firmware file from WolkAbout IoT Platform to a device</li>
-<li>Start the process of installing a file on the device</li>
-<li>Verify installed software/firmware</li>
+<li><p>Delivering software/firmware file from WolkAbout IoT Platform to a device</p></li>
+<li><p>Start the process of installing a file on the device</p></li>
+<li><p>Verify installed software/firmware</p></li>
 </ul>
 <p>The device needs to be connected to and deliver current software/firmware version to WolkAbout IoT Platform before starting to exploit software/firmware update.</p>
 <p>WolkAbout IoT Platform actuates the device to start the process of installing. The responsibility to successfully install the file is on a device, not on WolkConnect library.
 In order to update the firmware, the user must create a firmware handler.</p>
 <p>This firmware handler will specify the following parameters:</p>
 <ul class="simple">
-<li>Current firmware version,</li>
-<li>Desired size of firmware chunk to be received from WolkAbout IoT Platform,</li>
-<li>Maximum supported firmware file size,</li>
-<li>Download location,</li>
-<li>Implementation of a firmware installer that will be responsible for the installation process.</li>
-<li>Optionally, an implementation of firmware download handler that will download a file from an URL issued from WolkAbout IoT Platform.</li>
+<li><p>Current firmware version,</p></li>
+<li><p>Desired size of firmware chunk to be received from WolkAbout IoT Platform,</p></li>
+<li><p>Maximum supported firmware file size,</p></li>
+<li><p>Download location,</p></li>
+<li><p>Implementation of a firmware installer that will be responsible for the installation process.</p></li>
+<li><p>Optionally, an implementation of firmware download handler that will download a file from an URL issued from WolkAbout IoT Platform.</p></li>
 </ul>
 </div>
 </div>
@@ -311,7 +307,7 @@ In order to update the firmware, the user must create a firmware handler.</p>
         <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral float-left" title="WolkConnect-Python" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="WolkConnect-Python" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -320,7 +316,7 @@ In order to update the firmware, the user must create a firmware handler.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, WolkAbout
+        &copy; Copyright 2019, WolkAbout.
 
     </p>
   </div>
@@ -337,16 +333,33 @@ In order to update the firmware, the user must create a firmware handler.</p>
   
 
 
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v4.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

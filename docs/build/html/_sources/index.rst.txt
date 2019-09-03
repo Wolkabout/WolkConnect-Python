@@ -7,10 +7,17 @@ WolkConnect-Python
 	:caption: Table of Content
 	:maxdepth: 4
 
-	Functional documentaition<functional>
+	WolkConnect library<functional>
 	Examples<examples>
 	Wolk Package<wolk>
 
-The API is in :mod:`wolk.WolkConnect <wolk.WolkConnect>`
-
 Complete package documentation in :ref:`modindex`
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

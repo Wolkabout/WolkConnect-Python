@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>WolkConnect-Python &mdash; WolkConnect-Python 3.2.0 documentation</title>
+  <title>WolkConnect-Python &mdash; WolkConnect-Python v4.0.0 documentation</title>
   
 
   
@@ -17,34 +17,33 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
 
+  
+  
     
 
   
+
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="WolkConnect library" href="functional.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
+
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search">
           
 
           
@@ -80,7 +79,7 @@
             
               <p class="caption"><span class="caption-text">Table of Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="functional.html">Functional documentaition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functional.html">WolkConnect library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolk.html">Wolk Package</a></li>
 </ul>
@@ -152,13 +151,12 @@
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Table of Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="functional.html">Functional documentaition</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="functional.html">WolkConnect library</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="functional.html#architecture">Architecture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="functional.html#api-s-functional-description">API’s functional description</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="functional.html#connection-management">Connection Management</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="functional.html#connect">Connect</a></li>
 <li class="toctree-l4"><a class="reference internal" href="functional.html#disconnect">Disconnect</a></li>
-<li class="toctree-l4"><a class="reference internal" href="functional.html#keep-alive-mechanism">Keep Alive Mechanism</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="functional.html#data-handling">Data Handling</a><ul>
@@ -183,41 +181,38 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="wolk.html">Wolk Package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#connection-management">Connection Management</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.WolkConnect">wolk.WolkConnect module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.models.Device">wolk.Device module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.OSKeepAliveService">wolk.OSKeepAliveService module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.wolk_connect">WolkConnect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.mqtt_connectivity_service">MQTT connectivity service</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#data-handling">Data Handling</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ActuationHandler">wolk.ActuationHandler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ActuatorStatusProvider">wolk.ActuatorStatusProvider module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.json_protocol_message_deserializer">JSON protocol message deserializer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.json_protocol_message_factory">JSON protocol message factory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.message_deque">Message deque</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#device-management">Device Management</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ConfigurationHandler">wolk.ConfigurationHandler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.ConfigurationProvider">wolk.ConfigurationProvider module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.FileSystemFirmwareHandler">wolk.FileSystemFirmwareHandler module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.FirmwareInstaller">wolk.FirmwareInstaller module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.interfaces.FirmwareURLDownloadHandler">wolk.FirmwareURLDownloadHandler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.os_file_management">OS based file management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.os_firmware_update">OS based firmware update</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="wolk.html#internal-dependencies">Internal dependencies</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.LoggerFactory">wolk.LoggerFactory module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.OSFirmwareUpdate">wolk.OSFirmwareUpdate module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.OSMQTTConnectivityService">wolk.OSMQTTConnectivityService module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.JsonSingleInboundMessageDeserializer">wolk.JsonSingleInboundMessageDeserializer module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.JsonSingleOutboundMessageFactory">wolk.JsonSingleOutboundMessageFactory module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.JsonProtocolInboundMessageDeserializer">wolk.JsonProtocolInboundMessageDeserializer module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.JsonProtocolOutboundMessageFactory">wolk.JsonProtocolOutboundMessageFactory module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.OSOutboundMessageQueue">wolk.OSOutboundMessageQueue module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="wolk.html#module-wolk.logger_factory">Logger factory</a></li>
 </ul>
 </li>
 </ul>
 </li>
 </ul>
 </div>
-<p>The API is in <a class="reference internal" href="wolk.html#module-wolk.WolkConnect" title="wolk.WolkConnect"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wolk.WolkConnect</span></code></a></p>
 <p>Complete package documentation in <a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
 </div>
 
 
@@ -238,7 +233,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, WolkAbout
+        &copy; Copyright 2019, WolkAbout.
 
     </p>
   </div>
@@ -255,16 +250,33 @@
   
 
 
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v4.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

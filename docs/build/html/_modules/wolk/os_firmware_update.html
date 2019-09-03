@@ -1,0 +1,400 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wolk.os_firmware_update &mdash; WolkConnect-Python v4.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> WolkConnect-Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../functional.html">WolkConnect library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../wolk.html">Wolk Package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">WolkConnect-Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>wolk.os_firmware_update</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for wolk.os_firmware_update</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Enables firmware update for device.&quot;&quot;&quot;</span>
+<span class="c1">#   Copyright 2018 WolkAbout Technology s.r.o.</span>
+<span class="c1">#</span>
+<span class="c1">#   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c1">#   you may not use this file except in compliance with the License.</span>
+<span class="c1">#   You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#       http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1">#   Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1">#   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1">#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1">#   See the License for the specific language governing permissions and</span>
+<span class="c1">#   limitations under the License.</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">wolk.model.firmware_update_error_type</span> <span class="k">import</span> <span class="n">FirmwareUpdateErrorType</span>
+<span class="kn">from</span> <span class="nn">wolk.model.firmware_update_status</span> <span class="k">import</span> <span class="n">FirmwareUpdateStatus</span>
+<span class="kn">from</span> <span class="nn">wolk.model.firmware_update_status_type</span> <span class="k">import</span> <span class="n">FirmwareUpdateStatusType</span>
+<span class="kn">from</span> <span class="nn">wolk.interface.firmware_update</span> <span class="k">import</span> <span class="n">FirmwareUpdate</span>
+<span class="kn">from</span> <span class="nn">wolk.interface.firmware_handler</span> <span class="k">import</span> <span class="n">FirmwareHandler</span>
+<span class="kn">from</span> <span class="nn">wolk</span> <span class="k">import</span> <span class="n">logger_factory</span>
+
+
+<div class="viewcode-block" id="OSFirmwareUpdate"><a class="viewcode-back" href="../../wolk.html#wolk.os_firmware_update.OSFirmwareUpdate">[docs]</a><span class="k">class</span> <span class="nc">OSFirmwareUpdate</span><span class="p">(</span><span class="n">FirmwareUpdate</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Responsible for everything related to the firmware update process.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">firmware_handler</span><span class="p">:</span> <span class="n">FirmwareHandler</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Enable firmware update for device.</span>
+
+<span class="sd">        :param firmware_handler: Function that will handle the installation</span>
+<span class="sd">        :type firmware_handler: Callable[[str], None]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger_factory</span><span class="o">.</span><span class="n">logger_factory</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span>
+            <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;firmware_handler: </span><span class="si">{firmware_handler}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_firmware_handler</span><span class="p">(</span><span class="n">firmware_handler</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_on_status_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">report_status</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">FirmwareUpdateStatus</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the callback function for reporting firmware status.</span>
+
+<span class="sd">        :param report_status: Reporting firmware update status</span>
+<span class="sd">        :type report_status: Callable[[FirmwareUpdateStatus], None]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;firmware update status callback: </span><span class="si">{report_status}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span> <span class="o">=</span> <span class="n">report_status</span>
+
+    <span class="k">def</span> <span class="nf">_set_firmware_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">:</span> <span class="n">FirmwareHandler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Set firmware handler.</span>
+
+<span class="sd">        :param handler: Installs firmware and reports current version</span>
+<span class="sd">        :type handler: FirmwareHandler</span>
+
+<span class="sd">        :raises ValueError: handler not an instance of FirmwareHandler</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;set handler: </span><span class="si">{handler}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">FirmwareHandler</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s2">&quot;Given handler </span><span class="si">{handler}</span><span class="s2"> is not &quot;</span>
+                <span class="s2">&quot;an instance of FirmwareHandler&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span>
+
+<div class="viewcode-block" id="OSFirmwareUpdate.handle_install"><a class="viewcode-back" href="../../wolk.html#wolk.os_firmware_update.OSFirmwareUpdate.handle_install">[docs]</a>    <span class="k">def</span> <span class="nf">handle_install</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Handle received firmware installation command.</span>
+
+<span class="sd">        :param file_path: Firmware file to install</span>
+<span class="sd">        :type file_path: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="n">f</span><span class="s2">&quot;Handling install command with path path: </span><span class="si">{file_path}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+                <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareUpdateErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No firmware handler set!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_state</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Not in idle status, ignoring install command.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+                <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareUpdateErrorType</span><span class="o">.</span><span class="n">UNSPECIFIED_ERROR</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Previous firmware update did not complete!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_state</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+                <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareUpdateErrorType</span><span class="o">.</span><span class="n">FILE_NOT_PRESENT</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;File not present at given path!&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_state</span><span class="p">()</span>
+            <span class="k">return</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get_current_version</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+            <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">INSTALLATION</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Beginning firmware installation process &quot;</span>
+            <span class="n">f</span><span class="s2">&quot;with file path: </span><span class="si">{file_path}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span>
+            <span class="mf">5.0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">install_firmware</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># For possible abort command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="OSFirmwareUpdate.handle_abort"><a class="viewcode-back" href="../../wolk.html#wolk.os_firmware_update.OSFirmwareUpdate.handle_abort">[docs]</a>    <span class="k">def</span> <span class="nf">handle_abort</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Handle the abort command received from the platform.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stopping installation timer&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Aborting firmware installation&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+                <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">ABORTED</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_state</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OSFirmwareUpdate.report_result"><a class="viewcode-back" href="../../wolk.html#wolk.os_firmware_update.OSFirmwareUpdate.report_result">[docs]</a>    <span class="k">def</span> <span class="nf">report_result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Report the result of the firmware installation process.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Reporting firmware update result&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No stored firmware version found&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">last_firmware_version</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">last_firmware_version</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span><span class="o">.</span><span class="n">get_current_version</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Firmware version unchanged, reporting installation failed&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+                <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span>
+                <span class="n">FirmwareUpdateErrorType</span><span class="o">.</span><span class="n">INSTALLATION_FAILED</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_reset_state</span><span class="p">()</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Firmware version changed, reporting installation completed&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">(</span>
+            <span class="n">FirmwareUpdateStatusType</span><span class="o">.</span><span class="n">COMPLETED</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_status</span><span class="p">)</span>
+        <span class="c1"># TODO: on completed, wolk call handler get version and report</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset_state</span><span class="p">()</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;last_firmware_version.txt&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reset_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Reset the state of the firmware update process.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_status</span> <span class="o">=</span> <span class="n">FirmwareUpdateStatus</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">install_timer</span> <span class="o">=</span> <span class="kc">None</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, WolkAbout.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'v4.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/language_data.js"></script>
+
+  
+
+  <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

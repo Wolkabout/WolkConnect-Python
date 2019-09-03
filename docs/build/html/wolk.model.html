@@ -1,0 +1,691 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Models &mdash; WolkConnect-Python v4.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> WolkConnect-Python
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Content</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="functional.html">WolkConnect library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolk.html">Wolk Package</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WolkConnect-Python</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/wolk.model.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-wolk.model">
+<span id="models"></span><h1>Models<a class="headerlink" href="#module-wolk.model" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-wolk.model.actuator_command">
+<span id="actuator-command"></span><h2>Actuator command<a class="headerlink" href="#module-wolk.model.actuator_command" title="Permalink to this headline">¶</a></h2>
+<p>Actuator command received from WolkAbout IoT Platform.</p>
+<dl class="class">
+<dt id="wolk.model.actuator_command.ActuatorCommand">
+<em class="property">class </em><code class="descclassname">wolk.model.actuator_command.</code><code class="descname">ActuatorCommand</code><span class="sig-paren">(</span><em>reference: str</em>, <em>command: wolk.model.actuator_command.ActuatorCommandType</em>, <em>value: Union[bool</em>, <em>int</em>, <em>float</em>, <em>str</em>, <em>None] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/actuator_command.html#ActuatorCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.actuator_command.ActuatorCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Actuator command for reference with command and optionally value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – What actuator is the command for</p></li>
+<li><p><strong>command</strong> (<a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommandType" title="wolk.model.actuator_command.ActuatorCommandType"><em>ActuatorCommandType</em></a>) – Type of command received</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommand.value" title="wolk.model.actuator_command.ActuatorCommand.value"><strong>value</strong></a> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em>]</em>) – Value to be set</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.actuator_command.ActuatorCommand.value">
+<code class="descname">value</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.actuator_command.ActuatorCommand.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wolk.model.actuator_command.ActuatorCommandType">
+<em class="property">class </em><code class="descclassname">wolk.model.actuator_command.</code><code class="descname">ActuatorCommandType</code><a class="reference internal" href="_modules/wolk/model/actuator_command.html#ActuatorCommandType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.actuator_command.ActuatorCommandType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Actuator command type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommandType.GET" title="wolk.model.actuator_command.ActuatorCommandType.GET"><strong>GET</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Get current actuator value</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommandType.SET" title="wolk.model.actuator_command.ActuatorCommandType.SET"><strong>SET</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Set actuator to value</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.actuator_command.ActuatorCommandType.GET">
+<code class="descname">GET</code><em class="property"> = 'GET'</em><a class="headerlink" href="#wolk.model.actuator_command.ActuatorCommandType.GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.actuator_command.ActuatorCommandType.SET">
+<code class="descname">SET</code><em class="property"> = 'SET'</em><a class="headerlink" href="#wolk.model.actuator_command.ActuatorCommandType.SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.actuator_state">
+<span id="actuator-state"></span><h2>Actuator state<a class="headerlink" href="#module-wolk.model.actuator_state" title="Permalink to this headline">¶</a></h2>
+<p>Actuator states as defined on WolkAbout IoT Platform.</p>
+<dl class="class">
+<dt id="wolk.model.actuator_state.ActuatorState">
+<em class="property">class </em><code class="descclassname">wolk.model.actuator_state.</code><code class="descname">ActuatorState</code><a class="reference internal" href="_modules/wolk/model/actuator_state.html#ActuatorState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.actuator_state.ActuatorState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Enumeration of available actuator states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#wolk.model.actuator_state.ActuatorState.BUSY" title="wolk.model.actuator_state.ActuatorState.BUSY"><strong>BUSY</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Actuator currently in busy state</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_state.ActuatorState.ERROR" title="wolk.model.actuator_state.ActuatorState.ERROR"><strong>ERROR</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Actuator currently in error state</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_state.ActuatorState.READY" title="wolk.model.actuator_state.ActuatorState.READY"><strong>READY</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Actuator currently in ready state</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.actuator_state.ActuatorState.BUSY">
+<code class="descname">BUSY</code><em class="property"> = 'BUSY'</em><a class="headerlink" href="#wolk.model.actuator_state.ActuatorState.BUSY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.actuator_state.ActuatorState.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 'ERROR'</em><a class="headerlink" href="#wolk.model.actuator_state.ActuatorState.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.actuator_state.ActuatorState.READY">
+<code class="descname">READY</code><em class="property"> = 'READY'</em><a class="headerlink" href="#wolk.model.actuator_state.ActuatorState.READY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.actuator_status">
+<span id="actuator-status"></span><h2>Actuator status<a class="headerlink" href="#module-wolk.model.actuator_status" title="Permalink to this headline">¶</a></h2>
+<p>Actuator status model.</p>
+<dl class="class">
+<dt id="wolk.model.actuator_status.ActuatorStatus">
+<em class="property">class </em><code class="descclassname">wolk.model.actuator_status.</code><code class="descname">ActuatorStatus</code><span class="sig-paren">(</span><em>reference: str</em>, <em>state: wolk.model.actuator_state.ActuatorState</em>, <em>value: Union[bool</em>, <em>int</em>, <em>float</em>, <em>str</em>, <em>None] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/actuator_status.html#ActuatorStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.actuator_status.ActuatorStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Holds information of a devices actuator current status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device actuator’s reference as defined in device template</p></li>
+<li><p><strong>state</strong> (<a class="reference internal" href="#wolk.model.actuator_state.ActuatorState" title="wolk.model.actuator_state.ActuatorState"><em>ActuatorState</em></a>) – Actuator’s current state</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommand.value" title="wolk.model.actuator_command.ActuatorCommand.value"><strong>value</strong></a> (<em>Optional</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em><em>]</em>) – Current value of actuator, None only for error state</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.actuator_status.ActuatorStatus.value">
+<code class="descname">value</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.actuator_status.ActuatorStatus.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.alarm">
+<span id="alarm"></span><h2>Alarm<a class="headerlink" href="#module-wolk.model.alarm" title="Permalink to this headline">¶</a></h2>
+<p>Alarm event model.</p>
+<dl class="class">
+<dt id="wolk.model.alarm.Alarm">
+<em class="property">class </em><code class="descclassname">wolk.model.alarm.</code><code class="descname">Alarm</code><span class="sig-paren">(</span><em>reference: str, active: bool, timestamp: Optional[int]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/alarm.html#Alarm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.alarm.Alarm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Holds information about a devices alarm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device alarm’s reference as defined in device template</p></li>
+<li><p><strong>active</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a>) – Alarm’s current state</p></li>
+<li><p><a class="reference internal" href="#wolk.model.sensor_reading.SensorReading.timestamp" title="wolk.model.sensor_reading.SensorReading.timestamp"><strong>timestamp</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – Unix timestamp in miliseconds</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.configuration_command">
+<span id="configuration-command"></span><h2>Configuration command<a class="headerlink" href="#module-wolk.model.configuration_command" title="Permalink to this headline">¶</a></h2>
+<p>Configuration command received from WolkAbout IoT Platform.</p>
+<dl class="class">
+<dt id="wolk.model.configuration_command.ConfigurationCommand">
+<em class="property">class </em><code class="descclassname">wolk.model.configuration_command.</code><code class="descname">ConfigurationCommand</code><span class="sig-paren">(</span><em>command: wolk.model.configuration_command.ConfigurationCommandType</em>, <em>value: Optional[Dict[str</em>, <em>Union[bool</em>, <em>int</em>, <em>float</em>, <em>str</em>, <em>Tuple]]] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/configuration_command.html#ConfigurationCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.configuration_command.ConfigurationCommand" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Configuration command with command and optionally value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Configuration command received</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommand.value" title="wolk.model.actuator_command.ActuatorCommand.value"><strong>value</strong></a> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.7)"><em>dict</em></a><em>]</em>) – Set configuration to value</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.configuration_command.ConfigurationCommand.value">
+<code class="descname">value</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.configuration_command.ConfigurationCommand.value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wolk.model.configuration_command.ConfigurationCommandType">
+<em class="property">class </em><code class="descclassname">wolk.model.configuration_command.</code><code class="descname">ConfigurationCommandType</code><a class="reference internal" href="_modules/wolk/model/configuration_command.html#ConfigurationCommandType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.configuration_command.ConfigurationCommandType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Configuration command type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommandType.GET" title="wolk.model.actuator_command.ActuatorCommandType.GET"><strong>GET</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Get current configuration options</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommandType.SET" title="wolk.model.actuator_command.ActuatorCommandType.SET"><strong>SET</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a>) – Set configuration to value</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.configuration_command.ConfigurationCommandType.GET">
+<code class="descname">GET</code><em class="property"> = 'GET'</em><a class="headerlink" href="#wolk.model.configuration_command.ConfigurationCommandType.GET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.configuration_command.ConfigurationCommandType.SET">
+<code class="descname">SET</code><em class="property"> = 'SET'</em><a class="headerlink" href="#wolk.model.configuration_command.ConfigurationCommandType.SET" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.device">
+<span id="device"></span><h2>Device<a class="headerlink" href="#module-wolk.model.device" title="Permalink to this headline">¶</a></h2>
+<p>Everything needed for authenticating a device on WolkAbout IoT Platform.</p>
+<dl class="class">
+<dt id="wolk.model.device.Device">
+<em class="property">class </em><code class="descclassname">wolk.model.device.</code><code class="descname">Device</code><span class="sig-paren">(</span><em>key: str</em>, <em>password: str</em>, <em>actuator_references: List[str] = &lt;factory&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/device.html#Device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.device.Device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Device identified by key and password, and list of actuator references.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device’s key</p></li>
+<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device’s unique password</p></li>
+<li><p><strong>actuator_references</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em>]</em>) – Actuator references present on device</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.file_management_error_type">
+<span id="file-management-error-type"></span><h2>File management error type<a class="headerlink" href="#module-wolk.model.file_management_error_type" title="Permalink to this headline">¶</a></h2>
+<p>Enumeration of defined file management errors.</p>
+<dl class="class">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType">
+<em class="property">class </em><code class="descclassname">wolk.model.file_management_error_type.</code><code class="descname">FileManagementErrorType</code><a class="reference internal" href="_modules/wolk/model/file_management_error_type.html#FileManagementErrorType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Enumeration of available file management errors.</p>
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.FILE_HASH_MISMATCH">
+<code class="descname">FILE_HASH_MISMATCH</code><em class="property"> = 4</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.FILE_HASH_MISMATCH" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.FILE_SYSTEM_ERROR">
+<code class="descname">FILE_SYSTEM_ERROR</code><em class="property"> = 5</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.FILE_SYSTEM_ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.MALFORMED_URL">
+<code class="descname">MALFORMED_URL</code><em class="property"> = 3</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.MALFORMED_URL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.RETRY_COUNT_EXCEEDED">
+<code class="descname">RETRY_COUNT_EXCEEDED</code><em class="property"> = 10</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.RETRY_COUNT_EXCEEDED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED">
+<code class="descname">TRANSFER_PROTOCOL_DISABLED</code><em class="property"> = 1</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.UNSPECIFIED_ERROR">
+<code class="descname">UNSPECIFIED_ERROR</code><em class="property"> = 0</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.UNSPECIFIED_ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_error_type.FileManagementErrorType.UNSUPPORTED_FILE_SIZE">
+<code class="descname">UNSUPPORTED_FILE_SIZE</code><em class="property"> = 2</em><a class="headerlink" href="#wolk.model.file_management_error_type.FileManagementErrorType.UNSUPPORTED_FILE_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.file_management_status">
+<span id="file-management-status"></span><h2>File management status<a class="headerlink" href="#module-wolk.model.file_management_status" title="Permalink to this headline">¶</a></h2>
+<p>Information about the current status of the firmware update process.</p>
+<dl class="class">
+<dt id="wolk.model.file_management_status.FileManagementStatus">
+<em class="property">class </em><code class="descclassname">wolk.model.file_management_status.</code><code class="descname">FileManagementStatus</code><span class="sig-paren">(</span><em>status: Optional[wolk.model.file_management_status_type.FileManagementStatusType] = None</em>, <em>error: Optional[wolk.model.file_management_error_type.FileManagementErrorType] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/file_management_status.html#FileManagementStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.file_management_status.FileManagementStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Contains the status of the file management process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#wolk.model.file_management_status.FileManagementStatus.status" title="wolk.model.file_management_status.FileManagementStatus.status"><strong>status</strong></a> – The status of the file management process</p></li>
+<li><p><a class="reference internal" href="#wolk.model.file_management_status.FileManagementStatus.error" title="wolk.model.file_management_status.FileManagementStatus.error"><strong>error</strong></a> – The type of error that occurred</p></li>
+</ul>
+</dd>
+<dt class="field-even">Ivartype status</dt>
+<dd class="field-even"><p>FileManagementStatusType or None</p>
+</dd>
+<dt class="field-odd">Ivartype error</dt>
+<dd class="field-odd"><p>FileManagementErrorType or None</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.file_management_status.FileManagementStatus.error">
+<code class="descname">error</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.file_management_status.FileManagementStatus.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_status.FileManagementStatus.status">
+<code class="descname">status</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.file_management_status.FileManagementStatus.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.file_management_status_type">
+<span id="file-management-status-type"></span><h2>File management status type<a class="headerlink" href="#module-wolk.model.file_management_status_type" title="Permalink to this headline">¶</a></h2>
+<p>Statuses defined for file management.</p>
+<dl class="class">
+<dt id="wolk.model.file_management_status_type.FileManagementStatusType">
+<em class="property">class </em><code class="descclassname">wolk.model.file_management_status_type.</code><code class="descname">FileManagementStatusType</code><a class="reference internal" href="_modules/wolk/model/file_management_status_type.html#FileManagementStatusType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.file_management_status_type.FileManagementStatusType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Enumeration of available file management statuses.</p>
+<dl class="attribute">
+<dt id="wolk.model.file_management_status_type.FileManagementStatusType.ABORTED">
+<code class="descname">ABORTED</code><em class="property"> = 'ABORTED'</em><a class="headerlink" href="#wolk.model.file_management_status_type.FileManagementStatusType.ABORTED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_status_type.FileManagementStatusType.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 'ERROR'</em><a class="headerlink" href="#wolk.model.file_management_status_type.FileManagementStatusType.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_status_type.FileManagementStatusType.FILE_READY">
+<code class="descname">FILE_READY</code><em class="property"> = 'FILE_READY'</em><a class="headerlink" href="#wolk.model.file_management_status_type.FileManagementStatusType.FILE_READY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.file_management_status_type.FileManagementStatusType.FILE_TRANSFER">
+<code class="descname">FILE_TRANSFER</code><em class="property"> = 'FILE_TRANSFER'</em><a class="headerlink" href="#wolk.model.file_management_status_type.FileManagementStatusType.FILE_TRANSFER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.file_transfer_package">
+<span id="file-transfer-package"></span><h2>File transfer package<a class="headerlink" href="#module-wolk.model.file_transfer_package" title="Permalink to this headline">¶</a></h2>
+<p>File transfer package model.</p>
+<dl class="class">
+<dt id="wolk.model.file_transfer_package.FileTransferPackage">
+<em class="property">class </em><code class="descclassname">wolk.model.file_transfer_package.</code><code class="descname">FileTransferPackage</code><span class="sig-paren">(</span><em>previous_hash: bytes</em>, <em>data: bytes</em>, <em>current_hash: bytes</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/file_transfer_package.html#FileTransferPackage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.file_transfer_package.FileTransferPackage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Data from a file binary request response.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>previous_hash</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – Hash of the previous chunk</p></li>
+<li><p><strong>data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – Requested chunk</p></li>
+<li><p><strong>current_hash</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a>) – Hash of the current chunk</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.firmware_update_error_type">
+<span id="firmware-update-error-type"></span><h2>Firmware update error type<a class="headerlink" href="#module-wolk.model.firmware_update_error_type" title="Permalink to this headline">¶</a></h2>
+<p>Firmware update error types.</p>
+<dl class="class">
+<dt id="wolk.model.firmware_update_error_type.FirmwareUpdateErrorType">
+<em class="property">class </em><code class="descclassname">wolk.model.firmware_update_error_type.</code><code class="descname">FirmwareUpdateErrorType</code><a class="reference internal" href="_modules/wolk/model/firmware_update_error_type.html#FirmwareUpdateErrorType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.firmware_update_error_type.FirmwareUpdateErrorType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Enumeration of possible firmware update errors.</p>
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.FILE_NOT_PRESENT">
+<code class="descname">FILE_NOT_PRESENT</code><em class="property"> = 1</em><a class="headerlink" href="#wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.FILE_NOT_PRESENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.FILE_SYSTEM_ERROR">
+<code class="descname">FILE_SYSTEM_ERROR</code><em class="property"> = 2</em><a class="headerlink" href="#wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.FILE_SYSTEM_ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.INSTALLATION_FAILED">
+<code class="descname">INSTALLATION_FAILED</code><em class="property"> = 3</em><a class="headerlink" href="#wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.INSTALLATION_FAILED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.SUBDEVICE_NOT_PRESENT">
+<code class="descname">SUBDEVICE_NOT_PRESENT</code><em class="property"> = 4</em><a class="headerlink" href="#wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.SUBDEVICE_NOT_PRESENT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.UNSPECIFIED_ERROR">
+<code class="descname">UNSPECIFIED_ERROR</code><em class="property"> = 0</em><a class="headerlink" href="#wolk.model.firmware_update_error_type.FirmwareUpdateErrorType.UNSPECIFIED_ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.firmware_update_status">
+<span id="firmware-update-status"></span><h2>Firmware update status<a class="headerlink" href="#module-wolk.model.firmware_update_status" title="Permalink to this headline">¶</a></h2>
+<p>Information about the current status of the firmware update process.</p>
+<dl class="class">
+<dt id="wolk.model.firmware_update_status.FirmwareUpdateStatus">
+<em class="property">class </em><code class="descclassname">wolk.model.firmware_update_status.</code><code class="descname">FirmwareUpdateStatus</code><span class="sig-paren">(</span><em>status: Optional[wolk.model.firmware_update_status_type.FirmwareUpdateStatusType] = None</em>, <em>error: Optional[wolk.model.firmware_update_error_type.FirmwareUpdateErrorType] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/firmware_update_status.html#FirmwareUpdateStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.firmware_update_status.FirmwareUpdateStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Contains the status of the firmware update process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="#wolk.model.file_management_status.FileManagementStatus.status" title="wolk.model.file_management_status.FileManagementStatus.status"><strong>status</strong></a> – The status of the firmware update process</p></li>
+<li><p><a class="reference internal" href="#wolk.model.file_management_status.FileManagementStatus.error" title="wolk.model.file_management_status.FileManagementStatus.error"><strong>error</strong></a> – The type of error that occurred</p></li>
+</ul>
+</dd>
+<dt class="field-even">Ivartype status</dt>
+<dd class="field-even"><p>FirmwareUpdateStatusType or None</p>
+</dd>
+<dt class="field-odd">Ivartype error</dt>
+<dd class="field-odd"><p>FirmwareUpdateErrorType or None</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_status.FirmwareUpdateStatus.error">
+<code class="descname">error</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.firmware_update_status.FirmwareUpdateStatus.error" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_status.FirmwareUpdateStatus.status">
+<code class="descname">status</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.firmware_update_status.FirmwareUpdateStatus.status" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.firmware_update_status_type">
+<span id="firmware-update-status-type"></span><h2>Firmware update status type<a class="headerlink" href="#module-wolk.model.firmware_update_status_type" title="Permalink to this headline">¶</a></h2>
+<p>Firmware update statuses.</p>
+<dl class="class">
+<dt id="wolk.model.firmware_update_status_type.FirmwareUpdateStatusType">
+<em class="property">class </em><code class="descclassname">wolk.model.firmware_update_status_type.</code><code class="descname">FirmwareUpdateStatusType</code><a class="reference internal" href="_modules/wolk/model/firmware_update_status_type.html#FirmwareUpdateStatusType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.firmware_update_status_type.FirmwareUpdateStatusType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
+<p>Enumeration of available firmware update status types.</p>
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.ABORTED">
+<code class="descname">ABORTED</code><em class="property"> = 'ABORTED'</em><a class="headerlink" href="#wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.ABORTED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.COMPLETED">
+<code class="descname">COMPLETED</code><em class="property"> = 'COMPLETED'</em><a class="headerlink" href="#wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.COMPLETED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.ERROR">
+<code class="descname">ERROR</code><em class="property"> = 'ERROR'</em><a class="headerlink" href="#wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.INSTALLATION">
+<code class="descname">INSTALLATION</code><em class="property"> = 'INSTALLATION'</em><a class="headerlink" href="#wolk.model.firmware_update_status_type.FirmwareUpdateStatusType.INSTALLATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.message">
+<span id="message"></span><h2>Message<a class="headerlink" href="#module-wolk.model.message" title="Permalink to this headline">¶</a></h2>
+<p>MQTT message model.</p>
+<dl class="class">
+<dt id="wolk.model.message.Message">
+<em class="property">class </em><code class="descclassname">wolk.model.message.</code><code class="descname">Message</code><span class="sig-paren">(</span><em>topic: str</em>, <em>payload: Union[bytes</em>, <em>str</em>, <em>None] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/message.html#Message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.message.Message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>MQTT message identified by topic and payload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>topic</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Topic where the message is from or will be sent to</p></li>
+<li><p><a class="reference internal" href="#wolk.model.message.Message.payload" title="wolk.model.message.Message.payload"><strong>payload</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.7)"><em>bytes</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.7)"><em>None</em></a>) – Content of the message</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.message.Message.payload">
+<code class="descname">payload</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.message.Message.payload" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-wolk.model.sensor_reading">
+<span id="sensor-reading"></span><h2>Sensor reading<a class="headerlink" href="#module-wolk.model.sensor_reading" title="Permalink to this headline">¶</a></h2>
+<p>Sensor reading model.</p>
+<dl class="class">
+<dt id="wolk.model.sensor_reading.SensorReading">
+<em class="property">class </em><code class="descclassname">wolk.model.sensor_reading.</code><code class="descname">SensorReading</code><span class="sig-paren">(</span><em>reference: str, value: Union[bool, int, float, str, Tuple[int, int], Tuple[int, int, int], Tuple[float, float], Tuple[float, float, float], Tuple[str, str], Tuple[str, str, str]], timestamp: Optional[int] = None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/wolk/model/sensor_reading.html#SensorReading"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wolk.model.sensor_reading.SensorReading" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Holds information about a sensor reading.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Variables</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>reference</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a>) – Device sensor’s reference as defined in device template</p></li>
+<li><p><a class="reference internal" href="#wolk.model.actuator_command.ActuatorCommand.value" title="wolk.model.actuator_command.ActuatorCommand.value"><strong>value</strong></a> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.7)"><em>bool</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.7)"><em>float</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.7)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.7)"><em>tuple</em></a>) – Data that the sensor reading yielded</p></li>
+<li><p><a class="reference internal" href="#wolk.model.sensor_reading.SensorReading.timestamp" title="wolk.model.sensor_reading.SensorReading.timestamp"><strong>timestamp</strong></a> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.7)"><em>int</em></a><em>]</em>) – Unix timestamp in miliseconds</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="wolk.model.sensor_reading.SensorReading.timestamp">
+<code class="descname">timestamp</code><em class="property"> = None</em><a class="headerlink" href="#wolk.model.sensor_reading.SensorReading.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, WolkAbout.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v4.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

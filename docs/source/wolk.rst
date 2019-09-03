@@ -7,26 +7,18 @@ wolk package
 Connection Management
 ---------------------
 
-wolk.WolkConnect module
-~~~~~~~~~~~~~~~~~~~~~~~~
+WolkConnect
+~~~~~~~~~~~
 
-.. automodule:: wolk.WolkConnect
+.. automodule:: wolk.wolk_connect
     :members:
     :undoc-members:
     :show-inheritance:
 
-wolk.Device module
-~~~~~~~~~~~~~~~~~~
+MQTT connectivity service
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.models.Device
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.OSKeepAliveService module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.OSKeepAliveService
+.. automodule:: wolk.mqtt_connectivity_service
     :members:
     :undoc-members:
     :show-inheritance:
@@ -35,63 +27,46 @@ wolk.OSKeepAliveService module
 Data Handling
 -------------
 
-wolk.ActuationHandler module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.interfaces.ActuationHandler
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.ActuatorStatusProvider module
+JSON protocol message deserializer
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.interfaces.ActuatorStatusProvider
+.. automodule:: wolk.json_protocol_message_deserializer
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+JSON protocol message factory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: wolk.json_protocol_message_factory
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Message deque
+~~~~~~~~~~~~~
+
+.. automodule:: wolk.message_deque
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 Device Management
 -----------------
 
-wolk.ConfigurationHandler module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OS based file management
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.interfaces.ConfigurationHandler
+.. automodule:: wolk.os_file_management
     :members:
     :undoc-members:
     :show-inheritance:
 
-wolk.ConfigurationProvider module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+OS based firmware update
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.interfaces.ConfigurationProvider
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-wolk.FileSystemFirmwareHandler module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.FileSystemFirmwareHandler
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.FirmwareInstaller module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.interfaces.FirmwareInstaller
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.FirmwareURLDownloadHandler module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.interfaces.FirmwareURLDownloadHandler
+.. automodule:: wolk.os_firmware_update
     :members:
     :undoc-members:
     :show-inheritance:
@@ -99,66 +74,10 @@ wolk.FirmwareURLDownloadHandler module
 Internal dependencies
 ---------------------
 
-wolk.LoggerFactory module
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Logger factory
+~~~~~~~~~~~~~~
 
-.. automodule:: wolk.LoggerFactory
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.OSFirmwareUpdate module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.OSFirmwareUpdate
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.OSMQTTConnectivityService module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.OSMQTTConnectivityService
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.JsonSingleInboundMessageDeserializer module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.JsonSingleInboundMessageDeserializer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.JsonSingleOutboundMessageFactory module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.JsonSingleOutboundMessageFactory
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.JsonProtocolInboundMessageDeserializer module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.JsonProtocolInboundMessageDeserializer
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.JsonProtocolOutboundMessageFactory module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.JsonProtocolOutboundMessageFactory
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-wolk.OSOutboundMessageQueue module
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.OSOutboundMessageQueue
+.. automodule:: wolk.logger_factory
     :members:
     :undoc-members:
     :show-inheritance:

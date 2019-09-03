@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Prerequisite &mdash; WolkConnect-Python 3.2.0 documentation</title>
+  <title>Prerequisite &mdash; WolkConnect-Python v4.0.0 documentation</title>
   
 
   
@@ -17,33 +17,32 @@
   
 
   
-  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="_static/js/theme.js"></script>
 
+  
+  
     
 
   
+
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
+
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
+        <div class="wy-side-nav-search">
           
 
           
@@ -79,7 +78,7 @@
             
               <p class="caption"><span class="caption-text">Table of Content</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="functional.html">Functional documentaition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functional.html">WolkConnect library</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolk.html">Wolk Package</a></li>
 </ul>
@@ -165,14 +164,12 @@
 <p>WolkAbout Python Connector library for connecting devices to <a class="reference external" href="https://demo.wolkabout.com/#/login">WolkAbout IoT Platform</a>.</p>
 <p>Supported device communication protocols:</p>
 <ul class="simple">
-<li>JSON_SINGLE</li>
-<li>JSON_PROTOCOL</li>
+<li><p>JSON_PROTOCOL</p></li>
 </ul>
-<p><em>Note:</em> Firmware update is currently not available for JSON_PROTOCOL</p>
 <div class="section" id="prerequisite">
 <h1>Prerequisite<a class="headerlink" href="#prerequisite" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>Python 3</li>
+<li><p>Python 3.7</p></li>
 </ul>
 </div>
 <div class="section" id="installation">
@@ -188,7 +185,7 @@
 </div>
 <p>Install dependencies by invoking <code class="docutils literal notranslate"><span class="pre">pip3</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></code></p>
 <p>Install the package by running:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">py</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span><span class="o">.</span><span class="mi">7</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">install</span>
 </pre></div>
 </div>
 </div>
@@ -209,11 +206,9 @@ This template fits <a class="reference external" href="https://github.com/Wolkab
 <span class="p">)</span>
 
 <span class="c1"># Pass your device and server information</span>
-<span class="c1"># Select formatting protocol: JSON_SINGLE (default) or JSON_PROTOCOL</span>
 <span class="c1"># defaults to secure connection to Demo instance - comment out host, port and ca_cert</span>
 <span class="n">wolk_device</span> <span class="o">=</span> <span class="n">wolk</span><span class="o">.</span><span class="n">WolkConnect</span><span class="p">(</span>
     <span class="n">device</span><span class="p">,</span>
-    <span class="n">protocol</span><span class="o">=</span><span class="n">wolk</span><span class="o">.</span><span class="n">Protocol</span><span class="o">.</span><span class="n">JSON_SINGLE</span>
     <span class="n">host</span><span class="o">=</span><span class="s2">&quot;api-demo.wolkabout.com&quot;</span><span class="p">,</span>
     <span class="n">port</span><span class="o">=</span><span class="mi">8883</span><span class="p">,</span>
     <span class="n">ca_cert</span><span class="o">=</span><span class="s2">&quot;path/to/ca.crt&quot;</span>
@@ -259,7 +254,7 @@ This template fits <a class="reference external" href="https://github.com/Wolkab
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, WolkAbout
+        &copy; Copyright 2019, WolkAbout.
 
     </p>
   </div>
@@ -276,16 +271,33 @@ This template fits <a class="reference external" href="https://github.com/Wolkab
   
 
 
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'v4.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/language_data.js"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

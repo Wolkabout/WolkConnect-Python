@@ -1,4 +1,3 @@
-#WolkConnect library
 
 
 WolkConnect libraries are used to enable a device’s communication with [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
@@ -48,7 +47,6 @@ WolkConnect libraries separate device’s functionality through the API into thr
 * **Connection Management** - allows controlling the connected device in order to maintain data delivery integrity:
 	* Connect
 	* Disconnect
-	* Keep-Alive Mechanism
 * **Data Handling** - valuable data to be exchanged with WolkAbout IoT Platform:
 	* Sensors
 	* Alarms
@@ -80,11 +78,6 @@ A device can be connected to WolkAbout IoT Platform in two ways:
 
 Disconnecting will gracefully terminate the connection and the device will momentarily appear offline on WolkAbout IoT Platform. In cases of ungraceful disconnections, eg. due to a networking error, WolkAbout IoT Platform will be able to determine if the device is offline based on whether the device has send a message from its keep-alive mechanism. After waiting for the keep-alive mechanism timeout with no message, WolkAbout IoT Platform will declare the device offline.
 
-
-####Keep Alive Mechanism
-
-
-In cases where the device is connected to the Platform but is not publishing any data for the period of 30 minutes, the device may be declared offline. This is especially true for devices that only have actuators, for example. To prevent this issue, a keep-alive mechanism will periodically send a message to WolkAbout IoT Platform. This mechanism can also be disabled to reduce bandwidth usage.
 
 
 ###Data Handling
