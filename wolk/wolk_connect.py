@@ -667,6 +667,20 @@ class WolkConnect:
                 message
             )
             file_path = self.file_management.get_file_path(file_name)
+            if not file_path:
+                self.logger.error(
+                    f"Specified file not found on device! Message: {message}"
+                )
+                firmware_status = FirmwareUpdateStatus(
+                    FirmwareUpdateStatusType.ERROR,
+                    FirmwareUpdateErrorType.FILE_NOT_PRESENT,
+                )
+                message = self.message_factory.make_from_firmware_update_status(
+                    firmware_status
+                )
+                if not self.connectivity_service.publish(message):
+                    self.message_queue.put(message)
+                return
             self.firmware_update.handle_install(file_path)
             return
 

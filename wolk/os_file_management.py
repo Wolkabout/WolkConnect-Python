@@ -456,6 +456,7 @@ class OSFileManagement(FileManagement):
             self.file_url_download_status_callback(
                 file_url, self.current_status
             )
+            self.handle_file_upload_abort()
             return
 
         self.file_url = file_url
