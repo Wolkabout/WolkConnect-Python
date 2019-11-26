@@ -26,24 +26,23 @@ Supported device communication protocols:
 
 
 * Python 3.7
+* Python 3.7 pip
 
 
 ## Installation
 
-
 ```sh
-pip3 install wolk-connect
+python3.7 -m pip install wolk-connect
 ```
 
 ### Installing from source
-
 
 Clone this repository from the command line using:
 ```sh
 git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
-Install dependencies by invoking `pip3 install -r requirements.txt`
+Install dependencies by invoking `python3.7 -m pip install -r requirements.txt`
 
 Install the package by running:
 ```python

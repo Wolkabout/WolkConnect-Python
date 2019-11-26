@@ -16,6 +16,7 @@ import os
 import random
 import sys
 import time
+from typing import Dict, Union, Tuple
 
 
 module_path = os.sep + ".." + os.sep + ".." + os.sep
@@ -52,14 +53,28 @@ def main():
     )
 
     class ActuatorSimulator:
-        def __init__(self, inital_value):
+        def __init__(self, inital_value: Union[bool, int, float, str]):
             self.value = inital_value
 
     switch = ActuatorSimulator(False)
     slider = ActuatorSimulator(0)
 
     class ConfigurationSimulator:
-        def __init__(self, inital_value):
+        def __init__(
+            self,
+            inital_value: Union[
+                bool,
+                int,
+                Tuple[int, int],
+                Tuple[int, int, int],
+                float,
+                Tuple[float, float],
+                Tuple[float, float, float],
+                str,
+                Tuple[str, str],
+                Tuple[str, str, str],
+            ],
+        ):
             self.value = inital_value
 
     configuration_1 = ConfigurationSimulator(0)
@@ -70,14 +85,18 @@ def main():
     )
 
     # Provide a way to read actuator status if your device has actuators
-    def get_actuator_status(reference):
+    def get_actuator_status(
+        reference: str
+    ) -> Tuple[wolk.ActuatorState, Union[bool, int, float, str]]:
         if reference == "SW":
             return wolk.ActuatorState.READY, switch.value
         elif reference == "SL":
             return wolk.ActuatorState.READY, slider.value
 
     # Provide an actuation handler if your device has actuators
-    def handle_actuation(reference, value):
+    def handle_actuation(
+        reference: str, value: Union[bool, int, float, str]
+    ) -> None:
         print("Setting actuator " + reference + " to value: " + str(value))
         if reference == "SW":
             switch.value = value
@@ -86,7 +105,11 @@ def main():
             slider.value = value
 
     # Provide a configuration handler if your device has configuration options
-    def handle_configuration(configuration):
+    def handle_configuration(
+        configuration: Dict[
+            str, Union[bool, int, float, str]
+        ]  # Tuples of size 2 and 3 for int float and str types
+    ) -> None:
         for key, value in configuration.items():
             if key == "config_1":
                 configuration_1.value = value
@@ -98,7 +121,7 @@ def main():
                 configuration_4.value = value
 
     # Provide a way to read current device configuration
-    def get_configuration():
+    def get_configuration() -> dict:  # Same types as ConfigurationSimulator
         configuration = dict()
         configuration["config_1"] = configuration_1.value
         configuration["config_2"] = configuration_2.value
@@ -111,12 +134,12 @@ def main():
         def __init__(self):
             pass
 
-        def install_firmware(self, firmware_file_path):
+        def install_firmware(self, firmware_file_path: str) -> None:
             """Handle the installing of the firmware file here."""
             print("Installing firmware from path: " + firmware_file_path)
             os._exit(0)
 
-        def get_current_version(self):
+        def get_current_version(self) -> str:
             """Return current firmware version."""
             return "1.0"
 
