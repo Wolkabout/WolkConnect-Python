@@ -171,11 +171,13 @@ class MQTTConnectivityService(ConnectivityService):
 
         :raises RuntimeError: Unexpected disconnection
         """
-        if rc != 0:
-            raise RuntimeError("Unexpected disconnection.")
         self.connected = False
         self.connected_rc = None
         self.logger.debug(f"Connected : {self.connected}")
+        if rc != 0:
+            self.logger.error("Unexpected disconnect!")
+            self.logger.info("Attempting to reconnect..")
+            self.connect()
 
     def connect(self) -> None:
         """
