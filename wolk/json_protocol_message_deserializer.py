@@ -345,7 +345,9 @@ class JSONProtocolMessageDeserializer(MessageDeserializer):
             previous_hash, data, current_hash
         )
         self.logger.debug(
-            f"Received file transfer package: {file_transfer_package}"
+            "Received file transfer package: "
+            f"FileTransferPackage(previous_hash='{previous_hash}',"
+            f" data={len(data)} bytes, current_hash='{current_hash}'"
         )
         return file_transfer_package
 
