@@ -12,12 +12,13 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from dataclasses import dataclass, field
 from typing import Optional
 
-from wolk.model.file_management_status_type import FileManagementStatusType
+from dataclasses import dataclass
+from dataclasses import field
+
 from wolk.model.file_management_error_type import FileManagementErrorType
+from wolk.model.file_management_status_type import FileManagementStatusType
 
 
 @dataclass
@@ -26,10 +27,10 @@ class FileManagementStatus:
     Contains the status of the file management process.
 
     :ivar status: The status of the file management process
-    :ivartype status: FileManagementStatusType or None
+    :ivartype status: FileManagementStatusType
     :ivar error: The type of error that occurred
     :ivartype error: FileManagementErrorType or None
     """
 
-    status: Optional[FileManagementStatusType] = field(default=None)
+    status: FileManagementStatusType
     error: Optional[FileManagementErrorType] = field(default=None)

@@ -12,14 +12,15 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from abc import ABC
+from abc import abstractmethod
+from typing import List
+from typing import Optional
 
-from abc import ABC, abstractmethod
-from typing import List, Optional
-
-from wolk.model.alarm import Alarm
 from wolk.model.actuator_status import ActuatorStatus
-from wolk.model.firmware_update_status import FirmwareUpdateStatus
+from wolk.model.alarm import Alarm
 from wolk.model.file_management_status import FileManagementStatus
+from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 
@@ -121,7 +122,8 @@ class MessageFactory(ABC):
 
     @abstractmethod
     def make_from_file_list_update(self, file_list: List[str]) -> Message:
-        """Serialize list of files present on device.
+        """
+        Serialize list of files present on device.
 
         :param file_list: Files present on device
         :type file_list: List[str]
@@ -132,7 +134,8 @@ class MessageFactory(ABC):
 
     @abstractmethod
     def make_from_file_list_request(self, file_list: List[str]) -> Message:
-        """Serialize list of files present on device.
+        """
+        Serialize list of files present on device.
 
         :param file_list: Files present on device
         :type file_list: List[str]
@@ -143,16 +146,18 @@ class MessageFactory(ABC):
 
     @abstractmethod
     def make_from_file_management_status(
-        self, status: FileManagementStatus
+        self, status: FileManagementStatus, file_name: str
     ) -> Message:
-        """Serialize device's current file management status.
+        """
+        Serialize device's current file management status.
 
         :param status: Current file management status
         :type status: FileManagementStatus
+        :param file_name: Name of file being transfered
+        :type file_name: str
         :returns: message
         :rtype: Message
         """
-        pass
 
     @abstractmethod
     def make_from_file_url_status(
@@ -161,7 +166,8 @@ class MessageFactory(ABC):
         status: FileManagementStatus,
         file_name: Optional[str] = None,
     ) -> Message:
-        """Serialize device's current file URL download status.
+        """
+        Serialize device's current file URL download status.
 
         :param file_url: URL from where the file is to be downloaded
         :type file_url: str

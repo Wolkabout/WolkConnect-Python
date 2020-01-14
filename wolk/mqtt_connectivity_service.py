@@ -12,16 +12,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from time import sleep
+from time import time
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Optional
 
-from typing import Any, Callable, Optional, List
-from time import time, sleep
+from paho.mqtt import client as mqtt  # type: ignore
 
-from paho.mqtt import client as mqtt
-
+from wolk import logger_factory
+from wolk.interface.connectivity_service import ConnectivityService
 from wolk.model.device import Device
 from wolk.model.message import Message
-from wolk.interface.connectivity_service import ConnectivityService
-from wolk import logger_factory
 
 
 class MQTTConnectivityService(ConnectivityService):
@@ -36,7 +39,8 @@ class MQTTConnectivityService(ConnectivityService):
         port: Optional[int] = 8883,
         ca_cert: Optional[str] = None,
     ) -> None:
-        """Provide the connection to the WolkAbout IoT Platform.
+        """
+        Provide the connection to the WolkAbout IoT Platform.
 
         :param device: Contains device key, password and actuator references
         :type device: Device
@@ -56,9 +60,7 @@ class MQTTConnectivityService(ConnectivityService):
         self.host = host
         self.port = port
         self.connected = False
-        self.connected_rc = None
-        self.inbound_message_listener = None
-        self.client = None
+        self.connected_rc: Optional[int] = None
         self.topics = topics
         self.ca_cert = ca_cert
         self.logger = logger_factory.logger_factory.get_logger(
@@ -75,7 +77,8 @@ class MQTTConnectivityService(ConnectivityService):
         )
 
     def is_connected(self) -> bool:
-        """Return current connection state.
+        """
+        Return current connection state.
 
         :returns: connected
         :rtype: bool
@@ -112,7 +115,8 @@ class MQTTConnectivityService(ConnectivityService):
         received_message = Message(message.topic, message.payload)
         if "binary" in received_message.topic:  # To skip printing file binary
             self.logger.debug(
-                f"Received MQTT message: {received_message.topic} , "
+                "Received MQTT message: "  # type: ignore
+                f"{received_message.topic} , "
                 f"size: {len(received_message.payload)} bytes"
             )
         else:
@@ -179,7 +183,7 @@ class MQTTConnectivityService(ConnectivityService):
             self.logger.info("Attempting to reconnect..")
             self.connect()
 
-    def connect(self) -> None:
+    def connect(self) -> bool:
         """
         Establish the connection to the WolkAbout IoT platform.
 
@@ -188,10 +192,11 @@ class MQTTConnectivityService(ConnectivityService):
         Subscribes to firmware update related topics.
         Starts a loop to handle inbound messages.
 
-        :raises RuntimeError: Reason for connection being refused
+        :returns: Connection state, True if connected, False otherwise
+        :rtype: bool
         """
         if self.connected:
-            return
+            return True
 
         self.client = mqtt.Client(
             client_id=self.device.key, clean_session=True
@@ -216,7 +221,11 @@ class MQTTConnectivityService(ConnectivityService):
             self.device.key,
             self.device.password,
         )
-        self.client.connect(self.host, self.port)
+        try:
+            self.client.connect(self.host, self.port)
+        except Exception as e:
+            self.logger.error(f"Something went wrong while connecting: {e}")
+            return False
 
         self.client.loop_start()
 
@@ -225,40 +234,44 @@ class MQTTConnectivityService(ConnectivityService):
         while True:
 
             if round(time()) > timeout:
-                raise RuntimeError("Connection timed out!")
+                self.logger.warning("Connection timed out!")
+                return False
 
             if self.connected_rc is None:
                 sleep(0.1)
                 continue
+            else:
+                print(self.connected_rc)
 
             if self.connected_rc == 0:
-                break
+                self.logger.info("Connected!")
+                return True
 
             elif self.connected_rc == 1:
-                raise RuntimeError(
+                self.logger.warning(
                     "Connection refused - incorrect protocol version"
                 )
-                break
+                return False
 
             elif self.connected_rc == 2:
-                raise RuntimeError(
+                self.logger.warning(
                     "Connection refused - invalid client identifier"
                 )
-                break
+                return False
 
             elif self.connected_rc == 3:
-                raise RuntimeError("Connection refused - server unavailable")
-                break
+                self.logger.warning("Connection refused - server unavailable")
+                return False
 
             elif self.connected_rc == 4:
-                raise RuntimeError(
+                self.logger.warning(
                     "Connection refused - bad username or password"
                 )
-                break
+                return False
 
             elif self.connected_rc == 5:
-                raise RuntimeError("Connection refused - not authorised")
-                break
+                self.logger.warning("Connection refused - not authorised")
+                return False
 
         self.logger.debug(f"Subscribing to topics: {self.topics}")
         for topic in self.topics:

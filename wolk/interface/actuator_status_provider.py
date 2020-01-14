@@ -12,13 +12,14 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-from typing import Tuple, Union
+from typing import Tuple
+from typing import Union
 
 from wolk.model.actuator_state import ActuatorState
 
 
 def get_actuator_status(
-    reference: str
+    reference: str,
 ) -> Tuple[ActuatorState, Union[bool, int, float, str]]:
     """
     Get current actuator status identified by reference.

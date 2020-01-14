@@ -12,23 +12,25 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from dataclasses import dataclass, field
 from typing import Optional
 
-from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
+from dataclasses import dataclass
+from dataclasses import field
+
 from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
+from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 
 
 @dataclass
 class FirmwareUpdateStatus:
-    """Contains the status of the firmware update process.
+    """
+    Contains the status of the firmware update process.
 
     :ivar status: The status of the firmware update process
-    :ivartype status: FirmwareUpdateStatusType or None
+    :ivartype status: FirmwareUpdateStatusType
     :ivar error: The type of error that occurred
     :ivartype error: FirmwareUpdateErrorType or None
     """
 
-    status: Optional[FirmwareUpdateStatusType] = field(default=None)
+    status: FirmwareUpdateStatusType
     error: Optional[FirmwareUpdateErrorType] = field(default=None)

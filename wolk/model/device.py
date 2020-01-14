@@ -12,14 +12,16 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from dataclasses import dataclass, field
 from typing import List
+
+from dataclasses import dataclass
+from dataclasses import field
 
 
 @dataclass
 class Device:
-    """Device identified by key and password, and list of actuator references.
+    """
+    Device identified by key and password, and list of actuator references.
 
     :ivar key: Device's key
     :vartype key: str

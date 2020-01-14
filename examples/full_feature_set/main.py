@@ -1,4 +1,5 @@
-#   Copyright 2018 WolkAbout Technology s.r.o.
+"""Example that covers all the functionality of WolkConnect-Python."""
+#   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -11,12 +12,14 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
 import os
 import random
 import sys
 import time
-from typing import Dict, Union, Tuple
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 
 module_path = os.sep + ".." + os.sep + ".." + os.sep
@@ -24,7 +27,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-# wolk.logging_config("debug", "wolk.log")
+wolk.logging_config("debug", "wolk.log")
 
 
 def main():
@@ -46,88 +49,80 @@ def main():
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
     # List actuator references included on your device
+    actuator_references = ["SW", "SL"]
     device = wolk.Device(
         key="device_key",
         password="some_password",
-        actuator_references=["SW", "SL"],
+        actuator_references=actuator_references,
     )
+    preferred_file_package_size = 1024 * 1024
 
-    class ActuatorSimulator:
-        def __init__(self, inital_value: Union[bool, int, float, str]):
-            self.value = inital_value
-
-    switch = ActuatorSimulator(False)
-    slider = ActuatorSimulator(0)
-
-    class ConfigurationSimulator:
+    class Actuator:
         def __init__(
-            self,
-            inital_value: Union[
-                bool,
-                int,
-                Tuple[int, int],
-                Tuple[int, int, int],
-                float,
-                Tuple[float, float],
-                Tuple[float, float, float],
-                str,
-                Tuple[str, str],
-                Tuple[str, str, str],
-            ],
+            self, inital_value: Optional[Union[bool, int, float, str]]
         ):
             self.value = inital_value
 
-    configuration_1 = ConfigurationSimulator(0)
-    configuration_2 = ConfigurationSimulator(False)
-    configuration_3 = ConfigurationSimulator("configuration_3")
-    configuration_4 = ConfigurationSimulator(
-        ("configuration_4a", "configuration_4b", "configuration_4c")
-    )
+    switch = Actuator(False)
+    slider = Actuator(0)
+
+    ConfigurationValue = Union[
+        bool,
+        int,
+        Tuple[int, int],
+        Tuple[int, int, int],
+        float,
+        Tuple[float, float],
+        Tuple[float, float, float],
+        str,
+        Tuple[str, str],
+        Tuple[str, str, str],
+    ]
+
+    configurations: Dict[str, ConfigurationValue] = {
+        "config_1": 0,
+        "config_2": False,
+        "config_3": "configuration_3",
+        "config_4": (
+            "configuration_4a",
+            "configuration_4b",
+            "configuration_4c",
+        ),
+    }
 
     # Provide a way to read actuator status if your device has actuators
-    def get_actuator_status(
-        reference: str
-    ) -> Tuple[wolk.ActuatorState, Union[bool, int, float, str]]:
-        if reference == "SW":
+    def actuator_status_provider(
+        reference: str,
+    ) -> Tuple[wolk.ActuatorState, Optional[Union[bool, int, float, str]]]:
+        if reference == actuator_references[0]:
             return wolk.ActuatorState.READY, switch.value
-        elif reference == "SL":
+        elif reference == actuator_references[1]:
             return wolk.ActuatorState.READY, slider.value
 
+        return wolk.ActuatorState.ERROR, None
+
     # Provide an actuation handler if your device has actuators
-    def handle_actuation(
+    def actuation_handler(
         reference: str, value: Union[bool, int, float, str]
     ) -> None:
-        print("Setting actuator " + reference + " to value: " + str(value))
-        if reference == "SW":
+        print(f"Setting actuator '{reference}' to value: {value}")
+        if reference == actuator_references[0]:
             switch.value = value
 
-        elif reference == "SL":
+        elif reference == actuator_references[1]:
             slider.value = value
 
     # Provide a configuration handler if your device has configuration options
-    def handle_configuration(
-        configuration: Dict[
-            str, Union[bool, int, float, str]
-        ]  # Tuples of size 2 and 3 for int float and str types
+    def configuration_handler(
+        configuration: Dict[str, ConfigurationValue]
     ) -> None:
-        for key, value in configuration.items():
-            if key == "config_1":
-                configuration_1.value = value
-            elif key == "config_2":
-                configuration_2.value = value
-            elif key == "config_3":
-                configuration_3.value = value
-            elif key == "config_4":
-                configuration_4.value = value
+        for reference, value in configuration.items():
+            if reference in configurations:
+                configurations[reference] = value
 
     # Provide a way to read current device configuration
-    def get_configuration() -> dict:  # Same types as ConfigurationSimulator
-        configuration = dict()
-        configuration["config_1"] = configuration_1.value
-        configuration["config_2"] = configuration_2.value
-        configuration["config_3"] = configuration_3.value
-        configuration["config_4"] = configuration_4.value
-        return configuration
+    def configuration_provider() -> Dict[str, ConfigurationValue]:
+        return configurations
 
     # Extend this class to handle the installing of the firmware file
     class MyFirmwareHandler(wolk.FirmwareHandler):
@@ -137,6 +132,7 @@ def main():
         def install_firmware(self, firmware_file_path: str) -> None:
             """Handle the installing of the firmware file here."""
             print("Installing firmware from path: " + firmware_file_path)
+            time.sleep(5)
             os._exit(0)
 
         def get_current_version(self) -> str:
@@ -150,13 +146,13 @@ def main():
     try:
         wolk_device = wolk.WolkConnect(
             device=device,
-            actuation_handler=handle_actuation,
-            actuator_status_provider=get_actuator_status,
-            configuration_handler=handle_configuration,
-            configuration_provider=get_configuration,
+            actuation_handler=actuation_handler,
+            actuator_status_provider=actuator_status_provider,
+            configuration_handler=configuration_handler,
+            configuration_provider=configuration_provider,
             file_management=wolk.OSFileManagement(
-                preferred_package_size=1024 * 1024,
-                max_file_size=100 * 1024 * 1024,
+                preferred_package_size=preferred_file_package_size,
+                max_file_size=100 * preferred_file_package_size,
                 download_location="downloads",
             ),
             firmware_update=wolk.OSFirmwareUpdate(MyFirmwareHandler()),

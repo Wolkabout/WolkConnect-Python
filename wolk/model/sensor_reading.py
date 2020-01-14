@@ -12,14 +12,18 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
-from dataclasses import dataclass, field
-from typing import Optional, Tuple, Union
+from dataclasses import dataclass
+from dataclasses import field
 
 
 @dataclass
 class SensorReading:
-    """Holds information about a sensor reading.
+    """
+    Holds information about a sensor reading.
 
     :ivar reference: Device sensor's reference as defined in device template
     :vartype reference: str

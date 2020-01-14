@@ -14,35 +14,54 @@
 #   limitations under the License.
 import os
 from inspect import signature
-from typing import Callable, Optional, Union, Tuple
+from typing import Callable
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
+from wolk import logger_factory
+from wolk.interface.connectivity_service import ConnectivityService
+from wolk.interface.file_management import FileManagement
+from wolk.interface.firmware_update import FirmwareUpdate
+from wolk.interface.message_deserializer import MessageDeserializer
+from wolk.interface.message_factory import MessageFactory
+from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
-from wolk.mqtt_connectivity_service import MQTTConnectivityService
-from wolk.json_protocol_message_factory import JSONProtocolMessageFactory
-from wolk.json_protocol_message_deserializer import (
-    JSONProtocolMessageDeserializer,
-)
-from wolk.model.sensor_reading import SensorReading
-from wolk.model.alarm import Alarm
 from wolk.model.actuator_command import ActuatorCommandType
 from wolk.model.actuator_state import ActuatorState
 from wolk.model.actuator_status import ActuatorStatus
+from wolk.model.alarm import Alarm
 from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.device import Device
-from wolk.model.message import Message
-from wolk.model.firmware_update_status import FirmwareUpdateStatus
-from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
-from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
+from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
-from wolk.model.file_management_error_type import FileManagementErrorType
-from wolk.interface.message_factory import MessageFactory
-from wolk.interface.message_queue import MessageQueue
-from wolk.interface.message_deserializer import MessageDeserializer
-from wolk.interface.file_management import FileManagement
-from wolk.interface.firmware_update import FirmwareUpdate
-from wolk.interface.connectivity_service import ConnectivityService
-from wolk import logger_factory
+from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
+from wolk.model.firmware_update_status import FirmwareUpdateStatus
+from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
+from wolk.model.message import Message
+from wolk.model.sensor_reading import SensorReading
+from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
+from wolk.wolkabout_protocol_message_deserializer import (
+    WolkAboutProtocolMessageDeserializer as WAPMDeserializer,
+)
+from wolk.wolkabout_protocol_message_factory import (
+    WolkAboutProtocolMessageFactory as WAPMFactory,
+)
+
+ConfigurationValue = Union[
+    bool,
+    int,
+    Tuple[int, int],
+    Tuple[int, int, int],
+    float,
+    Tuple[float, float],
+    Tuple[float, float, float],
+    str,
+    Tuple[str, str],
+    Tuple[str, str, str],
+]
 
 
 class WolkConnect:
@@ -80,10 +99,17 @@ class WolkConnect:
             Callable[[str, Union[bool, int, float, str]], None]
         ] = None,
         actuator_status_provider: Optional[
-            Callable[[str], Tuple[ActuatorState, Union[bool, int, float, str]]]
+            Callable[
+                [str],
+                Tuple[ActuatorState, Optional[Union[bool, int, float, str]]],
+            ]
         ] = None,
-        configuration_handler: Optional[Callable[[dict], None]] = None,
-        configuration_provider: Optional[Callable[[None], dict]] = None,
+        configuration_handler: Optional[
+            Callable[[Dict[str, ConfigurationValue]], None]
+        ] = None,
+        configuration_provider: Optional[
+            Callable[[None], Dict[str, ConfigurationValue]]
+        ] = None,
         file_management: Optional[FileManagement] = None,
         firmware_update: Optional[FirmwareUpdate] = None,
         host: Optional[str] = None,
@@ -190,7 +216,9 @@ class WolkConnect:
                 raise RuntimeError(
                     f"{configuration_handler} invalid signature!"
                 )
-            self.configuration_handler = configuration_handler
+            self.configuration_handler: Optional[
+                Callable[[Dict[str, ConfigurationValue]], None]
+            ] = configuration_handler
         else:
             self.configuration_handler = None
 
@@ -203,7 +231,9 @@ class WolkConnect:
                 raise RuntimeError(
                     f"{configuration_provider} invalid signature!"
                 )
-            self.configuration_provider = configuration_provider
+            self.configuration_provider: Optional[
+                Callable[[None], Dict[str, ConfigurationValue]]
+            ] = configuration_provider
         else:
             self.configuration_provider = None
 
@@ -220,12 +250,12 @@ class WolkConnect:
             )
 
         if message_queue is None:
-            self.message_queue = MessageDeque()
+            self.message_queue: MessageQueue = MessageDeque()
         else:
-            if not isinstance(message_queue, MessageQueue):
-                raise RuntimeError("Invalid message queue provided")
-            else:
+            if isinstance(message_queue, MessageQueue):
                 self.message_queue = message_queue
+            else:
+                raise RuntimeError("Invalid message queue provided")
 
         if (message_factory is None and message_deserializer is not None) or (
             message_factory is not None and message_deserializer is None
@@ -236,7 +266,7 @@ class WolkConnect:
             )
 
         if message_factory is None:
-            self.message_factory = JSONProtocolMessageFactory(device.key)
+            self.message_factory: MessageFactory = WAPMFactory(device.key)
         else:
             if not isinstance(message_factory, MessageFactory):
                 raise RuntimeError("Invalid message factory provided")
@@ -244,7 +274,7 @@ class WolkConnect:
                 self.message_factory = message_factory
 
         if message_deserializer is None:
-            self.message_deserializer = JSONProtocolMessageDeserializer(
+            self.message_deserializer: MessageDeserializer = WAPMDeserializer(
                 self.device
             )
         else:
@@ -256,7 +286,7 @@ class WolkConnect:
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
         if host and port and ca_cert:
-            self.connectivity_service = MQTTConnectivityService(
+            self.connectivity_service: ConnectivityService = MQTTCS(
                 device,
                 self.message_deserializer.inbound_topics,
                 host=host,
@@ -264,7 +294,7 @@ class WolkConnect:
                 ca_cert=ca_cert,
             )
         elif host and port:
-            self.connectivity_service = MQTTConnectivityService(
+            self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.inbound_topics,
                 host=host,
@@ -277,7 +307,7 @@ class WolkConnect:
                 else:
                     self.connectivity_service = connectivity_service
             else:
-                self.connectivity_service = MQTTConnectivityService(
+                self.connectivity_service = MQTTCS(
                     device,
                     self.message_deserializer.inbound_topics,
                     ca_cert=wolk_ca_cert,
@@ -331,7 +361,7 @@ class WolkConnect:
         if self.firmware_update:
 
             message = self.message_factory.make_from_firmware_version(
-                self.firmware_update.handler.get_current_version()
+                self.firmware_update.get_current_version()
             )
             self.message_queue.put(message)
             self.firmware_update.report_result()
@@ -367,7 +397,7 @@ class WolkConnect:
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
             if self.firmware_update:
-                version = self.firmware_update.handler.get_current_version()
+                version = self.firmware_update.get_current_version()
                 message = self.message_factory.make_from_firmware_version(
                     version
                 )
@@ -451,6 +481,9 @@ class WolkConnect:
         :param reference: reference of the actuator
         :type reference: str
         """
+        if not self.connectivity_service.is_connected():
+            self.logger.warning("Not connected, unable to publish message!")
+            return
         self.logger.debug(
             f"Publishing actuator status for reference '{reference}'"
         )
@@ -471,20 +504,27 @@ class WolkConnect:
         )
 
         if not self.connectivity_service.publish(message):
+            self.logger.error(
+                f"Failed to publish actuator status for reference {reference}!"
+            )
             self.message_queue.put(message)
 
     def publish_configuration(self) -> None:
         """Publish current device configuration to WolkAbout IoT Platform."""
+        if not self.connectivity_service.is_connected():
+            self.logger.warning("Not connected, unable to publish message!")
+            return
         self.logger.debug("Publishing configuration options")
         if not self.configuration_provider:
             self.logger.error("No configuration provider is set!")
             return
 
         message = self.message_factory.make_from_configuration(
-            self.configuration_provider()
+            self.configuration_provider()  # type: ignore
         )
 
         if not self.connectivity_service.publish(message):
+            self.logger.error("Failed to publish configuration options!")
             self.message_queue.put(message)
 
     def _on_inbound_message(self, message: Message) -> None:
@@ -496,7 +536,7 @@ class WolkConnect:
         """
         if "binary" in message.topic:
             self.logger.debug(
-                f"Received message: {message.topic} , "
+                f"Received message: {message.topic} , "  # type: ignore
                 f"{len(message.payload)}"
             )
         else:
@@ -529,7 +569,9 @@ class WolkConnect:
                 message
             )
             if actuation.command == ActuatorCommandType.SET:
-                self.actuation_handler(actuation.reference, actuation.value)
+                self.actuation_handler(
+                    actuation.reference, actuation.value  # type: ignore
+                )
                 self.publish_actuator_status(actuation.reference)
             elif actuation.command == ActuatorCommandType.GET:
                 self.publish_actuator_status(actuation.reference)
@@ -547,8 +589,11 @@ class WolkConnect:
             configuration = self.message_deserializer.parse_configuration(
                 message
             )
-            if configuration.command == ConfigurationCommandType.SET:
-                self.configuration_handler(configuration.value)
+            if (
+                configuration.command == ConfigurationCommandType.SET
+                and configuration.value
+            ):
+                self.configuration_handler(configuration.value)  # type: ignore
                 self.publish_configuration()
             elif configuration.command == ConfigurationCommandType.GET:
                 self.publish_configuration()
@@ -579,7 +624,7 @@ class WolkConnect:
                 FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
             )
             message = self.message_factory.make_from_file_management_status(
-                status
+                status, ""
             )
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
@@ -589,8 +634,11 @@ class WolkConnect:
             name, size, fhash = self.message_deserializer.parse_file_initiate(
                 message
             )
-            self.file_management.handle_upload_initiation(name, size, fhash)
-            return
+            if name != "":  # ignore invalid messages
+                self.file_management.handle_upload_initiation(
+                    name, size, fhash
+                )
+                return
 
         if self.message_deserializer.is_file_binary_response(message):
             package = self.message_deserializer.parse_file_binary(message)
@@ -607,7 +655,10 @@ class WolkConnect:
 
         if self.message_deserializer.is_file_url_initiate(message):
             file_url = self.message_deserializer.parse_file_url(message)
-            self.file_management.handle_file_url_download_initiation(file_url)
+            if file_url != "":  # ignore invalid messages
+                self.file_management.handle_file_url_download_initiation(
+                    file_url
+                )
             return
 
         if self.message_deserializer.is_file_list_request(message):
@@ -623,14 +674,15 @@ class WolkConnect:
             file_name = self.message_deserializer.parse_file_delete_command(
                 message
             )
-            self.file_management.handle_file_delete(file_name)
-            file_list = self.file_management.get_file_list()
-            message = self.message_factory.make_from_file_list_update(
-                file_list
-            )
-            if not self.connectivity_service.publish(message):
-                self.message_queue.put(message)
-            return
+            if file_name != "":  # ignore invalid messages
+                self.file_management.handle_file_delete(file_name)
+                file_list = self.file_management.get_file_list()
+                message = self.message_factory.make_from_file_list_update(
+                    file_list
+                )
+                if not self.connectivity_service.publish(message):
+                    self.message_queue.put(message)
+                return
 
         if self.message_deserializer.is_file_purge_command(message):
             self.file_management.handle_file_purge()
@@ -662,7 +714,10 @@ class WolkConnect:
                 self.message_queue.put(message)
             return
 
-        if self.message_deserializer.is_firmware_install(message):
+        if (
+            self.message_deserializer.is_firmware_install(message)
+            and self.file_management
+        ):
             file_name = self.message_deserializer.parse_firmware_install(
                 message
             )
@@ -717,6 +772,17 @@ class WolkConnect:
         message = self.message_factory.make_from_firmware_update_status(status)
         if not self.connectivity_service.publish(message):
             self.message_queue.put(message)
+        if (
+            status.status == FirmwareUpdateStatusType.COMPLETED
+            and self.firmware_update
+        ):
+            version = self.firmware_update.get_current_version()
+            message = self.message_factory.make_from_firmware_version(version)
+            if self.connectivity_service.is_connected():
+                if not self.connectivity_service.publish(message):
+                    self.message_queue.put(message)
+            else:
+                self.message_queue.put(message)
 
     def _on_file_upload_status(
         self, file_name: str, status: FileManagementStatus
@@ -730,11 +796,14 @@ class WolkConnect:
         :type status: FileManagementStatus
         """
         message = self.message_factory.make_from_file_management_status(
-            file_name, status
+            status, file_name
         )
         if not self.connectivity_service.publish(message):
             self.message_queue.put(message)
-        if status.status.value == "FILE_READY":
+        if (
+            status.status == FileManagementStatusType.FILE_READY
+            and self.file_management
+        ):
             file_list = self.file_management.get_file_list()
             message = self.message_factory.make_from_file_list_update(
                 file_list
@@ -765,7 +834,7 @@ class WolkConnect:
         if not self.connectivity_service.publish(message):
             self.message_queue.put(message)
 
-        if file_name:
+        if file_name and self.file_management:
             file_list = self.file_management.get_file_list()
             message = self.message_factory.make_from_file_list_update(
                 file_list

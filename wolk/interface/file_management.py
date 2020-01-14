@@ -12,9 +12,11 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from abc import ABC, abstractmethod
-from typing import Callable, Optional, List
+from abc import ABC
+from abc import abstractmethod
+from typing import Callable
+from typing import List
+from typing import Optional
 
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_transfer_package import FileTransferPackage
@@ -32,7 +34,8 @@ class FileManagement(ABC):
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
     ) -> None:
-        """Start making package requests and set status to file transfer.
+        """
+        Start making package requests and set status to file transfer.
 
         :param file_name: File name
         :type file_name: str

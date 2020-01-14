@@ -12,14 +12,15 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from abc import ABCMeta, abstractmethod
-from typing import List, Tuple
+from abc import ABCMeta
+from abc import abstractmethod
+from typing import List
+from typing import Tuple
 
 from wolk.model.actuator_command import ActuatorCommand
 from wolk.model.configuration_command import ConfigurationCommand
-from wolk.model.message import Message
 from wolk.model.file_transfer_package import FileTransferPackage
+from wolk.model.message import Message
 
 
 class MessageDeserializer(metaclass=ABCMeta):

@@ -12,8 +12,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from abc import ABC, abstractmethod
+from abc import ABC
+from abc import abstractmethod
 from typing import Callable
 
 from wolk.model.message import Message
@@ -34,7 +34,8 @@ class ConnectivityService(ABC):
 
     @abstractmethod
     def is_connected(self) -> bool:
-        """Return current connection state.
+        """
+        Return current connection state.
 
         :returns: connected
         :rtype: bool

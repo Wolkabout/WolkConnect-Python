@@ -12,13 +12,12 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
 from collections import deque
 from typing import Optional
 
-from wolk.model.message import Message
-from wolk.interface.message_queue import MessageQueue
 from wolk import logger_factory
+from wolk.interface.message_queue import MessageQueue
+from wolk.model.message import Message
 
 
 class MessageDeque(MessageQueue):
@@ -92,7 +91,9 @@ class MessageDeque(MessageQueue):
 
         if readings > 0 and max_data == 1:
             for stored_message in self.queue:
-                if reading_reference == stored_message.topic.split("/")[-1]:
+                if reading_reference == stored_message.topic.split("/")[
+                    -1
+                ] and isinstance(message.payload, str):
                     stored_message.payload = "[" + stored_message.payload
                     stored_message.payload += "," + message.payload + "]"
                     self.logger.debug(
@@ -105,7 +106,9 @@ class MessageDeque(MessageQueue):
             for stored_message in self.queue:
                 if "reading" not in stored_message.topic:
                     continue
-                if reading_reference == stored_message.topic.split("/")[-1]:
+                if reading_reference == stored_message.topic.split("/")[
+                    -1
+                ] and isinstance(message.payload, str):
                     data_count = stored_message.payload.count('"data"')
                     if max_data > data_count:
                         continue
@@ -117,6 +120,8 @@ class MessageDeque(MessageQueue):
                         f"- Queue size: {len(self.queue)}"
                     )
                     return True
+
+        return False
 
     def get(self) -> Optional[Message]:
         """
@@ -142,7 +147,7 @@ class MessageDeque(MessageQueue):
         """
         if len(self.queue) == 0:
             self.logger.debug("Empty queue")
-            return
+            return None
         else:
             message = self.queue[0]
             self.logger.debug(

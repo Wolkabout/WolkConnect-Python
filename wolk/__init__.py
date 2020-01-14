@@ -1,8 +1,6 @@
 # coding=utf-8
 """
-.. module:: wolk
-
-This module provides connection to WolkAbout IoT Platform.
+Module that provides connection to WolkAbout IoT Platform.
 
 To start publishing data to the platform
 create an instance of Device class with credentials obtained from the platform
@@ -11,24 +9,6 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
-from .model.actuator_command import ActuatorCommand, ActuatorCommandType
-from .model.actuator_state import ActuatorState
-from .model.actuator_status import ActuatorStatus
-from .model.alarm import Alarm
-from .model.configuration_command import (
-    ConfigurationCommand,
-    ConfigurationCommandType,
-)
-from .model.device import Device
-from .model.file_transfer_package import FileTransferPackage
-from .model.firmware_update_status import FirmwareUpdateStatus
-from .model.firmware_update_status_type import FirmwareUpdateStatusType
-from .model.firmware_update_error_type import FirmwareUpdateErrorType
-from .model.file_management_status import FileManagementStatus
-from .model.file_management_status_type import FileManagementStatusType
-from .model.file_management_error_type import FileManagementErrorType
-from .model.message import Message
-from .model.sensor_reading import SensorReading
 from .interface.actuation_handler import handle_actuation
 from .interface.actuator_status_provider import get_actuator_status
 from .interface.configuration_handler import handle_configuration
@@ -38,9 +18,26 @@ from .interface.firmware_handler import FirmwareHandler
 from .interface.message_deserializer import MessageDeserializer
 from .interface.message_factory import MessageFactory
 from .interface.message_queue import MessageQueue
+from .logger_factory import logging_config
+from .model.actuator_command import ActuatorCommand
+from .model.actuator_command import ActuatorCommandType
+from .model.actuator_state import ActuatorState
+from .model.actuator_status import ActuatorStatus
+from .model.alarm import Alarm
+from .model.configuration_command import ConfigurationCommand
+from .model.configuration_command import ConfigurationCommandType
+from .model.device import Device
+from .model.file_management_error_type import FileManagementErrorType
+from .model.file_management_status import FileManagementStatus
+from .model.file_management_status_type import FileManagementStatusType
+from .model.file_transfer_package import FileTransferPackage
+from .model.firmware_update_error_type import FirmwareUpdateErrorType
+from .model.firmware_update_status import FirmwareUpdateStatus
+from .model.firmware_update_status_type import FirmwareUpdateStatusType
+from .model.message import Message
+from .model.sensor_reading import SensorReading
 from .os_file_management import OSFileManagement
 from .os_firmware_update import OSFirmwareUpdate
-from .logger_factory import logging_config
 from .wolk_connect import WolkConnect
 
 

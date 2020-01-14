@@ -42,6 +42,9 @@ venv.bak/
 # PyCharm
 .idea/
 
+# mypy
+.mypy_cache/
+
 # Sublime Text
 *.sublime-project
 *.sublime-workspace

@@ -12,14 +12,15 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from typing import Optional
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
 class Alarm:
-    """Holds information about a devices alarm.
+    """
+    Holds information about a devices alarm.
 
     :ivar reference: Device alarm's reference as defined in device template
     :vartype reference: str

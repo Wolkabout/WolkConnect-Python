@@ -12,15 +12,21 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from enum import Enum
+from enum import unique
+from typing import Dict
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
-from dataclasses import dataclass, field
-from enum import Enum, unique
-from typing import Dict, Optional, Tuple, Union
+from dataclasses import dataclass
+from dataclasses import field
 
 
 @unique
 class ConfigurationCommandType(Enum):
-    """Configuration command type.
+    """
+    Configuration command type.
 
     :ivar GET: Get current configuration options
     :vartype GET: int
@@ -34,7 +40,8 @@ class ConfigurationCommandType(Enum):
 
 @dataclass
 class ConfigurationCommand:
-    """Configuration command with command and optionally value.
+    """
+    Configuration command with command and optionally value.
 
     :ivar command: Configuration command received
     :vartype command: int

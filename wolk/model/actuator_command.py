@@ -12,15 +12,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from enum import Enum
+from enum import unique
+from typing import Optional
+from typing import Union
 
-from dataclasses import dataclass, field
-from enum import Enum, unique
-from typing import Optional, Union
+from dataclasses import dataclass
+from dataclasses import field
 
 
 @unique
 class ActuatorCommandType(Enum):
-    """Actuator command type.
+    """
+    Actuator command type.
 
     :ivar GET: Get current actuator value
     :vartype GET: str
@@ -34,7 +38,8 @@ class ActuatorCommandType(Enum):
 
 @dataclass
 class ActuatorCommand:
-    """Actuator command for reference with command and optionally value.
+    """
+    Actuator command for reference with command and optionally value.
 
     :ivar reference: What actuator is the command for
     :vartype reference: str

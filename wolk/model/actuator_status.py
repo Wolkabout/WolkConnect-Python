@@ -12,16 +12,19 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from typing import Optional
+from typing import Union
 
-from dataclasses import dataclass, field
-from typing import Optional, Union
+from dataclasses import dataclass
+from dataclasses import field
 
 from wolk.model.actuator_state import ActuatorState
 
 
 @dataclass
 class ActuatorStatus:
-    """Holds information of a devices actuator current status.
+    """
+    Holds information of a devices actuator current status.
 
     :ivar reference: Device actuator's reference as defined in device template
     :vartype reference: str

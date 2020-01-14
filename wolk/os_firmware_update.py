@@ -12,23 +12,23 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-
-from typing import Callable
-from threading import Timer
 import os
+from threading import Timer
+from typing import Callable
+from typing import Optional
 
+from wolk import logger_factory
+from wolk.interface.firmware_handler import FirmwareHandler
+from wolk.interface.firmware_update import FirmwareUpdate
 from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
-from wolk.interface.firmware_update import FirmwareUpdate
-from wolk.interface.firmware_handler import FirmwareHandler
-from wolk import logger_factory
 
 
 class OSFirmwareUpdate(FirmwareUpdate):
     """Responsible for everything related to the firmware update process."""
 
-    def __init__(self, firmware_handler: FirmwareHandler = None) -> None:
+    def __init__(self, firmware_handler: FirmwareHandler) -> None:
         """
         Enable firmware update for device.
 
@@ -39,8 +39,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
             str(self.__class__.__name__)
         )
         self.logger.debug(f"firmware_handler: {firmware_handler}")
-        self.current_status = FirmwareUpdateStatus()
-        self.install_timer = None
+        self.current_status: Optional[FirmwareUpdateStatus] = None
+        self.install_timer: Optional[Timer] = None
         self._set_firmware_handler(firmware_handler)
 
     def _set_on_status_callback(
@@ -56,7 +56,8 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.report_status = report_status
 
     def _set_firmware_handler(self, handler: FirmwareHandler) -> None:
-        """Set firmware handler.
+        """
+        Set firmware handler.
 
         :param handler: Installs firmware and reports current version
         :type handler: FirmwareHandler
@@ -73,8 +74,18 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
         self.handler = handler
 
+    def get_current_version(self) -> str:
+        """
+        Return device's current firmware version.
+
+        :returns: Firmware version
+        :rtype: str
+        """
+        return self.handler.get_current_version()
+
     def handle_install(self, file_path: str) -> None:
-        """Handle received firmware installation command.
+        """
+        Handle received firmware installation command.
 
         :param file_path: Firmware file to install
         :type file_path: str
@@ -93,7 +104,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self._reset_state()
             return
 
-        if self.current_status.status is not None:
+        if self.current_status is not None:
 
             self.logger.warning(
                 "Not in idle status, ignoring install command."
@@ -133,7 +144,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.report_status(self.current_status)
 
         self.install_timer = Timer(
-            5.0, self.handler.install_firmware(file_path)
+            5.0, self.handler.install_firmware(file_path)  # type: ignore
         )  # For possible abort command
         self.install_timer.start()
 
@@ -143,7 +154,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self.logger.info("Stopping installation timer")
             self.install_timer.cancel()
 
-        if self.current_status.status is not None:
+        if self.current_status is not None:
 
             self.logger.info("Aborting firmware installation")
             self.current_status = FirmwareUpdateStatus(
@@ -191,5 +202,5 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
     def _reset_state(self) -> None:
         """Reset the state of the firmware update process."""
-        self.current_status = FirmwareUpdateStatus()
+        self.current_status = None
         self.install_timer = None
