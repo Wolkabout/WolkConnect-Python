@@ -413,8 +413,8 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 )
                 self.logger.debug(
                     "Received file transfer package: "
-                    f"FileTransferPackage(previous_hash='{previous_hash!r}',"
-                    f" data={len(data)} bytes, current_hash='{current_hash!r}'"
+                    f"FileTransferPackage(previous_hash={previous_hash!r},"
+                    f" data={len(data)} bytes, current_hash={current_hash!r}"
                 )
             except Exception:
                 self.logger.warning("Received malformed file chunk!")
