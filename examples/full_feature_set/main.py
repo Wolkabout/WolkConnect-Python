@@ -56,6 +56,7 @@ def main():
         actuator_references=actuator_references,
     )
     preferred_file_package_size = 1024 * 1024
+    firmware_version = "1.0"
 
     class Actuator:
         def __init__(
@@ -137,7 +138,7 @@ def main():
 
         def get_current_version(self) -> str:
             """Return current firmware version."""
-            return "1.0"
+            return firmware_version
 
     # Pass your device, actuation handler and actuator status provider
     # Pass configuration handler and provider
