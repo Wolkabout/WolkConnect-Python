@@ -582,7 +582,9 @@ class OSFileManagement(FileManagement):
     def handle_file_purge(self) -> None:
         """Delete all files from device."""
         for file in os.listdir(os.path.abspath(self.download_location)):
-            if not os.path.isfile(file) or file.startswith("."):
+            if not os.path.isfile(
+                os.path.join(os.path.abspath(self.download_location), file)
+            ) or file.startswith("."):
                 continue
             os.remove(
                 os.path.join(os.path.abspath(self.download_location), file)
