@@ -240,8 +240,6 @@ class MQTTConnectivityService(ConnectivityService):
             if self.connected_rc is None:
                 sleep(0.1)
                 continue
-            else:
-                print(self.connected_rc)
 
             if self.connected_rc == 0:
                 self.logger.info("Connected!")
