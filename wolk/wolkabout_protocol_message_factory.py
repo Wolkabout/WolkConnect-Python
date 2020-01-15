@@ -303,6 +303,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
                 for single_value in value:
                     if isinstance(single_value, bool):
                         single_value = str(single_value).lower()
+                        continue
                     if (
                         "\n" in str(single_value) or '"' in str(single_value)
                     ) and isinstance(single_value, str):

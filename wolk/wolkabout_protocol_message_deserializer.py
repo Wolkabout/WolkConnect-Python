@@ -471,7 +471,11 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                             "\r", ""
                         )
                     if "," in value:
-                        values_list: List[Union[int, float, str]] = []
+                        values_list: List[
+                            Union[int, float, str]
+                        ] = value.split(  # type: ignore
+                            ","
+                        )
                         try:
                             if any("." in value for value in value.split(",")):
                                 values_list = [

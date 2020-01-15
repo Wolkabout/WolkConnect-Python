@@ -52,6 +52,7 @@ def main():
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
             print("Received KeyboardInterrupt, quitting")
+            wolk_device.disconnect()
             os._exit(0)
 
 

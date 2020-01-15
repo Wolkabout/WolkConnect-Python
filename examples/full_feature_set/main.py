@@ -27,7 +27,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-wolk.logging_config("debug", "wolk.log")
+# wolk.logging_config("debug", "wolk.log")
 
 
 def main():
@@ -207,6 +207,7 @@ def main():
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
             print("Received KeyboardInterrupt, quitting")
+            wolk_device.disconnect()
             os._exit(0)
 
 

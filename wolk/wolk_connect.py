@@ -408,6 +408,8 @@ class WolkConnect:
 
     def disconnect(self) -> None:
         """Disconnect the device from WolkAbout IoT Platform."""
+        if not self.connectivity_service.is_connected():
+            return
         self.logger.debug("Disconnecting")
         self.connectivity_service.disconnect()
 
