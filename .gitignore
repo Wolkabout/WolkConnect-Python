@@ -26,6 +26,7 @@ wheels/
 # Sphinx documentation
 docs/_static/
 docs/_templates/
+docs/build/
 
 # pyenv
 .python-version
