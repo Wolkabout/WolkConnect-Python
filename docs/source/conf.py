@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath(".." + os.sep + ".."))
 # -- Project information -----------------------------------------------------
 
 project = "WolkConnect-Python"
-copyright = "2019, WolkAbout"
+copyright = "2020, WolkAbout"
 author = "WolkAbout"
 
 master_doc = "index"

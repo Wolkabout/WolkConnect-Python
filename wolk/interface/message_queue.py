@@ -1,5 +1,5 @@
 """Store messages before sending them to WolkAbout IoT Platform."""
-#   Copyright 2019 WolkAbout Technology s.r.o.
+#   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
