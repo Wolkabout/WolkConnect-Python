@@ -66,43 +66,38 @@ device = wolk.Device(
     actuator_references=["SW", "SL"]
 )
 
+
 # Provide implementation of a way to read actuator status
-def get_actuator_status(reference):
-    if reference == "SW":
+def actuator_status_provider(reference):
+    if reference == actuator_references[0]:
         return wolk.ActuatorState.READY, switch.value
-    elif reference == "SL":
+    elif reference == actuator_references[1]:
         return wolk.ActuatorState.READY, slider.value
+
+    return wolk.ActuatorState.ERROR, None
 
 
 # Provide implementation of an actuation handler
-def handle_actuation(reference, value):
-    print("Setting actuator " + reference + " to value: " + str(value))
-    if reference == "SW":
+def actuation_handler(reference, value):
+    print(f"Setting actuator '{reference}' to value: {value}")
+    if reference == actuator_references[0]:
         switch.value = value
 
-    elif reference == "SL":
+    elif reference == actuator_references[1]:
         slider.value = value
 
+
 # Provide implementation of a configuration handler
-def handle_configuration(configuration):
-    for key, value in configuration.items():
-        if key == "config_1":
-            configuration_1.value = value
-        elif key == "config_2":
-            configuration_2.value = value
-        elif key == "config_3":
-            configuration_3.value = value
-        elif key == "config_4":
-            configuration_4.value = value
+def configuration_handler(configuration):
+    for reference, value in configuration.items():
+        if reference in configurations:
+            configurations[reference] = value
+
 
 # Provide a way to read current device configuration
-def get_configuration():
-    configuration = {}
-    configuration['config_1'] = configuration_1.value
-    configuration['config_2'] = configuration_2.value
-    configuration['config_3'] = configuration_3.value
-    configuration['config_4'] = configuration_4.value
-    return configuration
+def configuration_provider():
+    return configurations
+
 
 # Pass your device, actuation handler and actuator status provider
 # Pass configuration handler and provider
@@ -110,10 +105,10 @@ def get_configuration():
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
     device=device,
-    actuation_handler=handle_actuation,
-    actuator_status_provider=get_actuator_status,
-    configuration_handler=handle_configuration,
-    configuration_provider=get_configuration,
+    actuation_handler=actuation_handler,
+    actuator_status_provider=actuator_status_provider,
+    configuration_handler=configuration_handler,
+    configuration_provider=configuration_provider,
     host="api-demo.wolkabout.com",
     port=8883,
     ca_cert="path/to/ca.crt"
@@ -175,8 +170,6 @@ In cases when provided in-file persistence is suboptimal, one can use custom per
 ```python
 wolk_device = wolk.WolkConnect(
     device=device,
-    actuation_handler=ActuationHandlerImpl(),
-    actuator_status_provider=ActuatorStatusProviderImpl(),
     message_queue=custom_queue
 )
 wolk_device.connect()
