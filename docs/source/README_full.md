@@ -20,17 +20,18 @@
 WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
 
 Supported device communication protocols:
-* JSON_PROTOCOL
+* WolkAbout Protocol
 
 ## Prerequisite
 
 * Python 3.7
+* Python 3.7 pip
 
 
 ## Installation
 
 ```sh
-pip3 install wolk-connect
+python3.7 -m pip install wolk-connect
 ```
 
 ### Installing from source
@@ -40,7 +41,7 @@ Clone this repository from the command line using:
 git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
-Install dependencies by invoking `pip3 install -r requirements.txt`
+Install dependencies by invoking `python3.7 -m pip install -r requirements.txt`
 
 Install the package by running:
 ```python
@@ -52,7 +53,7 @@ python3.7 setup.py install
 **Establishing connection with WolkAbout IoT platform:**
 
 Create a device on WolkAbout IoT platform by importing [Full-example-deviceTemplate.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/Full-example-deviceTemplate.json) .<br />
-This manifest fits [wolk_example.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/wolk_example.py) and demonstrates all the functionality of WolkConnect-Python library.
+This manifest fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/main.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
 import wolk

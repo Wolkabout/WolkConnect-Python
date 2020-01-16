@@ -27,19 +27,19 @@ MQTT connectivity service
 Data Handling
 -------------
 
-JSON protocol message deserializer
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WolkAbout Protocol message deserializer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.json_protocol_message_deserializer
+.. automodule:: wolk.wolkabout_protocol_message_deserializer
     :members:
     :undoc-members:
     :show-inheritance:
 
 
-JSON protocol message factory
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WolkAbout protocol message factory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.json_protocol_message_factory
+.. automodule:: wolk.wolkabout_protocol_message_factory
     :members:
     :undoc-members:
     :show-inheritance:
@@ -55,16 +55,16 @@ Message deque
 Device Management
 -----------------
 
-OS based file management
-~~~~~~~~~~~~~~~~~~~~~~~~
+File management
+~~~~~~~~~~~~~~~
 
 .. automodule:: wolk.os_file_management
     :members:
     :undoc-members:
     :show-inheritance:
 
-OS based firmware update
-~~~~~~~~~~~~~~~~~~~~~~~~
+Firmware update
+~~~~~~~~~~~~~~~
 
 .. automodule:: wolk.os_firmware_update
     :members:
