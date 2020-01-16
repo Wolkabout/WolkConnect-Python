@@ -34,6 +34,7 @@ class MQTTConnectivityService(ConnectivityService):
         self,
         device: Device,
         topics: List[str],
+        last_will_message: Message,
         qos: Optional[int] = 0,
         host: Optional[str] = "api-demo.wolkabout.com",
         port: Optional[int] = 8883,
@@ -46,6 +47,8 @@ class MQTTConnectivityService(ConnectivityService):
         :type device: Device
         :param topics: List of topics to subscribe to
         :type topics: List[str]
+        :param last_will_message: Message in case of unexpected disconnects
+        :type last_will_message: Message
         :param qos: Quality of Service for MQTT connection (0, 1, 2)
         :type qos: int or None
         :param host: Address of the MQTT broker
@@ -56,6 +59,7 @@ class MQTTConnectivityService(ConnectivityService):
         :type ca_cert: str or None
         """
         self.device = device
+        self.last_will_message = last_will_message
         self.qos = qos
         self.host = host
         self.port = port
@@ -70,6 +74,7 @@ class MQTTConnectivityService(ConnectivityService):
             f"Device key: {self.device.key} ; "
             f"Device password: {self.device.password} ;"
             f"Actuator references: {self.device.actuator_references} ; "
+            f"Last will message: {self.last_will_message} ; "
             f"QoS: {self.qos} ; "
             f"Host: {self.host} ; "
             f"Port: {self.port} ; "
@@ -187,9 +192,7 @@ class MQTTConnectivityService(ConnectivityService):
         """
         Establish the connection to the WolkAbout IoT platform.
 
-        If there are actuators it will subscribe to topics
-        that will contain actuator commands.
-        Subscribes to firmware update related topics.
+        Subscribes to all topics defined by device communication protocol.
         Starts a loop to handle inbound messages.
 
         :returns: Connection state, True if connected, False otherwise
@@ -209,17 +212,17 @@ class MQTTConnectivityService(ConnectivityService):
             self.client.tls_insecure_set(True)
         self.client.username_pw_set(self.device.key, self.device.password)
         self.client.will_set(
-            "lastwill/" + self.device.key, "Gone offline", 2, False
+            self.last_will_message.topic,
+            self.last_will_message.payload,
+            2,
+            False,
         )
 
         self.logger.debug(
-            "Connecting with parameters : host: %s ; port:%s, ca_cert:%s "
-            "; username:%s ; password:%s",
-            self.host,
-            self.port,
-            self.ca_cert,
-            self.device.key,
-            self.device.password,
+            f"Connecting with parameters: host='{self.host}', "
+            f"port={self.port}, ca_cert='{self.ca_cert}', "
+            f"username='{self.device.key}', "
+            f"password='{self.device.password}'"
         )
         try:
             self.client.connect(self.host, self.port)

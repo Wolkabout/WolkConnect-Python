@@ -35,6 +35,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     REFERENCE_PATH_PREFIX = "r/"
     CHANNEL_WILDCARD = "#"
     CHANNEL_DELIMITER = "/"
+    LAST_WILL = "d2p/last_will/"
     SENSOR_READING = "d2p/sensor_reading/"
     ALARM = "d2p/events/"
     ACTUATOR_SET = "p2d/actuator_set/"
@@ -444,6 +445,23 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             payload["error"] = status.error.value
 
         message = Message(topic, json.dumps(payload))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_last_will_message(self, device_key: str) -> Message:
+        """
+        Serialize a last will message if device disconnects unexpectedly.
+
+        :param device_key: Device key
+        :type device_key: str
+        :returns: Last will message
+        :rtype: Message
+        """
+        self.logger.debug(f"{device_key}")
+
+        topic = self.LAST_WILL + self.DEVICE_PATH_PREFIX + device_key
+        message = Message(topic)
         self.logger.debug(f"{message}")
 
         return message

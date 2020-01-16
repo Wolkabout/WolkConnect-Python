@@ -284,11 +284,15 @@ class WolkConnect:
                 self.message_deserializer = message_deserializer
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
+        last_will_message = self.message_factory.make_last_will_message(
+            self.device.key
+        )
 
         if host and port and ca_cert:
             self.connectivity_service: ConnectivityService = MQTTCS(
                 device,
-                self.message_deserializer.inbound_topics,
+                self.message_deserializer.get_inbound_topics(),
+                last_will_message,
                 host=host,
                 port=int(port),
                 ca_cert=ca_cert,
@@ -296,7 +300,8 @@ class WolkConnect:
         elif host and port:
             self.connectivity_service = MQTTCS(
                 device,
-                self.message_deserializer.inbound_topics,
+                self.message_deserializer.get_inbound_topics(),
+                last_will_message,
                 host=host,
                 port=int(port),
             )
@@ -309,7 +314,8 @@ class WolkConnect:
             else:
                 self.connectivity_service = MQTTCS(
                     device,
-                    self.message_deserializer.inbound_topics,
+                    self.message_deserializer.get_inbound_topics(),
+                    last_will_message,
                     ca_cert=wolk_ca_cert,
                 )
 
@@ -371,17 +377,24 @@ class WolkConnect:
         Connect the device to the WolkAbout IoT Platform.
 
         If the connection is made, then it also sends information
-        regarding current actuator statuses,configuration option values,
+        regarding current actuator statuses, configuration option values,
         list of files present on device, current firmware version
         and the result of the firmware update process.
-
-        :raises e: Exception from MQTT client
         """
         self.logger.debug("Connecting")
-        try:
-            self.connectivity_service.connect()
-        except Exception as e:
-            raise e
+
+        if self.connectivity_service.is_connected():
+            self.logger.info("Already connected")
+            return
+
+        else:
+            try:
+                self.connectivity_service.connect()
+            except Exception as e:
+                self.logger.exception(
+                    f"Something went wrong when trying to connect: {e}"
+                )
+                return
 
         if self.connectivity_service.is_connected():
 

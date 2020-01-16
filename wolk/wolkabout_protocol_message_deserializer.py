@@ -67,7 +67,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         )
         self.logger.debug(f"{device}")
 
-        inbound_topics = [
+        self.inbound_topics = [
             self.CONFIGURATION_GET + self.DEVICE_PATH_DELIMITER + device.key,
             self.CONFIGURATION_SET + self.DEVICE_PATH_DELIMITER + device.key,
             self.FILE_BINARY_RESPONSE
@@ -96,7 +96,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         ]
 
         for reference in device.actuator_references:
-            inbound_topics.append(
+            self.inbound_topics.append(
                 self.ACTUATOR_SET
                 + self.DEVICE_PATH_DELIMITER
                 + device.key
@@ -104,7 +104,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 + self.REFERENCE_PATH_PREFIX
                 + reference
             )
-            inbound_topics.append(
+            self.inbound_topics.append(
                 self.ACTUATOR_GET
                 + self.DEVICE_PATH_DELIMITER
                 + device.key
@@ -112,8 +112,16 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 + self.REFERENCE_PATH_PREFIX
                 + reference
             )
-        self.logger.debug(f"inbound topics: {inbound_topics}")
-        super().__init__(inbound_topics)
+        self.logger.debug(f"inbound topics: {self.inbound_topics}")
+
+    def get_inbound_topics(self) -> List[str]:
+        """
+        Return list of inbound topics for device.
+
+        :returns: List of topics to subscribe to
+        :rtype: List[str]
+        """
+        return self.inbound_topics
 
     def is_actuation_command(self, message: Message) -> bool:
         """

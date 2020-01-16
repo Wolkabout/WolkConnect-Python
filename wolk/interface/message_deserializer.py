@@ -12,7 +12,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-from abc import ABCMeta
+from abc import ABC
 from abc import abstractmethod
 from typing import List
 from typing import Tuple
@@ -23,17 +23,18 @@ from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
 
 
-class MessageDeserializer(metaclass=ABCMeta):
+class MessageDeserializer(ABC):
     """Deserialize messages received from the platform."""
 
-    def __init__(self, inbound_topics: List[str]):
+    @abstractmethod
+    def get_inbound_topics(self) -> List[str]:
         """
-        Set inbound topics for device.
+        Return list of inbound topics for device.
 
-        :param inbound_topics: List of topics to subscribe to
-        :type inbound_topics: List[str]
+        :returns: List of topics to subscribe to
+        :rtype: List[str]
         """
-        self.inbound_topics = inbound_topics
+        pass
 
     @abstractmethod
     def is_actuation_command(self, message: Message) -> bool:

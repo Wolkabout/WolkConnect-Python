@@ -177,3 +177,15 @@ class MessageFactory(ABC):
         :type file_name: Optional[str]
         """
         pass
+
+    @abstractmethod
+    def make_last_will_message(self, device_key: str) -> Message:
+        """
+        Serialize a last will message if device disconnects unexpectedly.
+
+        :param device_key: Device key
+        :type device_key: str
+        :returns: Last will message
+        :rtype: Message
+        """
+        pass
