@@ -21,7 +21,7 @@ setuptools.setup(
     keywords=["IoT", "WolkAbout", "Internet of Things"],
     url="https://github.com/Wolkabout/WolkConnect-Python",
     packages=setuptools.find_packages(),
-    classifiers=(
+    classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
@@ -32,5 +32,5 @@ setuptools.setup(
         "Topic :: Internet",
         "Topic :: Communications",
         "Topic :: Software Development :: Embedded Systems",
-    ),
+    ],
 )
