@@ -82,7 +82,7 @@ class OSFileManagement(FileManagement):
         self.last_package_hash = 32 * b"\x00"
 
         if not os.path.exists(os.path.abspath(self.download_location)):
-            os.mkdir(os.path.abspath(self.download_location))
+            os.makedirs(os.path.abspath(self.download_location))
 
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
