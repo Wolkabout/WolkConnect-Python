@@ -9,6 +9,7 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
+__version__ = "4.0.0"
 from .interface.actuation_handler import handle_actuation
 from .interface.actuator_status_provider import get_actuator_status
 from .interface.configuration_handler import handle_configuration
@@ -72,4 +73,5 @@ __all__ = [
     "OSFirmwareUpdate",
     "logging_config",
     "WolkConnect",
+    "__version__",
 ]

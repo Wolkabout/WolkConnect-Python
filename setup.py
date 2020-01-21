@@ -3,13 +3,15 @@ from os import path
 
 import setuptools  # type: ignore
 
+from wolk import __version__
+
 this_directory = path.abspath(path.dirname(__file__))
 with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setuptools.setup(
     name="wolk-connect",
-    version="4.0.0",
+    version=__version__,
     install_requires=["paho_mqtt==1.4.0", "requests>=2.18.1"],
     include_package_data=True,
     license="Apache License 2.0",
@@ -21,7 +23,7 @@ setuptools.setup(
     keywords=["IoT", "WolkAbout", "Internet of Things"],
     url="https://github.com/Wolkabout/WolkConnect-Python",
     packages=setuptools.find_packages(),
-    classifiers=(
+    classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
@@ -32,5 +34,5 @@ setuptools.setup(
         "Topic :: Internet",
         "Topic :: Communications",
         "Topic :: Software Development :: Embedded Systems",
-    ),
+    ],
 )
