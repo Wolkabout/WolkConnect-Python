@@ -126,7 +126,7 @@ def main():
         return configurations
 
     # Extend this class to handle the installing of the firmware file
-    class MyFirmwareHandler(wolk.FirmwareHandler):
+    class MyFirmwareHandler(wolk.FirmwareUpdate):
         def __init__(self):
             pass
 

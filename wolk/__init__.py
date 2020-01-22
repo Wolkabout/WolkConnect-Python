@@ -15,7 +15,7 @@ from .interface.actuator_status_provider import get_actuator_status
 from .interface.configuration_handler import handle_configuration
 from .interface.configuration_provider import get_configuration
 from .interface.connectivity_service import ConnectivityService
-from .interface.firmware_handler import FirmwareHandler
+from .interface.firmware_update import FirmwareUpdate
 from .interface.message_deserializer import MessageDeserializer
 from .interface.message_factory import MessageFactory
 from .interface.message_queue import MessageQueue
@@ -65,7 +65,7 @@ __all__ = [
     "handle_configuration",
     "get_configuration",
     "ConnectivityService",
-    "FirmwareHandler",
+    "FirmwareUpdate",
     "MessageDeserializer",
     "MessageFactory",
     "MessageQueue",
