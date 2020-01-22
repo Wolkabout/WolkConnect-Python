@@ -538,7 +538,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 message.payload.decode("utf-8")  # type: ignore
             )
             self.logger.debug(f'file URL: {payload["fileUrl"]}')
-            return payload["fileName"]
+            return payload["fileUrl"]
         except Exception:
             self.logger.warning(
                 f"Failed to get file URL from message {message}"
