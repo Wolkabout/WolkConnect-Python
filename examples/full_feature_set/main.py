@@ -126,7 +126,7 @@ def main():
         return configurations
 
     # Extend this class to handle the installing of the firmware file
-    class MyFirmwareHandler(wolk.FirmwareUpdate):
+    class MyFirmwareHandler(wolk.FirmwareHandler):
         def __init__(self):
             pass
 
@@ -154,9 +154,9 @@ def main():
             file_management=wolk.OSFileManagement(
                 preferred_package_size=preferred_file_package_size,
                 max_file_size=100 * preferred_file_package_size,
-                download_location="downloads",
+                download_location="files",
             ),
-            firmware_update=wolk.OSFirmwareUpdate(MyFirmwareHandler()),
+            firmware_handler=MyFirmwareHandler(),
             host="api-demo.wolkabout.com",
             port=8883,
             ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",

@@ -23,6 +23,7 @@ from typing import Union
 from wolk import logger_factory
 from wolk.interface.connectivity_service import ConnectivityService
 from wolk.interface.file_management import FileManagement
+from wolk.interface.firmware_handler import FirmwareHandler
 from wolk.interface.firmware_update import FirmwareUpdate
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
@@ -43,6 +44,7 @@ from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
+from wolk.os_firmware_update import OSFirmwareUpdate
 from wolk.wolkabout_protocol_message_deserializer import (
     WolkAboutProtocolMessageDeserializer as WAPMDeserializer,
 )
@@ -111,7 +113,7 @@ class WolkConnect:
             Callable[[None], Dict[str, ConfigurationValue]]
         ] = None,
         file_management: Optional[FileManagement] = None,
-        firmware_update: Optional[FirmwareUpdate] = None,
+        firmware_handler: Optional[FirmwareHandler] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
         ca_cert: Optional[str] = None,
@@ -135,8 +137,8 @@ class WolkConnect:
         :type configuration_provider: Callable[[None], dict], optional
         :param file_management: File transfer, list files on device, delete files
         :type file_management: FileManagement, optional
-        :param firmware_update: Firmware update support
-        :type firmware_update: FirmwareUpdate, optional
+        :param firmware_handler: Firmware update support
+        :type firmware_handler: FirmwareHandler, optional
         :param host: Host name or IP address of the remote broker
         :type host: str, optional
         :param port: Network port of the server host to connect to
@@ -162,7 +164,7 @@ class WolkConnect:
             f"Configuration handler: {configuration_handler} ; "
             f"Configuration provider: {configuration_provider} ; "
             f"Message queue: {message_queue} ; "
-            f"Firmware update: {firmware_update} ; "
+            f"Firmware hanlder: {firmware_handler} ; "
             f"File management: {file_management} ; "
             f"Host: {host} ; Port: {port} ; ca_cert: {ca_cert} "
             f"Message factory: {message_factory} ; "
@@ -340,7 +342,7 @@ class WolkConnect:
                     self._on_file_url_status
                 )
 
-        if firmware_update is None:
+        if firmware_handler is None:
             self.firmware_update = None
         else:
             if self.file_management is None:
@@ -348,10 +350,10 @@ class WolkConnect:
                     "File management must be enabled "
                     "in order for firmware update to work"
                 )
-            if not isinstance(firmware_update, FirmwareUpdate):
+            if not isinstance(firmware_handler, FirmwareHandler):
                 raise RuntimeError("Invalid firmware update module provided")
             else:
-                self.firmware_update = firmware_update
+                self.firmware_update = OSFirmwareUpdate(firmware_handler)
                 self.firmware_update._set_on_status_callback(
                     self._on_firmware_update_status
                 )

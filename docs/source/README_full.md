@@ -206,9 +206,9 @@ wolk_device = wolk.WolkConnect(
     file_management=wolk.OSFileManagement(
         preferred_package_size=1024 * 1024,  # In bytes
         max_file_size=100 * 1024 * 1024,
-        download_location="downloads",
+        download_location="files",
     ),
-    firmware_update=wolk.OSFirmwareUpdate(MyFirmwareHandler()),
+    firmware_update=MyFirmwareHandler(),
 )
 ```
 
