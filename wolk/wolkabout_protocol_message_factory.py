@@ -86,8 +86,6 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         if isinstance(reading.value, tuple):
             for value in reading.value:
-                if isinstance(value, bool):
-                    value = str(value).lower()
                 if ("\n" in str(value) or '"' in str(value)) and isinstance(
                     value, str
                 ):
