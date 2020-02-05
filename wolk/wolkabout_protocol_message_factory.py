@@ -46,6 +46,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     CONFIGURATION_STATUS = "d2p/configuration_get/"
     FILE_BINARY_REQUEST = "d2p/file_binary_request/"
     FIRMWARE_VERSION_UPDATE = "d2p/firmware_version_update/"
+    FIRMWARE_UPDATE_STATUS = "d2p/firmware_update_status/"
     FILE_LIST_UPDATE = "d2p/file_list_update/"
     FILE_LIST_RESPONSE = "d2p/file_list_response/"
     FILE_UPLOAD_STATUS = "d2p/file_upload_status/"
@@ -63,6 +64,23 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             str(self.__class__.__name__)
         )
         self.logger.debug(f"Device key: {device_key}")
+
+    def make_last_will_message(self, device_key: str) -> Message:
+        """
+        Serialize a last will message if device disconnects unexpectedly.
+
+        :param device_key: Device key
+        :type device_key: str
+        :returns: Last will message
+        :rtype: Message
+        """
+        self.logger.debug(f"{device_key}")
+
+        topic = self.LAST_WILL + self.DEVICE_PATH_PREFIX + device_key
+        message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
 
     def make_from_sensor_reading(self, reading: SensorReading) -> Message:
         """
@@ -85,24 +103,10 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         )
 
         if isinstance(reading.value, tuple):
-            for value in reading.value:
-                if ("\n" in str(value) or '"' in str(value)) and isinstance(
-                    value, str
-                ):
-                    value = value.replace("\n", "\\n")
-                    value = value.replace("\r", "")
-                    value = value.replace('"', '\\"')
             reading.value = ",".join(map(str, reading.value))
 
         elif isinstance(reading.value, bool):
             reading.value = str(reading.value).lower()
-
-        elif (
-            "\n" in str(reading.value) or '"' in str(reading.value)
-        ) and isinstance(reading.value, str):
-            reading.value = reading.value.replace("\n", "\\n")
-            reading.value = reading.value.replace("\r", "")
-            reading.value = reading.value.replace('"', '\\"')
 
         if reading.timestamp is not None:
             payload = json.dumps(
@@ -171,56 +175,47 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         if isinstance(actuator.value, bool):
             actuator.value = str(actuator.value).lower()
 
-        elif (
-            "\n" in str(actuator.value) or '"' in str(actuator.value)
-        ) and isinstance(actuator.value, str):
-            actuator.value = actuator.value.replace("\n", "\\n")
-            actuator.value = actuator.value.replace("\r", "")
-            actuator.value = actuator.value.replace('"', '\\"')
-
-        payload = json.dumps(
-            {"status": actuator.state.value, "value": str(actuator.value)}
-        )
+        if actuator.value is not None:
+            payload = json.dumps(
+                {"status": actuator.state.value, "value": str(actuator.value)}
+            )
+        else:
+            payload = json.dumps({"status": actuator.state.value})
 
         message = Message(topic, payload)
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_firmware_update_status(
-        self, firmware_update_status: FirmwareUpdateStatus
-    ) -> Message:
+    def make_from_configuration(self, configuration: dict) -> Message:
         """
-        Serialize firmware update status to be sent to WolkAbout IoT Platform.
+        Report device's configuration to WolkAbout IoT Platform.
 
-        :param firmware_update_status: Firmware update status to be serialized
-        :type firmware_status: FirmwareUpdateStatus
+        :param configuration: Device's current configuration
+        :type configuration: dict
         :returns: message
         :rtype: Message
         """
-        self.logger.debug(f"{firmware_update_status}")
-        topic = "d2p/firmware_update_status/d/" + self.device_key
-        payload = {}
+        self.logger.debug(f"{configuration}")
+        topic = (
+            self.CONFIGURATION_STATUS
+            + self.DEVICE_PATH_PREFIX
+            + self.device_key
+        )
 
-        if (
-            firmware_update_status.status
-            == FirmwareUpdateStatusType.INSTALLATION
-        ):
-            payload["status"] = firmware_update_status.status.value
-        elif (
-            firmware_update_status.status == FirmwareUpdateStatusType.COMPLETED
-        ):
-            payload["status"] = firmware_update_status.status.value
-        elif firmware_update_status.status == FirmwareUpdateStatusType.ABORTED:
-            payload["status"] = firmware_update_status.status.value
-        elif (
-            firmware_update_status.status == FirmwareUpdateStatusType.ERROR
-            and firmware_update_status.error is not None
-        ):
-            payload["status"] = firmware_update_status.status.value
-            payload["error"] = firmware_update_status.error.value
+        for reference, value in configuration.items():
+            if isinstance(value, tuple):
+                configuration[reference] = ",".join(map(str, value))
+                continue
 
-        message = Message(topic, json.dumps(payload))
+            elif isinstance(value, bool):
+                configuration[reference] = str(value).lower()
+                continue
+
+            else:
+                configuration[reference] = str(value)
+
+        message = Message(topic, json.dumps({"values": configuration}))
         self.logger.debug(f"{message}")
 
         return message
@@ -256,74 +251,6 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             "chunkSize": chunk_size,
         }
         message = Message(topic, json.dumps(payload))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_firmware_version(self, version: str) -> Message:
-        """
-        Report the current version of firmware to WolkAbout IoT Platform.
-
-        :param version: Firmware version to report
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"version: {version}")
-        topic = (
-            self.FIRMWARE_VERSION_UPDATE
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
-        message = Message(topic, str(version))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_configuration(self, configuration: dict) -> Message:
-        """
-        Report device's configuration to WolkAbout IoT Platform.
-
-        :param configuration: Device's current configuration
-        :type configuration: dict
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"{configuration}")
-        topic = (
-            self.CONFIGURATION_STATUS
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
-
-        for reference, value in configuration.items():
-
-            if isinstance(value, tuple):
-                for single_value in value:
-                    if isinstance(single_value, bool):
-                        single_value = str(single_value).lower()
-                        continue
-                    if (
-                        "\n" in str(single_value) or '"' in str(single_value)
-                    ) and isinstance(single_value, str):
-                        single_value = single_value.replace("\n", "\\n")
-                        single_value = single_value.replace("\r", "")
-                        single_value = single_value.replace('"', '\\"')
-                configuration[reference] = ",".join(map(str, value))
-
-            elif isinstance(value, bool):
-                configuration[reference] = str(value).lower()
-
-            elif ("\n" in str(value) or '"' in str(value)) and isinstance(
-                value, str
-            ):
-                configuration[reference] = value.replace("\n", "\\n")
-                configuration[reference] = value.replace("\r", "")
-                configuration[reference] = value.replace('"', '\\"')
-            else:
-                configuration[reference] = str(value)
-
-        message = Message(topic, json.dumps({"values": configuration}))
         self.logger.debug(f"{message}")
 
         return message
@@ -385,19 +312,11 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         topic = (
             self.FILE_UPLOAD_STATUS + self.DEVICE_PATH_PREFIX + self.device_key
         )
-        payload = {"fileName": file_name}
-
-        if status.status == FileManagementStatusType.FILE_TRANSFER:
-            payload["status"] = status.status.value
-        elif status.status == FileManagementStatusType.FILE_READY:
-            payload["status"] = status.status.value
-        elif status.status == FileManagementStatusType.ABORTED:
-            payload["status"] = status.status.value
-        elif (
+        payload = {"fileName": file_name, "status": status.status.value}
+        if (
             status.status == FileManagementStatusType.ERROR
             and status.error is not None
         ):
-            payload["status"] = status.status.value
             payload["error"] = status.error.value
 
         message = Message(topic, json.dumps(payload))
@@ -429,37 +348,68 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + self.DEVICE_PATH_PREFIX
             + self.device_key
         )
-        payload = {"fileUrl": file_url}
+        payload = {"fileUrl": file_url, "status": status.status.value}
 
-        if status.status.value == "FILE_TRANSFER":
-            payload["status"] = status.status.value
-        elif status.status.value == "FILE_READY" and file_name is not None:
-            payload["status"] = status.status.value
-            payload["fileName"] = file_name
-        elif status.status.value == "ABORTED":
-            payload["status"] = status.status.value
-        elif status.status.value == "ERROR" and status.error is not None:
-            payload["status"] = status.status.value
+        if (
+            status.status == FileManagementStatusType.ERROR
+            and status.error is not None
+        ):
             payload["error"] = status.error.value
+
+        if file_name is not None:
+            payload["fileName"] = file_name
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_last_will_message(self, device_key: str) -> Message:
+    def make_from_firmware_update_status(
+        self, firmware_update_status: FirmwareUpdateStatus
+    ) -> Message:
         """
-        Serialize a last will message if device disconnects unexpectedly.
+        Serialize firmware update status to be sent to WolkAbout IoT Platform.
 
-        :param device_key: Device key
-        :type device_key: str
-        :returns: Last will message
+        :param firmware_update_status: Firmware update status to be serialized
+        :type firmware_status: FirmwareUpdateStatus
+        :returns: message
         :rtype: Message
         """
-        self.logger.debug(f"{device_key}")
+        self.logger.debug(f"{firmware_update_status}")
+        topic = (
+            self.FIRMWARE_UPDATE_STATUS
+            + self.DEVICE_PATH_PREFIX
+            + self.device_key
+        )
+        payload = {"status": firmware_update_status.status.value}
 
-        topic = self.LAST_WILL + self.DEVICE_PATH_PREFIX + device_key
-        message = Message(topic)
+        if (
+            firmware_update_status.status == FirmwareUpdateStatusType.ERROR
+            and firmware_update_status.error is not None
+        ):
+            payload["error"] = firmware_update_status.error.value
+
+        message = Message(topic, json.dumps(payload))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_firmware_version(self, version: str) -> Message:
+        """
+        Report the current version of firmware to WolkAbout IoT Platform.
+
+        :param version: Firmware version to report
+        :type version: str
+        :returns: message
+        :rtype: Message
+        """
+        self.logger.debug(f"version: {version}")
+        topic = (
+            self.FIRMWARE_VERSION_UPDATE
+            + self.DEVICE_PATH_PREFIX
+            + self.device_key
+        )
+        message = Message(topic, str(version))
         self.logger.debug(f"{message}")
 
         return message

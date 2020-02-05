@@ -15,6 +15,7 @@
 from typing import Optional
 
 from dataclasses import dataclass
+from dataclasses import field
 
 
 @dataclass
@@ -32,4 +33,4 @@ class Alarm:
 
     reference: str
     active: bool
-    timestamp: Optional[int]
+    timestamp: Optional[int] = field(default=None)
