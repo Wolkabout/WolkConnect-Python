@@ -342,6 +342,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         self.logger.debug(f"{message}")
         reference = message.topic.split("/")[-1]
+        value = None
 
         if message.topic.startswith(self.ACTUATOR_SET):
             command = ActuatorCommandType.SET
@@ -349,14 +350,21 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 payload = json.loads(
                     message.payload.decode("utf-8")  # type: ignore
                 )
-                value = payload.get("value")
-                if "\n" in value:
-                    value = value.replace("\n", "\\n")
-                    value = value.replace("\r", "")
+                value = payload["value"]
+                if "\\n" in value:
+                    value = value.replace("\\n", "\n")
                 if value == "true":
                     value = True
                 elif value == "false":
                     value = False
+                else:
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        try:
+                            value = int(value)
+                        except ValueError:
+                            pass
             except Exception:
                 self.logger.warning(
                     f"Received invalid actuation message: {message}"
@@ -412,6 +420,10 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             file_transfer_package = FileTransferPackage(b"", b"", b"")
         else:
             try:
+                if len(message.payload) < 65:
+                    raise ValueError(
+                        "Received file transfer package too small"
+                    )
                 previous_hash = message.payload[:32]
                 data = message.payload[32 : len(message.payload) - 32]
                 current_hash = message.payload[-32:]
