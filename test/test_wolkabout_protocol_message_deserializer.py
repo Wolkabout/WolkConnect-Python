@@ -23,6 +23,8 @@ from wolk.model.device import Device
 from wolk.model.message import Message
 from wolk.model.actuator_command import ActuatorCommand
 from wolk.model.actuator_command import ActuatorCommandType
+from wolk.model.configuration_command import ConfigurationCommand
+from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.wolkabout_protocol_message_deserializer import (
     WolkAboutProtocolMessageDeserializer as WAPMD,
@@ -441,4 +443,196 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(
             expected, deserializer.parse_file_binary(incoming_message)
+        )
+
+    def test_parse_configuration_get(self):
+        """Test parse configuration get command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.GET
+        value = None
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_GET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = None
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, value)
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_invalid(self):
+        """Test parse configuration set command with invalid payload."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.GET
+        value = 32 * b"\x00"
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = value
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, None)
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_bool(self):
+        """Test parse configuration set command with bool type."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "B"
+        value = "true"
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"values": {reference: value}}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: True})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_string_with_newline(self):
+        """Test parse configuration set command for string with newline."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "S"
+        value = "string\nstring"  # escaped in json.dumps
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"values": {reference: value}}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: value})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_float(self):
+        """Test parse configuration set command for float."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "F"
+        value = 12.3
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"values": {reference: str(value)}}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: value})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_int(self):
+        """Test parse configuration set command for int."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "F"
+        value = 12
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"values": {reference: str(value)}}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: value})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_multi_value_int(self):
+        """Test parse configuration set command for multi value int."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "MVI"
+        value = (12, 34, 56)
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps(
+                {"values": {reference: ",".join(str(x) for x in value)}}
+            ),
+            "utf-8",
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: value})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_configuration_set_multi_value_float(self):
+        """Test parse configuration set command for multi value float."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "MVF"
+        value = (12.3, 34.5, 56.7)
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps(
+                {"values": {reference: ",".join(str(x) for x in value)}}
+            ),
+            "utf-8",
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: value})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
         )

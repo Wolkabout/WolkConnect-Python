@@ -13,9 +13,9 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import json
+from distutils.util import strtobool
 from typing import List
 from typing import Tuple
-from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.message_deserializer import MessageDeserializer
@@ -353,10 +353,8 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 value = payload["value"]
                 if "\\n" in value:
                     value = value.replace("\\n", "\n")
-                if value == "true":
-                    value = True
-                elif value == "false":
-                    value = False
+                if value in ["true", "false"]:
+                    value = bool(strtobool(value))
                 else:
                     try:
                         value = float(value)
@@ -459,6 +457,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 payload = json.loads(
                     message.payload.decode("utf-8")  # type: ignore
                 )
+                values = payload["values"]
             except Exception:
                 self.logger.warning(
                     f"Received invalid configuration set message: {message}"
@@ -467,49 +466,45 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                     "Will respond with current configuration values"
                 )
                 command = ConfigurationCommandType.GET
-                payload = None
+                values = None
         else:
             command = ConfigurationCommandType.GET
-            payload = None
+            values = None
 
-        configuration = ConfigurationCommand(command, payload)
-
-        if isinstance(configuration.value, dict):
-            for reference, value in configuration.value.items():
+        if command == ConfigurationCommandType.SET and isinstance(
+            values, dict
+        ):
+            for reference, value in values.items():
+                if value in ["true", "false"]:
+                    value = bool(strtobool(value))
                 if isinstance(value, str):
-                    if value == "true":
-                        configuration.value[reference] = True
-                        continue
-                    elif value == "false":
-                        configuration.value[reference] = False
-                        continue
-                    if "\n" in value:
-                        configuration.value[reference] = value.replace(
-                            "\n", "\\n"
-                        )
-                        configuration.value[reference] = value.replace(
-                            "\r", ""
-                        )
+                    value = value.replace("\\n", "\n")
                     if "," in value:
-                        values_list: List[
-                            Union[int, float, str]
-                        ] = value.split(  # type: ignore
-                            ","
-                        )
                         try:
                             if any("." in value for value in value.split(",")):
-                                values_list = [
-                                    float(value) for value in value.split(",")
-                                ]
+                                value = tuple(
+                                    [
+                                        float(value)
+                                        for value in value.split(",")
+                                    ]
+                                )
                             else:
-                                values_list = [
-                                    int(value) for value in value.split(",")
-                                ]
+                                value = tuple(
+                                    [int(value) for value in value.split(",")]
+                                )
+                        except ValueError:
+                            value = tuple(value.split(","))
+                    else:
+                        try:
+                            if "." in value:
+                                value = float(value)
+                            else:
+                                value = int(value)
                         except ValueError:
                             pass
+                values[reference] = value
 
-                        configuration.value[reference] = tuple(values_list)
-
+        configuration = ConfigurationCommand(command, values)
         self.logger.info(f"Received configuration command: {configuration}")
         return configuration
 
