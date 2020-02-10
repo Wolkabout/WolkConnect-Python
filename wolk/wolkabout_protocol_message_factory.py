@@ -36,7 +36,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     CHANNEL_WILDCARD = "#"
     CHANNEL_DELIMITER = "/"
     LAST_WILL = "d2p/last_will/"
-    SENSOR_READING = "d2p/sensor_reading/"
+    SENSOR_READING = "d2p/sensor_readings/"
     ALARM = "d2p/events/"
     ACTUATOR_SET = "p2d/actuator_set/"
     ACTUATOR_GET = "p2d/actuator_get/"
