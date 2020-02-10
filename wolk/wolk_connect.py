@@ -24,7 +24,6 @@ from wolk import logger_factory
 from wolk.interface.connectivity_service import ConnectivityService
 from wolk.interface.file_management import FileManagement
 from wolk.interface.firmware_handler import FirmwareHandler
-from wolk.interface.firmware_update import FirmwareUpdate
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
@@ -65,15 +64,19 @@ ConfigurationValue = Union[
     Tuple[str, str, str],
 ]
 
+ActuatorValue = Tuple[
+    ActuatorState, Optional[Union[bool, int, float, str]], Optional[int]
+]
+
 
 class WolkConnect:
     """
     Exchange data with WolkAbout IoT Platform.
 
     :ivar actuation_handler: Function for handling actuation commands
-    :vartype actuation_handler: Callable[[str, Union[bool, int, float, str]], None] or None
+    :vartype actuation_handler: Callable[[str, Union[bool, int, float, str]], None]
     :ivar actuator_status_provider: Function for getting current actuator status
-    :vartype actuator_status_provider: Callable[[str], Tuple[ActuatorState, Union[bool, int, float, str]]] or None
+    :vartype actuator_status_provider: Callable[[str], ActuatorValue]
     :ivar configuration_handler: Function for handling configuration commands
     :vartype configuration_handler: Callable[[dict], None] or None
     :ivar configuration_provider: Function for getting current configuration options
@@ -101,10 +104,7 @@ class WolkConnect:
             Callable[[str, Union[bool, int, float, str]], None]
         ] = None,
         actuator_status_provider: Optional[
-            Callable[
-                [str],
-                Tuple[ActuatorState, Optional[Union[bool, int, float, str]]],
-            ]
+            Callable[[str], ActuatorValue]
         ] = None,
         configuration_handler: Optional[
             Callable[[Dict[str, ConfigurationValue]], None]
@@ -130,11 +130,11 @@ class WolkConnect:
         :param actuation_handler: Handle actuation commands
         :type actuation_handler: Callable[[str, Union[bool, int, float, str]], None], optional
         :param actuator_status_provider: Read actuator status
-        :type actuator_status_provider: Callable[[str], Tuple[ActuatorState, Union[bool, int, float, str]]], optional
+        :type actuator_status_provider: Callable[[str], ActuatorValue, optional
         :param configuration_handler: Handle configuration commands
-        :type configuration_handler: Callable[[dict], None], optional
+        :type configuration_handler: Callable[[ConfigurationValue], None], optional
         :param configuration_provider: Read configuration options
-        :type configuration_provider: Callable[[None], dict], optional
+        :type configuration_provider: Callable[[None], ConfigurationValue], optional
         :param file_management: File transfer, list files on device, delete files
         :type file_management: FileManagement, optional
         :param firmware_handler: Firmware update support
@@ -514,16 +514,22 @@ class WolkConnect:
             self.logger.error("No actuator status provider is set!")
             return
 
-        state, value = self.actuator_status_provider(reference)
-        if state is None:
+        actuator_status = self.actuator_status_provider(reference)
+        if actuator_status[0] is None:
             self.logger.error(
                 "Actuator status provider did not return "
                 f"status for reference '{reference}'"
             )
             return
-
+        if len(actuator_status) == 2:  # No timestamp
+            actuator_status = actuator_status + (None,)  # type: ignore
         message = self.message_factory.make_from_actuator_status(
-            ActuatorStatus(reference, state, value)
+            ActuatorStatus(
+                reference,
+                actuator_status[0],
+                actuator_status[1],
+                actuator_status[2],
+            )
         )
 
         if not self.connectivity_service.publish(message):

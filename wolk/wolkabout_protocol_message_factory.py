@@ -177,14 +177,15 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         if isinstance(actuator.value, bool):
             actuator.value = str(actuator.value).lower()
 
-        if actuator.value is not None:
-            payload = json.dumps(
-                {"status": actuator.state.value, "value": str(actuator.value)}
-            )
-        else:
-            payload = json.dumps({"status": actuator.state.value})
+        payload = {"status": actuator.state.value}
 
-        message = Message(topic, payload)
+        if actuator.value is not None:
+            payload["value"] = str(actuator.value)
+
+        if actuator.timestamp is not None:
+            payload["utc"] = actuator.timestamp
+
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message

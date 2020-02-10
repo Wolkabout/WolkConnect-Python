@@ -391,6 +391,46 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertNotIn("value", json.loads(serialized_message.payload))
 
+    def test_actuator_with_timestamp(self):
+        """Test message for actuator with error state and no value."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        reference = "A"
+        value = "true"
+        status = ActuatorState.READY
+        timestamp = int(round(time.time() * 1000))
+
+        actuator = ActuatorStatus(reference, status, value, timestamp)
+
+        expected_topic = (
+            WAPMF.ACTUATOR_STATUS
+            + WAPMF.DEVICE_PATH_PREFIX
+            + device_key
+            + WAPMF.CHANNEL_DELIMITER
+            + WAPMF.REFERENCE_PATH_PREFIX
+            + reference
+        )
+        expected_payload = json.dumps(
+            {"status": status.value, "value": value, "utc": timestamp}
+        )
+        expected_message = Message(expected_topic, expected_payload)
+        serialized_message = factory.make_from_actuator_status(actuator)
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_actuator_error_without_timestamp(self):
+        """Test message for actuator status with no timestamp."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        reference = "A"
+        value = None
+        status = ActuatorState.ERROR
+
+        actuator = ActuatorStatus(reference, status, value)
+
+        serialized_message = factory.make_from_actuator_status(actuator)
+
+        self.assertNotIn("utc", json.loads(serialized_message.payload))
+
     def test_configuration_bool(self):
         """Test message for configuration bool."""
         device_key = "some_key"

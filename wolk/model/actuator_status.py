@@ -12,11 +12,10 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-from typing import Optional
-from typing import Union
-
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Optional
+from typing import Union
 
 from wolk.model.actuator_state import ActuatorState
 
@@ -32,8 +31,11 @@ class ActuatorStatus:
     :vartype state: ActuatorState
     :ivar value: Current value of actuator, None only for error state
     :vartype value: Optional[Union[bool, int, float, str]]
+    :ivar state: Optional timestamp when reading occurred
+    :vartype state: Optional[int]
     """
 
     reference: str
     state: ActuatorState
     value: Optional[Union[bool, int, float, str]] = field(default=None)
+    timestamp: Optional[int] = field(default=None)

@@ -12,6 +12,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from typing import Optional
 from typing import Tuple
 from typing import Union
 
@@ -20,19 +21,27 @@ from wolk.model.actuator_state import ActuatorState
 
 def get_actuator_status(
     reference: str,
-) -> Tuple[ActuatorState, Union[bool, int, float, str]]:
+) -> Tuple[
+    ActuatorState, Optional[Union[bool, int, float, str]], Optional[int]
+]:
     """
     Get current actuator status identified by reference.
 
     Reads the status of actuator from the device
     and returns it as a tuple containing the actuator state and current value.
 
+    If unable to get current actuator value,
+    return `(ActuatorState.ERROR, None)`.
+
+    Optionally, the function can also return a timestamp as part of the tuple
+    easily obtained with `int(round(time.time() * 1000))`.
+
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
     :param reference: Actuator reference
     :type reference: str
-    :returns: (state, value)
-    :rtype: (ActuatorState, bool or int or float or str)
+    :returns: (state, value, timestamp)
+    :rtype: (ActuatorState, bool or int or float or str or None, int or None)
     """
     pass
