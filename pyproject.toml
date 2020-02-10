@@ -14,3 +14,16 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.coverage.report]
+exclude_lines = [
+  "raise NotImplementedError",
+  "def __repr__",
+  "if __name__ == .__main__.:",
+]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.html]
+directory = "coverage_html_directory"
