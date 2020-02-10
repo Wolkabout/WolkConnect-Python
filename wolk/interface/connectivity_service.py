@@ -25,12 +25,12 @@ class ConnectivityService(ABC):
     @abstractmethod
     def connect(self) -> bool:
         """Connect to WolkAbout IoT Platform."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def disconnect(self) -> None:
         """Disconnect from WolkAbout IoT Platform."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_connected(self) -> bool:
@@ -40,7 +40,7 @@ class ConnectivityService(ABC):
         :returns: connected
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def publish(self, message: Message) -> bool:
@@ -52,7 +52,7 @@ class ConnectivityService(ABC):
         :returns: success
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def set_inbound_message_listener(
@@ -64,4 +64,4 @@ class ConnectivityService(ABC):
         :param listener: Method hat handles inbound messages
         :type listener: Callable[[Message], None]
         """
-        pass
+        raise NotImplementedError()

@@ -34,7 +34,7 @@ class MessageDeserializer(ABC):
         :returns: List of topics to subscribe to
         :rtype: List[str]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_actuation_command(self, message: Message) -> bool:
@@ -46,7 +46,7 @@ class MessageDeserializer(ABC):
         :returns: actuation_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_configuration_command(self, message: Message) -> bool:
@@ -58,7 +58,7 @@ class MessageDeserializer(ABC):
         :returns: configuration_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_firmware_install(self, message: Message) -> bool:
@@ -70,7 +70,7 @@ class MessageDeserializer(ABC):
         :returns: firmware_update_install_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_firmware_abort(self, message: Message) -> bool:
@@ -82,7 +82,7 @@ class MessageDeserializer(ABC):
         :returns: firmware_update_abort_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_binary_response(self, message: Message) -> bool:
@@ -94,7 +94,7 @@ class MessageDeserializer(ABC):
         :returns: file_binary_response
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_delete_command(self, message: Message) -> bool:
@@ -106,7 +106,7 @@ class MessageDeserializer(ABC):
         :returns: file_delete_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_purge_command(self, message: Message) -> bool:
@@ -118,7 +118,7 @@ class MessageDeserializer(ABC):
         :returns: file_purge_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_list_confirm(self, message: Message) -> bool:
@@ -130,7 +130,7 @@ class MessageDeserializer(ABC):
         :returns: file_list_confirm
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_list_request(self, message: Message) -> bool:
@@ -142,7 +142,7 @@ class MessageDeserializer(ABC):
         :returns: file_list_request
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_upload_initiate(self, message: Message) -> bool:
@@ -154,7 +154,7 @@ class MessageDeserializer(ABC):
         :returns: file_upload_initiate_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_upload_abort(self, message: Message) -> bool:
@@ -166,7 +166,7 @@ class MessageDeserializer(ABC):
         :returns: file_upload_abort_command
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_url_initiate(self, message: Message) -> bool:
@@ -178,7 +178,7 @@ class MessageDeserializer(ABC):
         :returns: file_url_download_initiate
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def is_file_url_abort(self, message: Message) -> bool:
@@ -190,7 +190,7 @@ class MessageDeserializer(ABC):
         :returns: file_url_download_abort
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_actuator_command(self, message: Message) -> ActuatorCommand:
@@ -202,7 +202,7 @@ class MessageDeserializer(ABC):
         :returns: actuation
         :rtype: ActuatorCommand
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_firmware_install(self, message: Message) -> str:
@@ -214,7 +214,7 @@ class MessageDeserializer(ABC):
         :returns: file_name
         :rtype: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_file_initiate(self, message: Message) -> Tuple[str, int, str]:
@@ -226,7 +226,7 @@ class MessageDeserializer(ABC):
         :returns: (file_name, file_size, file_hash)
         :rtype: Tuple[str, int, str]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_file_url(self, message: Message) -> str:
@@ -238,7 +238,7 @@ class MessageDeserializer(ABC):
         :returns file_url:
         :rtype: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_file_binary(self, message: Message) -> FileTransferPackage:
@@ -250,7 +250,7 @@ class MessageDeserializer(ABC):
         :returns: file_transfer_package
         :rtype: FileTransferPackage
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_configuration(self, message: Message) -> ConfigurationCommand:
@@ -262,7 +262,7 @@ class MessageDeserializer(ABC):
         :returns: configuration
         :rtype: ConfigurationCommand
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def parse_file_delete_command(self, message: Message) -> str:
@@ -274,4 +274,4 @@ class MessageDeserializer(ABC):
         :returns: file_name
         :rtype: str
         """
-        pass
+        raise NotImplementedError()

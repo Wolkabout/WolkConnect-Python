@@ -38,7 +38,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_alarm(self, alarm: Alarm) -> Message:
@@ -50,7 +50,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_actuator_status(self, actuator: ActuatorStatus) -> Message:
@@ -62,7 +62,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_firmware_update_status(
@@ -76,7 +76,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_package_request(
@@ -94,7 +94,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_firmware_version(self, version: str) -> Message:
@@ -106,7 +106,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_configuration(self, configuration: dict) -> Message:
@@ -118,7 +118,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_file_list_update(self, file_list: List[str]) -> Message:
@@ -130,7 +130,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_file_list_request(self, file_list: List[str]) -> Message:
@@ -142,7 +142,7 @@ class MessageFactory(ABC):
         :returns: message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_from_file_management_status(
@@ -176,7 +176,7 @@ class MessageFactory(ABC):
         :param file_name: Only present when download of file is completed
         :type file_name: Optional[str]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def make_last_will_message(self, device_key: str) -> Message:
@@ -188,4 +188,4 @@ class MessageFactory(ABC):
         :returns: Last will message
         :rtype: Message
         """
-        pass
+        raise NotImplementedError()

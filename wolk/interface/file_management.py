@@ -44,7 +44,7 @@ class FileManagement(ABC):
         :param file_hash: base64 encoded sha256 hash of file
         :type file_hash: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def _set_file_upload_status_callback(
@@ -56,7 +56,7 @@ class FileManagement(ABC):
         :param callback: Method to call
         :type callback: Callable[[FileManagementStatus], None]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def _set_request_file_binary_callback(
@@ -68,7 +68,7 @@ class FileManagement(ABC):
         :param callback: Method to call
         :type callback: Callable[[str, int, int], None]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def _set_file_url_download_status_callback(
@@ -81,12 +81,12 @@ class FileManagement(ABC):
         :param callback: Method to call
         :type callback: Callable[[str, FileManagementStatus, Optional[str]], None]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_upload_abort(self) -> None:
         """Abort file upload and revert to idle status."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_binary_response(
@@ -98,7 +98,7 @@ class FileManagement(ABC):
         :param package: Package of file being transfered.
         :type package: FileTransferPackage
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_url_download_initiation(self, file_url: str) -> None:
@@ -108,12 +108,12 @@ class FileManagement(ABC):
         :param file_url: URL from where to download file
         :type file_url: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_url_download_abort(self) -> None:
         """Abort file URL download."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def get_file_list(self) -> List[str]:
@@ -123,7 +123,7 @@ class FileManagement(ABC):
         :returns: file_list
         :rtype: List[str]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def get_file_path(self, file_name: str) -> Optional[str]:
@@ -135,12 +135,12 @@ class FileManagement(ABC):
         :returns: file_path
         :rtype: Optional[str]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_delete(self, file_name: str) -> None:
@@ -150,9 +150,9 @@ class FileManagement(ABC):
         :param file_name: File to be deleted
         :type file_name: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_file_purge(self) -> None:
         """Delete all files from device."""
-        pass
+        raise NotImplementedError()

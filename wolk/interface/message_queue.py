@@ -32,7 +32,7 @@ class MessageQueue(ABC):
         :returns: result
         :rtype: bool
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def get(self) -> Optional[Message]:
@@ -42,7 +42,7 @@ class MessageQueue(ABC):
         :returns: message
         :rtype: Optional[Message]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def peek(self) -> Optional[Message]:
@@ -52,4 +52,4 @@ class MessageQueue(ABC):
         :returns: message
         :rtype: Optional[Message]
         """
-        pass
+        raise NotImplementedError()

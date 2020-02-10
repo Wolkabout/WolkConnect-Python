@@ -36,17 +36,17 @@ class FirmwareUpdate(ABC):
         :param file_path: Firmware file to install
         :type file_path: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def handle_abort(self) -> None:
         """Handle received firmware installation abort command."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def report_result(self) -> None:
         """Report the results of the firmware update process."""
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def get_current_version(self) -> str:
@@ -56,7 +56,7 @@ class FirmwareUpdate(ABC):
         :returns: Firmware version
         :rtype: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def _set_on_status_callback(
@@ -68,7 +68,7 @@ class FirmwareUpdate(ABC):
         :param on_status_callback: Method for reporting firmware status
         :type on_status_callback: Callable[[FirmwareUpdateStatus], None]
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def _set_firmware_handler(self, handler: FirmwareHandler) -> None:
@@ -80,4 +80,4 @@ class FirmwareUpdate(ABC):
         :param handler: Installs firmware and reports current version
         :type handler: FirmwareHandler
         """
-        pass
+        raise NotImplementedError()

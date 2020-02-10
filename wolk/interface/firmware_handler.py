@@ -27,7 +27,7 @@ class FirmwareHandler(ABC):
         :param firmware_file_path: Path where the firmware file is located
         :type firmware_file_path: str
         """
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def get_current_version(self) -> str:
@@ -37,4 +37,4 @@ class FirmwareHandler(ABC):
         :returns: version
         :rtpe: str
         """
-        pass
+        raise NotImplementedError()
