@@ -453,7 +453,11 @@ class WolkConnect:
         self.message_queue.put(message)
 
     def add_alarm(
-        self, reference: str, active: bool, timestamp: Optional[int] = None
+        self,
+        reference: str,
+        active: bool,
+        code: Optional[str] = None,
+        timestamp: Optional[int] = None,
     ) -> None:
         """
         Publish an alarm to WolkAbout IoT Platform.
@@ -462,14 +466,16 @@ class WolkConnect:
         :type reference: str
         :param active: Current state of the alarm
         :type active: bool
+        :param code: Error code the alarm experienced
+        :type code: Optional[str]
         :param timestamp: Unix timestamp. If not provided, platform will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
             f"Add alarm event: reference = '{reference}', "
-            f"active = {active}, timestamp = {timestamp}"
+            f"active = {active}, code = {code}, timestamp = {timestamp}"
         )
-        alarm = Alarm(reference, active, timestamp)
+        alarm = Alarm(reference, active, code, timestamp)
         message = self.message_factory.make_from_alarm(alarm)
         self.message_queue.put(message)
 

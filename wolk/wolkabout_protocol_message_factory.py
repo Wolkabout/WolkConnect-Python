@@ -13,8 +13,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import json
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.message_factory import MessageFactory
@@ -37,7 +39,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     CHANNEL_DELIMITER = "/"
     LAST_WILL = "d2p/last_will/"
     SENSOR_READING = "d2p/sensor_readings/"
-    ALARM = "d2p/events/"
+    ALARM = "d2p/alarms/"
     ACTUATOR_SET = "p2d/actuator_set/"
     ACTUATOR_GET = "p2d/actuator_get/"
     ACTUATOR_STATUS = "d2p/actuator_status/"
@@ -140,14 +142,14 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + alarm.reference
         )
 
-        active = str(alarm.active).lower()
+        payload: Dict[str, Union[bool, int, str]] = {"active": alarm.active}
 
+        if alarm.code is not None:
+            payload["code"] = alarm.code
         if alarm.timestamp is not None:
-            payload = json.dumps({"data": active, "utc": int(alarm.timestamp)})
-        else:
-            payload = json.dumps({"data": active})
+            payload["utc"] = alarm.timestamp
 
-        message = Message(topic, payload)
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message

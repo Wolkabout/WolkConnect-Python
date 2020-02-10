@@ -12,10 +12,9 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-from typing import Optional
-
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Optional
 
 
 @dataclass
@@ -27,10 +26,13 @@ class Alarm:
     :vartype reference: str
     :ivar active: Alarm's current state
     :vartype active: bool
+    :ivar code: Alarm's error code
+    :vartype code: str or None
     :ivar timestamp: Unix timestamp in miliseconds
     :vartype timestamp: int or None
     """
 
     reference: str
     active: bool
+    code: Optional[str] = field(default=None)
     timestamp: Optional[int] = field(default=None)

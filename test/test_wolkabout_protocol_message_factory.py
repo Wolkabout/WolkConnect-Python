@@ -191,7 +191,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         factory = WAPMF(device_key)
         reference = "A"
         value = False
-        expected_value = str(value).lower()
+        expected_value = value
 
         expected_topic = (
             WAPMF.ALARM
@@ -201,10 +201,36 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"data": expected_value})
+        expected_payload = json.dumps({"active": expected_value})
         expected_message = Message(expected_topic, expected_payload)
 
         alarm = Alarm(reference, value)
+
+        serialized_message = factory.make_from_alarm(alarm)
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_alarm_with_code(self):
+        """Test message for alarm with code."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        reference = "A"
+        value = True
+        code = "E404"
+        expected_value = value
+
+        expected_topic = (
+            WAPMF.ALARM
+            + WAPMF.DEVICE_PATH_PREFIX
+            + device_key
+            + WAPMF.CHANNEL_DELIMITER
+            + WAPMF.REFERENCE_PATH_PREFIX
+            + reference
+        )
+        expected_payload = json.dumps({"active": expected_value, "code": code})
+        expected_message = Message(expected_topic, expected_payload)
+
+        alarm = Alarm(reference, value, code)
 
         serialized_message = factory.make_from_alarm(alarm)
 
@@ -216,7 +242,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         factory = WAPMF(device_key)
         reference = "A"
         value = True
-        expected_value = str(value).lower()
+        expected_value = value
         timestamp = int(round(time.time() * 1000))
 
         expected_topic = (
@@ -228,11 +254,40 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + reference
         )
         expected_payload = json.dumps(
-            {"data": expected_value, "utc": timestamp}
+            {"active": expected_value, "utc": timestamp}
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        alarm = Alarm(reference, value, timestamp)
+        alarm = Alarm(reference, value, timestamp=timestamp)
+
+        serialized_message = factory.make_from_alarm(alarm)
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_alarm_with_timestamp_and_code(self):
+        """Test message for alarm with timestamp and code."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        reference = "A"
+        value = True
+        code = "E404"
+        expected_value = value
+        timestamp = int(round(time.time() * 1000))
+
+        expected_topic = (
+            WAPMF.ALARM
+            + WAPMF.DEVICE_PATH_PREFIX
+            + device_key
+            + WAPMF.CHANNEL_DELIMITER
+            + WAPMF.REFERENCE_PATH_PREFIX
+            + reference
+        )
+        expected_payload = json.dumps(
+            {"active": expected_value, "code": code, "utc": timestamp}
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        alarm = Alarm(reference, value, code, timestamp)
 
         serialized_message = factory.make_from_alarm(alarm)
 
