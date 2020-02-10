@@ -27,18 +27,25 @@ class TestLoggerFactory(unittest.TestCase):
     def test_get_logger_with_level(self):
         """Test getting defualt logger with specified level."""
         logger = logger_factory.logger_factory.get_logger(
-            "name", logging.CRITICAL
+            "name", logging.NOTSET
         )
-        self.assertEqual(logging.CRITICAL, logger.level)
+        self.assertEqual(logging.NOTSET, logger.level)
 
     def test_logging_config_logger_with_log_file(self):
         """Test getting logger with log file."""
         test_log = "test.log"
         logger_factory.logging_config("info", test_log)
         logger = logger_factory.logger_factory.get_logger(
-            "test", logging.CRITICAL
+            "test", logging.NOTSET
         )
         self.assertIsInstance(logger.handlers[1], logging.FileHandler)
+
+        logger.handlers[1].close()
+        logger.removeHandler(logger.handlers[1])
+        logger_factory.logger_factory.log_file = None
+        import os
+
+        os.remove(test_log)
 
     def test_logging_config_debug(self):
         """Test setting log level to debug."""
@@ -54,18 +61,3 @@ class TestLoggerFactory(unittest.TestCase):
         """Test setting log level to notset."""
         logger_factory.logging_config("notset")
         self.assertEqual(logging.NOTSET, logger_factory.logger_factory.level)
-
-    def test_logging_config_log_file(self):
-        """Test setting log level to notset."""
-        test_log = "test.log"
-        logger_factory.logging_config("info", test_log)
-        self.assertEqual(test_log, logger_factory.logger_factory.log_file)
-
-    def test_only_file_logger(self):
-        """Test creating a logger that will only log to file."""
-        test_log = "test.log"
-        logger_file_factory = logger_factory.LoggerFactory(
-            console=False, log_file=test_log
-        )
-        other_logger = logger_file_factory.get_logger("test")
-        self.assertIsInstance(other_logger.handlers[1], logging.FileHandler)
