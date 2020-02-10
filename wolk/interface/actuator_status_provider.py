@@ -44,4 +44,4 @@ def get_actuator_status(
     :returns: (state, value, timestamp)
     :rtype: (ActuatorState, bool or int or float or str or None, int or None)
     """
-    pass
+    raise NotImplementedError()

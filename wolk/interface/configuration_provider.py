@@ -44,4 +44,4 @@ def get_configuration() -> Dict[
     :returns: configuration
     :rtype: dict
     """
-    pass
+    raise NotImplementedError()
