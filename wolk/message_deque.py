@@ -41,9 +41,6 @@ class MessageDeque(MessageQueue):
         """
         Add the message to the queue.
 
-        Combines sensor reading messages of the same reference
-        into a single message.
-
         :param message: Message to place in the queue
         :type message: Message
         :returns: success
@@ -53,75 +50,11 @@ class MessageDeque(MessageQueue):
             self.logger.error("Nothing to store!")
             return False
 
-        if "reading" not in message.topic:
-            self.queue.append(message)
-            self.logger.debug(
-                f"Stored message: {message} - Queue size: {len(self.queue)}"
-            )
-            return True
-
-        reading_reference = message.topic.split("/")[-1]
-        present_in_queue = False
-
-        for stored_message in self.queue:
-            if "reading" not in message.topic:
-                continue
-            if reading_reference == stored_message.topic.split("/")[-1]:
-                present_in_queue = True
-                break
-
-        if not present_in_queue:
-            self.queue.append(message)
-            self.logger.debug(
-                f"Stored message: {message} - Queue size: {len(self.queue)}"
-            )
-            return True
-
-        readings = 0
-        max_data = 1
-
-        for stored_message in self.queue:
-            if "reading" not in stored_message.topic:
-                continue
-            if reading_reference == stored_message.topic.split("/")[-1]:
-                readings += 1
-                data_count = stored_message.payload.count('"data"')
-                if data_count > max_data:
-                    max_data = data_count
-
-        if readings > 0 and max_data == 1:
-            for stored_message in self.queue:
-                if reading_reference == stored_message.topic.split("/")[
-                    -1
-                ] and isinstance(message.payload, str):
-                    stored_message.payload = "[" + stored_message.payload
-                    stored_message.payload += "," + message.payload + "]"
-                    self.logger.debug(
-                        f"Stored message: {message} "
-                        f"- Queue size: {len(self.queue)}"
-                    )
-                    return True
-
-        if max_data > 1:
-            for stored_message in self.queue:
-                if "reading" not in stored_message.topic:
-                    continue
-                if reading_reference == stored_message.topic.split("/")[
-                    -1
-                ] and isinstance(message.payload, str):
-                    data_count = stored_message.payload.count('"data"')
-                    if max_data > data_count:
-                        continue
-
-                    stored_message.payload = stored_message.payload[:-1]
-                    stored_message.payload += "," + message.payload + "]"
-                    self.logger.debug(
-                        f"Stored message: {message} "
-                        f"- Queue size: {len(self.queue)}"
-                    )
-                    return True
-
-        return False
+        self.queue.append(message)
+        self.logger.debug(
+            f"Stored message: {message} - Queue size: {len(self.queue)}"
+        )
+        return True
 
     def get(self) -> Optional[Message]:
         """
