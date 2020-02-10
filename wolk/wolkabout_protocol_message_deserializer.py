@@ -566,11 +566,16 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            file_name = payload["fileName"]
-            file_size = payload["fileSize"]
-            file_hash = payload["fileHash"]
-
-            return file_name, file_size, file_hash
+            self.logger.debug(
+                f'file_name={payload["fileName"]}, '
+                f'file_size={payload["fileSize"]}, '
+                f'file_hash={payload["fileHash"]}'
+            )
+            return (
+                payload["fileName"],
+                payload["fileSize"],
+                payload["fileHash"],
+            )
         except Exception:
             self.logger.warning(
                 f"Received invalid file upload initiate message: {message}"

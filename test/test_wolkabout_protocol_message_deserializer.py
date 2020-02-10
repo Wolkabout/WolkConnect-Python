@@ -218,6 +218,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference = "SW"
         command = ActuatorCommandType.SET
         value = "string\nstring"
+        expected_value = value.replace("\n", "\\n")
 
         incoming_topic = (
             WAPMD.ACTUATOR_SET
@@ -227,7 +228,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMD.REFERENCE_PATH_PREFIX
             + reference
         )
-        incoming_payload = bytearray(json.dumps({"value": value}), "utf-8")
+        incoming_payload = bytearray(
+            json.dumps({"value": expected_value}), "utf-8"
+        )
         incoming_message = Message(incoming_topic, incoming_payload)
 
         expected = ActuatorCommand(reference, command, value)
@@ -535,6 +538,31 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             expected, deserializer.parse_configuration(incoming_message)
         )
 
+    def test_parse_configuration_set_multi_value_string_with_newline(self):
+        """Test parse configuration set command for string with newline."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        command = ConfigurationCommandType.SET
+        reference = "S"
+        value = "string\nstring,string\nstring"  # escaped in json.dumps
+        expected_value = tuple(value.split(","))
+
+        incoming_topic = (
+            WAPMD.CONFIGURATION_SET
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"values": {reference: value}}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = ConfigurationCommand(command, {reference: expected_value})
+
+        self.assertEqual(
+            expected, deserializer.parse_configuration(incoming_message)
+        )
+
     def test_parse_configuration_set_float(self):
         """Test parse configuration set command for float."""
         deserializer = WAPMD(self.device)
@@ -635,4 +663,144 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(
             expected, deserializer.parse_configuration(incoming_message)
+        )
+
+    def test_parse_file_delete_command(self):
+        """Test parse file delete command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        file_name = "delete_me.bin"
+        expected = file_name
+
+        incoming_topic = (
+            WAPMD.FILE_DELETE + WAPMD.DEVICE_PATH_DELIMITER + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"fileName": file_name}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_file_delete_command(incoming_message)
+        )
+
+    def test_parse_file_delete_command_invalid(self):
+        """Test parse file delete invalid command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        file_name = "delete_me.bin"
+        expected = ""
+
+        incoming_topic = (
+            WAPMD.FILE_DELETE + WAPMD.DEVICE_PATH_DELIMITER + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"file_name": file_name}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_file_delete_command(incoming_message)
+        )
+
+    def test_parse_file_url(self):
+        """Test parse file url command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        file_url = "http://hello.there.hi/resource.png"
+        expected = file_url
+
+        incoming_topic = (
+            WAPMD.FILE_URL_DOWNLOAD_INITIATE
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"fileUrl": file_url}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_file_url(incoming_message)
+        )
+
+    def test_parse_file_url_invalid(self):
+        """Test parse file url invalid command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        file_url = "http://hello.there.hi/resource.png"
+        expected = ""
+
+        incoming_topic = (
+            WAPMD.FILE_URL_DOWNLOAD_INITIATE
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps({"file_url": file_url}), "utf-8"
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_file_url(incoming_message)
+        )
+
+    def test_parse_file_initiate(self):
+        """Test parse file initiate command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        file_name = "file.bin"
+        file_size = 128
+        file_hash = "some_hash"
+        expected = (file_name, file_size, file_hash)
+
+        incoming_topic = (
+            WAPMD.FILE_UPLOAD_INITIATE
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps(
+                {
+                    "fileName": file_name,
+                    "fileSize": file_size,
+                    "fileHash": file_hash,
+                }
+            ),
+            "utf-8",
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_file_initiate(incoming_message)
+        )
+
+    def test_parse_file_initiate_invalid(self):
+        """Test parse file initiate invalid command."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        file_name = "file.bin"
+        file_size = 128
+        file_hash = "some_hash"
+        expected = ("", 0, "")
+
+        incoming_topic = (
+            WAPMD.FILE_UPLOAD_INITIATE
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = bytearray(
+            json.dumps(
+                {
+                    "obviously_wrong_name": file_name,
+                    "fileSize": file_size,
+                    "fileHash": file_hash,
+                }
+            ),
+            "utf-8",
+        )
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_file_initiate(incoming_message)
         )
