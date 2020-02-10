@@ -43,7 +43,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     ACTUATOR_STATUS = "d2p/actuator_status/"
     CONFIGURATION_SET = "p2d/configuration_set/"
     CONFIGURATION_GET = "p2d/configuration_get/"
-    CONFIGURATION_STATUS = "d2p/configuration_get/"
+    CONFIGURATION_STATUS = "d2p/configuration_status/"
     FILE_BINARY_REQUEST = "d2p/file_binary_request/"
     FIRMWARE_VERSION_UPDATE = "d2p/firmware_version_update/"
     FIRMWARE_UPDATE_STATUS = "d2p/firmware_update_status/"
