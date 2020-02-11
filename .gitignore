@@ -46,6 +46,10 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# Coverage.py
+.coverage
+coverage_html_directory/
+
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
