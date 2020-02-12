@@ -24,6 +24,7 @@ exclude_lines = [
 
 [tool.coverage.run]
 branch = true
+omit = ["*/.local/*", "/usr/*"]
 
 [tool.coverage.html]
 directory = "coverage_html_directory"
