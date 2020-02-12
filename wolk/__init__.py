@@ -28,6 +28,7 @@ from .model.alarm import Alarm
 from .model.configuration_command import ConfigurationCommand
 from .model.configuration_command import ConfigurationCommandType
 from .model.device import Device
+from .model.device_state import DeviceState
 from .model.file_management_error_type import FileManagementErrorType
 from .model.file_management_status import FileManagementStatus
 from .model.file_management_status_type import FileManagementStatusType
@@ -51,6 +52,7 @@ __all__ = [
     "ConfigurationCommand",
     "ConfigurationCommandType",
     "Device",
+    "DeviceState",
     "FileTransferPackage",
     "FirmwareUpdateStatus",
     "FirmwareUpdateStatusType",

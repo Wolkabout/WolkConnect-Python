@@ -19,6 +19,7 @@ from typing import Optional
 
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
+from wolk.model.device_state import DeviceState
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
@@ -179,13 +180,23 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_last_will_message(self, device_key: str) -> Message:
+    def make_last_will_message(self) -> Message:
         """
         Serialize a last will message if device disconnects unexpectedly.
 
-        :param device_key: Device key
-        :type device_key: str
         :returns: Last will message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_device_state(self, device_state: DeviceState) -> Message:
+        """
+        Serialize device's current connection state.
+
+        :param device_state: Device connection state
+        :type device_state: str
+        :returns: Device state message
         :rtype: Message
         """
         raise NotImplementedError()

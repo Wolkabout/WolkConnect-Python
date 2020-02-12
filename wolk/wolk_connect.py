@@ -34,6 +34,7 @@ from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
 from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.device import Device
+from wolk.model.device_state import DeviceState
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
@@ -286,9 +287,7 @@ class WolkConnect:
                 self.message_deserializer = message_deserializer
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
-        last_will_message = self.message_factory.make_last_will_message(
-            self.device.key
-        )
+        last_will_message = self.message_factory.make_last_will_message()
 
         if host and port and ca_cert:
             self.connectivity_service: ConnectivityService = MQTTCS(
@@ -441,7 +440,7 @@ class WolkConnect:
         :type reference: str
         :param value: The value of the sensor reading
         :type value: Union[bool, int, float, str]
-        :param timestamp: Unix timestamp. If not provided, platform will assign
+        :param timestamp: Unix timestamp. If not provided, Platform will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
@@ -468,7 +467,7 @@ class WolkConnect:
         :type active: bool
         :param code: Error code the alarm experienced
         :type code: Optional[str]
-        :param timestamp: Unix timestamp. If not provided, platform will assign
+        :param timestamp: Unix timestamp. If not provided, Platform will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
@@ -556,11 +555,50 @@ class WolkConnect:
             self.logger.error("Failed to publish configuration options!")
             self.message_queue.put(message)
 
+    def publish_device_status(self, device_state: DeviceState) -> None:
+        """
+        Publish current device status to WolkAbout IoT Platform.
+
+        Every time the device publishes data to the Platform
+        it is considered to be in the `CONNECTED` state, so it doesn't need
+        to be send explicitly.
+
+        When the device works on a principle of only connecting periodically
+        to the Platform to publish stored data, then prior to disconnecting
+        from the Platform the device should publish the `SLEEP` state.
+        This state is considered as a controlled offline state.
+
+        Should the device need to perform any maintenance or any other
+        action during which it would deviate from its default behavior,
+        the device should publish the `SERVICE_MODE` state.
+        This state implies that the device is unable to respond to commands
+        issued from the Platform.
+
+        If the device is going to terminate its connection to the Platform
+        for an unforeseeable period of time, then the device should send
+        the `OFFLINE` state prior to disconnecting.
+
+        In the case of an unexpected termination of connection to the Platform,
+        the device will be declared offline.
+
+        :param device_state: Current device state
+        :type device_state: DeviceState
+        """
+        if not self.connectivity_service.is_connected():
+            self.logger.warning("Not connected, unable to publish message!")
+            return
+        self.logger.debug(f"Publishing device status: {device_state}")
+
+        message = self.message_factory.make_from_device_state(device_state)
+        if not self.connectivity_service.publish(message):
+            self.logger.error("Failed to publish device status!")
+            # No point in placing message in storage
+
     def _on_inbound_message(self, message: Message) -> None:
         """
         Handle inbound messages.
 
-        :param message: message received from the platform
+        :param message: message received from the Platform
         :type message: Message
         """
         if "binary" in message.topic:
@@ -795,7 +833,7 @@ class WolkConnect:
         """
         Report firmware update status to WolkAbout IoT Platform.
 
-        :param status: The status to be reported to the platform
+        :param status: The status to be reported to the Platform
         :type status: FirmwareUpdateStatus
         """
         message = self.message_factory.make_from_firmware_update_status(status)

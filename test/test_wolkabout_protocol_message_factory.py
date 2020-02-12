@@ -22,6 +22,7 @@ sys.path.append("..")  # noqa
 from wolk.model.actuator_state import ActuatorState
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
+from wolk.model.device_state import DeviceState
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 from wolk.model.file_management_status import FileManagementStatus
@@ -733,13 +734,12 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         )
         expected_payload = None
         expected_message = Message(expected_topic, expected_payload)
-        serialized_message = factory.make_last_will_message(device_key)
+        serialized_message = factory.make_last_will_message()
 
         self.assertEqual(expected_message, serialized_message)
 
     def test_firmware_version(self):
         """Test message for firmware version."""
-        """Test message for last will."""
         device_key = "some_key"
         factory = WAPMF(device_key)
         version = "v1.0.0"
@@ -752,5 +752,21 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_payload = version
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = factory.make_from_firmware_version(version)
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_device_state(self):
+        """Test message for device state message."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        device_state = DeviceState.CONNECTED
+
+        expected_topic = (
+            WAPMF.DEVICE_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
+        )
+        expected_payload = json.dumps({"state": device_state.value})
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = factory.make_from_device_state(device_state)
 
         self.assertEqual(expected_message, serialized_message)

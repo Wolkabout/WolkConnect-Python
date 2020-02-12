@@ -22,6 +22,7 @@ from wolk import logger_factory
 from wolk.interface.message_factory import MessageFactory
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
+from wolk.model.device_state import DeviceState
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
@@ -46,6 +47,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     CONFIGURATION_SET = "p2d/configuration_set/"
     CONFIGURATION_GET = "p2d/configuration_get/"
     CONFIGURATION_STATUS = "d2p/configuration_status/"
+    DEVICE_STATUS = "d2p/device_status_update/"
     FILE_BINARY_REQUEST = "d2p/file_binary_request/"
     FIRMWARE_VERSION_UPDATE = "d2p/firmware_version_update/"
     FIRMWARE_UPDATE_STATUS = "d2p/firmware_update_status/"
@@ -67,19 +69,31 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         )
         self.logger.debug(f"Device key: {device_key}")
 
-    def make_last_will_message(self, device_key: str) -> Message:
+    def make_last_will_message(self) -> Message:
         """
         Serialize a last will message if device disconnects unexpectedly.
 
-        :param device_key: Device key
-        :type device_key: str
         :returns: Last will message
         :rtype: Message
         """
-        self.logger.debug(f"{device_key}")
-
-        topic = self.LAST_WILL + self.DEVICE_PATH_PREFIX + device_key
+        topic = self.LAST_WILL + self.DEVICE_PATH_PREFIX + self.device_key
         message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_device_state(self, device_state: DeviceState) -> Message:
+        """
+        Serialize device's current connection state.
+
+        :param device_state: Device connection state
+        :type device_state: str
+        :returns: Device state message
+        :rtype: Message
+        """
+        topic = self.DEVICE_STATUS + self.DEVICE_PATH_PREFIX + self.device_key
+        payload = json.dumps({"state": device_state.value})
+        message = Message(topic, payload)
         self.logger.debug(f"{message}")
 
         return message
