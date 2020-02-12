@@ -1,4 +1,4 @@
-"""Stub method for providing current device configuration options."""
+"""Stub function for providing current device configuration options."""
 #   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");

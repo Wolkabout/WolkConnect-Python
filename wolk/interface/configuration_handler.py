@@ -1,4 +1,4 @@
-"""Stub method for setting new configuration values."""
+"""Stub function for setting new configuration values."""
 #   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
