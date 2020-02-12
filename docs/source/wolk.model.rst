@@ -51,6 +51,14 @@ Device
     :undoc-members:
     :show-inheritance:
 
+Device state
+~~~~~~~~~~~~
+
+.. automodule:: wolk.model.device_state
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 File management error type
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

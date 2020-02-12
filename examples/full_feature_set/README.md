@@ -154,7 +154,7 @@ This will call the `configuration_provider` to read the current configuration an
 
 ### Publishing device status
 
-Every time the device publishes data to the Platform it is considered to be in the `CONNECTED` state, so it doesn't need to be send explicitly.
+Every time the device publishes data to the Platform it is considered to be in the `CONNECTED` state, so it doesn't need to be sent explicitly.
 
 When the device works on a principle of only connecting periodically to the Platform to publish stored data, then prior to disconnecting from the Platform the device should publish the `SLEEP` state.  
 This state is considered as a controlled offline state.

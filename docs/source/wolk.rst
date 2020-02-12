@@ -3,17 +3,17 @@ wolk package
 
 .. automodule:: wolk
 
-
-Connection Management
----------------------
-
 WolkConnect
-~~~~~~~~~~~
+-----------
 
 .. automodule:: wolk.wolk_connect
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Connection Management
+---------------------
 
 MQTT connectivity service
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,8 +52,6 @@ Message deque
     :undoc-members:
     :show-inheritance:
 
-Device Management
------------------
 
 File management
 ~~~~~~~~~~~~~~~
@@ -70,9 +68,6 @@ Firmware update
     :members:
     :undoc-members:
     :show-inheritance:
-
-Internal dependencies
----------------------
 
 Logger factory
 ~~~~~~~~~~~~~~

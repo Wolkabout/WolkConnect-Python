@@ -561,7 +561,7 @@ class WolkConnect:
 
         Every time the device publishes data to the Platform
         it is considered to be in the `CONNECTED` state, so it doesn't need
-        to be send explicitly.
+        to be sent explicitly.
 
         When the device works on a principle of only connecting periodically
         to the Platform to publish stored data, then prior to disconnecting
