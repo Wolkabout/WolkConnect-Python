@@ -12,10 +12,9 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-from typing import Optional
-
 from dataclasses import dataclass
 from dataclasses import field
+from typing import Optional
 
 from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType

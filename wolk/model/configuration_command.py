@@ -12,15 +12,14 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from dataclasses import dataclass
+from dataclasses import field
 from enum import Enum
 from enum import unique
 from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import Union
-
-from dataclasses import dataclass
-from dataclasses import field
 
 
 @unique
