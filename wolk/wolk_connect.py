@@ -346,9 +346,8 @@ class WolkConnect:
                 )
             if not isinstance(firmware_handler, FirmwareHandler):
                 raise RuntimeError("Invalid firmware update module provided")
-            self.firmware_update = OSFirmwareUpdate(firmware_handler)
-            self.firmware_update._set_on_status_callback(
-                self._on_firmware_update_status
+            self.firmware_update = OSFirmwareUpdate(
+                firmware_handler, self._on_firmware_update_status
             )
 
         if device.actuator_references and (

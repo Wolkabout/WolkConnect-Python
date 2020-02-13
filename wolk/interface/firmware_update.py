@@ -29,6 +29,22 @@ class FirmwareUpdate(ABC):
     """
 
     @abstractmethod
+    def __init__(
+        self,
+        firmware_handler: FirmwareHandler,
+        status_callback: Callable[[FirmwareUpdateStatus], None],
+    ) -> None:
+        """
+        Enable firmware update for device.
+
+        :param firmware_handler: Install firmware and provide current version
+        :type firmware_handler: FirmwareHandler
+        :param status_callback: Reporting firmware update status
+        :type status_callback: Callable[[FirmwareUpdateStatus], None]
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def handle_install(self, file_path: str) -> None:
         """
         Handle received firmware installation command.
@@ -55,29 +71,5 @@ class FirmwareUpdate(ABC):
 
         :returns: Firmware version
         :rtype: str
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _set_on_status_callback(
-        self, on_status_callback: Callable[[FirmwareUpdateStatus], None]
-    ) -> None:
-        """
-        Set a callback function to handle firmware status reporting.
-
-        :param on_status_callback: Method for reporting firmware status
-        :type on_status_callback: Callable[[FirmwareUpdateStatus], None]
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _set_firmware_handler(self, handler: FirmwareHandler) -> None:
-        """
-        Set firmware handler.
-
-        Must set as self.handler.
-
-        :param handler: Installs firmware and reports current version
-        :type handler: FirmwareHandler
         """
         raise NotImplementedError()

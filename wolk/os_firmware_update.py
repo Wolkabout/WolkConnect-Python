@@ -28,51 +28,32 @@ from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 class OSFirmwareUpdate(FirmwareUpdate):
     """Responsible for everything related to the firmware update process."""
 
-    def __init__(self, firmware_handler: FirmwareHandler) -> None:
+    def __init__(
+        self,
+        firmware_handler: FirmwareHandler,
+        status_callback: Callable[[FirmwareUpdateStatus], None],
+    ) -> None:
         """
         Enable firmware update for device.
 
-        :param firmware_handler: Function that will handle the installation
-        :type firmware_handler: Callable[[str], None]
+        :param firmware_handler: Install firmware and provide current version
+        :type firmware_handler: FirmwareHandler
+        :param status_callback: Reporting firmware update status
+        :type status_callback: Callable[[FirmwareUpdateStatus], None]
         """
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
         self.logger.debug(f"firmware_handler: {firmware_handler}")
-        self.current_status: Optional[FirmwareUpdateStatus] = None
-        self.install_timer: Optional[Timer] = None
-        self._set_firmware_handler(firmware_handler)
-
-    def _set_on_status_callback(
-        self, report_status: Callable[[FirmwareUpdateStatus], None]
-    ) -> None:
-        """
-        Set the callback function for reporting firmware status.
-
-        :param report_status: Reporting firmware update status
-        :type report_status: Callable[[FirmwareUpdateStatus], None]
-        """
-        self.logger.debug(f"firmware update status callback: {report_status}")
-        self.report_status = report_status
-
-    def _set_firmware_handler(self, handler: FirmwareHandler) -> None:
-        """
-        Set firmware handler.
-
-        :param handler: Installs firmware and reports current version
-        :type handler: FirmwareHandler
-
-        :raises ValueError: handler not an instance of FirmwareHandler
-        """
-        self.logger.debug(f"set handler: {handler}")
-
-        if not isinstance(handler, FirmwareHandler):
+        self.status_callback = status_callback
+        if not isinstance(firmware_handler, FirmwareHandler):
             raise ValueError(
-                f"Given handler {handler} is not "
+                f"Given firmware handler {firmware_handler} is not "
                 "an instance of FirmwareHandler"
             )
-
-        self.handler = handler
+        self.firmware_handler = firmware_handler
+        self.current_status: Optional[FirmwareUpdateStatus] = None
+        self.install_timer: Optional[Timer] = None
 
     def get_current_version(self) -> str:
         """
@@ -81,7 +62,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         :returns: Firmware version
         :rtype: str
         """
-        return self.handler.get_current_version()
+        return self.firmware_handler.get_current_version()
 
     def handle_install(self, file_path: str) -> None:
         """
@@ -93,14 +74,14 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.logger.debug(
             f"Handling install command with path path: {file_path}"
         )
-        if not self.handler:
+        if not self.firmware_handler:
 
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
                 FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
             )
             self.logger.error("No firmware handler set!")
-            self.report_status(self.current_status)
+            self.status_callback(self.current_status)
             self._reset_state()
             return
 
@@ -117,7 +98,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
             )
             self.logger.error("Previous firmware update did not complete!")
-            self.report_status(self.current_status)
+            self.status_callback(self.current_status)
             self._reset_state()
             return
 
@@ -127,12 +108,12 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 FirmwareUpdateErrorType.FILE_NOT_PRESENT,
             )
             self.logger.error("File not present at given path!")
-            self.report_status(self.current_status)
+            self.status_callback(self.current_status)
             self._reset_state()
             return
 
         with open("last_firmware_version.txt", "w") as file:
-            file.write(self.handler.get_current_version())
+            file.write(self.firmware_handler.get_current_version())
 
         self.current_status = FirmwareUpdateStatus(
             FirmwareUpdateStatusType.INSTALLATION
@@ -141,10 +122,11 @@ class OSFirmwareUpdate(FirmwareUpdate):
             "Beginning firmware installation process "
             f"with file path: {file_path}"
         )
-        self.report_status(self.current_status)
+        self.status_callback(self.current_status)
 
         self.install_timer = Timer(
-            5.0, self.handler.install_firmware(file_path)  # type: ignore
+            5.0,
+            self.firmware_handler.install_firmware(file_path),  # type: ignore
         )  # For possible abort command
         self.install_timer.start()
 
@@ -160,7 +142,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ABORTED
             )
-            self.report_status(self.current_status)
+            self.status_callback(self.current_status)
             self._reset_state()
             if os.path.exists("last_firmware_version.txt"):
                 os.remove("last_firmware_version.txt")
@@ -176,7 +158,10 @@ class OSFirmwareUpdate(FirmwareUpdate):
         with open("last_firmware_version.txt") as file:
             last_firmware_version = file.read()
 
-        if last_firmware_version == self.handler.get_current_version():
+        if (
+            last_firmware_version
+            == self.firmware_handler.get_current_version()
+        ):
             self.logger.warning(
                 "Firmware version unchanged, reporting installation failed"
             )
@@ -184,7 +169,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
                 FirmwareUpdateStatusType.ERROR,
                 FirmwareUpdateErrorType.INSTALLATION_FAILED,
             )
-            self.report_status(self.current_status)
+            self.status_callback(self.current_status)
             self._reset_state()
             os.remove("last_firmware_version.txt")
             return
@@ -195,7 +180,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.current_status = FirmwareUpdateStatus(
             FirmwareUpdateStatusType.COMPLETED
         )
-        self.report_status(self.current_status)
+        self.status_callback(self.current_status)
         self._reset_state()
         os.remove("last_firmware_version.txt")
 
