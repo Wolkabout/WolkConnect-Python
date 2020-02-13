@@ -44,6 +44,7 @@ from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
+from wolk.os_file_management import OSFileManagement
 from wolk.os_firmware_update import OSFirmwareUpdate
 from wolk.wolkabout_protocol_message_deserializer import (
     WolkAboutProtocolMessageDeserializer as WAPMDeserializer,
@@ -113,7 +114,9 @@ class WolkConnect:
         configuration_provider: Optional[
             Callable[[None], Dict[str, ConfigurationValue]]
         ] = None,
-        file_management: Optional[FileManagement] = None,
+        file_management_configuration: Optional[
+            Dict[str, Union[int, str]]
+        ] = None,
         firmware_handler: Optional[FirmwareHandler] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
@@ -136,8 +139,8 @@ class WolkConnect:
         :type configuration_handler: Callable[[ConfigurationValue], None], optional
         :param configuration_provider: Read configuration options
         :type configuration_provider: Callable[[None], ConfigurationValue], optional
-        :param file_management: File transfer, list files on device, delete files
-        :type file_management: FileManagement, optional
+        :param file_management_configuration: Set preferred file package size, maximum supported file size and file directory
+        :type file_management_configuration: dict, optional
         :param firmware_handler: Firmware update support
         :type firmware_handler: FirmwareHandler, optional
         :param host: Host name or IP address of the remote broker
@@ -166,7 +169,7 @@ class WolkConnect:
             f"Configuration provider: {configuration_provider} ; "
             f"Message queue: {message_queue} ; "
             f"Firmware hanlder: {firmware_handler} ; "
-            f"File management: {file_management} ; "
+            f"File management: {file_management_configuration} ; "
             f"Host: {host} ; Port: {port} ; ca_cert: {ca_cert} "
             f"Message factory: {message_factory} ; "
             f"Message deserializer: {message_deserializer} ; "
@@ -320,20 +323,27 @@ class WolkConnect:
             self._on_inbound_message
         )
 
-        if file_management is None:
+        if file_management_configuration is None:
             self.file_management = None
         else:
-            if not isinstance(file_management, FileManagement):
-                raise RuntimeError("Invalid file management module provided")
-            self.file_management = file_management
-            self.file_management._set_request_file_binary_callback(
-                self._on_package_request
+            if list(file_management_configuration.keys()) != [
+                "preferred_package_size",
+                "max_file_size",
+                "file_directory",
+            ]:
+                raise ValueError(
+                    "Invalid file management configuration: "
+                    f"{file_management_configuration}"
+                )
+            self.file_management = OSFileManagement(
+                self._on_file_upload_status,
+                self._on_package_request,
+                self._on_file_url_status,
             )
-            self.file_management._set_file_upload_status_callback(
-                self._on_file_upload_status
-            )
-            self.file_management._set_file_url_download_status_callback(
-                self._on_file_url_status
+            self.file_management.configure(
+                int(file_management_configuration["preferred_package_size"]),
+                int(file_management_configuration["max_file_size"]),
+                str(file_management_configuration["file_directory"]),
             )
 
         if firmware_handler is None:

@@ -46,33 +46,32 @@ class OSFileManagement(FileManagement):
 
     def __init__(
         self,
-        preferred_package_size: int,
-        max_file_size: int,
-        download_location: str,
-    ):
+        status_callback: Callable[[str, FileManagementStatus], None],
+        packet_request_callback: Callable[[str, int, int], None],
+        url_status_callback: Callable[
+            [str, FileManagementStatus, Optional[str]], None
+        ],
+    ) -> None:
         """
-        File Management Module.
+        Enable file management for device.
 
-        :param preferred_package_size: Size in bytes
-        :type preferred_package_size: int
-        :param max_file_size: Maximum file size that can be stored
-        :type max_file_size: int
-        :param download_location: Path to where files are stored
-        :type download_location: str
+        :param status_callback: Reporting current file transfer status
+        :type status_callback: Callable[[FileManagementStatus], None]
+        :param packet_request_callback: Request file packet from Platform
+        :type packet_request_callback: Callable[[str, int, int], None]
+        :param url_status_callback: Report file url download status
+        :type url_status_callback: Callable[[str, FileManagementStatus, Optional[str]], None]
         """
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
 
-        self.logger.debug(
-            f"Preferred package size: {preferred_package_size} ; "
-            f"Maximum file size {max_file_size} ; "
-            f"Download location: '{download_location}'"
-        )
-
-        self.preferred_package_size = preferred_package_size
-        self.max_file_size = max_file_size
-        self.download_location = download_location
+        self.status_callback = status_callback
+        self.packet_request_callback = packet_request_callback
+        self.url_status_callback = url_status_callback
+        self.preferred_package_size = 0
+        self.max_file_size = 0
+        self.file_directory = ""
         self.current_status: Optional[FileManagementStatus] = None
         self.max_retries = 3
         self.next_package_index: Optional[int] = None
@@ -81,8 +80,28 @@ class OSFileManagement(FileManagement):
         self.request_timeout: Optional[Timer] = None
         self.last_package_hash = 32 * b"\x00"
 
-        if not os.path.exists(os.path.abspath(self.download_location)):
-            os.makedirs(os.path.abspath(self.download_location))
+    def configure(
+        self,
+        preferred_package_size: int,
+        max_file_size: int,
+        file_directory: str,
+    ) -> None:
+        """
+        Configure options for file management module.
+
+        :param preferred_package_size: Size in bytes
+        :type preferred_package_size: int
+        :param max_file_size: Maximum file size that can be stored
+        :type max_file_size: int
+        :param file_directory: Path to where files are stored
+        :type file_directory: str
+        """
+        self.preferred_package_size = preferred_package_size
+        self.max_file_size = max_file_size
+        self.file_directory = file_directory
+
+        if not os.path.exists(os.path.abspath(self.file_directory)):
+            os.makedirs(os.path.abspath(self.file_directory))
 
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
@@ -103,6 +122,16 @@ class OSFileManagement(FileManagement):
             )
             return
 
+        if self.preferred_package_size == 0:
+            self.logger.warning("File management module not configured")
+            self.current_status = FileManagementStatus(
+                FileManagementStatusType.ERROR,
+                FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
+            )
+            self.status_callback(file_name, self.current_status)
+            self.current_status = None
+            return
+
         self.logger.info("Starting file transfer")
         self.logger.info(
             f"File name: {file_name} ; "
@@ -119,7 +148,7 @@ class OSFileManagement(FileManagement):
                 FileManagementStatusType.ERROR,
                 FileManagementErrorType.UNSUPPORTED_FILE_SIZE,
             )
-            self.file_upload_status_callback(file_name, self.current_status)
+            self.status_callback(file_name, self.current_status)
             self.current_status = None
             return
 
@@ -128,7 +157,7 @@ class OSFileManagement(FileManagement):
         )
 
         if os.path.exists(
-            os.path.join(os.path.abspath(self.download_location), file_name)
+            os.path.join(os.path.abspath(self.file_directory), file_name)
         ):
             valid_file = False
 
@@ -138,9 +167,7 @@ class OSFileManagement(FileManagement):
             sha256_file_hash = hashlib.sha256()
 
             existing_file = open(
-                os.path.join(
-                    os.path.abspath(self.download_location), file_name
-                ),
+                os.path.join(os.path.abspath(self.file_directory), file_name),
                 "rb",
             )
 
@@ -164,9 +191,7 @@ class OSFileManagement(FileManagement):
                 self.current_status = FileManagementStatus(
                     FileManagementStatusType.FILE_READY
                 )
-                self.file_upload_status_callback(
-                    file_name, self.current_status
-                )
+                self.status_callback(file_name, self.current_status)
 
                 self.current_status = None
                 self.last_package_hash = 32 * b"\x00"
@@ -185,14 +210,14 @@ class OSFileManagement(FileManagement):
         self.retry_count = 0
 
         self.logger.info(f"Initializing file transfer: '{file_name}'")
-        self.file_upload_status_callback(self.file_name, self.current_status)
+        self.status_callback(self.file_name, self.current_status)
 
         if self.file_size < self.preferred_package_size:
-            self.request_file_binary_callback(
+            self.packet_request_callback(
                 self.file_name, self.next_package_index, self.file_size + 64
             )
         else:
-            self.request_file_binary_callback(
+            self.packet_request_callback(
                 self.file_name,
                 self.next_package_index,
                 self.preferred_package_size + 64,
@@ -200,40 +225,6 @@ class OSFileManagement(FileManagement):
 
         self.request_timeout = Timer(60.0, self._timeout)
         self.request_timeout.start()
-
-    def _set_file_upload_status_callback(
-        self, callback: Callable[[str, FileManagementStatus], None]
-    ) -> None:
-        """
-        Set the callback method for reporting current status.
-
-        :param callback: Method to call
-        :type callback: Callable[[str, FileManagementStatus], None]
-        """
-        self.file_upload_status_callback = callback
-
-    def _set_request_file_binary_callback(
-        self, callback: Callable[[str, int, int], None]
-    ) -> None:
-        """
-        Set the callback method for requesting file packets.
-
-        :param callback: Method to call
-        :type callback: Callable[[str, int, int], None]
-        """
-        self.request_file_binary_callback = callback
-
-    def _set_file_url_download_status_callback(
-        self,
-        callback: Callable[[str, FileManagementStatus, Optional[str]], None],
-    ) -> None:
-        """
-        Set the callback method for reporting file url download status.
-
-        :param callback: Method to call
-        :type callback: Callable[[str, FileManagementStatus, Optional[str]], None]
-        """
-        self.file_url_download_status_callback = callback
 
     def handle_file_upload_abort(self) -> None:
         """Abort file upload and revert to idle status."""
@@ -313,7 +304,7 @@ class OSFileManagement(FileManagement):
                     FileManagementStatusType.ERROR,
                     FileManagementErrorType.RETRY_COUNT_EXCEEDED,
                 )
-                self.file_upload_status_callback(
+                self.status_callback(
                     self.file_name, self.current_status  # type: ignore
                 )
                 self.handle_file_upload_abort()
@@ -322,7 +313,7 @@ class OSFileManagement(FileManagement):
             self.logger.info(
                 f"Requesting package #{self.next_package_index} again"
             )
-            self.request_file_binary_callback(
+            self.packet_request_callback(
                 self.file_name,  # type: ignore
                 self.next_package_index,  # type: ignore
                 self.preferred_package_size + 64,
@@ -346,7 +337,7 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.FILE_SYSTEM_ERROR
             )
-            self.file_upload_status_callback(
+            self.status_callback(
                 self.file_name, self.current_status  # type: ignore
             )
             self.handle_file_upload_abort()
@@ -363,7 +354,7 @@ class OSFileManagement(FileManagement):
                 f"#{self.next_package_index}/"
                 f"#{self.expected_number_of_packages}"
             )
-            self.request_file_binary_callback(
+            self.packet_request_callback(
                 self.file_name,  # type: ignore
                 self.next_package_index,
                 self.preferred_package_size + 64,
@@ -403,17 +394,17 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.FILE_HASH_MISMATCH
             )
-            self.file_upload_status_callback(
+            self.status_callback(
                 self.file_name, self.current_status  # type: ignore
             )
             self.handle_file_upload_abort()
             return
 
-        if not os.path.exists(os.path.abspath(self.download_location)):
-            os.makedirs(os.path.abspath(self.download_location))
+        if not os.path.exists(os.path.abspath(self.file_directory)):
+            os.makedirs(os.path.abspath(self.file_directory))
 
         file_path = os.path.join(
-            os.path.abspath(self.download_location),
+            os.path.abspath(self.file_directory),
             self.file_name,  # type: ignore
         )
 
@@ -428,7 +419,7 @@ class OSFileManagement(FileManagement):
                 FileManagementStatusType.ERROR,
                 FileManagementErrorType.FILE_SYSTEM_ERROR,
             )
-            self.file_upload_status_callback(
+            self.status_callback(
                 self.file_name, self.current_status  # type: ignore
             )
             self.handle_file_upload_abort()
@@ -438,7 +429,7 @@ class OSFileManagement(FileManagement):
         self.current_status = FileManagementStatus(
             FileManagementStatusType.FILE_READY
         )
-        self.file_upload_status_callback(
+        self.status_callback(
             self.file_name, self.current_status  # type: ignore
         )
 
@@ -465,23 +456,19 @@ class OSFileManagement(FileManagement):
                 FileManagementStatusType.ERROR,
                 FileManagementErrorType.MALFORMED_URL,
             )
-            self.file_url_download_status_callback(
-                file_url, self.current_status, None
-            )
+            self.url_status_callback(file_url, self.current_status, None)
             self.handle_file_upload_abort()
             return
 
         self.file_url: Optional[str] = file_url
         self.file_name = self.file_url.split("/")[-1]
         file_path = os.path.join(
-            os.path.abspath(self.download_location), self.file_name
+            os.path.abspath(self.file_directory), self.file_name
         )
         self.current_status = FileManagementStatus(
             FileManagementStatusType.FILE_TRANSFER
         )
-        self.file_url_download_status_callback(
-            file_url, self.current_status, self.file_name
-        )
+        self.url_status_callback(file_url, self.current_status, self.file_name)
 
         response = requests.get(file_url)
         with open(file_path, "ab") as file:
@@ -495,7 +482,7 @@ class OSFileManagement(FileManagement):
                 FileManagementStatusType.ERROR,
                 FileManagementErrorType.FILE_SYSTEM_ERROR,
             )
-            self.file_url_download_status_callback(
+            self.url_status_callback(
                 file_url, self.current_status, self.file_name
             )
             self.handle_file_url_download_abort()
@@ -505,9 +492,7 @@ class OSFileManagement(FileManagement):
         self.current_status = FileManagementStatus(
             FileManagementStatusType.FILE_READY
         )
-        self.file_url_download_status_callback(
-            file_url, self.current_status, self.file_name
-        )
+        self.url_status_callback(file_url, self.current_status, self.file_name)
 
         self.current_status = None
 
@@ -525,12 +510,12 @@ class OSFileManagement(FileManagement):
         :returns: file_list
         :rtype: List[str]
         """
-        file_list = os.listdir(os.path.abspath(self.download_location))
+        file_list = os.listdir(os.path.abspath(self.file_directory))
 
         if file_list:
             for item in file_list:
                 if not os.path.isfile(
-                    os.path.join(os.path.abspath(self.download_location), item)
+                    os.path.join(os.path.abspath(self.file_directory), item)
                 ) or item.startswith("."):
                     file_list.remove(item)
         else:
@@ -553,7 +538,7 @@ class OSFileManagement(FileManagement):
         for file in self.get_file_list():
             if file == file_name:
                 file_path = os.path.join(
-                    os.path.abspath(self.download_location), file_name
+                    os.path.abspath(self.file_directory), file_name
                 )
                 break
         self.logger.debug(f"File path: {file_path}")
@@ -572,7 +557,7 @@ class OSFileManagement(FileManagement):
         """
         self.logger.info(f"Attempting to delete file: '{file_name}'")
         file_path = os.path.join(
-            os.path.abspath(self.download_location), file_name
+            os.path.abspath(self.file_directory), file_name
         )
 
         if os.path.exists(file_path):
@@ -580,22 +565,21 @@ class OSFileManagement(FileManagement):
 
     def handle_file_purge(self) -> None:
         """Delete all files from device."""
-        for file in os.listdir(os.path.abspath(self.download_location)):
+        for file in os.listdir(os.path.abspath(self.file_directory)):
             if not os.path.isfile(
-                os.path.join(os.path.abspath(self.download_location), file)
+                os.path.join(os.path.abspath(self.file_directory), file)
             ) or file.startswith("."):
                 continue
-            os.remove(
-                os.path.join(os.path.abspath(self.download_location), file)
-            )
+            os.remove(os.path.join(os.path.abspath(self.file_directory), file))
 
     def _timeout(self) -> None:
+        """Revert to idle state when timeout occurs."""
         self.logger.error("Timed out waiting for next package, aborting")
         self.current_status = FileManagementStatus(
             FileManagementStatusType.ERROR,
             FileManagementErrorType.UNSPECIFIED_ERROR,
         )
-        self.file_upload_status_callback(
+        self.status_callback(
             self.file_name, self.current_status  # type: ignore
         )
         self.handle_file_upload_abort()

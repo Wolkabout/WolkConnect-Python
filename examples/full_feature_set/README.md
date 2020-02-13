@@ -221,11 +221,11 @@ class MyFirmwareHandler(wolk.FirmwareHandler):
 # Enable firmware update by passing a firmware handler
 wolk_device = wolk.WolkConnect(
     device=device,
-    file_management=wolk.OSFileManagement(
-        preferred_package_size=1024 * 1024,  # In bytes
-        max_file_size=100 * 1024 * 1024,
-        download_location="files",
-    ),
+    file_management_configuration={
+        "preferred_package_size": 1024 * 1024,  # In bytes
+        "max_file_size": 100 * 1024 * 1024,
+        "file_directory": "files",
+    },
     firmware_update=MyFirmwareHandler(),
 )
 ```

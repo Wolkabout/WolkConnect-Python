@@ -55,7 +55,11 @@ def main():
         password="some_password",
         actuator_references=actuator_references,
     )
-    preferred_file_package_size = 1024 * 1024
+    file_management_configuration = {
+        "preferred_package_size": 1024 * 1024,
+        "max_file_size": 100 * 1024 * 1024,
+        "file_directory": "files",
+    }
     firmware_version = "1.0"
 
     class Actuator:
@@ -134,7 +138,7 @@ def main():
             """Handle the installing of the firmware file here."""
             print("Installing firmware from path: " + firmware_file_path)
             time.sleep(5)
-            os._exit(0)
+            sys.exit()
 
         def get_current_version(self) -> str:
             """Return current firmware version."""
@@ -144,34 +148,22 @@ def main():
     # Pass configuration handler and provider
     # Enable file management by setting setting preferred sizes in bytes
     # Enable firmware update by passing a firmware handler
-    try:
-        wolk_device = wolk.WolkConnect(
-            device=device,
-            actuation_handler=actuation_handler,
-            actuator_status_provider=actuator_status_provider,
-            configuration_handler=configuration_handler,
-            configuration_provider=configuration_provider,
-            file_management=wolk.OSFileManagement(
-                preferred_package_size=preferred_file_package_size,
-                max_file_size=100 * preferred_file_package_size,
-                download_location="files",
-            ),
-            firmware_handler=MyFirmwareHandler(),
-            host="api-demo.wolkabout.com",
-            port=8883,
-            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
-        )
-    except RuntimeError as e:
-        print(str(e))
-        sys.exit(1)
+    wolk_device = wolk.WolkConnect(
+        device=device,
+        actuation_handler=actuation_handler,
+        actuator_status_provider=actuator_status_provider,
+        configuration_handler=configuration_handler,
+        configuration_provider=configuration_provider,
+        file_management_configuration=file_management_configuration,
+        firmware_handler=MyFirmwareHandler(),
+        host="api-demo.wolkabout.com",
+        port=8883,
+        ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+    )
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
-    try:
-        wolk_device.connect()
-    except RuntimeError as e:
-        print(str(e))
-        sys.exit(1)
+    wolk_device.connect()
 
     wolk_device.publish_configuration()
     wolk_device.publish_actuator_status("SW")

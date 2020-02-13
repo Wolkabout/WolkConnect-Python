@@ -31,6 +31,46 @@ class FileManagement(ABC):
     """
 
     @abstractmethod
+    def __init__(
+        self,
+        status_callback: Callable[[str, FileManagementStatus], None],
+        packet_request_callback: Callable[[str, int, int], None],
+        url_status_callback: Callable[
+            [str, FileManagementStatus, Optional[str]], None
+        ],
+    ) -> None:
+        """
+        Enable file management for device.
+
+        :param status_callback: Reporting current file transfer status
+        :type status_callback: Callable[[FileManagementStatus], None]
+        :param packet_request_callback: Request file packet from Platform
+        :type packet_request_callback: Callable[[str, int, int], None]
+        :param url_status_callback: Report file url download status
+        :type url_status_callback: Callable[[str, FileManagementStatus, Optional[str]], None]
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def configure(
+        self,
+        preferred_package_size: int,
+        max_file_size: int,
+        download_location: str,
+    ) -> None:
+        """
+        Configure options for file management module.
+
+        :param preferred_package_size: Size in bytes
+        :type preferred_package_size: int
+        :param max_file_size: Maximum file size that can be stored
+        :type max_file_size: int
+        :param download_location: Path to where files are stored
+        :type download_location: str
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
     ) -> None:
@@ -43,43 +83,6 @@ class FileManagement(ABC):
         :type file_size: int
         :param file_hash: base64 encoded sha256 hash of file
         :type file_hash: str
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _set_file_upload_status_callback(
-        self, callback: Callable[[str, FileManagementStatus], None]
-    ) -> None:
-        """
-        Set the callback method for reporting current status.
-
-        :param callback: Method to call
-        :type callback: Callable[[FileManagementStatus], None]
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _set_request_file_binary_callback(
-        self, callback: Callable[[str, int, int], None]
-    ) -> None:
-        """
-        Set the callback method for requesting file packets.
-
-        :param callback: Method to call
-        :type callback: Callable[[str, int, int], None]
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def _set_file_url_download_status_callback(
-        self,
-        callback: Callable[[str, FileManagementStatus, Optional[str]], None],
-    ) -> None:
-        """
-        Set the callback method for reporting file url download status.
-
-        :param callback: Method to call
-        :type callback: Callable[[str, FileManagementStatus, Optional[str]], None]
         """
         raise NotImplementedError()
 
