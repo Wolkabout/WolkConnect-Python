@@ -483,14 +483,11 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                         try:
                             if any("." in value for value in value.split(",")):
                                 value = tuple(
-                                    [
-                                        float(value)
-                                        for value in value.split(",")
-                                    ]
+                                    float(value) for value in value.split(",")
                                 )
                             else:
                                 value = tuple(
-                                    [int(value) for value in value.split(",")]
+                                    int(value) for value in value.split(",")
                                 )
                         except ValueError:
                             value = tuple(value.split(","))

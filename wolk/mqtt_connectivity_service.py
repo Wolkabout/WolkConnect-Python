@@ -91,16 +91,16 @@ class MQTTConnectivityService(ConnectivityService):
         return self.connected
 
     def set_inbound_message_listener(
-        self, on_inbound_message: Callable[[Message], None]
+        self, listener: Callable[[Message], None]
     ) -> None:
         """
         Set the callback function to handle inbound messages.
 
-        :param on_inbound_message: Function that handles inbound messages
-        :type on_inbound_message: Callable[[Message], None]
+        :param listener: Function that handles inbound messages
+        :type listener: Callable[[Message], None]
         """
-        self.logger.debug(f"Message listener set to: {on_inbound_message}")
-        self.inbound_message_listener = on_inbound_message
+        self.logger.debug(f"Message listener set to: {listener}")
+        self.inbound_message_listener = listener
 
     def on_mqtt_message(
         self, client: mqtt.Client, userdata: Any, message: mqtt.MQTTMessage
@@ -246,37 +246,38 @@ class MQTTConnectivityService(ConnectivityService):
 
             if self.connected_rc == 0:
                 self.logger.info("Connected!")
-                return True
+                break
 
-            elif self.connected_rc == 1:
+            if self.connected_rc == 1:
                 self.logger.warning(
                     "Connection refused - incorrect protocol version"
                 )
                 return False
 
-            elif self.connected_rc == 2:
+            if self.connected_rc == 2:
                 self.logger.warning(
                     "Connection refused - invalid client identifier"
                 )
                 return False
 
-            elif self.connected_rc == 3:
+            if self.connected_rc == 3:
                 self.logger.warning("Connection refused - server unavailable")
                 return False
 
-            elif self.connected_rc == 4:
+            if self.connected_rc == 4:
                 self.logger.warning(
                     "Connection refused - bad username or password"
                 )
                 return False
 
-            elif self.connected_rc == 5:
+            if self.connected_rc == 5:
                 self.logger.warning("Connection refused - not authorised")
                 return False
 
         self.logger.debug(f"Subscribing to topics: {self.topics}")
         for topic in self.topics:
             self.client.subscribe(topic, 2)
+        return True
 
     def disconnect(self) -> None:
         """Disconnects the device from the WolkAbout IoT Platform."""
@@ -308,16 +309,12 @@ class MQTTConnectivityService(ConnectivityService):
         info = self.client.publish(message.topic, message.payload, self.qos)
 
         if info.rc == mqtt.MQTT_ERR_SUCCESS:
-
             self.logger.debug(f"Published message: {message}")
             return True
 
-        elif info.is_published():
-
+        if info.is_published():
             self.logger.debug(f"Published message: {message}")
             return True
 
-        else:
-
-            self.logger.warning(f"Failed to publish message: {message}")
-            return False
+        self.logger.warning(f"Failed to publish message: {message}")
+        return False

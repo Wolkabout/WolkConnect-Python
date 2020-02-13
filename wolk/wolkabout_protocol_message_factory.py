@@ -223,11 +223,9 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         for reference, value in configuration.items():
             if isinstance(value, tuple):
                 configuration[reference] = ",".join(map(str, value))
-                continue
 
             elif isinstance(value, bool):
                 configuration[reference] = str(value).lower()
-                continue
 
             else:
                 configuration[reference] = str(value)

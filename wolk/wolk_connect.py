@@ -182,8 +182,7 @@ class WolkConnect:
                 raise RuntimeError(f"{actuation_handler} is not a callable!")
             if len(signature(actuation_handler).parameters) != 2:
                 raise RuntimeError(f"{actuation_handler} invalid signature!")
-            else:
-                self.actuation_handler = actuation_handler
+            self.actuation_handler = actuation_handler
 
         if actuator_status_provider is None:
             self.actuator_status_provider = None
@@ -273,8 +272,7 @@ class WolkConnect:
         else:
             if not isinstance(message_factory, MessageFactory):
                 raise RuntimeError("Invalid message factory provided")
-            else:
-                self.message_factory = message_factory
+            self.message_factory = message_factory
 
         if message_deserializer is None:
             self.message_deserializer: MessageDeserializer = WAPMDeserializer(
@@ -283,8 +281,7 @@ class WolkConnect:
         else:
             if not isinstance(message_deserializer, MessageDeserializer):
                 raise RuntimeError("Invalid message deserializer provided")
-            else:
-                self.message_deserializer = message_deserializer
+            self.message_deserializer = message_deserializer
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
         last_will_message = self.message_factory.make_last_will_message()
@@ -310,8 +307,7 @@ class WolkConnect:
             if connectivity_service is not None:
                 if not isinstance(connectivity_service, ConnectivityService):
                     raise RuntimeError("Invalid connectivity service provided")
-                else:
-                    self.connectivity_service = connectivity_service
+                self.connectivity_service = connectivity_service
             else:
                 self.connectivity_service = MQTTCS(
                     device,
@@ -329,17 +325,16 @@ class WolkConnect:
         else:
             if not isinstance(file_management, FileManagement):
                 raise RuntimeError("Invalid file management module provided")
-            else:
-                self.file_management = file_management
-                self.file_management._set_request_file_binary_callback(
-                    self._on_package_request
-                )
-                self.file_management._set_file_upload_status_callback(
-                    self._on_file_upload_status
-                )
-                self.file_management._set_file_url_download_status_callback(
-                    self._on_file_url_status
-                )
+            self.file_management = file_management
+            self.file_management._set_request_file_binary_callback(
+                self._on_package_request
+            )
+            self.file_management._set_file_upload_status_callback(
+                self._on_file_upload_status
+            )
+            self.file_management._set_file_url_download_status_callback(
+                self._on_file_url_status
+            )
 
         if firmware_handler is None:
             self.firmware_update = None
@@ -351,11 +346,10 @@ class WolkConnect:
                 )
             if not isinstance(firmware_handler, FirmwareHandler):
                 raise RuntimeError("Invalid firmware update module provided")
-            else:
-                self.firmware_update = OSFirmwareUpdate(firmware_handler)
-                self.firmware_update._set_on_status_callback(
-                    self._on_firmware_update_status
-                )
+            self.firmware_update = OSFirmwareUpdate(firmware_handler)
+            self.firmware_update._set_on_status_callback(
+                self._on_firmware_update_status
+            )
 
         if device.actuator_references and (
             actuation_handler is None or actuator_status_provider is None
@@ -366,7 +360,6 @@ class WolkConnect:
             )
 
         if self.firmware_update:
-
             message = self.message_factory.make_from_firmware_version(
                 self.firmware_update.get_current_version()
             )
@@ -388,14 +381,13 @@ class WolkConnect:
             self.logger.info("Already connected")
             return
 
-        else:
-            try:
-                self.connectivity_service.connect()
-            except Exception as e:
-                self.logger.exception(
-                    f"Something went wrong when trying to connect: {e}"
-                )
-                return
+        try:
+            self.connectivity_service.connect()
+        except Exception as e:
+            self.logger.exception(
+                f"Something went wrong when trying to connect: {e}"
+            )
+            return
 
         if self.connectivity_service.is_connected():
 
@@ -666,15 +658,11 @@ class WolkConnect:
                 self.publish_configuration()
             return
 
-        if any(
-            [is_message(message) for is_message in file_management_messages]
-        ):
+        if any(is_message(message) for is_message in file_management_messages):
             self._on_file_management_message(message)
             return
 
-        if any(
-            [is_message(message) for is_message in firmware_update_messages]
-        ):
+        if any(is_message(message) for is_message in firmware_update_messages):
             self._on_firmware_message(message)
             return
 

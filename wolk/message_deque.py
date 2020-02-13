@@ -81,10 +81,9 @@ class MessageDeque(MessageQueue):
         if len(self.queue) == 0:
             self.logger.debug("Empty queue")
             return None
-        else:
-            message = self.queue[0]
-            self.logger.debug(
-                f"Returning message: {message} "
-                f"- Queue size: {len(self.queue)}"
-            )
-            return message
+
+        message = self.queue[0]
+        self.logger.debug(
+            f"Returning message: {message} " f"- Queue size: {len(self.queue)}"
+        )
+        return message

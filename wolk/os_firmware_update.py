@@ -196,7 +196,6 @@ class OSFirmwareUpdate(FirmwareUpdate):
             FirmwareUpdateStatusType.COMPLETED
         )
         self.report_status(self.current_status)
-        # TODO: on completed, wolk call handler get version and report
         self._reset_state()
         os.remove("last_firmware_version.txt")
 

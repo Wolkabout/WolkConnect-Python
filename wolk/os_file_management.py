@@ -319,19 +319,18 @@ class OSFileManagement(FileManagement):
                 self.handle_file_upload_abort()
                 return
 
-            else:
-                self.logger.info(
-                    f"Requesting package #{self.next_package_index} again"
-                )
-                self.request_file_binary_callback(
-                    self.file_name,  # type: ignore
-                    self.next_package_index,  # type: ignore
-                    self.preferred_package_size + 64,
-                )
+            self.logger.info(
+                f"Requesting package #{self.next_package_index} again"
+            )
+            self.request_file_binary_callback(
+                self.file_name,  # type: ignore
+                self.next_package_index,  # type: ignore
+                self.preferred_package_size + 64,
+            )
 
-                self.request_timeout = Timer(60.0, self._timeout)
-                self.request_timeout.start()
-                return
+            self.request_timeout = Timer(60.0, self._timeout)
+            self.request_timeout.start()
+            return
 
         self.last_package_hash = package.current_hash
 
@@ -562,7 +561,7 @@ class OSFileManagement(FileManagement):
 
     def handle_file_list_confirm(self) -> None:
         """Acknowledge file list response from WolkAbout IoT Platform."""
-        pass
+        ...
 
     def handle_file_delete(self, file_name: str) -> None:
         """
