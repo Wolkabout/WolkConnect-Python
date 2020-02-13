@@ -35,11 +35,7 @@ def main():
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
-    try:
-        wolk_device.connect()
-    except RuntimeError as e:
-        print(str(e))
-        sys.exit(1)
+    wolk_device.connect()
 
     publish_period_seconds = 5
 
@@ -51,9 +47,10 @@ def main():
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
-            print("\tReceived KeyboardInterrupt, quitting")
+            print("\tReceived KeyboardInterrupt. Exiting script")
+            wolk_device.publish_device_status(wolk.DeviceState.OFFLINE)
             wolk_device.disconnect()
-            os._exit(0)
+            sys.exit()
 
 
 if __name__ == "__main__":
