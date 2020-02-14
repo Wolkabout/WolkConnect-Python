@@ -186,6 +186,66 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(expected_message, serialized_message)
 
+    def test_multiple_sensor_readings(self):
+        """Test message for multiple sensor readings."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        reference1 = "B"
+        value1 = False
+        reference2 = "T"
+        value2 = (12, 23, 34)
+        reference3 = "F"
+        value3 = 45.6
+        readings = {reference1: value1, reference2: value2, reference3: value3}
+        timestamp = int(round(time.time() * 1000))
+
+        expected_topic = (
+            WAPMF.SENSOR_READING + WAPMF.DEVICE_PATH_PREFIX + device_key
+        )
+        expected_payload = json.dumps(
+            {
+                reference1: str(value1).lower(),
+                reference2: ",".join(map(str, value2)),
+                reference3: str(value3),
+                "utc": int(timestamp),
+            }
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = factory.make_from_sensor_readings(
+            readings, timestamp
+        )
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_multiple_sensor_readings_no_timestamp(self):
+        """Test message for multiple sensor readings with no timestamp."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        reference1 = "B"
+        value1 = False
+        reference2 = "T"
+        value2 = (12, 23, 34)
+        reference3 = "F"
+        value3 = 45.6
+        readings = {reference1: value1, reference2: value2, reference3: value3}
+
+        expected_topic = (
+            WAPMF.SENSOR_READING + WAPMF.DEVICE_PATH_PREFIX + device_key
+        )
+        expected_payload = json.dumps(
+            {
+                reference1: str(value1).lower(),
+                reference2: ",".join(map(str, value2)),
+                reference3: str(value3),
+            }
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = factory.make_from_sensor_readings(readings)
+
+        self.assertEqual(expected_message, serialized_message)
+
     def test_alarm_no_timestamp(self):
         """Test message for alarm without timestamp."""
         device_key = "some_key"

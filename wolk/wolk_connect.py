@@ -69,6 +69,10 @@ ActuatorValue = Tuple[
     ActuatorState, Optional[Union[bool, int, float, str]], Optional[int]
 ]
 
+ReadingValue = Union[
+    bool, int, Tuple[int, ...], float, Tuple[float, ...], str,
+]
+
 
 class WolkConnect:
     """
@@ -432,16 +436,16 @@ class WolkConnect:
     def add_sensor_reading(
         self,
         reference: str,
-        value: Union[bool, int, float, str],
+        value: ReadingValue,
         timestamp: Optional[int] = None,
     ) -> None:
         """
-        Publish a sensor reading to WolkAbout IoT Platform.
+        Place a sensor reading into storage.
 
         :param reference: The reference of the sensor
         :type reference: str
         :param value: The value of the sensor reading
-        :type value: Union[bool, int, float, str]
+        :type value: Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]
         :param timestamp: Unix timestamp. If not provided, Platform will assign
         :type timestamp: Optional[int]
         """
@@ -451,6 +455,28 @@ class WolkConnect:
         )
         reading = SensorReading(reference, value, timestamp)
         message = self.message_factory.make_from_sensor_reading(reading)
+        self.message_queue.put(message)
+
+    def add_sensor_readings(
+        self,
+        readings: Dict[str, ReadingValue],
+        timestamp: Optional[int] = None,
+    ) -> None:
+        """
+        Place multiple sensor readings into storage.
+
+        :param readings: Dictionary of reference: value pairs
+        :type readings: Dict[str, Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]]
+        :param timestamp: Unix timestamp. If not provided, Platform will assign
+        :type timestamp: Optional[int]
+        """
+        self.logger.debug(
+            f"Adding sensor readings: readings:{readings}, "
+            f"timestamp = {timestamp}"
+        )
+        message = self.message_factory.make_from_sensor_readings(
+            readings, timestamp
+        )
         self.message_queue.put(message)
 
     def add_alarm(

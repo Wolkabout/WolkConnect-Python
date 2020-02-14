@@ -14,8 +14,11 @@
 #   limitations under the License.
 from abc import ABC
 from abc import abstractmethod
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
+from typing import Union
 
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
@@ -36,6 +39,25 @@ class MessageFactory(ABC):
 
         :param reading: Reading to be serialized
         :type reading: SensorReading
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_sensor_readings(
+        self,
+        readings: Dict[
+            str,
+            Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]],
+        ],
+        timestamp: Optional[int] = None,
+    ) -> Message:
+        """
+        Serialize multiple sensor readings to send to WolkAbout IoT Platform.
+
+        :param readings: Dictionary of reference: value pairs
+        :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
         :returns: message
         :rtype: Message
         """

@@ -124,6 +124,14 @@ wolk_device.add_sensor_reading("T", 26.93)
 # Multi-value sensor reading
 wolk_device.add_sensor_reading("ACL", (4, 2, 0))
 ```
+or multiple sensors at once with `add_sensor_readings`:
+```python
+wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
+```
+
+Optionally pass a `timestamp` as `int(round(time.time() * 1000))`.  
+This is useful for maintaining data history when readings are not published immediately after adding them to storage.
+If `timestamp` is not provided, the Platform will assign a timestamp once it receives it.
 
 ### Adding events
 ```python

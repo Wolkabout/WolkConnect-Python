@@ -16,6 +16,7 @@ import json
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from wolk import logger_factory
@@ -132,6 +133,43 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             payload = json.dumps({"data": str(reading.value)})
 
         message = Message(topic, payload)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_sensor_readings(
+        self,
+        readings: Dict[
+            str,
+            Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]],
+        ],
+        timestamp: Optional[int] = None,
+    ) -> Message:
+        """
+        Serialize multiple sensor readings to send to WolkAbout IoT Platform.
+
+        :param readings: Dictionary of reference: value pairs
+        :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
+        :returns: message
+        :rtype: Message
+        """
+        self.logger.debug(f"readings:{readings}, timestamp:{timestamp}")
+
+        topic = self.SENSOR_READING + self.DEVICE_PATH_PREFIX + self.device_key
+        payload = readings
+        for reference, value in payload.items():
+            if isinstance(value, tuple):
+                payload[reference] = ",".join(map(str, value))
+
+            elif isinstance(value, bool):
+                payload[reference] = str(value).lower()
+            else:
+                payload[reference] = str(value)
+
+        if timestamp is not None:
+            payload["utc"] = int(timestamp)
+
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message

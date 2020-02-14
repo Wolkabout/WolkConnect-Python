@@ -27,22 +27,13 @@ class SensorReading:
     :ivar reference: Device sensor's reference as defined in device template
     :vartype reference: str
     :ivar value: Data that the sensor reading yielded
-    :vartype value: bool or int or float or str or tuple
+    :vartype value: bool or int or float or str or tuple of int/float
     :ivar timestamp:  Unix timestamp in miliseconds
     :vartype timestamp: Optional[int]
     """
 
     reference: str
     value: Union[
-        bool,
-        int,
-        float,
-        str,
-        Tuple[int, int],
-        Tuple[int, int, int],
-        Tuple[float, float],
-        Tuple[float, float, float],
-        Tuple[str, str],
-        Tuple[str, str, str],
+        bool, int, Tuple[int, ...], float, Tuple[float, ...], str,
     ]
     timestamp: Optional[int] = field(default=None)
