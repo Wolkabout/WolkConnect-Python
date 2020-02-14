@@ -79,6 +79,11 @@ class OSFileManagement(FileManagement):
         self.retry_count: Optional[int] = None
         self.request_timeout: Optional[Timer] = None
         self.last_package_hash = 32 * b"\x00"
+        self.temp_file: Optional[IO[bytes]] = None
+        self.file_name: Optional[str] = None
+        self.file_size: Optional[int] = None
+        self.file_hash: Optional[str] = None
+        self.file_url: Optional[str] = None
 
     def configure(
         self,
@@ -171,9 +176,9 @@ class OSFileManagement(FileManagement):
                 "rb",
             )
 
-            for x in range(self.expected_number_of_packages):
+            for chunk_index in range(self.expected_number_of_packages):
 
-                existing_file.seek(x * self.preferred_package_size)
+                existing_file.seek(chunk_index * self.preferred_package_size)
                 chunk = existing_file.read(self.preferred_package_size)
                 if not chunk:
                     self.logger.error("File size too small!")
@@ -200,12 +205,10 @@ class OSFileManagement(FileManagement):
         self.current_status = FileManagementStatus(
             FileManagementStatusType.FILE_TRANSFER
         )
-        self.temp_file: Optional[IO[bytes]] = NamedTemporaryFile(
-            mode="a+b", delete=False
-        )
-        self.file_name: Optional[str] = file_name
-        self.file_size: Optional[int] = file_size
-        self.file_hash: Optional[str] = file_hash
+        self.temp_file = NamedTemporaryFile(mode="a+b", delete=False)
+        self.file_name = file_name
+        self.file_size = file_size
+        self.file_hash = file_hash
         self.next_package_index = 0
         self.retry_count = 0
 
@@ -371,10 +374,10 @@ class OSFileManagement(FileManagement):
         )
         sha256_file_hash = hashlib.sha256()
 
-        for x in range(self.expected_number_of_packages):  # type: ignore
+        for index in range(self.expected_number_of_packages):  # type: ignore
 
             self.temp_file.seek(  # type: ignore
-                x * self.preferred_package_size
+                index * self.preferred_package_size
             )
             chunk = self.temp_file.read(  # type: ignore
                 self.preferred_package_size
@@ -460,7 +463,7 @@ class OSFileManagement(FileManagement):
             self.handle_file_upload_abort()
             return
 
-        self.file_url: Optional[str] = file_url
+        self.file_url = file_url
         self.file_name = self.file_url.split("/")[-1]
         file_path = os.path.join(
             os.path.abspath(self.file_directory), self.file_name

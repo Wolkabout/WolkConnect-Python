@@ -56,7 +56,7 @@ class FileManagement(ABC):
         self,
         preferred_package_size: int,
         max_file_size: int,
-        download_location: str,
+        file_directory: str,
     ) -> None:
         """
         Configure options for file management module.
@@ -65,8 +65,8 @@ class FileManagement(ABC):
         :type preferred_package_size: int
         :param max_file_size: Maximum file size that can be stored
         :type max_file_size: int
-        :param download_location: Path to where files are stored
-        :type download_location: str
+        :param file_directory: Path to where files are stored
+        :type file_directory: str
         """
         raise NotImplementedError()
 

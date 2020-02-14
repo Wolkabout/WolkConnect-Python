@@ -80,6 +80,10 @@ class MQTTConnectivityService(ConnectivityService):
             f"Port: {self.port} ; "
             f"CA certificate: {self.ca_cert}"
         )
+        self.client = mqtt.Client()
+        self.inbound_message_listener: Callable[
+            [Message], None
+        ] = lambda message: print("\n\nNo inbound message listener set!\n\n")
 
     def is_connected(self) -> bool:
         """
@@ -129,22 +133,22 @@ class MQTTConnectivityService(ConnectivityService):
         self.inbound_message_listener(received_message)
 
     def on_mqtt_connect(
-        self, client: mqtt.Client, userdata: Any, flags: int, rc: int
+        self, client: mqtt.Client, _userdata: Any, flags: int, return_code: int
     ) -> None:
         """
         Handle when the client receives a CONNACK response from the server.
 
         :param client: Client that received the message
         :type client: paho.mqtt.Client
-        :param userdata: private user data set in Client()
-        :type userdata: str
+        :param _userdata: private user data set in Client()
+        :type _userdata: str
         :param flags: Response flags sent by the broker
         :type flags: int
-        :param rc: Connection result
-        :type rc: int
+        :param return_code: Connection result
+        :type return_code: int
         """
-        self.logger.debug(f"Return code: {rc}")
-        if rc == 0:  # Connection successful
+        self.logger.debug(f"Return code: {return_code}")
+        if return_code == 0:  # Connection successful
 
             self.connected = True
             self.connected_rc = 0
@@ -154,36 +158,40 @@ class MQTTConnectivityService(ConnectivityService):
                 for topic in self.topics:
                     self.client.subscribe(topic, 2)
             self.logger.debug(f"Connected : {self.connected}")
-        elif rc == 1:  # Connection refused - incorrect protocol version
+        elif (
+            return_code == 1
+        ):  # Connection refused - incorrect protocol version
             self.connected_rc = 1
-        elif rc == 2:  # Connection refused - invalid client identifier
+        elif (
+            return_code == 2
+        ):  # Connection refused - invalid client identifier
             self.connected_rc = 2
-        elif rc == 3:  # Connection refused - server unavailable
+        elif return_code == 3:  # Connection refused - server unavailable
             self.connected_rc = 3
-        elif rc == 4:  # Connection refused - bad username or password
+        elif return_code == 4:  # Connection refused - bad username or password
             self.connected_rc = 4
-        elif rc == 5:  # Connection refused - not authorised
+        elif return_code == 5:  # Connection refused - not authorised
             self.connected_rc = 5
 
     def on_mqtt_disconnect(
-        self, client: mqtt.Client, userdata: Any, rc: int
+        self, client: mqtt.Client, _userdata: Any, return_code: int
     ) -> None:
         """
         Handle when the client disconnects from the broker.
 
         :param client: Client that received the message
         :type client: paho.mqtt.Client
-        :param userdata: private user data set in Client()
-        :type userdata: str
-        :param rc: Disconnection result
-        :type rc: int
+        :param _userdata: private user data set in Client()
+        :type _userdata: str
+        :param return_code: Disconnection result
+        :type return_code: int
 
         :raises RuntimeError: Unexpected disconnection
         """
         self.connected = False
         self.connected_rc = None
         self.logger.debug(f"Connected : {self.connected}")
-        if rc != 0:
+        if return_code != 0:
             self.logger.error("Unexpected disconnect!")
             self.logger.info("Attempting to reconnect..")
             self.connect()
@@ -226,8 +234,10 @@ class MQTTConnectivityService(ConnectivityService):
         )
         try:
             self.client.connect(self.host, self.port)
-        except Exception as e:
-            self.logger.error(f"Something went wrong while connecting: {e}")
+        except Exception as exception:
+            self.logger.error(
+                f"Something went wrong while connecting: {exception}"
+            )
             return False
 
         self.client.loop_start()

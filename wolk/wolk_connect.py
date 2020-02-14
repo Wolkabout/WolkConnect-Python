@@ -22,7 +22,6 @@ from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.connectivity_service import ConnectivityService
-from wolk.interface.file_management import FileManagement
 from wolk.interface.firmware_handler import FirmwareHandler
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
@@ -76,9 +75,9 @@ class WolkConnect:
     Exchange data with WolkAbout IoT Platform.
 
     :ivar actuation_handler: Function for handling actuation commands
-    :vartype actuation_handler: Callable[[str, Union[bool, int, float, str]], None]
+    :vartype actuation_handler: Callable[[str, Union[bool, int, float, str]], None] or None
     :ivar actuator_status_provider: Function for getting current actuator status
-    :vartype actuator_status_provider: Callable[[str], ActuatorValue]
+    :vartype actuator_status_provider: Callable[[str], ActuatorValue] or None
     :ivar configuration_handler: Function for handling configuration commands
     :vartype configuration_handler: Callable[[dict], None] or None
     :ivar configuration_provider: Function for getting current configuration options
@@ -87,6 +86,8 @@ class WolkConnect:
     :vartype connectivity_service: ConnectivityService
     :ivar device: Contains device key and password, and actuator references
     :vartype device: Device
+    :ivar file_management: File management module
+    :vartype file_management: FileManagement or None
     :ivar firmware_update: Firmware update handler
     :vartype firmware_update: FirmwareUpdate or None
     :ivar logger: Logger instance issued by wolk.LoggerFactory
@@ -392,9 +393,9 @@ class WolkConnect:
 
         try:
             self.connectivity_service.connect()
-        except Exception as e:
+        except Exception as exception:
             self.logger.exception(
-                f"Something went wrong when trying to connect: {e}"
+                f"Something went wrong when trying to connect: {exception}"
             )
             return
 
