@@ -22,7 +22,9 @@ from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.connectivity_service import ConnectivityService
+from wolk.interface.file_management import FileManagement
 from wolk.interface.firmware_handler import FirmwareHandler
+from wolk.interface.firmware_update import FirmwareUpdate
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
@@ -107,189 +109,51 @@ class WolkConnect:
     def __init__(
         self,
         device: Device,
-        actuation_handler: Optional[
-            Callable[[str, Union[bool, int, float, str]], None]
-        ] = None,
-        actuator_status_provider: Optional[
-            Callable[[str], ActuatorValue]
-        ] = None,
-        configuration_handler: Optional[
-            Callable[[Dict[str, ConfigurationValue]], None]
-        ] = None,
-        configuration_provider: Optional[
-            Callable[[None], Dict[str, ConfigurationValue]]
-        ] = None,
-        file_management_configuration: Optional[
-            Dict[str, Union[int, str]]
-        ] = None,
-        firmware_handler: Optional[FirmwareHandler] = None,
         host: Optional[str] = None,
         port: Optional[int] = None,
         ca_cert: Optional[str] = None,
-        message_queue: Optional[MessageQueue] = None,
-        message_factory: Optional[MessageFactory] = None,
-        message_deserializer: Optional[MessageDeserializer] = None,
-        connectivity_service: Optional[ConnectivityService] = None,
     ):
         """
         Provide communication with WolkAbout IoT Platform.
 
         :param device: Contains key and password, and actuator references
         :type device: Device
-        :param actuation_handler: Handle actuation commands
-        :type actuation_handler: Callable[[str, Union[bool, int, float, str]], None], optional
-        :param actuator_status_provider: Read actuator status
-        :type actuator_status_provider: Callable[[str], ActuatorValue, optional
-        :param configuration_handler: Handle configuration commands
-        :type configuration_handler: Callable[[ConfigurationValue], None], optional
-        :param configuration_provider: Read configuration options
-        :type configuration_provider: Callable[[None], ConfigurationValue], optional
-        :param file_management_configuration: Set preferred file package size, maximum supported file size and file directory
-        :type file_management_configuration: dict, optional
-        :param firmware_handler: Firmware update support
-        :type firmware_handler: FirmwareHandler, optional
         :param host: Host name or IP address of the remote broker
         :type host: str, optional
         :param port: Network port of the server host to connect to
         :type port: int, optional
         :param ca_cert: String path to Certificate Authority certificate file
         :type ca_cert: str, optional
-        :param message_queue: Store messages before sending
-        :type message_queue: MessageQueue, optional
-        :param message_factory: Creator of messages to be sent
-        :type message_factory: MessageFactory, optional
-        :param message_deserializer: Deserializer of messages from the Platform
-        :type message_deserializer: MessageDeserializer, optional
-        :param connectivity_service: Provider of connection to Platform
-        :type connectivity_service: ConnectivityService, optional
         """
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
         self.logger.debug(
             f"Device: {device} ; "
-            f"Actuation handler: {actuation_handler} ; "
-            f"Actuator status provider: {actuator_status_provider} ; "
-            f"Configuration handler: {configuration_handler} ; "
-            f"Configuration provider: {configuration_provider} ; "
-            f"Message queue: {message_queue} ; "
-            f"Firmware hanlder: {firmware_handler} ; "
-            f"File management: {file_management_configuration} ; "
-            f"Host: {host} ; Port: {port} ; ca_cert: {ca_cert} "
-            f"Message factory: {message_factory} ; "
-            f"Message deserializer: {message_deserializer} ; "
-            f"Connectivity Service: {connectivity_service}"
+            f"Host: {host} ; Port: {port} ; ca_cert: {ca_cert}"
         )
 
         self.device = device
+        self.actuation_handler: Optional[
+            Callable[[str, Union[bool, int, float, str]], None]
+        ] = None
+        self.actuator_status_provider: Optional[
+            Callable[[str], ActuatorValue]
+        ] = None
 
-        if actuation_handler is None:
-            self.actuation_handler = None
-        else:
-            if not callable(actuation_handler):
-                raise RuntimeError(f"{actuation_handler} is not a callable!")
-            if len(signature(actuation_handler).parameters) != 2:
-                raise RuntimeError(f"{actuation_handler} invalid signature!")
-            self.actuation_handler = actuation_handler
-
-        if actuator_status_provider is None:
-            self.actuator_status_provider = None
-        else:
-            if not callable(actuator_status_provider):
-                raise RuntimeError(
-                    f"{actuator_status_provider} is not a callable!"
-                )
-            if len(signature(actuator_status_provider).parameters) != 1:
-                raise RuntimeError(
-                    f"{actuator_status_provider} invalid signature!"
-                )
-            self.actuator_status_provider = actuator_status_provider
-
-        if (
-            self.actuation_handler is None
-            and self.actuator_status_provider is not None
-        ) or (
-            self.actuation_handler is not None
-            and self.actuator_status_provider is None
-        ):
-            raise RuntimeError(
-                "Provide actuation_handler and actuator_status_provider"
-                " to enable actuators on your device!"
-            )
-
-        if configuration_handler is not None:
-            if not callable(configuration_handler):
-                raise RuntimeError(
-                    f"{configuration_handler} is not a callable!"
-                )
-            if len(signature(configuration_handler).parameters) != 1:
-                raise RuntimeError(
-                    f"{configuration_handler} invalid signature!"
-                )
-            self.configuration_handler: Optional[
-                Callable[[Dict[str, ConfigurationValue]], None]
-            ] = configuration_handler
-        else:
-            self.configuration_handler = None
-
-        if configuration_provider is not None:
-            if not callable(configuration_provider):
-                raise RuntimeError(
-                    f"{configuration_provider} is not a callable!"
-                )
-            if len(signature(configuration_provider).parameters) != 0:
-                raise RuntimeError(
-                    f"{configuration_provider} invalid signature!"
-                )
-            self.configuration_provider: Optional[
-                Callable[[None], Dict[str, ConfigurationValue]]
-            ] = configuration_provider
-        else:
-            self.configuration_provider = None
-
-        if (
-            self.configuration_handler is None
-            and self.configuration_provider is not None
-        ) or (
-            self.configuration_handler is not None
-            and self.configuration_provider is None
-        ):
-            raise RuntimeError(
-                "Provide configuration_handler and configuration_provider"
-                " to enable configuration options on your device!"
-            )
-
-        if message_queue is None:
-            self.message_queue: MessageQueue = MessageDeque()
-        else:
-            if isinstance(message_queue, MessageQueue):
-                self.message_queue = message_queue
-            else:
-                raise RuntimeError("Invalid message queue provided")
-
-        if (message_factory is None and message_deserializer is not None) or (
-            message_factory is not None and message_deserializer is None
-        ):
-            raise RuntimeError(
-                "Both MessageFactory and "
-                "MessageDeserializer must be provided"
-            )
-
-        if message_factory is None:
-            self.message_factory: MessageFactory = WAPMFactory(device.key)
-        else:
-            if not isinstance(message_factory, MessageFactory):
-                raise RuntimeError("Invalid message factory provided")
-            self.message_factory = message_factory
-
-        if message_deserializer is None:
-            self.message_deserializer: MessageDeserializer = WAPMDeserializer(
-                self.device
-            )
-        else:
-            if not isinstance(message_deserializer, MessageDeserializer):
-                raise RuntimeError("Invalid message deserializer provided")
-            self.message_deserializer = message_deserializer
+        self.configuration_handler: Optional[
+            Callable[[Dict[str, ConfigurationValue]], None]
+        ] = None
+        self.configuration_provider: Optional[
+            Callable[[None], Dict[str, ConfigurationValue]]
+        ] = None
+        self.file_management: Optional[FileManagement] = None
+        self.firmware_update: Optional[FirmwareUpdate] = None
+        self.message_queue: MessageQueue = MessageDeque()
+        self.message_factory: MessageFactory = WAPMFactory(device.key)
+        self.message_deserializer: MessageDeserializer = WAPMDeserializer(
+            self.device
+        )
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
         last_will_message = self.message_factory.make_last_will_message()
@@ -312,73 +176,204 @@ class WolkConnect:
                 port=int(port),
             )
         else:
-            if connectivity_service is not None:
-                if not isinstance(connectivity_service, ConnectivityService):
-                    raise RuntimeError("Invalid connectivity service provided")
-                self.connectivity_service = connectivity_service
-            else:
-                self.connectivity_service = MQTTCS(
-                    device,
-                    self.message_deserializer.get_inbound_topics(),
-                    last_will_message,
-                    ca_cert=wolk_ca_cert,
-                )
+            self.connectivity_service = MQTTCS(
+                device,
+                self.message_deserializer.get_inbound_topics(),
+                last_will_message,
+                ca_cert=wolk_ca_cert,
+            )
 
         self.connectivity_service.set_inbound_message_listener(
             self._on_inbound_message
         )
 
-        if file_management_configuration is None:
-            self.file_management = None
-        else:
-            if list(file_management_configuration.keys()) != [
-                "preferred_package_size",
-                "max_file_size",
-                "file_directory",
-            ]:
-                raise ValueError(
-                    "Invalid file management configuration: "
-                    f"{file_management_configuration}"
-                )
-            self.file_management = OSFileManagement(
-                self._on_file_upload_status,
-                self._on_package_request,
-                self._on_file_url_status,
-            )
-            self.file_management.configure(
-                int(file_management_configuration["preferred_package_size"]),
-                int(file_management_configuration["max_file_size"]),
-                str(file_management_configuration["file_directory"]),
-            )
+    def with_actuators(
+        self,
+        actuation_handler: Callable[[str, Union[bool, int, float, str]], None],
+        actuator_status_provider: Callable[[str], ActuatorValue],
+    ):
+        """
+        Enable controlling actuators on the device from the Platform.
 
-        if firmware_handler is None:
-            self.firmware_update = None
-        else:
-            if self.file_management is None:
-                raise RuntimeError(
-                    "File management must be enabled "
-                    "in order for firmware update to work"
-                )
-            if not isinstance(firmware_handler, FirmwareHandler):
-                raise RuntimeError("Invalid firmware update module provided")
-            self.firmware_update = OSFirmwareUpdate(
-                firmware_handler, self._on_firmware_update_status
-            )
+        :param actuation_handler: Handle actuation commands
+        :type actuation_handler: Callable[[str, Union[bool, int, float, str]], None]
+        :param actuator_status_provider: Read actuator status
+        :type actuator_status_provider: Callable[[str], ActuatorValue]
+        """
+        self.logger.debug(
+            f"Actuation handler: {actuation_handler} ; "
+            f"Actuator status provider: {actuator_status_provider}"
+        )
 
-        if device.actuator_references and (
-            actuation_handler is None or actuator_status_provider is None
-        ):
+        if not callable(actuation_handler):
+            raise ValueError(f"{actuation_handler} is not a callable!")
+        if len(signature(actuation_handler).parameters) != 2:
+            raise ValueError(f"{actuation_handler} invalid signature!")
+        self.actuation_handler = actuation_handler
+
+        if not callable(actuator_status_provider):
+            raise ValueError(f"{actuator_status_provider} is not a callable!")
+        if len(signature(actuator_status_provider).parameters) != 1:
+            raise ValueError(f"{actuator_status_provider} invalid signature!")
+        self.actuator_status_provider = actuator_status_provider
+
+        return self
+
+    def with_configuration(
+        self,
+        configuration_handler: Callable[[Dict[str, ConfigurationValue]], None],
+        configuration_provider: Callable[
+            [None], Dict[str, ConfigurationValue]
+        ],
+    ):
+        """
+        Enable setting device's configuration options from the Platform.
+
+        :param configuration_handler: Handle configuration commands
+        :type configuration_handler: Callable[[Dict[str,ConfigurationValue]], None]
+        :param configuration_provider: Read configuration options
+        :type configuration_provider: Callable[[None], Dict[str, ConfigurationValue]]
+        """
+        self.logger.debug(
+            f"Configuration handler: {configuration_handler} ; "
+            f"Configuration provider: {configuration_provider}"
+        )
+
+        if not callable(configuration_handler):
+            raise RuntimeError(f"{configuration_handler} is not a callable!")
+        if len(signature(configuration_handler).parameters) != 1:
+            raise RuntimeError(f"{configuration_handler} invalid signature!")
+        self.configuration_handler = configuration_handler
+
+        if not callable(configuration_provider):
+            raise RuntimeError(f"{configuration_provider} is not a callable!")
+        if len(signature(configuration_provider).parameters) != 0:
+            raise RuntimeError(f"{configuration_provider} invalid signature!")
+        self.configuration_provider = configuration_provider
+
+        return self
+
+    def with_file_management(
+        self,
+        preferred_package_size: int,
+        max_file_size: int,
+        file_directory: str,
+    ):
+        """
+        Enable file management on the device.
+
+        :param preferred_package_size: Size of file package chunk in bytes
+        :type preferred_package_size: int
+        :param max_file_size: Maximum supported file size in bytes
+        :type max_file_size: int
+        :param file_directory: Directory where files are stored
+        :type file_directory: str
+        """
+        self.logger.debug(
+            f"Preferred package size: {preferred_package_size}, "
+            f"maximum file size: {max_file_size}, "
+            f"file directory: '{file_directory}'"
+        )
+
+        self.file_management = OSFileManagement(
+            self._on_file_upload_status,
+            self._on_package_request,
+            self._on_file_url_status,
+        )
+        self.file_management.configure(
+            preferred_package_size, max_file_size, file_directory,
+        )
+
+        return self
+
+    def with_firmware_update(self, firmware_handler: FirmwareHandler):
+        """
+        Enable firmware update for device.
+
+        Requires that file management is previously enabled on device.
+
+        :param firmware_handler: Provide firmware version and handle installation
+        :type firmware_handler: FirmwareHandler
+        """
+        self.logger.debug(f"Firmware handler: {firmware_handler}")
+        if self.file_management is None:
             raise RuntimeError(
-                "Both ActuatorStatusProvider and ActuationHandler "
-                "must be provided for device with actuators."
+                "File management must be enabled before firmware update"
+            )
+        self.firmware_update = OSFirmwareUpdate(
+            firmware_handler, self._on_firmware_update_status
+        )
+
+        message = self.message_factory.make_from_firmware_version(
+            self.firmware_update.get_current_version()
+        )
+        self.message_queue.put(message)
+        self.firmware_update.report_result()
+
+        return self
+
+    def with_custom_message_queue(self, message_queue: MessageQueue):
+        """
+        Set custom means of storing serialized messages.
+
+        :param message_queue: Custom message queue
+        :type message_queue: MessageQueue
+        """
+        self.logger.debug(f"Message queue: {message_queue}")
+        if not isinstance(message_queue, MessageQueue):
+            raise ValueError(
+                f"Provided message queue does not implement MessageQueue"
             )
 
-        if self.firmware_update:
-            message = self.message_factory.make_from_firmware_version(
-                self.firmware_update.get_current_version()
-            )
-            self.message_queue.put(message)
-            self.firmware_update.report_result()
+        self.message_queue = message_queue
+
+        return self
+
+    def with_custom_protocol(
+        self,
+        message_factory: MessageFactory,
+        message_deserializer: MessageDeserializer,
+    ):
+        """
+        Provide a custom protocol to use for communication with the Platform.
+
+        :param message_factory: Creator of messages to be sent to the Platform
+        :type message_factory: MessageFactory
+        :param message_deserializer: Deserializer of messages from the Platform
+        :type message_deserializer: MessageDeserializer
+        """
+        self.logger.debug(
+            f"Message factory: {message_factory} ; "
+            f"message deserializer: {message_deserializer}"
+        )
+        if not isinstance(message_factory, MessageFactory):
+            raise ValueError("Invalid message factory provided")
+        self.message_factory = message_factory
+
+        if not isinstance(message_deserializer, MessageDeserializer):
+            raise RuntimeError("Invalid message deserializer provided")
+        self.message_deserializer = message_deserializer
+
+        return self
+
+    def with_custom_connectivity(
+        self, connectivity_service: ConnectivityService
+    ):
+        """
+        Provide a custom way to communicate with the Platform.
+
+        :param connectivity_service: Custom connectivity service
+        :type connectivity_service: ConnectivityService
+        """
+        self.logger.debug(f"Connectivity service: {connectivity_service}")
+        if not isinstance(connectivity_service, ConnectivityService):
+            raise ValueError("Invalid connectivity service provided")
+        self.connectivity_service = connectivity_service
+        self.connectivity_service.set_inbound_message_listener(
+            self._on_inbound_message
+        )
+
+        return self
 
     def connect(self) -> None:
         """
@@ -405,8 +400,9 @@ class WolkConnect:
 
         if self.connectivity_service.is_connected():
 
-            for reference in self.device.actuator_references:
-                self.publish_actuator_status(reference)
+            if self.actuator_status_provider:
+                for reference in self.device.actuator_references:
+                    self.publish_actuator_status(reference)
             if self.configuration_provider:
                 self.publish_configuration()
             if self.file_management:
