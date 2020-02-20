@@ -55,11 +55,6 @@ def main():
         password="some_password",
         actuator_references=actuator_references,
     )
-    file_management_configuration = {
-        "preferred_package_size": 1024 * 1024,
-        "max_file_size": 100 * 1024 * 1024,
-        "file_directory": "files",
-    }
     firmware_version = "1.0"
 
     class Actuator:
@@ -131,9 +126,6 @@ def main():
 
     # Extend this class to handle the installing of the firmware file
     class MyFirmwareHandler(wolk.FirmwareHandler):
-        def __init__(self):
-            pass
-
         def install_firmware(self, firmware_file_path: str) -> None:
             """Handle the installing of the firmware file here."""
             print("Installing firmware from path: " + firmware_file_path)
@@ -144,27 +136,45 @@ def main():
             """Return current firmware version."""
             return firmware_version
 
-    # Pass your device, actuation handler and actuator status provider
-    # Pass configuration handler and provider
-    # Enable file management by setting setting preferred sizes in bytes
-    # Enable firmware update by passing a firmware handler
-    wolk_device = wolk.WolkConnect(
-        device=device,
-        actuation_handler=actuation_handler,
-        actuator_status_provider=actuator_status_provider,
-        configuration_handler=configuration_handler,
-        configuration_provider=configuration_provider,
-        file_management_configuration=file_management_configuration,
-        firmware_handler=MyFirmwareHandler(),
-        host="api-demo.wolkabout.com",
-        port=8883,
-        ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+    # Pass device and optionally connection details
+    # Provided connection details are the default value
+    # Provide actuation handler and actuator status provider via with_actuators
+    # Provide configuration provider/handler via with_configuration
+    # Enable file management and firmware update via their respective methods
+    wolk_device = (
+        wolk.WolkConnect(
+            device=device,
+            host="api-demo.wolkabout.com",
+            port=8883,
+            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+        )
+        .with_actuators(
+            actuation_handler=actuation_handler,
+            actuator_status_provider=actuator_status_provider,
+        )
+        .with_configuration(
+            configuration_handler=configuration_handler,
+            configuration_provider=configuration_provider,
+        )
+        .with_file_management(
+            preferred_package_size=1000 * 1000,
+            max_file_size=100 * 1000 * 1000,
+            file_directory="files",
+        )
+        .with_firmware_update(firmware_handler=MyFirmwareHandler())
+        # Possibility to provide custom implementations for some features
+        # .with_custom_protocol(message_factory, message_deserializer)
+        # .with_custom_connectivity(connectivity_service)
+        # .with_custom_message_queue(message_queue)
     )
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
 
+    # Successfully connecting to the platform will publish device configuration
+    # all actuator statuses, files present on device, current firmware version
+    # and the result of a firmware update if it occurred
     wolk_device.publish_configuration()
     wolk_device.publish_actuator_status("SW")
     wolk_device.publish_actuator_status("SL")
@@ -192,6 +202,17 @@ def main():
             wolk_device.add_sensor_reading("H", humidity, timestamp)
             wolk_device.add_sensor_reading("P", pressure, timestamp)
             wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
+
+            # Alternative for adding multiple readings at once
+            # wolk_device.add_sensor_readings(
+            #     {
+            #         "T": temperature,
+            #         "H": humidity,
+            #         "P": pressure,
+            #         "ACL": accelerometer,
+            #     },
+            #     timestamp,
+            # )
 
             # Publishes all sensor readings and alarms from the queue
             # to the WolkAbout IoT Platform
