@@ -1,4 +1,4 @@
-```sh
+```console
 
 ██╗    ██╗ ██████╗ ██╗     ██╗  ██╗ ██████╗ ██████╗ ███╗   ██╗███╗   ██╗███████╗ ██████╗████████╗
 ██║    ██║██╔═══██╗██║     ██║ ██╔╝██╔════╝██╔═══██╗████╗  ██║████╗  ██║██╔════╝██╔════╝╚══██╔══╝
@@ -30,21 +30,21 @@ Supported device communication protocols:
 
 ## Installation
 
-```sh
+```console
 python3.7 -m pip install wolk-connect
 ```
 
 ### Installing from source
 
 Clone this repository from the command line using:
-```sh
+```console
 git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
 Install dependencies by invoking `python3.7 -m pip install -r requirements.txt`
 
 Install the package by running:
-```python
+```console
 python3.7 setup.py install
 ```
 
@@ -63,16 +63,16 @@ import wolk
 device = wolk.Device(
     key="device_key",
     password="some_password",
-    actuator_references=["SW", "SL"]
+    actuator_references=["SW", "SL"],
 )
 
 
 # Provide implementation of a way to read actuator status
 def actuator_status_provider(reference):
     if reference == actuator_references[0]:
-        return wolk.ActuatorState.READY, switch.value
+        return (wolk.ActuatorState.READY, switch.value)
     elif reference == actuator_references[1]:
-        return wolk.ActuatorState.READY, slider.value
+        return (wolk.ActuatorState.READY, slider.value)
 
     return wolk.ActuatorState.ERROR, None
 
@@ -89,7 +89,7 @@ def actuation_handler(reference, value):
 
 # Provide implementation of a configuration handler
 def configuration_handler(configuration):
-    for reference, value in configuration.items():
+    for (reference, value) in configuration.items():
         if reference in configurations:
             configurations[reference] = value
 
@@ -103,17 +103,22 @@ def configuration_provider():
 # Pass configuration handler and provider
 # Pass server info and path to ca.crt for secure connection
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
-wolk_device = wolk.WolkConnect(
-    device=device,
-    actuation_handler=actuation_handler,
-    actuator_status_provider=actuator_status_provider,
-    configuration_handler=configuration_handler,
-    configuration_provider=configuration_provider,
-    host="api-demo.wolkabout.com",
-    port=8883,
-    ca_cert="path/to/ca.crt"
+wolk_device = (
+    wolk.WolkConnect(
+        device=device,
+        host="api-demo.wolkabout.com",
+        port=8883,
+        ca_cert="path/to/ca.crt",
+    )
+    .with_actuators(
+        actuation_handler=actuation_handler,
+        actuator_status_provider=actuator_status_provider,
+    )
+    .with_configuration(
+        configuration_handler=configuration_handler,
+        configuration_provider=configuration_provider,
+    )
 )
-
 wolk_device.connect()
 ```
 
@@ -131,7 +136,7 @@ wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
 
 Optionally pass a `timestamp` as `int(round(time.time() * 1000))`.  
 This is useful for maintaining data history when readings are not published immediately after adding them to storage.
-If `timestamp` is not provided, the Platform will assign a timestamp once it receives it.
+If `timestamp` is not provided, the Platform will assign a timestamp once it receives the reading.
 
 ### Adding events
 ```python
@@ -195,9 +200,8 @@ In cases when provided in-file persistence is suboptimal, one can use custom per
 
 ```python
 wolk_device = wolk.WolkConnect(
-    device=device,
-    message_queue=custom_queue
-)
+    device=device
+).with_custom_message_queue(custom_message_queue)
 wolk_device.connect()
 ```
 
@@ -213,13 +217,10 @@ See code snippet below on how to enable the file management module and device fi
 ```python
 # Extend this class to handle the installing of the firmware file
 class MyFirmwareHandler(wolk.FirmwareHandler):
-    def __init__(self):
-        pass
-
     def install_firmware(self, firmware_file_path):
         """Handle the installing of the firmware file here."""
-        print("Installing firmware from path: " + firmware_file_path)
-        os._exit(0)
+        print(f"Installing firmware from path: {firmware_file_path}")
+        sys.exit(0)
 
     def get_current_version(self):
         """Return current firmware version."""
@@ -227,14 +228,16 @@ class MyFirmwareHandler(wolk.FirmwareHandler):
 
 
 # Enable firmware update by passing a firmware handler
-wolk_device = wolk.WolkConnect(
-    device=device,
-    file_management_configuration={
-        "preferred_package_size": 1024 * 1024,  # In bytes
-        "max_file_size": 100 * 1024 * 1024,
-        "file_directory": "files",
-    },
-    firmware_update=MyFirmwareHandler(),
+wolk_device = (
+    wolk.WolkConnect(device=device)
+    .with_file_management(
+        preferred_package_size=1000 * 1000,
+        max_file_size=100 * 1000 * 1000,
+        file_directory="files",
+    )
+    .with_firmware_update(
+        firmware_handler=MyFirmwareHandler()
+    )
 )
 ```
 
