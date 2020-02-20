@@ -7,12 +7,12 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".." + os.sep + ".."))
 
+from wolk import __version__  # noqa
 
 # -- Project information -----------------------------------------------------
 
@@ -23,7 +23,7 @@ author = "WolkAbout"
 master_doc = "index"
 
 # The full version, including alpha/beta/rc tags
-release = "v4.0.0"
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -48,6 +48,7 @@ templates_path = ["_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+source_suffix = [".rst", ".md"]
 
 # -- Options for HTML output -------------------------------------------------
 

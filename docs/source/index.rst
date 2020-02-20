@@ -8,7 +8,7 @@ WolkConnect-Python
 	:maxdepth: 4
 
 	WolkConnect library<functional>
-	Examples<examples>
+	Readme<readme>
 	Wolk Package<wolk>
 
 Complete package documentation in :ref:`modindex`
