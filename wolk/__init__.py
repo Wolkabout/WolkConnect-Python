@@ -1,4 +1,3 @@
-# coding=utf-8
 """
 Module that provides connection to WolkAbout IoT Platform.
 
@@ -41,6 +40,12 @@ from .model.sensor_reading import SensorReading
 from .os_file_management import OSFileManagement
 from .os_firmware_update import OSFirmwareUpdate
 from .wolk_connect import WolkConnect
+from .wolkabout_protocol_message_factory import WolkAboutProtocolMessageFactory
+from .wolkabout_protocol_message_deserializer import (
+    WolkAboutProtocolMessageDeserializer,
+)
+from .mqtt_connectivity_service import MQTTConnectivityService
+from .message_deque import MessageDeque
 
 
 __all__ = [
@@ -75,5 +80,9 @@ __all__ = [
     "OSFirmwareUpdate",
     "logging_config",
     "WolkConnect",
+    "WolkAboutProtocolMessageFactory",
+    "WolkAboutProtocolMessageDeserializer",
+    "MQTTConnectivityService",
+    "MessageDeque",
     "__version__",
 ]
