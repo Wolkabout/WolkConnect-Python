@@ -1,4 +1,4 @@
-```sh
+```console
 
 ██╗    ██╗ ██████╗ ██╗     ██╗  ██╗ ██████╗ ██████╗ ███╗   ██╗███╗   ██╗███████╗ ██████╗████████╗
 ██║    ██║██╔═══██╗██║     ██║ ██╔╝██╔════╝██╔═══██╗████╗  ██║████╗  ██║██╔════╝██╔════╝╚══██╔══╝
@@ -31,21 +31,21 @@ Supported device communication protocols:
 
 ## Installation
 
-```sh
+```console
 python3.7 -m pip install wolk-connect
 ```
 
 ### Installing from source
 
 Clone this repository from the command line using:
-```sh
+```console
 git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
 Install dependencies by invoking `python3.7 -m pip install -r requirements.txt`
 
 Install the package by running:
-```python
+```console
 python3.7 setup.py install
 ```
 
@@ -61,18 +61,12 @@ import wolk
 
 # Setup the device credentials which you received
 # when the device was created on the platform
-device = wolk.Device(
-    key="device_key",
-    password="some_password"
-)
+device = wolk.Device(key="device_key", password="some_password")
 
 # Pass your device and server information
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
-    device,
-    host="api-demo.wolkabout.com",
-    port=8883,
-    ca_cert="path/to/ca.crt"
+    device, host="api-demo.wolkabout.com", port=8883, ca_cert="path/to/ca.crt"
 )
 
 wolk_device.connect()
@@ -93,7 +87,7 @@ wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
 
 Optionally pass a `timestamp` as `int(round(time.time() * 1000))`.  
 This is useful for maintaining data history when readings are not published immediately after adding them to storage.
-If `timestamp` is not provided, the Platform will assign a timestamp once it receives it.
+If `timestamp` is not provided, the Platform will assign a timestamp once it receives the reading.
 
 ### Data publish strategy
 
