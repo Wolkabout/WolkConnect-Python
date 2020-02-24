@@ -16,14 +16,12 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-from wolk.model.actuator_state import ActuatorState
+from wolk.model.state import State
 
 
 def get_actuator_status(
     reference: str,
-) -> Tuple[
-    ActuatorState, Optional[Union[bool, int, float, str]], Optional[int]
-]:
+) -> Tuple[State, Optional[Union[bool, int, float, str]], Optional[int]]:
     """
     Get current actuator status identified by reference.
 
@@ -31,7 +29,7 @@ def get_actuator_status(
     and returns it as a tuple containing the actuator state and current value.
 
     If unable to get current actuator value,
-    return `(ActuatorState.ERROR, None)`.
+    return `(State.ERROR, None)`.
 
     Optionally, the function can also return a timestamp as part of the tuple
     easily obtained with `int(round(time.time() * 1000))`.
@@ -42,6 +40,6 @@ def get_actuator_status(
     :param reference: Actuator reference
     :type reference: str
     :returns: (state, value, timestamp)
-    :rtype: (ActuatorState, bool or int or float or str or None, int or None)
+    :rtype: (State, bool or int or float or str or None, int or None)
     """
     raise NotImplementedError()

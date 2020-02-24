@@ -12,11 +12,14 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+import json
 import os
 import random
 import sys
 import time
+from traceback import print_exc
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -28,6 +31,92 @@ import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
 # wolk.logging_config("debug", "wolk.log")
+
+firmware_version = "1.0"
+configuration_file = "configuration.json"
+configuration_references = ["HB", "LL", "EF"]
+configurations = []
+
+ConfigurationValue = Union[
+    bool,
+    int,
+    Tuple[int, int],
+    Tuple[int, int, int],
+    float,
+    Tuple[float, float],
+    Tuple[float, float, float],
+    str,
+]
+
+
+def configuration_handler(
+    configuration: Dict[str, ConfigurationValue]
+) -> None:
+    """Provide a way to read device's configuration options."""
+    global configurations
+    try:
+        with open(configuration_file, "r+", encoding="utf-8") as handle:
+            stored = json.load(handle)
+            for key, value in configuration.items():
+                for stored_configuration in stored:
+                    for stored_key, stored_value in stored.items():
+                        if stored_key == "reference":
+                            if stored_configuration["value"] == value:
+                                continue
+                            if isinstance(value, tuple):
+                                stored_configuration["value"] = list(value)
+                            else:
+                                stored_configuration["value"] = value
+                            stored_configuration["last_modified"] == int(
+                                round(time.time() * 1000)
+                            )
+            handle.seek(0)
+            json.dump(stored, handle, indent=4)
+            handle.truncate()
+            configurations = stored.copy()
+    except Exception:
+        print(
+            "Error occurred when handling configuration"
+            f" with file {configuration_file}"
+        )
+        print_exc()
+
+
+def configuration_provider() -> List[
+    Dict[str, Union[str, ConfigurationValue, wolk.State, int]]
+]:
+    """Provide a way to set device's configuration options."""
+    try:
+        with open(configuration_file, "r+", encoding="utf-8") as handle:
+            loaded = json.load(handle)
+            configurations = loaded
+            for configuration in configurations:
+                if isinstance(configuration["value"], list):
+                    if isinstance(configuration["value"][0], str):
+                        configuration["value"] = ",".join(
+                            configuration["value"]
+                        )
+                    else:
+                        configuration["value"] = tuple(configuration["value"])
+                configuration["status"] = wolk.State.READY
+            return configurations
+    except Exception:
+        print(
+            "Failed to get configuration " f"from file '{configuration_file}'"
+        )
+        print_exc()
+        configurations = []
+        timestamp = int(round(time.time() * 1000))
+        for reference in configuration_references:
+            configuration = {
+                "reference": reference,
+                "value": None,
+                "status": wolk.State.ERROR,
+                "last_modified": timestamp,
+            }
+            configurations.append(configuration)
+
+        return configurations
 
 
 def main():
@@ -55,7 +144,17 @@ def main():
         password="some_password",
         actuator_references=actuator_references,
     )
-    firmware_version = "1.0"
+    try:
+        global configurations
+        with open(configuration_file) as file:
+            configurations = json.load(file)
+    except Exception:
+        print(
+            "Failed load configuraiton options "
+            f"from file '{configuration_file}'"
+        )
+        print_exc()
+        sys.exit(1)
 
     class Actuator:
         def __init__(
@@ -66,40 +165,16 @@ def main():
     switch = Actuator(False)
     slider = Actuator(0)
 
-    ConfigurationValue = Union[
-        bool,
-        int,
-        Tuple[int, int],
-        Tuple[int, int, int],
-        float,
-        Tuple[float, float],
-        Tuple[float, float, float],
-        str,
-        Tuple[str, str],
-        Tuple[str, str, str],
-    ]
-
-    configurations: Dict[str, ConfigurationValue] = {
-        "config_1": 0,
-        "config_2": False,
-        "config_3": "configuration_3",
-        "config_4": (
-            "configuration_4a",
-            "configuration_4b",
-            "configuration_4c",
-        ),
-    }
-
     # Provide a way to read actuator status if your device has actuators
     def actuator_status_provider(
         reference: str,
-    ) -> Tuple[wolk.ActuatorState, Optional[Union[bool, int, float, str]]]:
+    ) -> Tuple[wolk.State, Optional[Union[bool, int, float, str]]]:
         if reference == actuator_references[0]:
-            return wolk.ActuatorState.READY, switch.value
+            return wolk.State.READY, switch.value
         elif reference == actuator_references[1]:
-            return wolk.ActuatorState.READY, slider.value
+            return wolk.State.READY, slider.value
 
-        return wolk.ActuatorState.ERROR, None
+        return wolk.State.ERROR, None
 
     # Provide an actuation handler if your device has actuators
     def actuation_handler(
@@ -112,23 +187,11 @@ def main():
         elif reference == actuator_references[1]:
             slider.value = value
 
-    # Provide a configuration handler if your device has configuration options
-    def configuration_handler(
-        configuration: Dict[str, ConfigurationValue]
-    ) -> None:
-        for reference, value in configuration.items():
-            if reference in configurations:
-                configurations[reference] = value
-
-    # Provide a way to read current device configuration
-    def configuration_provider() -> Dict[str, ConfigurationValue]:
-        return configurations
-
     # Extend this class to handle the installing of the firmware file
     class MyFirmwareHandler(wolk.FirmwareHandler):
         def install_firmware(self, firmware_file_path: str) -> None:
             """Handle the installing of the firmware file here."""
-            print("Installing firmware from path: " + firmware_file_path)
+            print(f"Installing firmware from path: {firmware_file_path}")
             time.sleep(5)
             sys.exit()
 
@@ -192,27 +255,35 @@ def main():
                 random.uniform(0, 100),
                 random.uniform(0, 100),
             )
-            if humidity > 50:
-                # Adds an alarm event to the queue
-                wolk_device.add_alarm("HH", True)
-            else:
-                wolk_device.add_alarm("HH", False)
-            # Adds a sensor reading to the queue
-            wolk_device.add_sensor_reading("T", temperature, timestamp)
-            wolk_device.add_sensor_reading("H", humidity, timestamp)
-            wolk_device.add_sensor_reading("P", pressure, timestamp)
-            wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
+            for configuration in configurations:
+                if configuration["reference"] == "HB":  # Heart beat
+                    publish_period_seconds = configuration["value"]
 
-            # Alternative for adding multiple readings at once
-            # wolk_device.add_sensor_readings(
-            #     {
-            #         "T": temperature,
-            #         "H": humidity,
-            #         "P": pressure,
-            #         "ACL": accelerometer,
-            #     },
-            #     timestamp,
-            # )
+                elif configuration["reference"] == "LL":  # Log level
+                    wolk.logging_config(configuration["value"])
+
+                elif configuration["reference"] == "EF":  # Enabled feeds
+                    if "T" in configuration["value"]:
+                        wolk_device.add_sensor_reading(
+                            "T", temperature, timestamp
+                        )
+                    if "H" in configuration["value"]:
+                        wolk_device.add_sensor_reading(
+                            "H", humidity, timestamp
+                        )
+                        if humidity > 50:
+                            # Adds an alarm event to the queue
+                            wolk_device.add_alarm("HH", True)
+                        else:
+                            wolk_device.add_alarm("HH", False)
+                    if "P" in configuration["value"]:
+                        wolk_device.add_sensor_reading(
+                            "P", pressure, timestamp
+                        )
+                    if "ACL" in configuration["value"]:
+                        wolk_device.add_sensor_reading(
+                            "ACL", accelerometer, timestamp
+                        )
 
             # Publishes all sensor readings and alarms from the queue
             # to the WolkAbout IoT Platform

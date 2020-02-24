@@ -1,4 +1,4 @@
-"""Actuator states as defined on WolkAbout IoT Platform."""
+"""States of actuators & configurations as defined on WolkAbout IoT Platform."""
 #   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,15 +17,15 @@ from enum import unique
 
 
 @unique
-class ActuatorState(Enum):
+class State(Enum):
     """
-    Enumeration of available actuator states.
+    Enumeration of available states.
 
-    :ivar BUSY: Actuator currently in busy state
+    :ivar BUSY: Currently in busy state
     :vartype BUSY: str
-    :ivar ERROR: Actuator currently in error state
+    :ivar ERROR: Currently in error state
     :vartype ERROR: str
-    :ivar READY: Actuator currently in ready state
+    :ivar READY: Currently in ready state
     :vartype READY: str
     """
 

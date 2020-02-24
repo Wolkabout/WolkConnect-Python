@@ -242,12 +242,12 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
-    def make_from_configuration(self, configuration: dict) -> Message:
+    def make_from_configuration(self, configuration: list) -> Message:
         """
         Report device's configuration to WolkAbout IoT Platform.
 
         :param configuration: Device's current configuration
-        :type configuration: dict
+        :type configuration: list
         :returns: message
         :rtype: Message
         """
@@ -257,18 +257,23 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + self.DEVICE_PATH_PREFIX
             + self.device_key
         )
+        payload: Dict[str, List[Dict[str, Union[str, int]]]] = {"values": []}
 
-        for reference, value in configuration.items():
-            if isinstance(value, tuple):
-                configuration[reference] = ",".join(map(str, value))
+        for config in configuration:
+            if isinstance(config["value"], tuple):
+                config["value"] = ",".join(map(str, (config["value"])))
 
-            elif isinstance(value, bool):
-                configuration[reference] = str(value).lower()
+            elif isinstance(config["value"], bool):
+                config["value"] = str(config["value"]).lower()
 
-            else:
-                configuration[reference] = str(value)
+            elif config["value"] is not None:
+                config["value"] = str(config["value"])
 
-        message = Message(topic, json.dumps({"values": configuration}))
+            config["status"] = config["status"].value
+            config["lastModified"] = config.pop("last_modified")
+            payload["values"].append(config)
+
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message

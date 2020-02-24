@@ -132,12 +132,12 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_configuration(self, configuration: dict) -> Message:
+    def make_from_configuration(self, configuration: list) -> Message:
         """
         Serialize device's configuration to be sent to WolkAbout IoT Platform.
 
         :param configuration: Device's current configuration
-        :type configuration: dict
+        :type configuration: list
         :returns: message
         :rtype: Message
         """

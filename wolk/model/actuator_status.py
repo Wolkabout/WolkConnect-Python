@@ -17,7 +17,7 @@ from dataclasses import field
 from typing import Optional
 from typing import Union
 
-from wolk.model.actuator_state import ActuatorState
+from wolk.model.state import State
 
 
 @dataclass
@@ -28,7 +28,7 @@ class ActuatorStatus:
     :ivar reference: Device actuator's reference as defined in device template
     :vartype reference: str
     :ivar state: Actuator's current state
-    :vartype state: ActuatorState
+    :vartype state: State
     :ivar value: Current value of actuator, None only for error state
     :vartype value: Optional[Union[bool, int, float, str]]
     :ivar state: Optional timestamp when reading occurred
@@ -36,6 +36,6 @@ class ActuatorStatus:
     """
 
     reference: str
-    state: ActuatorState
+    state: State
     value: Optional[Union[bool, int, float, str]] = field(default=None)
     timestamp: Optional[int] = field(default=None)

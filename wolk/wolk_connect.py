@@ -30,7 +30,6 @@ from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
 from wolk.model.actuator_command import ActuatorCommandType
-from wolk.model.actuator_state import ActuatorState
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
 from wolk.model.configuration_command import ConfigurationCommandType
@@ -44,6 +43,7 @@ from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
+from wolk.model.state import State
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
 from wolk.os_file_management import OSFileManagement
 from wolk.os_firmware_update import OSFirmwareUpdate
@@ -63,12 +63,10 @@ ConfigurationValue = Union[
     Tuple[float, float],
     Tuple[float, float, float],
     str,
-    Tuple[str, str],
-    Tuple[str, str, str],
 ]
 
 ActuatorValue = Tuple[
-    ActuatorState, Optional[Union[bool, int, float, str]], Optional[int]
+    State, Optional[Union[bool, int, float, str]], Optional[int]
 ]
 
 ReadingValue = Union[

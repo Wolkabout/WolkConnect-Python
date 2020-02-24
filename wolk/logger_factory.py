@@ -1,3 +1,4 @@
+"""LoggerFactory Module."""
 #   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +12,8 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-"""LoggerFactory Module."""
 import logging
+from typing import List
 
 
 class LoggerFactory:
@@ -42,6 +43,7 @@ class LoggerFactory:
         self.log_format = log_format
         self.console = console
         self.log_file = log_file
+        self.loggers: List[logging.Logger] = []
 
     def get_logger(self, name, level=None):
         """
@@ -84,11 +86,21 @@ class LoggerFactory:
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 
+        self.loggers.append(logger)
         return logger
 
 
 # Logging levels available: NOTSET, INFO, DEBUG
 logger_factory = LoggerFactory(level=logging.INFO)
+
+LEVELS = {
+    "debug": logging.DEBUG,
+    "info": logging.INFO,
+    "warning": logging.WARNING,
+    "error": logging.ERROR,
+    "critical": logging.CRITICAL,
+    "notset": logging.NOTSET,
+}
 
 
 def logging_config(level, log_file=None):
@@ -100,12 +112,19 @@ def logging_config(level, log_file=None):
     :param log_file: path to log file
     :type log_file: str or None
     """
-    if level == "debug":
-        logger_factory.level = logging.DEBUG
-    elif level == "info":
-        logger_factory.level = logging.INFO
-    elif level == "notset":
-        logger_factory.level = logging.NOTSET
-
     if log_file is not None:
         logger_factory.log_file = log_file
+
+    if level not in LEVELS:
+        print(f"Invalid level '{level}'")
+        return
+
+    if LEVELS[level] == logger_factory.level:
+        return
+
+    logger_factory.level = LEVELS[level]
+
+    for logger in logger_factory.loggers:
+        logger.setLevel(logger_factory.level)
+        for handler in logger.handlers:
+            handler.setLevel(logger_factory.level)

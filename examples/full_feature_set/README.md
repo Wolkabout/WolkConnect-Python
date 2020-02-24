@@ -70,11 +70,11 @@ device = wolk.Device(
 # Provide implementation of a way to read actuator status
 def actuator_status_provider(reference):
     if reference == actuator_references[0]:
-        return (wolk.ActuatorState.READY, switch.value)
+        return (wolk.State.READY, switch.value)
     elif reference == actuator_references[1]:
-        return (wolk.ActuatorState.READY, slider.value)
+        return (wolk.State.READY, slider.value)
 
-    return wolk.ActuatorState.ERROR, None
+    return wolk.State.ERROR, None
 
 
 # Provide implementation of an actuation handler
@@ -96,7 +96,7 @@ def configuration_handler(configuration):
 
 # Provide a way to read current device configuration
 def configuration_provider():
-    return configurations
+    return configurations  # See main.py for details
 
 
 # Pass your device, actuation handler and actuator status provider

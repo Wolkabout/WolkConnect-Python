@@ -29,8 +29,6 @@ def handle_configuration(
             Tuple[int, int, int],
             Tuple[float, float],
             Tuple[float, float, float],
-            Tuple[str, str],
-            Tuple[str, str, str],
         ],
     ],
 ) -> None:

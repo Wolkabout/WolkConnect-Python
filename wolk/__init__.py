@@ -21,7 +21,7 @@ from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
 from .model.actuator_command import ActuatorCommand
 from .model.actuator_command import ActuatorCommandType
-from .model.actuator_state import ActuatorState
+from .model.state import State
 from .model.actuator_status import ActuatorStatus
 from .model.alarm import Alarm
 from .model.configuration_command import ConfigurationCommand
@@ -51,7 +51,7 @@ from .message_deque import MessageDeque
 __all__ = [
     "ActuatorCommand",
     "ActuatorCommandType",
-    "ActuatorState",
+    "State",
     "ActuatorStatus",
     "Alarm",
     "ConfigurationCommand",

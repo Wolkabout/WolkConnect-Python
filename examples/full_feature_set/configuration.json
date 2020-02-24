@@ -1,0 +1,17 @@
+[
+    {
+        "reference": "HB",
+        "value": 5,
+        "last_modified": 1582119595260
+    },
+    {
+        "reference": "LL",
+        "value": "info",
+        "last_modified": 1582119595260
+    },
+    {
+        "reference": "EF",
+        "value": ["T", "P", "H", "ACL"],
+        "last_modified": 1582119595260
+    }
+]
