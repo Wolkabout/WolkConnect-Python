@@ -42,7 +42,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
             :param firmware_file_path: Path where the firmware file is located
             :type firmware_file_path: str
             """
-            pass
+            raise NotImplementedError()
 
         def get_current_version(self) -> str:
             """
@@ -51,7 +51,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
             :returns: version
             :rtpe: str
             """
-            pass
+            raise NotImplementedError()
 
     def test_invalid_firmware_handler(self):
         """Test passing an invalid firmware handler."""
