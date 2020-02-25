@@ -47,17 +47,29 @@ class TestLoggerFactory(unittest.TestCase):
 
         os.remove(test_log)
 
+    def test_logging_config_logger_only_log_file(self):
+        """Test getting logger only with log file."""
+        test_log = "test.log"
+        logger_factory.logging_config("info", test_log)
+        logger_factory.logger_factory.console = False
+        logger = logger_factory.logger_factory.get_logger("test")
+        self.assertIsInstance(logger.handlers[0], logging.FileHandler)
+
+        logger_factory.logger_factory.console = True
+        logger.handlers[0].close()
+        logger.removeHandler(logger.handlers[0])
+        logger_factory.logger_factory.log_file = None
+        import os
+
+        os.remove(test_log)
+
     def test_logging_config_debug(self):
         """Test setting log level to debug."""
         logger_factory.logging_config("debug")
         self.assertEqual(logging.DEBUG, logger_factory.logger_factory.level)
 
-    def test_logging_config_info(self):
-        """Test setting log level to info."""
+    def test_logging_config_info_then_invalid(self):
+        """Test setting log level to info and then to invalid value."""
         logger_factory.logging_config("info")
+        logger_factory.logging_config("invalid")
         self.assertEqual(logging.INFO, logger_factory.logger_factory.level)
-
-    def test_logging_config_notset(self):
-        """Test setting log level to notset."""
-        logger_factory.logging_config("notset")
-        self.assertEqual(logging.NOTSET, logger_factory.logger_factory.level)
