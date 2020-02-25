@@ -71,5 +71,5 @@ class TestLoggerFactory(unittest.TestCase):
     def test_logging_config_info_then_invalid(self):
         """Test setting log level to info and then to invalid value."""
         logger_factory.logging_config("info")
-        logger_factory.logging_config("invalid")
+        logger_factory.logging_config("tests")
         self.assertEqual(logging.INFO, logger_factory.logger_factory.level)
