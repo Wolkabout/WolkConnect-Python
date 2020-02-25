@@ -74,16 +74,6 @@ class OSFirmwareUpdate(FirmwareUpdate):
         self.logger.debug(
             f"Handling install command with path path: {file_path}"
         )
-        if not self.firmware_handler:
-
-            self.current_status = FirmwareUpdateStatus(
-                FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
-            )
-            self.logger.error("No firmware handler set!")
-            self.status_callback(self.current_status)
-            self._reset_state()
-            return
 
         if self.current_status is not None:
 
