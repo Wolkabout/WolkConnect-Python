@@ -54,6 +54,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     FILE_URL_DOWNLOAD_INITIATE = "p2d/file_url_download_initiate/"
     FIRMWARE_UPDATE_ABORT = "p2d/firmware_update_abort/"
     FIRMWARE_UPDATE_INSTALL = "p2d/firmware_update_install/"
+    FIRMWARE_VERSION_REQUEST = "p2d/firmware_version_request/"
 
     def __init__(self, device: Device) -> None:
         """
@@ -91,6 +92,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             + self.DEVICE_PATH_DELIMITER
             + device.key,
             self.FIRMWARE_UPDATE_INSTALL
+            + self.DEVICE_PATH_DELIMITER
+            + device.key,
+            self.FIRMWARE_VERSION_REQUEST
             + self.DEVICE_PATH_DELIMITER
             + device.key,
         ]
@@ -173,6 +177,24 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             f"{message.topic} is firmware abort: {firmware_update_abort}"
         )
         return firmware_update_abort
+
+    def is_firmware_version_request(self, message: Message) -> bool:
+        """
+        Check if message is firmware version request.
+
+        :param message: The message received
+        :type message: Message
+        :returns: firmware_version_request
+        :rtype: bool
+        """
+        firmware_version_request = message.topic.startswith(
+            self.FIRMWARE_VERSION_REQUEST
+        )
+        self.logger.debug(
+            f"{message.topic} is firmware "
+            f"version request: {firmware_version_request}"
+        )
+        return firmware_version_request
 
     def is_file_binary_response(self, message: Message) -> bool:
         """

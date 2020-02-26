@@ -60,6 +60,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         WAPMD.FIRMWARE_UPDATE_INSTALL
         + WAPMD.DEVICE_PATH_DELIMITER
         + device.key,
+        WAPMD.FIRMWARE_VERSION_REQUEST
+        + WAPMD.DEVICE_PATH_DELIMITER
+        + device.key,
     ]
     for reference in device.actuator_references:
         expected_topics.append(
@@ -113,6 +116,13 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         message = Message(WAPMD.FIRMWARE_UPDATE_ABORT, None)
 
         self.assertTrue(deserializer.is_firmware_abort(message))
+
+    def test_is_firmware_version_request(self):
+        """Test if message is firmware version request command."""
+        deserializer = WAPMD(self.device)
+        message = Message(WAPMD.FIRMWARE_VERSION_REQUEST, None)
+
+        self.assertTrue(deserializer.is_firmware_version_request(message))
 
     def test_is_file_binary(self):
         """Test if message is file binary."""

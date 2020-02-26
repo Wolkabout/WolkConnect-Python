@@ -85,6 +85,18 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def is_firmware_version_request(self, message: Message) -> bool:
+        """
+        Check if message is firmware version request.
+
+        :param message: The message received
+        :type message: Message
+        :returns: firmware_version_request
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def is_file_binary_response(self, message: Message) -> bool:
         """
         Check if message is file binary message.

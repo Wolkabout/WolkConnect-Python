@@ -120,9 +120,21 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_firmware_version(self, version: str) -> Message:
+    def make_from_firmware_version_update(self, version: str) -> Message:
         """
         Report the device's current firmware version to WolkAbout IoT Platform.
+
+        :param version: Current device firmware version
+        :type version: str
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_firmware_version_response(self, version: str) -> Message:
+        """
+        Respond to request with the device's current firmware version.
 
         :param version: Current device firmware version
         :type version: str

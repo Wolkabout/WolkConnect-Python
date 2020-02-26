@@ -881,8 +881,8 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(expected_message, serialized_message)
 
-    def test_firmware_version(self):
-        """Test message for firmware version."""
+    def test_firmware_version_update(self):
+        """Test message for firmware version update."""
         device_key = "some_key"
         factory = WAPMF(device_key)
         version = "v1.0.0"
@@ -894,7 +894,26 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         )
         expected_payload = version
         expected_message = Message(expected_topic, expected_payload)
-        serialized_message = factory.make_from_firmware_version(version)
+        serialized_message = factory.make_from_firmware_version_update(version)
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_firmware_version_response(self):
+        """Test message for firmware version response."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+        version = "v1.0.0"
+
+        expected_topic = (
+            WAPMF.FIRMWARE_VERSION_RESPONSE
+            + WAPMF.DEVICE_PATH_PREFIX
+            + device_key
+        )
+        expected_payload = version
+        expected_message = Message(expected_topic, expected_payload)
+        serialized_message = factory.make_from_firmware_version_response(
+            version
+        )
 
         self.assertEqual(expected_message, serialized_message)
 

@@ -302,7 +302,7 @@ class WolkConnect:
             firmware_handler, self._on_firmware_update_status
         )
 
-        message = self.message_factory.make_from_firmware_version(
+        message = self.message_factory.make_from_firmware_version_update(
             self.firmware_update.get_current_version()
         )
         self.message_queue.put(message)
@@ -412,7 +412,7 @@ class WolkConnect:
                     self.message_queue.put(message)
             if self.firmware_update:
                 version = self.firmware_update.get_current_version()
-                message = self.message_factory.make_from_firmware_version(
+                message = self.message_factory.make_from_firmware_version_update(
                     version
                 )
                 if not self.connectivity_service.publish(message):
@@ -646,6 +646,7 @@ class WolkConnect:
         firmware_update_messages = [
             self.message_deserializer.is_firmware_install,
             self.message_deserializer.is_firmware_abort,
+            self.message_deserializer.is_firmware_version_request,
         ]
 
         if self.message_deserializer.is_actuation_command(message):
@@ -828,6 +829,14 @@ class WolkConnect:
             self.firmware_update.handle_abort()
             return
 
+        if self.message_deserializer.is_firmware_version_request(message):
+            message = self.message_factory.make_from_firmware_version_response(
+                self.firmware_update.get_current_version()
+            )
+            if not self.connectivity_service.publish(message):
+                self.message_queue.put(message)
+            return
+
     def _on_package_request(
         self, file_name: str, chunk_index: int, chunk_size: int
     ) -> None:
@@ -862,7 +871,9 @@ class WolkConnect:
             and self.firmware_update
         ):
             version = self.firmware_update.get_current_version()
-            message = self.message_factory.make_from_firmware_version(version)
+            message = self.message_factory.make_from_firmware_version_update(
+                version
+            )
             if self.connectivity_service.is_connected():
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)

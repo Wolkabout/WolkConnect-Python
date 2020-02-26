@@ -51,6 +51,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     DEVICE_STATUS = "d2p/device_status_update/"
     FILE_BINARY_REQUEST = "d2p/file_binary_request/"
     FIRMWARE_VERSION_UPDATE = "d2p/firmware_version_update/"
+    FIRMWARE_VERSION_RESPONSE = "d2p/firmware_version_response/"
     FIRMWARE_UPDATE_STATUS = "d2p/firmware_update_status/"
     FILE_LIST_UPDATE = "d2p/file_list_update/"
     FILE_LIST_RESPONSE = "d2p/file_list_response/"
@@ -452,7 +453,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
-    def make_from_firmware_version(self, version: str) -> Message:
+    def make_from_firmware_version_update(self, version: str) -> Message:
         """
         Report the current version of firmware to WolkAbout IoT Platform.
 
@@ -464,6 +465,26 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         self.logger.debug(f"version: {version}")
         topic = (
             self.FIRMWARE_VERSION_UPDATE
+            + self.DEVICE_PATH_PREFIX
+            + self.device_key
+        )
+        message = Message(topic, str(version))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_firmware_version_response(self, version: str) -> Message:
+        """
+        Respond to request with the device's current firmware version.
+
+        :param version: Current device firmware version
+        :type version: str
+        :returns: message
+        :rtype: Message
+        """
+        self.logger.debug(f"version: {version}")
+        topic = (
+            self.FIRMWARE_VERSION_RESPONSE
             + self.DEVICE_PATH_PREFIX
             + self.device_key
         )
