@@ -106,7 +106,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             file.write(self.firmware_handler.get_current_version())
 
         self.current_status = FirmwareUpdateStatus(
-            FirmwareUpdateStatusType.INSTALLATION
+            FirmwareUpdateStatusType.INSTALLING
         )
         self.logger.info(
             "Beginning firmware installation process "
