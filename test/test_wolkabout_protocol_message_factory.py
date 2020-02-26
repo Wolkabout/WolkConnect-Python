@@ -834,7 +834,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test message for firmware update status."""
         device_key = "some_key"
         factory = WAPMF(device_key)
-        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.INSTALLATION)
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.INSTALLING)
         expected_topic = (
             WAPMF.FIRMWARE_UPDATE_STATUS
             + WAPMF.DEVICE_PATH_PREFIX
