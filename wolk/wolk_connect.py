@@ -238,15 +238,15 @@ class WolkConnect:
         )
 
         if not callable(configuration_handler):
-            raise RuntimeError(f"{configuration_handler} is not a callable!")
+            raise ValueError(f"{configuration_handler} is not a callable!")
         if len(signature(configuration_handler).parameters) != 1:
-            raise RuntimeError(f"{configuration_handler} invalid signature!")
+            raise ValueError(f"{configuration_handler} invalid signature!")
         self.configuration_handler = configuration_handler
 
         if not callable(configuration_provider):
-            raise RuntimeError(f"{configuration_provider} is not a callable!")
+            raise ValueError(f"{configuration_provider} is not a callable!")
         if len(signature(configuration_provider).parameters) != 0:
-            raise RuntimeError(f"{configuration_provider} invalid signature!")
+            raise ValueError(f"{configuration_provider} invalid signature!")
         self.configuration_provider = configuration_provider
 
         return self
@@ -349,7 +349,7 @@ class WolkConnect:
         self.message_factory = message_factory
 
         if not isinstance(message_deserializer, MessageDeserializer):
-            raise RuntimeError("Invalid message deserializer provided")
+            raise ValueError("Invalid message deserializer provided")
         self.message_deserializer = message_deserializer
 
         return self
@@ -536,7 +536,7 @@ class WolkConnect:
             return
 
         actuator_status = self.actuator_status_provider(reference)
-        if actuator_status[0] is None:
+        if actuator_status is None:
             self.logger.error(
                 "Actuator status provider did not return "
                 f"status for reference '{reference}'"
@@ -663,7 +663,7 @@ class WolkConnect:
                     actuation.reference, actuation.value  # type: ignore
                 )
                 self.publish_actuator_status(actuation.reference)
-            elif actuation.command == ActuatorCommandType.GET:
+            else:
                 self.publish_actuator_status(actuation.reference)
             return
 
@@ -685,7 +685,7 @@ class WolkConnect:
             ):
                 self.configuration_handler(configuration.value)  # type: ignore
                 self.publish_configuration()
-            elif configuration.command == ConfigurationCommandType.GET:
+            else:
                 self.publish_configuration()
             return
 
@@ -724,7 +724,7 @@ class WolkConnect:
                 self.file_management.handle_upload_initiation(
                     name, size, fhash
                 )
-                return
+            return
 
         if self.message_deserializer.is_file_binary_response(message):
             package = self.message_deserializer.parse_file_binary(message)
@@ -768,7 +768,7 @@ class WolkConnect:
                 )
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
-                return
+            return
 
         if self.message_deserializer.is_file_purge_command(message):
             self.file_management.handle_file_purge()
@@ -783,6 +783,8 @@ class WolkConnect:
         if self.message_deserializer.is_file_list_confirm(message):
             self.file_management.handle_file_list_confirm()
             return
+
+        self.logger.warning(f"Received unknown message: {message}")
 
     def _on_firmware_message(self, message: Message) -> None:
         if not self.firmware_update:
@@ -800,14 +802,11 @@ class WolkConnect:
                 self.message_queue.put(message)
             return
 
-        if (
-            self.message_deserializer.is_firmware_install(message)
-            and self.file_management
-        ):
+        if self.message_deserializer.is_firmware_install(message):
             file_name = self.message_deserializer.parse_firmware_install(
                 message
             )
-            file_path = self.file_management.get_file_path(file_name)
+            file_path = self.file_management.get_file_path(file_name)  # type: ignore
             if not file_path:
                 self.logger.error(
                     f"Specified file not found on device! Message: {message}"
