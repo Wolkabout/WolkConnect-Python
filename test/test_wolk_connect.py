@@ -31,6 +31,14 @@ from wolk.model.device_state import DeviceState
 from wolk.model.state import State
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.message import Message
+from wolk.model.firmware_update_status import (
+    FirmwareUpdateStatus,
+    FirmwareUpdateStatusType,
+)
+from wolk.model.file_management_status import (
+    FileManagementStatus,
+    FileManagementStatusType,
+)
 from wolk.interface.firmware_handler import FirmwareHandler
 from wolk.message_deque import MessageDeque
 from wolk.wolkabout_protocol_message_deserializer import (
@@ -1698,9 +1706,6 @@ class TestWolkConnect(unittest.TestCase):
         firmware_handler.get_current_version = MagicMock(return_value="1.0")
         wolk_device.with_firmware_update(firmware_handler)
         message = Message("some_topic", "payload")
-        wolk_device.connectivity_service.publish = MagicMock(
-            return_value=False
-        )
         wolk_device.message_deserializer.is_firmware_install = MagicMock(
             return_value=True
         )
@@ -1709,6 +1714,9 @@ class TestWolkConnect(unittest.TestCase):
         )
         wolk_device.file_management.get_file_path = MagicMock(
             return_value=None
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
         )
         wolk_device.message_queue.put = MagicMock()
 
@@ -1780,3 +1788,547 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.firmware_update.handle_install.assert_called_once_with(
             "file"
         )
+
+    def test_on_firmware_message_firmware_abort(self):
+        """Test abort command calls handle abort."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+        message = Message("some_topic", "payload")
+        wolk_device.message_deserializer.is_firmware_abort = MagicMock(
+            return_value=True
+        )
+        wolk_device.firmware_update.handle_abort = MagicMock()
+        wolk_device._on_firmware_message(message)
+
+        wolk_device.firmware_update.handle_abort.assert_called_once_with()
+
+    def test_on_firmware_message_firmware_version_request_fail_to_publish(
+        self,
+    ):
+        """Test receiving version request and fail to publish response."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+        message = Message("some_topic", "payload")
+        wolk_device.message_deserializer.is_firmware_version_request = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_factory.make_from_firmware_version_response = MagicMock(
+            return_value="1.0"
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_firmware_message(message)
+
+        wolk_device.message_queue.put.assert_called_once()
+
+    def test_on_firmware_message_firmware_version_request_bulishes(self,):
+        """Test receiving version request and publishes response."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+        message = Message("some_topic", "payload")
+        wolk_device.message_deserializer.is_firmware_version_request = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_factory.make_from_firmware_version_response = MagicMock(
+            return_value="1.0"
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_firmware_message(message)
+
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_firmware_message_unknown(self,):
+        """Test receiving unknown firmware message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+        message = Message("some_topic", "payload")
+        wolk_device.logger.warning = MagicMock()
+
+        wolk_device._on_firmware_message(message)
+
+        wolk_device.logger.warning.assert_called_once()
+
+    def test_on_package_request_fails_to_publish(self):
+        """Test making package request and failing to send it."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        wolk_device.message_factory.make_from_package_request = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_package_request("file", 0, 64)
+
+        wolk_device.message_queue.put.assert_called_once()
+
+    def test_on_package_request_publishes(self):
+        """Test making package request and publishing it."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        wolk_device.message_factory.make_from_package_request = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_package_request("file", 0, 64)
+
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_firmware_update_status_not_connected(self):
+        """Test on firmware update status call when not connected."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.INSTALLING)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        wolk_device.connectivity_service.publish = MagicMock()
+        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
+            return_value=True
+        )
+        wolk_device._on_firmware_update_status(status)
+
+        wolk_device.connectivity_service.publish.assert_not_called()
+
+    def test_on_firmware_update_status_fail_to_publish(self):
+        """Test on firmware update status and fail to publish."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.INSTALLING)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_queue.put = MagicMock()
+        wolk_device._on_firmware_update_status(status)
+
+        wolk_device.message_queue.put.assert_called_once()
+
+    def test_on_firmware_update_status_publishes(self):
+        """Test on firmware update status and publishes the message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.INSTALLING)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_queue.put = MagicMock()
+        wolk_device._on_firmware_update_status(status)
+
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_firmware_update_status_completed_not_connected(self):
+        """Test on firmware status completed and not connected."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.COMPLETED)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        wolk_device.connectivity_service.publish = MagicMock()
+        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_factory.make_from_firmware_version_update = MagicMock(
+            return_value=True
+        )
+        wolk_device._on_firmware_update_status(status)
+
+        wolk_device.connectivity_service.publish.assert_not_called()
+
+    def test_on_firmware_update_status_completed_fail_to_publish(self):
+        """Test on firmware status completed and fail to publish."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.COMPLETED)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_factory.make_from_firmware_version_update = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_queue.put = MagicMock()
+        wolk_device._on_firmware_update_status(status)
+
+        self.assertEqual(2, wolk_device.message_queue.put.call_count)
+
+    def test_on_firmware_update_status_completed_publishes(self):
+        """Test on firmware status completed and publishes message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+        firmware_handler = self.MockFirmwareHandler()
+        firmware_handler.get_current_version = MagicMock(return_value="1.0")
+        wolk_device.with_firmware_update(firmware_handler)
+
+        status = FirmwareUpdateStatus(FirmwareUpdateStatusType.COMPLETED)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_factory.make_from_firmware_version_update = MagicMock(
+            return_value=True
+        )
+        wolk_device.message_queue.put = MagicMock()
+        wolk_device._on_firmware_update_status(status)
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_file_upload_status_fail_to_publish(self):
+        """Test on file upload status and fail to publish message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_management_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        status = FileManagementStatus(FileManagementStatusType.FILE_TRANSFER)
+        file_name = "file"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_upload_status(file_name, status)
+
+        wolk_device.message_queue.put.assert_called_once()
+
+    def test_on_file_upload_status_publishes(self):
+        """Test on file upload status and publishes message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_management_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        status = FileManagementStatus(FileManagementStatusType.FILE_TRANSFER)
+        file_name = "file"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_upload_status(file_name, status)
+
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_file_upload_status_file_ready_fail_to_publish(self):
+        """Test on file upload status and fail to publish message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_management_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_factory.make_from_file_list_update = MagicMock(
+            return_value=True
+        )
+        wolk_device.file_management.get_file_list = MagicMock()
+        status = FileManagementStatus(FileManagementStatusType.FILE_READY)
+        file_name = "file"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_upload_status(file_name, status)
+
+        self.assertEqual(2, wolk_device.message_queue.put.call_count)
+
+    def test_on_file_upload_status_file_ready_published(self):
+        """Test on file upload status and publishes message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_management_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_factory.make_from_file_list_update = MagicMock(
+            return_value=True
+        )
+        wolk_device.file_management.get_file_list = MagicMock()
+        status = FileManagementStatus(FileManagementStatusType.FILE_READY)
+        file_name = "file"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_upload_status(file_name, status)
+
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_file_url_status_fail_to_publish(self):
+        """Test on file url status and fail to publish update."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_url_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        status = FileManagementStatus(FileManagementStatusType.FILE_TRANSFER)
+        file_url = "file_url"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_url_status(file_url, status)
+
+        wolk_device.message_queue.put.assert_called_once()
+
+    def test_on_file_url_status_publishes(self):
+        """Test on file url status and publishes update."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_url_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        status = FileManagementStatus(FileManagementStatusType.FILE_TRANSFER)
+        file_url = "file_url"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_url_status(file_url, status)
+
+        wolk_device.message_queue.put.assert_not_called()
+
+    def test_on_file_url_status_with_file_name_fail_to_publish(self):
+        """Test on url upload status and fail to publish message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_management_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_factory.make_from_file_url_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.file_management.get_file_list = MagicMock()
+        status = FileManagementStatus(FileManagementStatusType.FILE_READY)
+        file_name = "file"
+        file_url = "file_url"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_url_status(file_url, status, file_name)
+
+        self.assertEqual(2, wolk_device.message_queue.put.call_count)
+
+    def test_on_file_url_status_with_file_name_publishes(self):
+        """Test on url upload status and publishes message.."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(
+            256, 1024, file_directory
+        )
+        os.rmdir(file_directory)
+
+        wolk_device.message_factory.make_from_file_management_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_factory.make_from_file_url_status = MagicMock(
+            return_value=True
+        )
+        wolk_device.file_management.get_file_list = MagicMock()
+        status = FileManagementStatus(FileManagementStatusType.FILE_READY)
+        file_name = "file"
+        file_url = "file_url"
+        wolk_device.message_queue.put = MagicMock()
+
+        wolk_device._on_file_url_status(file_url, status, file_name)
+
+        wolk_device.message_queue.put.assert_not_called()

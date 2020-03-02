@@ -835,6 +835,7 @@ class WolkConnect:
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
             return
+        self.logger.warning(f"Recevied unknown firmware message: {message}")
 
     def _on_package_request(
         self, file_name: str, chunk_index: int, chunk_size: int
@@ -863,8 +864,9 @@ class WolkConnect:
         :type status: FirmwareUpdateStatus
         """
         message = self.message_factory.make_from_firmware_update_status(status)
-        if not self.connectivity_service.publish(message):
-            self.message_queue.put(message)
+        if self.connectivity_service.is_connected():
+            if not self.connectivity_service.publish(message):
+                self.message_queue.put(message)
         if (
             status.status == FirmwareUpdateStatusType.COMPLETED
             and self.firmware_update
