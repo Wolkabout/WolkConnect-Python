@@ -1705,6 +1705,7 @@ class TestWolkConnect(unittest.TestCase):
         firmware_handler = self.MockFirmwareHandler()
         firmware_handler.get_current_version = MagicMock(return_value="1.0")
         wolk_device.with_firmware_update(firmware_handler)
+        wolk_device.logger.setLevel(logging.CRITICAL)
         message = Message("some_topic", "payload")
         wolk_device.message_deserializer.is_firmware_install = MagicMock(
             return_value=True
@@ -1738,6 +1739,7 @@ class TestWolkConnect(unittest.TestCase):
         firmware_handler = self.MockFirmwareHandler()
         firmware_handler.get_current_version = MagicMock(return_value="1.0")
         wolk_device.with_firmware_update(firmware_handler)
+        wolk_device.logger.setLevel(logging.CRITICAL)
         message = Message("some_topic", "payload")
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_deserializer.is_firmware_install = MagicMock(
@@ -1771,6 +1773,7 @@ class TestWolkConnect(unittest.TestCase):
         firmware_handler = self.MockFirmwareHandler()
         firmware_handler.get_current_version = MagicMock(return_value="1.0")
         wolk_device.with_firmware_update(firmware_handler)
+        wolk_device.logger.setLevel(logging.CRITICAL)
         message = Message("some_topic", "payload")
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_deserializer.is_firmware_install = MagicMock(
