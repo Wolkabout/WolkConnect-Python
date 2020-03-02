@@ -80,10 +80,14 @@ class MQTTConnectivityService(ConnectivityService):
             f"Port: {self.port} ; "
             f"CA certificate: {self.ca_cert}"
         )
-        self.client = mqtt.Client()
+        self.client = mqtt.Client(
+            client_id=self.device.key, clean_session=True
+        )
         self.inbound_message_listener: Callable[
             [Message], None
         ] = lambda message: print("\n\nNo inbound message listener set!\n\n")
+        self.timeout: Optional[int] = None
+        self.timeout_interval = 10
 
     def is_connected(self) -> bool:
         """
@@ -107,15 +111,15 @@ class MQTTConnectivityService(ConnectivityService):
         self.inbound_message_listener = listener
 
     def on_mqtt_message(
-        self, client: mqtt.Client, userdata: Any, message: mqtt.MQTTMessage
+        self, _client: mqtt.Client, _userdata: Any, message: mqtt.MQTTMessage
     ) -> None:
         """
         Serialize inbound messages and pass them to inbound message listener.
 
-        :param client: Client that received the message
-        :type client: paho.mqtt.Client
-        :param userdata: Private user data set in Client()
-        :type userdata: str
+        :param _client: Client that received the message
+        :type _client: paho.mqtt.Client
+        :param _userdata: Private user data set in Client()
+        :type _userdata: str
         :param message: Class with members: topic, payload, qos, retain.
         :type message: paho.mqtt.MQTTMessage
         """
@@ -133,17 +137,21 @@ class MQTTConnectivityService(ConnectivityService):
         self.inbound_message_listener(received_message)
 
     def on_mqtt_connect(
-        self, client: mqtt.Client, _userdata: Any, flags: int, return_code: int
+        self,
+        _client: mqtt.Client,
+        _userdata: Any,
+        _flags: int,
+        return_code: int,
     ) -> None:
         """
         Handle when the client receives a CONNACK response from the server.
 
-        :param client: Client that received the message
-        :type client: paho.mqtt.Client
+        :param _client: Client that received the message
+        :type _client: paho.mqtt.Client
         :param _userdata: private user data set in Client()
         :type _userdata: str
-        :param flags: Response flags sent by the broker
-        :type flags: int
+        :param _flags: Response flags sent by the broker
+        :type _flags: int
         :param return_code: Connection result
         :type return_code: int
         """
@@ -174,13 +182,13 @@ class MQTTConnectivityService(ConnectivityService):
             self.connected_rc = 5
 
     def on_mqtt_disconnect(
-        self, client: mqtt.Client, _userdata: Any, return_code: int
+        self, _client: mqtt.Client, _userdata: Any, return_code: int
     ) -> None:
         """
         Handle when the client disconnects from the broker.
 
-        :param client: Client that received the message
-        :type client: paho.mqtt.Client
+        :param _client: Client that received the message
+        :type _client: paho.mqtt.Client
         :param _userdata: private user data set in Client()
         :type _userdata: str
         :param return_code: Disconnection result
@@ -209,15 +217,18 @@ class MQTTConnectivityService(ConnectivityService):
         if self.connected:
             return True
 
-        self.client = mqtt.Client(
-            client_id=self.device.key, clean_session=True
-        )
         self.client.on_connect = self.on_mqtt_connect
         self.client.on_disconnect = self.on_mqtt_disconnect
         self.client.on_message = self.on_mqtt_message
         if self.ca_cert:
-            self.client.tls_set(self.ca_cert)
-            self.client.tls_insecure_set(True)
+            try:
+                self.client.tls_set(self.ca_cert)
+                self.client.tls_insecure_set(True)
+            except Exception as exception:
+                self.logger.exception(
+                    f"Something went wrong when setting TLS: {exception}"
+                )
+                return False
         self.client.username_pw_set(self.device.key, self.device.password)
         self.client.will_set(
             self.last_will_message.topic,
@@ -235,19 +246,20 @@ class MQTTConnectivityService(ConnectivityService):
         try:
             self.client.connect(self.host, self.port)
         except Exception as exception:
-            self.logger.error(
+            self.logger.exception(
                 f"Something went wrong while connecting: {exception}"
             )
             return False
 
         self.client.loop_start()
 
-        timeout = round(time()) + 10
+        self.timeout = round(time()) + self.timeout_interval
 
         while True:
 
-            if round(time()) > timeout:
+            if round(time()) > self.timeout:
                 self.logger.warning("Connection timed out!")
+                self.timeout = None
                 return False
 
             if self.connected_rc is None:
@@ -256,32 +268,43 @@ class MQTTConnectivityService(ConnectivityService):
 
             if self.connected_rc == 0:
                 self.logger.info("Connected!")
+                self.timeout = None
                 break
 
             if self.connected_rc == 1:
                 self.logger.warning(
                     "Connection refused - incorrect protocol version"
                 )
+                self.timeout = None
                 return False
 
             if self.connected_rc == 2:
                 self.logger.warning(
                     "Connection refused - invalid client identifier"
                 )
+                self.timeout = None
                 return False
 
             if self.connected_rc == 3:
                 self.logger.warning("Connection refused - server unavailable")
+                self.timeout = None
                 return False
 
             if self.connected_rc == 4:
                 self.logger.warning(
                     "Connection refused - bad username or password"
                 )
+                self.timeout = None
                 return False
 
             if self.connected_rc == 5:
                 self.logger.warning("Connection refused - not authorised")
+                self.timeout = None
+                return False
+
+            if self.connected_rc not in list(range(6)):
+                self.logger.warning("Unknown retun code")
+                self.timeout = None
                 return False
 
         self.logger.debug(f"Subscribing to topics: {self.topics}")
@@ -292,7 +315,6 @@ class MQTTConnectivityService(ConnectivityService):
     def disconnect(self) -> None:
         """Disconnects the device from the WolkAbout IoT Platform."""
         self.logger.debug("Disconnecting")
-        self.client.publish("lastwill/" + self.device.key, "Gone offline")
         self.client.loop_stop()
         self.client.disconnect()
 
