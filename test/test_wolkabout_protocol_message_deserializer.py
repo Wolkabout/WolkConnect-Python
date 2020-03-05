@@ -15,6 +15,7 @@
 import json
 import logging
 import sys
+import time
 import unittest
 
 sys.path.append("..")  # noqa
@@ -31,7 +32,7 @@ from wolk.wolkabout_protocol_message_deserializer import (
 )
 
 
-class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
+class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     """Tests for deserializing messages using WolkAbout Protocol."""
 
     device = Device(
@@ -41,6 +42,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
     )
 
     expected_topics = [
+        WAPMD.TIMESTAMP_RESPONSE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.CONFIGURATION_GET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.CONFIGURATION_SET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FILE_BINARY_RESPONSE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
@@ -814,3 +816,37 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         self.assertEqual(
             expected, deserializer.parse_file_initiate(incoming_message)
         )
+
+    def test_parse_timestamp_response(self):
+        """Test deserializing timestamp response message."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+
+        expected = int(round(time.time() * 1000))
+        incoming_topic = (
+            WAPMD.TIMESTAMP_RESPONSE
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = str(expected).encode()
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, deserializer.parse_timestamp_response(incoming_message)
+        )
+
+    def test_is_timestamp_response(self):
+        """Test determining if message is timestamp response."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+
+        expected = int(round(time.time() * 1000))
+        incoming_topic = (
+            WAPMD.TIMESTAMP_RESPONSE
+            + WAPMD.DEVICE_PATH_DELIMITER
+            + self.device.key
+        )
+        incoming_payload = str(expected).encode()
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertTrue(deserializer.is_timestamp_response(incoming_message))

@@ -39,6 +39,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     DEVICE_PATH_DELIMITER = "d/"
     REFERENCE_PATH_PREFIX = "r/"
     CHANNEL_DELIMITER = "/"
+    TIMESTAMP_RESPONSE = "p2d/timestamp_response/"
     ACTUATOR_GET = "p2d/actuator_get/"
     ACTUATOR_SET = "p2d/actuator_set/"
     CONFIGURATION_GET = "p2d/configuration_get/"
@@ -69,6 +70,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{device}")
 
         self.inbound_topics = [
+            self.TIMESTAMP_RESPONSE + self.DEVICE_PATH_DELIMITER + device.key,
             self.CONFIGURATION_GET + self.DEVICE_PATH_DELIMITER + device.key,
             self.CONFIGURATION_SET + self.DEVICE_PATH_DELIMITER + device.key,
             self.FILE_BINARY_RESPONSE
@@ -126,6 +128,21 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :rtype: List[str]
         """
         return self.inbound_topics
+
+    def is_timestamp_response(self, message: Message) -> bool:
+        """
+        Check if message is a response to a timestamp request message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: timestamp_response
+        :rtype: bool
+        """
+        timestamp_response = message.topic.startswith(self.TIMESTAMP_RESPONSE)
+        self.logger.debug(
+            f"{message.topic} is timestamp response: {timestamp_response}"
+        )
+        return timestamp_response
 
     def is_actuation_command(self, message: Message) -> bool:
         """
@@ -600,3 +617,17 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 f"Received invalid file upload initiate message: {message}"
             )
             return "", 0, ""
+
+    def parse_timestamp_response(self, message: Message) -> int:
+        """
+        Parse the message into a timestamp integer.
+
+        :param message: The message received
+        :type message: Message
+        :returns: timestamp
+        :rtype: int
+        """
+        self.logger.debug(f"{message}")
+        timestamp = int(message.payload.decode("utf-8"))  # type: ignore
+        self.logger.debug(f"timestamp: {timestamp}")
+        return timestamp

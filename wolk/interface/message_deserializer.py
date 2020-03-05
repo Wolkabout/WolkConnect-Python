@@ -37,6 +37,18 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def is_timestamp_response(self, message: Message) -> bool:
+        """
+        Check if message is a response to a timestamp request message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: timestamp_response
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def is_actuation_command(self, message: Message) -> bool:
         """
         Check if message is actuation command.
@@ -285,5 +297,17 @@ class MessageDeserializer(ABC):
         :type message: Message
         :returns: file_name
         :rtype: str
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def parse_timestamp_response(self, message: Message) -> int:
+        """
+        Parse the message into a timestamp integer.
+
+        :param message: The message received
+        :type message: Message
+        :returns: timestamp
+        :rtype: int
         """
         raise NotImplementedError()

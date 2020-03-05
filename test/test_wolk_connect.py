@@ -2335,3 +2335,107 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device._on_file_url_status(file_url, status, file_name)
 
         wolk_device.message_queue.put.assert_not_called()
+
+    def test_request_timestamp_not_connected(self):
+        """Test requesting timestamp when not connected."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        wolk_device.logger.warning = MagicMock()
+        response_dictionary = {}
+
+        wolk_device.request_timestamp(response_dictionary)
+        wolk_device.logger.warning.assert_called_once()
+
+    def test_request_timestamp_fail_to_publish(self):
+        """Test requesting timestamp when it fails to publish."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_factory.make_from_timestamp_request = MagicMock(
+            return_value=True
+        )
+
+        wolk_device.logger.error = MagicMock()
+        response_dictionary = {}
+
+        wolk_device.request_timestamp(response_dictionary)
+        wolk_device.logger.error.assert_called_once()
+
+    def test_request_timestamp_publishes(self):
+        """Test requesting timestamp when publishes."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_factory.make_from_timestamp_request = MagicMock(
+            return_value=True
+        )
+
+        wolk_device.logger.error = MagicMock()
+        response_dictionary = {}
+
+        wolk_device.request_timestamp(response_dictionary)
+        wolk_device.logger.error.assert_not_called()
+
+    def test_on_inbound_message_timestamp_request_no_dict(self):
+        """Test receiving timestamp response with no dictionary set."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.message_deserializer.is_timestamp_response = MagicMock(
+            return_value=True
+        )
+        wolk_device.timestamp_response_dictionary = None
+        wolk_device.logger.warning = MagicMock()
+        message = Message("some_message")
+
+        wolk_device._on_inbound_message(message)
+        wolk_device.logger.warning.assert_called_once()
+
+    def test_on_inbound_message_timestamp_request_updates_dict(self):
+        """Test receiving timestamp response with no dictionary set."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.message_deserializer.is_timestamp_response = MagicMock(
+            return_value=True
+        )
+        response_dictionary = {}
+        wolk_device.timestamp_response_dictionary = response_dictionary
+        wolk_device.logger.warning = MagicMock()
+        message = Message("some_message")
+        timestamp = 12
+        wolk_device.message_deserializer.parse_timestamp_response = MagicMock(
+            return_value=timestamp
+        )
+
+        wolk_device._on_inbound_message(message)
+        self.assertIn("timestamp", response_dictionary)

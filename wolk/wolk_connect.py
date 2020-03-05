@@ -14,6 +14,7 @@
 #   limitations under the License.
 import os
 from inspect import signature
+from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Optional
@@ -184,6 +185,8 @@ class WolkConnect:
         self.connectivity_service.set_inbound_message_listener(
             self._on_inbound_message
         )
+
+        self.timestamp_response_dictionary: Optional[Dict[str, Any]] = None
 
     def with_actuators(
         self,
@@ -616,6 +619,28 @@ class WolkConnect:
             self.logger.error("Failed to publish device status!")
             # No point in placing message in storage
 
+    def request_timestamp(self, response_dictionary: Dict[str, Any]) -> None:
+        """
+        Request the current UTC timestamp of the server.
+
+        When the response is received, it will be stored
+        into the `response_dictionary` under the key `timestamp`.
+
+        :param response_dictionary: Dictionary where to store timestamp
+        :type response_dictionary: Dict[str, Any]
+        """
+        if not self.connectivity_service.is_connected():
+            self.logger.warning("Not connected, unable to publish message!")
+            return
+        self.logger.debug("Publishing timestamp request")
+
+        self.timestamp_response_dictionary = response_dictionary
+
+        message = self.message_factory.make_from_timestamp_request()
+        if not self.connectivity_service.publish(message):
+            self.logger.error("Failed to publish timestamp request!")
+            # No point in placing message in storage
+
     def _on_inbound_message(self, message: Message) -> None:
         """
         Handle inbound messages.
@@ -648,6 +673,19 @@ class WolkConnect:
             self.message_deserializer.is_firmware_abort,
             self.message_deserializer.is_firmware_version_request,
         ]
+
+        if self.message_deserializer.is_timestamp_response(message):
+            if self.timestamp_response_dictionary is None:
+                self.logger.warning(
+                    f"Received unexpected timestamp response: {message}"
+                )
+                return
+            timestamp = self.message_deserializer.parse_timestamp_response(
+                message
+            )
+            self.timestamp_response_dictionary.update({"timestamp": timestamp})
+            self.logger.info(f"Received server timestamp {timestamp}")
+            return
 
         if self.message_deserializer.is_actuation_command(message):
             if not self.actuation_handler or not self.actuator_status_provider:

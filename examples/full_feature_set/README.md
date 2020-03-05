@@ -241,6 +241,18 @@ wolk_device = (
 )
 ```
 
+### Timestamp request
+
+If you need access to the server's current time, you can request it in the following manner:
+```python
+# Create a dictionary where the eventual response will be stored into
+utility = {}
+
+wolk_device.request_timestamp(utility)
+# The response will be logged and stored into the provided dictionary
+# updating the `timestamp` key with the current UTC timestamp of the server
+```
+
 ### Debugging
 Logging is enabled by default to info level.
 
