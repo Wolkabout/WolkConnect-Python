@@ -535,3 +535,67 @@ class TestOSFileManagement(unittest.TestCase):
 
         file_management._timeout()
         file_management.handle_file_upload_abort.assert_called_once()
+
+    def test_handle_file_url_download_init_not_idle(self):
+        """Test URL upload init when not in idle state."""
+        mock_status_callback = MagicMock(return_value=None)
+        mock_packet_request_callback = MagicMock(return_value=None)
+        mock_url_status_callback = MagicMock(return_value=None)
+
+        file_management = OSFileManagement(
+            mock_status_callback,
+            mock_packet_request_callback,
+            mock_url_status_callback,
+        )
+        file_management.logger.setLevel(logging.CRITICAL)
+        file_management.logger.warning = MagicMock()
+        file_management.current_status = True
+
+        file_management.handle_file_url_download_initiation("some_url")
+        file_management.logger.warning.assert_called_once()
+
+    def test_handle_file_url_download_init_invalid_url(self):
+        """Test URL upload init for invalid url."""
+        mock_status_callback = MagicMock(return_value=None)
+        mock_packet_request_callback = MagicMock(return_value=None)
+        mock_url_status_callback = MagicMock(return_value=None)
+
+        file_management = OSFileManagement(
+            mock_status_callback,
+            mock_packet_request_callback,
+            mock_url_status_callback,
+        )
+        file_management.logger.setLevel(logging.CRITICAL)
+        file_management.logger.error = MagicMock()
+
+        file_management.handle_file_url_download_initiation("some_url")
+        file_management.logger.error.assert_called_once()
+
+    def test_handle_file_url_download_init_valid_url(self):
+        """Test URL upload init for valid url."""
+        mock_status_callback = MagicMock(return_value=None)
+        mock_packet_request_callback = MagicMock(return_value=None)
+        mock_url_status_callback = MagicMock(return_value=None)
+
+        file_management = OSFileManagement(
+            mock_status_callback,
+            mock_packet_request_callback,
+            mock_url_status_callback,
+        )
+        os.mkdir("test_dir")
+        file_management.file_directory = "test_dir"
+        file_management.logger.setLevel(logging.CRITICAL)
+        file_management.logger.error = MagicMock()
+
+        licence_url = (
+            "https://raw.githubusercontent.com/Wolkabout"
+            + "/WolkConnect-Python/master/LICENSE"
+        )
+
+        file_management.handle_file_url_download_initiation(licence_url)
+        status = FileManagementStatus(FileManagementStatusType.FILE_READY)
+        file_management.url_status_callback.assert_called_with(
+            licence_url, status, "LICENSE"
+        )
+        os.remove(os.path.join(os.getcwd(), "test_dir", "LICENSE"))
+        os.rmdir(os.path.join(os.getcwd(), "test_dir"))
