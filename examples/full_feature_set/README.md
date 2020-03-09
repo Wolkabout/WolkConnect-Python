@@ -30,6 +30,9 @@ Supported device communication protocols:
 
 ## Installation
 
+There are two ways to install this package
+
+### Installing with pip
 ```console
 python3.7 -m pip install wolk-connect
 ```
