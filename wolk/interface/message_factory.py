@@ -234,3 +234,13 @@ class MessageFactory(ABC):
         :rtype: Message
         """
         raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_timestamp_request(self) -> Message:
+        """
+        Serialize device's request for current UTC timestamp of the server.
+
+        :returns: Timestamp request message
+        :rtype: Message
+        """
+        raise NotImplementedError()

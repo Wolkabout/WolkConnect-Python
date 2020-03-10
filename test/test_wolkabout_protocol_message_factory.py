@@ -932,3 +932,17 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         serialized_message = factory.make_from_device_state(device_state)
 
         self.assertEqual(expected_message, serialized_message)
+
+    def test_timestamp_request(self):
+        """Test making timestamp message request."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+
+        expected_topic = (
+            WAPMF.TIMESTAMP_REQUEST + WAPMF.DEVICE_PATH_PREFIX + device_key
+        )
+        expected_payload = None
+        expected_message = Message(expected_topic, expected_payload)
+        serialized_message = factory.make_from_timestamp_request()
+
+        self.assertEqual(expected_message, serialized_message)

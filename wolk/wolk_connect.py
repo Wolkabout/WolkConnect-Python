@@ -14,6 +14,7 @@
 #   limitations under the License.
 import os
 from inspect import signature
+from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Optional
@@ -185,6 +186,8 @@ class WolkConnect:
             self._on_inbound_message
         )
 
+        self.timestamp_response_dictionary: Optional[Dict[str, Any]] = None
+
     def with_actuators(
         self,
         actuation_handler: Callable[[str, Union[bool, int, float, str]], None],
@@ -238,15 +241,15 @@ class WolkConnect:
         )
 
         if not callable(configuration_handler):
-            raise RuntimeError(f"{configuration_handler} is not a callable!")
+            raise ValueError(f"{configuration_handler} is not a callable!")
         if len(signature(configuration_handler).parameters) != 1:
-            raise RuntimeError(f"{configuration_handler} invalid signature!")
+            raise ValueError(f"{configuration_handler} invalid signature!")
         self.configuration_handler = configuration_handler
 
         if not callable(configuration_provider):
-            raise RuntimeError(f"{configuration_provider} is not a callable!")
+            raise ValueError(f"{configuration_provider} is not a callable!")
         if len(signature(configuration_provider).parameters) != 0:
-            raise RuntimeError(f"{configuration_provider} invalid signature!")
+            raise ValueError(f"{configuration_provider} invalid signature!")
         self.configuration_provider = configuration_provider
 
         return self
@@ -349,7 +352,7 @@ class WolkConnect:
         self.message_factory = message_factory
 
         if not isinstance(message_deserializer, MessageDeserializer):
-            raise RuntimeError("Invalid message deserializer provided")
+            raise ValueError("Invalid message deserializer provided")
         self.message_deserializer = message_deserializer
 
         return self
@@ -536,7 +539,7 @@ class WolkConnect:
             return
 
         actuator_status = self.actuator_status_provider(reference)
-        if actuator_status[0] is None:
+        if actuator_status is None:
             self.logger.error(
                 "Actuator status provider did not return "
                 f"status for reference '{reference}'"
@@ -616,6 +619,28 @@ class WolkConnect:
             self.logger.error("Failed to publish device status!")
             # No point in placing message in storage
 
+    def request_timestamp(self, response_dictionary: Dict[str, Any]) -> None:
+        """
+        Request the current UTC timestamp of the server.
+
+        When the response is received, it will be stored
+        into the `response_dictionary` under the key `timestamp`.
+
+        :param response_dictionary: Dictionary where to store timestamp
+        :type response_dictionary: Dict[str, Any]
+        """
+        if not self.connectivity_service.is_connected():
+            self.logger.warning("Not connected, unable to publish message!")
+            return
+        self.logger.debug("Publishing timestamp request")
+
+        self.timestamp_response_dictionary = response_dictionary
+
+        message = self.message_factory.make_from_timestamp_request()
+        if not self.connectivity_service.publish(message):
+            self.logger.error("Failed to publish timestamp request!")
+            # No point in placing message in storage
+
     def _on_inbound_message(self, message: Message) -> None:
         """
         Handle inbound messages.
@@ -649,6 +674,19 @@ class WolkConnect:
             self.message_deserializer.is_firmware_version_request,
         ]
 
+        if self.message_deserializer.is_timestamp_response(message):
+            if self.timestamp_response_dictionary is None:
+                self.logger.warning(
+                    f"Received unexpected timestamp response: {message}"
+                )
+                return
+            timestamp = self.message_deserializer.parse_timestamp_response(
+                message
+            )
+            self.timestamp_response_dictionary.update({"timestamp": timestamp})
+            self.logger.info(f"Received server timestamp {timestamp}")
+            return
+
         if self.message_deserializer.is_actuation_command(message):
             if not self.actuation_handler or not self.actuator_status_provider:
                 self.logger.warning(
@@ -663,7 +701,7 @@ class WolkConnect:
                     actuation.reference, actuation.value  # type: ignore
                 )
                 self.publish_actuator_status(actuation.reference)
-            elif actuation.command == ActuatorCommandType.GET:
+            else:
                 self.publish_actuator_status(actuation.reference)
             return
 
@@ -685,7 +723,7 @@ class WolkConnect:
             ):
                 self.configuration_handler(configuration.value)  # type: ignore
                 self.publish_configuration()
-            elif configuration.command == ConfigurationCommandType.GET:
+            else:
                 self.publish_configuration()
             return
 
@@ -724,7 +762,7 @@ class WolkConnect:
                 self.file_management.handle_upload_initiation(
                     name, size, fhash
                 )
-                return
+            return
 
         if self.message_deserializer.is_file_binary_response(message):
             package = self.message_deserializer.parse_file_binary(message)
@@ -768,7 +806,7 @@ class WolkConnect:
                 )
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
-                return
+            return
 
         if self.message_deserializer.is_file_purge_command(message):
             self.file_management.handle_file_purge()
@@ -783,6 +821,8 @@ class WolkConnect:
         if self.message_deserializer.is_file_list_confirm(message):
             self.file_management.handle_file_list_confirm()
             return
+
+        self.logger.warning(f"Received unknown message: {message}")
 
     def _on_firmware_message(self, message: Message) -> None:
         if not self.firmware_update:
@@ -800,14 +840,11 @@ class WolkConnect:
                 self.message_queue.put(message)
             return
 
-        if (
-            self.message_deserializer.is_firmware_install(message)
-            and self.file_management
-        ):
+        if self.message_deserializer.is_firmware_install(message):
             file_name = self.message_deserializer.parse_firmware_install(
                 message
             )
-            file_path = self.file_management.get_file_path(file_name)
+            file_path = self.file_management.get_file_path(file_name)  # type: ignore
             if not file_path:
                 self.logger.error(
                     f"Specified file not found on device! Message: {message}"
@@ -836,6 +873,7 @@ class WolkConnect:
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
             return
+        self.logger.warning(f"Recevied unknown firmware message: {message}")
 
     def _on_package_request(
         self, file_name: str, chunk_index: int, chunk_size: int
@@ -864,8 +902,9 @@ class WolkConnect:
         :type status: FirmwareUpdateStatus
         """
         message = self.message_factory.make_from_firmware_update_status(status)
-        if not self.connectivity_service.publish(message):
-            self.message_queue.put(message)
+        if self.connectivity_service.is_connected():
+            if not self.connectivity_service.publish(message):
+                self.message_queue.put(message)
         if (
             status.status == FirmwareUpdateStatusType.COMPLETED
             and self.firmware_update

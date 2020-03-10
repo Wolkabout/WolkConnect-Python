@@ -40,6 +40,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     CHANNEL_WILDCARD = "#"
     CHANNEL_DELIMITER = "/"
     LAST_WILL = "d2p/last_will/"
+    TIMESTAMP_REQUEST = "d2p/timestamp_request/"
     SENSOR_READING = "d2p/sensor_readings/"
     ALARM = "d2p/alarms/"
     ACTUATOR_SET = "p2d/actuator_set/"
@@ -489,6 +490,22 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + self.device_key
         )
         message = Message(topic, str(version))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_timestamp_request(self) -> Message:
+        """
+        Serialize device's request for current UTC timestamp of the server.
+
+        :returns: Timestamp request message
+        :rtype: Message
+        """
+        self.logger.debug("Make timestamp request")
+        topic = (
+            self.TIMESTAMP_REQUEST + self.DEVICE_PATH_PREFIX + self.device_key
+        )
+        message = Message(topic)
         self.logger.debug(f"{message}")
 
         return message

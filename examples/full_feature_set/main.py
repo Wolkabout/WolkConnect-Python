@@ -36,6 +36,7 @@ firmware_version = "1.0"
 configuration_file = "configuration.json"
 configuration_references = ["HB", "LL", "EF"]
 configurations = []
+utility = {}
 
 ConfigurationValue = Union[
     bool,
@@ -234,6 +235,10 @@ def main():
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
+
+    # Request the server's current UTC timestamp and
+    # store the response into a dictionary under the `timestamp` key as an int
+    wolk_device.request_timestamp(utility)
 
     # Successfully connecting to the platform will publish device configuration
     # all actuator statuses, files present on device, current firmware version
