@@ -18,13 +18,17 @@ import os
 
 from wolk.OSOutboundMessageQueue import OSOutboundMessageQueue
 from wolk.OSMQTTConnectivityService import OSMQTTConnectivityService
-from wolk.JsonSingleOutboundMessageFactory import JsonSingleOutboundMessageFactory
-from wolk.JsonSingleInboundMessageDeserializer import (
-    JsonSingleInboundMessageDeserializer
+from wolk.JsonSingleOutboundMessageFactory import (
+    JsonSingleOutboundMessageFactory,
 )
-from wolk.JsonProtocolOutboundMessageFactory import JsonProtocolOutboundMessageFactory
+from wolk.JsonSingleInboundMessageDeserializer import (
+    JsonSingleInboundMessageDeserializer,
+)
+from wolk.JsonProtocolOutboundMessageFactory import (
+    JsonProtocolOutboundMessageFactory,
+)
 from wolk.JsonProtocolInboundMessageDeserializer import (
-    JsonProtocolInboundMessageDeserializer
+    JsonProtocolInboundMessageDeserializer,
 )
 from wolk.OSFirmwareUpdate import OSFirmwareUpdate
 from wolk.OSKeepAliveService import OSKeepAliveService
@@ -45,8 +49,13 @@ from wolk.interfaces.ConfigurationHandler import ConfigurationHandler
 from wolk.interfaces.ConfigurationProvider import ConfigurationProvider
 from wolk.interfaces.OutboundMessageFactory import OutboundMessageFactory
 from wolk.interfaces.OutboundMessageQueue import OutboundMessageQueue
-from wolk.interfaces.InboundMessageDeserializer import InboundMessageDeserializer
+from wolk.interfaces.InboundMessageDeserializer import (
+    InboundMessageDeserializer,
+)
 from wolk.interfaces.ConnectivityService import ConnectivityService
+
+
+PING_KEEP_ALIVE_INTERVAL = 60
 
 
 class WolkConnect:
@@ -157,7 +166,9 @@ class WolkConnect:
         if actuator_status_provider is None:
             self.actuator_status_provider = None
         else:
-            if not isinstance(actuator_status_provider, ActuatorStatusProvider):
+            if not isinstance(
+                actuator_status_provider, ActuatorStatusProvider
+            ):
                 raise RuntimeError("Invalid actuator status provider provided")
             else:
                 self.actuator_status_provider = actuator_status_provider
@@ -204,8 +215,12 @@ class WolkConnect:
                     device.key
                 )
             else:
-                if not isinstance(outbound_message_factory, OutboundMessageFactory):
-                    raise RuntimeError("Invalid outbound message factory provided")
+                if not isinstance(
+                    outbound_message_factory, OutboundMessageFactory
+                ):
+                    raise RuntimeError(
+                        "Invalid outbound message factory provided"
+                    )
                 else:
                     self.outbound_message_factory = outbound_message_factory
 
@@ -217,9 +232,13 @@ class WolkConnect:
                 if not isinstance(
                     inbound_message_deserializer, InboundMessageDeserializer
                 ):
-                    raise RuntimeError("Invalid inbound message deserializer provided")
+                    raise RuntimeError(
+                        "Invalid inbound message deserializer provided"
+                    )
                 else:
-                    self.inbound_message_deserializer = inbound_message_deserializer
+                    self.inbound_message_deserializer = (
+                        inbound_message_deserializer
+                    )
 
         elif protocol == Protocol.JSON_PROTOCOL:
             if outbound_message_factory is None:
@@ -227,8 +246,12 @@ class WolkConnect:
                     device.key
                 )
             else:
-                if not isinstance(outbound_message_factory, OutboundMessageFactory):
-                    raise RuntimeError("Invalid outbound message factory provided")
+                if not isinstance(
+                    outbound_message_factory, OutboundMessageFactory
+                ):
+                    raise RuntimeError(
+                        "Invalid outbound message factory provided"
+                    )
                 else:
                     self.outbound_message_factory = outbound_message_factory
 
@@ -240,9 +263,13 @@ class WolkConnect:
                 if not isinstance(
                     inbound_message_deserializer, InboundMessageDeserializer
                 ):
-                    raise RuntimeError("Invalid inbound message deserializer provided")
+                    raise RuntimeError(
+                        "Invalid inbound message deserializer provided"
+                    )
                 else:
-                    self.inbound_message_deserializer = inbound_message_deserializer
+                    self.inbound_message_deserializer = (
+                        inbound_message_deserializer
+                    )
         else:
             raise RuntimeError("Unknown protocol specified - ", protocol)
 
@@ -276,17 +303,19 @@ class WolkConnect:
                     ca_cert=wolk_ca_cert,
                 )
 
-        self.connectivity_service.set_inbound_message_listener(self._on_inbound_message)
+        self.connectivity_service.set_inbound_message_listener(
+            self._on_inbound_message
+        )
 
         if keep_alive_enabled and protocol == Protocol.JSON_SINGLE:
-            keep_alive_interval_seconds = 600
+
             self.logger.debug(
-                "Keep alive enabled, interval: %s", keep_alive_interval_seconds
+                "Keep alive enabled, interval: %s", PING_KEEP_ALIVE_INTERVAL
             )
             self.keep_alive_service = OSKeepAliveService(
                 self.connectivity_service,
                 self.outbound_message_factory,
-                keep_alive_interval_seconds,
+                PING_KEEP_ALIVE_INTERVAL,
             )
         else:
             self.keep_alive_service = None
@@ -405,7 +434,9 @@ class WolkConnect:
         :type reference: str
         """
         self.logger.debug("publish_actuator_status started")
-        state, value = self.actuator_status_provider.get_actuator_status(reference)
+        state, value = self.actuator_status_provider.get_actuator_status(
+            reference
+        )
         actuator_status = ActuatorStatus(reference, state, value)
         outbound_message = self.outbound_message_factory.make_from_actuator_status(
             actuator_status
@@ -459,7 +490,10 @@ class WolkConnect:
 
         elif self.inbound_message_deserializer.is_configuration(message):
 
-            if not self.configuration_provider or not self.configuration_handler:
+            if (
+                not self.configuration_provider
+                or not self.configuration_handler
+            ):
                 return
 
             configuration = self.inbound_message_deserializer.deserialize_configuration_command(
@@ -467,7 +501,9 @@ class WolkConnect:
             )
 
             if configuration.command == ConfigurationCommandType.SET:
-                self.configuration_handler.handle_configuration(configuration.values)
+                self.configuration_handler.handle_configuration(
+                    configuration.values
+                )
                 self.publish_configuration()
 
             elif configuration.command == ConfigurationCommandType.CURRENT:
@@ -478,7 +514,8 @@ class WolkConnect:
             if not self.firmware_update:
                 # Firmware update disabled
                 firmware_status = FirmwareStatus(
-                    FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                    FirmwareStatusType.ERROR,
+                    FirmwareErrorType.FILE_UPLOAD_DISABLED,
                 )
                 outbound_message = self.outbound_message_factory.make_from_firmware_status(
                     firmware_status
@@ -515,7 +552,8 @@ class WolkConnect:
             if not self.firmware_update:
                 # Firmware update disabled
                 firmware_status = FirmwareStatus(
-                    FirmwareStatusType.ERROR, FirmwareErrorType.FILE_UPLOAD_DISABLED
+                    FirmwareStatusType.ERROR,
+                    FirmwareErrorType.FILE_UPLOAD_DISABLED,
                 )
                 outbound_message = self.outbound_message_factory.make_from_firmware_status(
                     firmware_status
@@ -558,7 +596,9 @@ class WolkConnect:
         :type status: wolk.models.FirmwareStatus.FirmwareStatus
         """
         self.logger.debug("_on_status started")
-        message = self.outbound_message_factory.make_from_firmware_status(status)
+        message = self.outbound_message_factory.make_from_firmware_status(
+            status
+        )
         if not self.connectivity_service.publish(message):
             self.outbound_message_queue.put(message)
         self.logger.debug("_on_status ended")
