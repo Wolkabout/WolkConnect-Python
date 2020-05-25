@@ -39,7 +39,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     DEVICE_PATH_DELIMITER = "d/"
     REFERENCE_PATH_PREFIX = "r/"
     CHANNEL_DELIMITER = "/"
-    TIMESTAMP_RESPONSE = "p2d/timestamp_response/"
     ACTUATOR_GET = "p2d/actuator_get/"
     ACTUATOR_SET = "p2d/actuator_set/"
     CONFIGURATION_GET = "p2d/configuration_get/"
@@ -55,7 +54,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     FILE_URL_DOWNLOAD_INITIATE = "p2d/file_url_download_initiate/"
     FIRMWARE_UPDATE_ABORT = "p2d/firmware_update_abort/"
     FIRMWARE_UPDATE_INSTALL = "p2d/firmware_update_install/"
-    FIRMWARE_VERSION_REQUEST = "p2d/firmware_version_request/"
 
     def __init__(self, device: Device) -> None:
         """
@@ -70,7 +68,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{device}")
 
         self.inbound_topics = [
-            self.TIMESTAMP_RESPONSE + self.DEVICE_PATH_DELIMITER + device.key,
             self.CONFIGURATION_GET + self.DEVICE_PATH_DELIMITER + device.key,
             self.CONFIGURATION_SET + self.DEVICE_PATH_DELIMITER + device.key,
             self.FILE_BINARY_RESPONSE
@@ -94,9 +91,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             + self.DEVICE_PATH_DELIMITER
             + device.key,
             self.FIRMWARE_UPDATE_INSTALL
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
-            self.FIRMWARE_VERSION_REQUEST
             + self.DEVICE_PATH_DELIMITER
             + device.key,
         ]
@@ -128,21 +122,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :rtype: List[str]
         """
         return self.inbound_topics
-
-    def is_timestamp_response(self, message: Message) -> bool:
-        """
-        Check if message is a response to a timestamp request message.
-
-        :param message: The message received
-        :type message: Message
-        :returns: timestamp_response
-        :rtype: bool
-        """
-        timestamp_response = message.topic.startswith(self.TIMESTAMP_RESPONSE)
-        self.logger.debug(
-            f"{message.topic} is timestamp response: {timestamp_response}"
-        )
-        return timestamp_response
 
     def is_actuation_command(self, message: Message) -> bool:
         """
@@ -194,24 +173,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             f"{message.topic} is firmware abort: {firmware_update_abort}"
         )
         return firmware_update_abort
-
-    def is_firmware_version_request(self, message: Message) -> bool:
-        """
-        Check if message is firmware version request.
-
-        :param message: The message received
-        :type message: Message
-        :returns: firmware_version_request
-        :rtype: bool
-        """
-        firmware_version_request = message.topic.startswith(
-            self.FIRMWARE_VERSION_REQUEST
-        )
-        self.logger.debug(
-            f"{message.topic} is firmware "
-            f"version request: {firmware_version_request}"
-        )
-        return firmware_version_request
 
     def is_file_binary_response(self, message: Message) -> bool:
         """
@@ -518,26 +479,13 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                     value = bool(strtobool(value))
                 if isinstance(value, str):
                     value = value.replace("\\n", "\n")
-                    if "," in value:
-                        try:
-                            if any("." in value for value in value.split(",")):
-                                value = tuple(
-                                    float(value) for value in value.split(",")
-                                )
-                            else:
-                                value = tuple(
-                                    int(value) for value in value.split(",")
-                                )
-                        except ValueError:
-                            value = tuple(value.split(","))
-                    else:
-                        try:
-                            if "." in value:
-                                value = float(value)
-                            else:
-                                value = int(value)
-                        except ValueError:
-                            pass
+                    try:
+                        if "." in value:
+                            value = float(value)
+                        else:
+                            value = int(value)
+                    except ValueError:
+                        pass
                 values[reference] = value
 
         configuration = ConfigurationCommand(command, values)
@@ -617,17 +565,3 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 f"Received invalid file upload initiate message: {message}"
             )
             return "", 0, ""
-
-    def parse_timestamp_response(self, message: Message) -> int:
-        """
-        Parse the message into a timestamp integer.
-
-        :param message: The message received
-        :type message: Message
-        :returns: timestamp
-        :rtype: int
-        """
-        self.logger.debug(f"{message}")
-        timestamp = int(message.payload.decode("utf-8"))  # type: ignore
-        self.logger.debug(f"timestamp: {timestamp}")
-        return timestamp

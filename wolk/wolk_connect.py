@@ -14,7 +14,6 @@
 #   limitations under the License.
 import os
 from inspect import signature
-from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import Optional
@@ -35,7 +34,6 @@ from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
 from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.device import Device
-from wolk.model.device_state import DeviceState
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
@@ -56,19 +54,10 @@ from wolk.wolkabout_protocol_message_factory import (
 )
 
 ConfigurationValue = Union[
-    bool,
-    int,
-    Tuple[int, int],
-    Tuple[int, int, int],
-    float,
-    Tuple[float, float],
-    Tuple[float, float, float],
-    str,
+    bool, int, float, str,
 ]
 
-ActuatorValue = Tuple[
-    State, Optional[Union[bool, int, float, str]], Optional[int]
-]
+ActuatorValue = Tuple[State, Optional[Union[bool, int, float, str]]]
 
 ReadingValue = Union[
     bool, int, Tuple[int, ...], float, Tuple[float, ...], str,
@@ -185,8 +174,6 @@ class WolkConnect:
         self.connectivity_service.set_inbound_message_listener(
             self._on_inbound_message
         )
-
-        self.timestamp_response_dictionary: Optional[Dict[str, Any]] = None
 
     def with_actuators(
         self,
@@ -323,7 +310,7 @@ class WolkConnect:
         self.logger.debug(f"Message queue: {message_queue}")
         if not isinstance(message_queue, MessageQueue):
             raise ValueError(
-                f"Provided message queue does not implement MessageQueue"
+                "Provided message queue does not implement MessageQueue"
             )
 
         self.message_queue = message_queue
@@ -414,9 +401,8 @@ class WolkConnect:
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
             if self.firmware_update:
-                version = self.firmware_update.get_current_version()
                 message = self.message_factory.make_from_firmware_version_update(
-                    version
+                    self.firmware_update.get_current_version()
                 )
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
@@ -443,7 +429,7 @@ class WolkConnect:
         :type reference: str
         :param value: The value of the sensor reading
         :type value: Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]
-        :param timestamp: Unix timestamp. If not provided, Platform will assign
+        :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
@@ -464,7 +450,7 @@ class WolkConnect:
 
         :param readings: Dictionary of reference: value pairs
         :type readings: Dict[str, Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]]
-        :param timestamp: Unix timestamp. If not provided, Platform will assign
+        :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
@@ -477,11 +463,7 @@ class WolkConnect:
         self.message_queue.put(message)
 
     def add_alarm(
-        self,
-        reference: str,
-        active: bool,
-        code: Optional[str] = None,
-        timestamp: Optional[int] = None,
+        self, reference: str, active: bool, timestamp: Optional[int] = None,
     ) -> None:
         """
         Publish an alarm to WolkAbout IoT Platform.
@@ -490,16 +472,14 @@ class WolkConnect:
         :type reference: str
         :param active: Current state of the alarm
         :type active: bool
-        :param code: Error code the alarm experienced
-        :type code: Optional[str]
-        :param timestamp: Unix timestamp. If not provided, Platform will assign
+        :param timestamp: Unix timestamp. If not provided, current time will be used
         :type timestamp: Optional[int]
         """
         self.logger.debug(
             f"Add alarm event: reference = '{reference}', "
-            f"active = {active}, code = {code}, timestamp = {timestamp}"
+            f"active = {active}, timestamp = {timestamp}"
         )
-        alarm = Alarm(reference, active, code, timestamp)
+        alarm = Alarm(reference, active, timestamp)
         message = self.message_factory.make_from_alarm(alarm)
         self.message_queue.put(message)
 
@@ -545,15 +525,8 @@ class WolkConnect:
                 f"status for reference '{reference}'"
             )
             return
-        if len(actuator_status) == 2:  # No timestamp
-            actuator_status = actuator_status + (None,)  # type: ignore
         message = self.message_factory.make_from_actuator_status(
-            ActuatorStatus(
-                reference,
-                actuator_status[0],
-                actuator_status[1],
-                actuator_status[2],
-            )
+            ActuatorStatus(reference, actuator_status[0], actuator_status[1])
         )
 
         if not self.connectivity_service.publish(message):
@@ -579,67 +552,6 @@ class WolkConnect:
         if not self.connectivity_service.publish(message):
             self.logger.error("Failed to publish configuration options!")
             self.message_queue.put(message)
-
-    def publish_device_status(self, device_state: DeviceState) -> None:
-        """
-        Publish current device status to WolkAbout IoT Platform.
-
-        Every time the device publishes data to the Platform
-        it is considered to be in the `CONNECTED` state, so it doesn't need
-        to be sent explicitly.
-
-        When the device works on a principle of only connecting periodically
-        to the Platform to publish stored data, then prior to disconnecting
-        from the Platform the device should publish the `SLEEP` state.
-        This state is considered as a controlled offline state.
-
-        Should the device need to perform any maintenance or any other
-        action during which it would deviate from its default behavior,
-        the device should publish the `SERVICE_MODE` state.
-        This state implies that the device is unable to respond to commands
-        issued from the Platform.
-
-        If the device is going to terminate its connection to the Platform
-        for an unforeseeable period of time, then the device should send
-        the `OFFLINE` state prior to disconnecting.
-
-        In the case of an unexpected termination of connection to the Platform,
-        the device will be declared offline.
-
-        :param device_state: Current device state
-        :type device_state: DeviceState
-        """
-        if not self.connectivity_service.is_connected():
-            self.logger.warning("Not connected, unable to publish message!")
-            return
-        self.logger.debug(f"Publishing device status: {device_state}")
-
-        message = self.message_factory.make_from_device_state(device_state)
-        if not self.connectivity_service.publish(message):
-            self.logger.error("Failed to publish device status!")
-            # No point in placing message in storage
-
-    def request_timestamp(self, response_dictionary: Dict[str, Any]) -> None:
-        """
-        Request the current UTC timestamp of the server.
-
-        When the response is received, it will be stored
-        into the `response_dictionary` under the key `timestamp`.
-
-        :param response_dictionary: Dictionary where to store timestamp
-        :type response_dictionary: Dict[str, Any]
-        """
-        if not self.connectivity_service.is_connected():
-            self.logger.warning("Not connected, unable to publish message!")
-            return
-        self.logger.debug("Publishing timestamp request")
-
-        self.timestamp_response_dictionary = response_dictionary
-
-        message = self.message_factory.make_from_timestamp_request()
-        if not self.connectivity_service.publish(message):
-            self.logger.error("Failed to publish timestamp request!")
-            # No point in placing message in storage
 
     def _on_inbound_message(self, message: Message) -> None:
         """
@@ -671,21 +583,7 @@ class WolkConnect:
         firmware_update_messages = [
             self.message_deserializer.is_firmware_install,
             self.message_deserializer.is_firmware_abort,
-            self.message_deserializer.is_firmware_version_request,
         ]
-
-        if self.message_deserializer.is_timestamp_response(message):
-            if self.timestamp_response_dictionary is None:
-                self.logger.warning(
-                    f"Received unexpected timestamp response: {message}"
-                )
-                return
-            timestamp = self.message_deserializer.parse_timestamp_response(
-                message
-            )
-            self.timestamp_response_dictionary.update({"timestamp": timestamp})
-            self.logger.info(f"Received server timestamp {timestamp}")
-            return
 
         if self.message_deserializer.is_actuation_command(message):
             if not self.actuation_handler or not self.actuator_status_provider:
@@ -866,13 +764,6 @@ class WolkConnect:
             self.firmware_update.handle_abort()
             return
 
-        if self.message_deserializer.is_firmware_version_request(message):
-            message = self.message_factory.make_from_firmware_version_response(
-                self.firmware_update.get_current_version()
-            )
-            if not self.connectivity_service.publish(message):
-                self.message_queue.put(message)
-            return
         self.logger.warning(f"Recevied unknown firmware message: {message}")
 
     def _on_package_request(

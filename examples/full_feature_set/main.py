@@ -19,7 +19,6 @@ import sys
 import time
 from traceback import print_exc
 from typing import Dict
-from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -30,23 +29,14 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-# wolk.logging_config("debug", "wolk.log")
+wolk.logging_config("debug", "wolk.log")
 
 firmware_version = "1.0"
 configuration_file = "configuration.json"
-configuration_references = ["HB", "LL", "EF"]
-configurations = []
-utility = {}
+configurations = {}
 
 ConfigurationValue = Union[
-    bool,
-    int,
-    Tuple[int, int],
-    Tuple[int, int, int],
-    float,
-    Tuple[float, float],
-    Tuple[float, float, float],
-    str,
+    bool, int, float, str,
 ]
 
 
@@ -59,18 +49,19 @@ def configuration_handler(
         with open(configuration_file, "r+", encoding="utf-8") as handle:
             stored = json.load(handle)
             for key, value in configuration.items():
-                for stored_configuration in stored:
-                    for stored_key, stored_value in stored.items():
-                        if stored_key == "reference":
-                            if stored_configuration["value"] == value:
+                for stored_key, stored_value in stored.items():
+                    if stored_key != key:
+                        continue
+
+                    if stored[stored_key] == value:
+                        continue
+                    if isinstance(value, str):
+                        if "," in value:
+                            if isinstance(stored_value, list):
+                                stored_value = ",".join(value)
                                 continue
-                            if isinstance(value, tuple):
-                                stored_configuration["value"] = list(value)
-                            else:
-                                stored_configuration["value"] = value
-                            stored_configuration["last_modified"] == int(
-                                round(time.time() * 1000)
-                            )
+                    stored_value = value
+
             handle.seek(0)
             json.dump(stored, handle, indent=4)
             handle.truncate()
@@ -83,39 +74,17 @@ def configuration_handler(
         print_exc()
 
 
-def configuration_provider() -> List[
-    Dict[str, Union[str, ConfigurationValue, wolk.State, int]]
-]:
+def configuration_provider() -> Dict[str, ConfigurationValue]:
     """Provide a way to set device's configuration options."""
-    try:
-        with open(configuration_file, "r+", encoding="utf-8") as handle:
-            loaded = json.load(handle)
-            configurations = loaded
-            for configuration in configurations:
-                if isinstance(configuration["value"], list):
-                    if isinstance(configuration["value"][0], str):
-                        configuration["value"] = ",".join(
-                            configuration["value"]
-                        )
-                    else:
-                        configuration["value"] = tuple(configuration["value"])
-                configuration["status"] = wolk.State.READY
-            return configurations
-    except Exception:
-        print(
-            "Failed to get configuration " f"from file '{configuration_file}'"
-        )
-        print_exc()
-        configurations = []
-        timestamp = int(round(time.time() * 1000))
-        for reference in configuration_references:
-            configuration = {
-                "reference": reference,
-                "value": None,
-                "status": wolk.State.ERROR,
-                "last_modified": timestamp,
-            }
-            configurations.append(configuration)
+    with open(configuration_file, "r+", encoding="utf-8") as handle:
+        loaded = json.load(handle)
+        configurations: Dict[str, ConfigurationValue] = {}
+        for reference, value in loaded.items():
+            if isinstance(value, list):
+                if isinstance(value[0], str):
+                    value = ",".join(value)
+
+            configurations.update({reference: value})
 
         return configurations
 
@@ -236,10 +205,6 @@ def main():
     print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
 
-    # Request the server's current UTC timestamp and
-    # store the response into a dictionary under the `timestamp` key as an int
-    wolk_device.request_timestamp(utility)
-
     # Successfully connecting to the platform will publish device configuration
     # all actuator statuses, files present on device, current firmware version
     # and the result of a firmware update if it occurred
@@ -251,7 +216,7 @@ def main():
 
     while True:
         try:
-            timestamp = int(round(time.time() * 1000))
+            timestamp = round(time.time()) * 1000
             temperature = random.uniform(15, 30)
             humidity = random.uniform(10, 55)
             pressure = random.uniform(975, 1030)
@@ -260,35 +225,24 @@ def main():
                 random.uniform(0, 100),
                 random.uniform(0, 100),
             )
-            for configuration in configurations:
-                if configuration["reference"] == "HB":  # Heart beat
-                    publish_period_seconds = configuration["value"]
 
-                elif configuration["reference"] == "LL":  # Log level
-                    wolk.logging_config(configuration["value"])
+            publish_period_seconds = configurations["HB"]  # Heart beat
+            wolk.logging_config(configurations["LL"])  # Log level
 
-                elif configuration["reference"] == "EF":  # Enabled feeds
-                    if "T" in configuration["value"]:
-                        wolk_device.add_sensor_reading(
-                            "T", temperature, timestamp
-                        )
-                    if "H" in configuration["value"]:
-                        wolk_device.add_sensor_reading(
-                            "H", humidity, timestamp
-                        )
-                        if humidity > 50:
-                            # Adds an alarm event to the queue
-                            wolk_device.add_alarm("HH", True)
-                        else:
-                            wolk_device.add_alarm("HH", False)
-                    if "P" in configuration["value"]:
-                        wolk_device.add_sensor_reading(
-                            "P", pressure, timestamp
-                        )
-                    if "ACL" in configuration["value"]:
-                        wolk_device.add_sensor_reading(
-                            "ACL", accelerometer, timestamp
-                        )
+            # Enabled feeds
+            if "T" in configurations["EF"]:
+                wolk_device.add_sensor_reading("T", temperature, timestamp)
+            if "H" in configurations["EF"]:
+                wolk_device.add_sensor_reading("H", humidity, timestamp)
+                if humidity > 50:
+                    # Adds an alarm event to the queue
+                    wolk_device.add_alarm("HH", True)
+                else:
+                    wolk_device.add_alarm("HH", False)
+            if "P" in configurations["EF"]:
+                wolk_device.add_sensor_reading("P", pressure, timestamp)
+            if "ACL" in configurations["EF"]:
+                wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
 
             # Publishes all sensor readings and alarms from the queue
             # to the WolkAbout IoT Platform
@@ -297,7 +251,6 @@ def main():
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
             print("\tReceived KeyboardInterrupt. Exiting script")
-            wolk_device.publish_device_status(wolk.DeviceState.OFFLINE)
             wolk_device.disconnect()
             sys.exit()
 

@@ -18,7 +18,6 @@ from enum import Enum
 from enum import unique
 from typing import Dict
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 
@@ -49,6 +48,6 @@ class ConfigurationCommand:
     """
 
     command: ConfigurationCommandType
-    value: Optional[Dict[str, Union[bool, int, float, str, Tuple]]] = field(
+    value: Optional[Dict[str, Union[bool, int, float, str]]] = field(
         default=None
     )

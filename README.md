@@ -88,34 +88,16 @@ or multiple sensors at once with `add_sensor_readings`:
 wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
 ```
 
-Optionally pass a `timestamp` as `int(round(time.time() * 1000))`.  
+Optionally pass a `timestamp` as `round(time.time()) * 1000`.  
 This is useful for maintaining data history when readings are not published immediately after adding them to storage.
-If `timestamp` is not provided, the Platform will assign a timestamp once it receives the reading.
+If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
+
 
 ### Data publish strategy
 
 Stored sensor readings are pushed to WolkAbout IoT platform on demand by calling:
 ```python
 wolk_device.publish()
-```
-
-### Publishing device status
-
-Every time the device publishes data to the Platform it is considered to be in the `CONNECTED` state, so it doesn't need to be sent explicitly.
-
-When the device works on a principle of only connecting periodically to the Platform to publish stored data, then prior to disconnecting from the Platform the device should publish the `SLEEP` state.  
-This state is considered as a controlled offline state.
-
-Should the device need to perform any maintenance or any other action during which it would deviate from its default behavior, the device should publish the `SERVICE_MODE` state.  
-This state implies that the device is unable to respond to commands issued from the Platform.
-
-If the device is going to terminate its connection to the Platform for an unforeseeable period of time, then the device should send the `OFFLINE` state prior to disconnecting.  
-
-In the case of an unexpected termination of connection to the Platform, the device will be declared offline.
-
-Publishing device status can be done by calling:
-```python
-wolk_device.publish_device_status(wolk.DeviceState.SLEEP)
 ```
 
 ### Disconnecting from the platform

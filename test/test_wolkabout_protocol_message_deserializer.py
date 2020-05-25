@@ -15,7 +15,6 @@
 import json
 import logging
 import sys
-import time
 import unittest
 
 sys.path.append("..")  # noqa
@@ -42,7 +41,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     )
 
     expected_topics = [
-        WAPMD.TIMESTAMP_RESPONSE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.CONFIGURATION_GET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.CONFIGURATION_SET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FILE_BINARY_RESPONSE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
@@ -60,9 +58,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         + device.key,
         WAPMD.FIRMWARE_UPDATE_ABORT + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FIRMWARE_UPDATE_INSTALL
-        + WAPMD.DEVICE_PATH_DELIMITER
-        + device.key,
-        WAPMD.FIRMWARE_VERSION_REQUEST
         + WAPMD.DEVICE_PATH_DELIMITER
         + device.key,
     ]
@@ -118,13 +113,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         message = Message(WAPMD.FIRMWARE_UPDATE_ABORT, None)
 
         self.assertTrue(deserializer.is_firmware_abort(message))
-
-    def test_is_firmware_version_request(self):
-        """Test if message is firmware version request command."""
-        deserializer = WAPMD(self.device)
-        message = Message(WAPMD.FIRMWARE_VERSION_REQUEST, None)
-
-        self.assertTrue(deserializer.is_firmware_version_request(message))
 
     def test_is_file_binary(self):
         """Test if message is file binary."""
@@ -550,31 +538,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
             expected, deserializer.parse_configuration(incoming_message)
         )
 
-    def test_parse_configuration_set_multi_value_string_with_newline(self):
-        """Test parse configuration set command for string with newline."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
-        reference = "S"
-        value = "string\nstring,string\nstring"  # escaped in json.dumps
-        expected_value = tuple(value.split(","))
-
-        incoming_topic = (
-            WAPMD.CONFIGURATION_SET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = bytearray(
-            json.dumps({"values": {reference: value}}), "utf-8"
-        )
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ConfigurationCommand(command, {reference: expected_value})
-
-        self.assertEqual(
-            expected, deserializer.parse_configuration(incoming_message)
-        )
-
     def test_parse_configuration_set_float(self):
         """Test parse configuration set command for float."""
         deserializer = WAPMD(self.device)
@@ -614,60 +577,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_payload = bytearray(
             json.dumps({"values": {reference: str(value)}}), "utf-8"
-        )
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ConfigurationCommand(command, {reference: value})
-
-        self.assertEqual(
-            expected, deserializer.parse_configuration(incoming_message)
-        )
-
-    def test_parse_configuration_set_multi_value_int(self):
-        """Test parse configuration set command for multi value int."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
-        reference = "MVI"
-        value = (12, 34, 56)
-
-        incoming_topic = (
-            WAPMD.CONFIGURATION_SET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = bytearray(
-            json.dumps(
-                {"values": {reference: ",".join(str(x) for x in value)}}
-            ),
-            "utf-8",
-        )
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ConfigurationCommand(command, {reference: value})
-
-        self.assertEqual(
-            expected, deserializer.parse_configuration(incoming_message)
-        )
-
-    def test_parse_configuration_set_multi_value_float(self):
-        """Test parse configuration set command for multi value float."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
-        reference = "MVF"
-        value = (12.3, 34.5, 56.7)
-
-        incoming_topic = (
-            WAPMD.CONFIGURATION_SET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = bytearray(
-            json.dumps(
-                {"values": {reference: ",".join(str(x) for x in value)}}
-            ),
-            "utf-8",
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
@@ -816,37 +725,3 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         self.assertEqual(
             expected, deserializer.parse_file_initiate(incoming_message)
         )
-
-    def test_parse_timestamp_response(self):
-        """Test deserializing timestamp response message."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-
-        expected = int(round(time.time() * 1000))
-        incoming_topic = (
-            WAPMD.TIMESTAMP_RESPONSE
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = str(expected).encode()
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        self.assertEqual(
-            expected, deserializer.parse_timestamp_response(incoming_message)
-        )
-
-    def test_is_timestamp_response(self):
-        """Test determining if message is timestamp response."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-
-        expected = int(round(time.time() * 1000))
-        incoming_topic = (
-            WAPMD.TIMESTAMP_RESPONSE
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = str(expected).encode()
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        self.assertTrue(deserializer.is_timestamp_response(incoming_message))

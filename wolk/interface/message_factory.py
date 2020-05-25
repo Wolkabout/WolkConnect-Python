@@ -22,7 +22,6 @@ from typing import Union
 
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
-from wolk.model.device_state import DeviceState
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
@@ -132,24 +131,14 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_firmware_version_response(self, version: str) -> Message:
-        """
-        Respond to request with the device's current firmware version.
-
-        :param version: Current device firmware version
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_configuration(self, configuration: list) -> Message:
+    def make_from_configuration(
+        self, configuration: Dict[str, Optional[Union[int, float, bool, str]]]
+    ) -> Message:
         """
         Serialize device's configuration to be sent to WolkAbout IoT Platform.
 
         :param configuration: Device's current configuration
-        :type configuration: list
+        :type configuration: dict
         :returns: message
         :rtype: Message
         """
@@ -219,28 +208,6 @@ class MessageFactory(ABC):
         Serialize a last will message if device disconnects unexpectedly.
 
         :returns: Last will message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_device_state(self, device_state: DeviceState) -> Message:
-        """
-        Serialize device's current connection state.
-
-        :param device_state: Device connection state
-        :type device_state: str
-        :returns: Device state message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_timestamp_request(self) -> Message:
-        """
-        Serialize device's request for current UTC timestamp of the server.
-
-        :returns: Timestamp request message
         :rtype: Message
         """
         raise NotImplementedError()

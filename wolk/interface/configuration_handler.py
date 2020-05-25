@@ -13,24 +13,11 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from typing import Dict
-from typing import Tuple
 from typing import Union
 
 
 def handle_configuration(
-    configuration: Dict[
-        str,
-        Union[
-            int,
-            float,
-            bool,
-            str,
-            Tuple[int, int],
-            Tuple[int, int, int],
-            Tuple[float, float],
-            Tuple[float, float, float],
-        ],
-    ],
+    configuration: Dict[str, Union[int, float, bool, str]]
 ) -> None:
     """
     Change device's configuration options.
@@ -38,7 +25,7 @@ def handle_configuration(
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
-    :param configuration: Configuration option reference:value pairs
+    :param configuration: Configuration options as reference:value pairs
     :type configuration: dict
     """
     raise NotImplementedError()

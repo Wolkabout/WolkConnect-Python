@@ -26,6 +26,8 @@ from wolk.interface.connectivity_service import ConnectivityService
 from wolk.model.device import Device
 from wolk.model.message import Message
 
+MQTT_KEEP_ALIVE_INTERVAL = 90
+
 
 class MQTTConnectivityService(ConnectivityService):
     """Handle sending and receiving MQTT messages."""
@@ -244,7 +246,9 @@ class MQTTConnectivityService(ConnectivityService):
             f"password='{self.device.password}'"
         )
         try:
-            self.client.connect(self.host, self.port)
+            self.client.connect(
+                self.host, self.port, keepalive=MQTT_KEEP_ALIVE_INTERVAL
+            )
         except Exception as exception:
             self.logger.exception(
                 f"Something went wrong while connecting: {exception}"
@@ -315,6 +319,8 @@ class MQTTConnectivityService(ConnectivityService):
     def disconnect(self) -> None:
         """Disconnects the device from the WolkAbout IoT Platform."""
         self.logger.debug("Disconnecting")
+        if self.is_connected():
+            self.publish(self.last_will_message)
         self.client.loop_stop()
         self.client.disconnect()
 

@@ -12,7 +12,6 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-import hashlib
 import logging
 import os
 import sys
@@ -444,7 +443,7 @@ class TestOSFileManagement(unittest.TestCase):
         file_path = file_management.get_file_path(file_name)
         self.assertIsNone(file_path)
 
-    def handle_file_list_confirm_does_nothing(self):
+    def test_handle_file_list_confirm_does_nothing(self):
         """Test file list confirm doesn't call status callbacks."""
         mock_status_callback = MagicMock(return_value=None)
         mock_packet_request_callback = MagicMock(return_value=None)

@@ -13,6 +13,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import json
+from time import time
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -23,7 +24,6 @@ from wolk import logger_factory
 from wolk.interface.message_factory import MessageFactory
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
-from wolk.model.device_state import DeviceState
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
@@ -39,20 +39,13 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     REFERENCE_PATH_PREFIX = "r/"
     CHANNEL_WILDCARD = "#"
     CHANNEL_DELIMITER = "/"
-    LAST_WILL = "d2p/last_will/"
-    TIMESTAMP_REQUEST = "d2p/timestamp_request/"
-    SENSOR_READING = "d2p/sensor_readings/"
-    ALARM = "d2p/alarms/"
-    ACTUATOR_SET = "p2d/actuator_set/"
-    ACTUATOR_GET = "p2d/actuator_get/"
+    LAST_WILL = "lastwill/"
+    SENSOR_READING = "d2p/sensor_reading/"
+    ALARM = "d2p/events/"
     ACTUATOR_STATUS = "d2p/actuator_status/"
-    CONFIGURATION_SET = "p2d/configuration_set/"
-    CONFIGURATION_GET = "p2d/configuration_get/"
-    CONFIGURATION_STATUS = "d2p/configuration_status/"
-    DEVICE_STATUS = "d2p/device_status_update/"
+    CONFIGURATION_STATUS = "d2p/configuration_get/"
     FILE_BINARY_REQUEST = "d2p/file_binary_request/"
     FIRMWARE_VERSION_UPDATE = "d2p/firmware_version_update/"
-    FIRMWARE_VERSION_RESPONSE = "d2p/firmware_version_response/"
     FIRMWARE_UPDATE_STATUS = "d2p/firmware_update_status/"
     FILE_LIST_UPDATE = "d2p/file_list_update/"
     FILE_LIST_RESPONSE = "d2p/file_list_response/"
@@ -79,24 +72,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: Last will message
         :rtype: Message
         """
-        topic = self.LAST_WILL + self.DEVICE_PATH_PREFIX + self.device_key
+        topic = self.LAST_WILL + self.device_key
         message = Message(topic)
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_device_state(self, device_state: DeviceState) -> Message:
-        """
-        Serialize device's current connection state.
-
-        :param device_state: Device connection state
-        :type device_state: str
-        :returns: Device state message
-        :rtype: Message
-        """
-        topic = self.DEVICE_STATUS + self.DEVICE_PATH_PREFIX + self.device_key
-        payload = json.dumps({"state": device_state.value})
-        message = Message(topic, payload)
         self.logger.debug(f"{message}")
 
         return message
@@ -127,14 +104,14 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         elif isinstance(reading.value, bool):
             reading.value = str(reading.value).lower()
 
-        if reading.timestamp is not None:
-            payload = json.dumps(
-                {"data": str(reading.value), "utc": int(reading.timestamp)}
-            )
-        else:
-            payload = json.dumps({"data": str(reading.value)})
+        payload: Dict[str, Union[str, int]] = {"data": str(reading.value)}
 
-        message = Message(topic, payload)
+        if reading.timestamp is not None:
+            payload.update({"utc": int(reading.timestamp)})
+        else:
+            payload.update({"utc": round(time()) * 1000})
+
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message
@@ -169,7 +146,9 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
                 payload[reference] = str(value)
 
         if timestamp is not None:
-            payload["utc"] = int(timestamp)
+            payload.update({"utc": int(timestamp)})
+        else:
+            payload.update({"utc": round(time()) * 1000})
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
@@ -196,12 +175,12 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + alarm.reference
         )
 
-        payload: Dict[str, Union[bool, int, str]] = {"active": alarm.active}
+        payload: Dict[str, Union[bool, int]] = {"active": alarm.active}
 
-        if alarm.code is not None:
-            payload["code"] = alarm.code
         if alarm.timestamp is not None:
             payload["utc"] = alarm.timestamp
+        else:
+            payload["utc"] = round(time()) * 1000
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
@@ -232,24 +211,21 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             actuator.value = str(actuator.value).lower()
 
         payload = {"status": actuator.state.value}
-
-        if actuator.value is not None:
-            payload["value"] = str(actuator.value)
-
-        if actuator.timestamp is not None:
-            payload["utc"] = actuator.timestamp
+        payload["value"] = str(actuator.value)
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_configuration(self, configuration: list) -> Message:
+    def make_from_configuration(
+        self, configuration: Dict[str, Optional[Union[int, float, bool, str]]]
+    ) -> Message:
         """
         Report device's configuration to WolkAbout IoT Platform.
 
         :param configuration: Device's current configuration
-        :type configuration: list
+        :type configuration: dict
         :returns: message
         :rtype: Message
         """
@@ -259,21 +235,15 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + self.DEVICE_PATH_PREFIX
             + self.device_key
         )
-        payload: Dict[str, List[Dict[str, Union[str, int]]]] = {"values": []}
+        payload: Dict[str, Dict[str, str]] = {"values": {}}
 
-        for config in configuration:
-            if isinstance(config["value"], tuple):
-                config["value"] = ",".join(map(str, (config["value"])))
+        for reference, value in configuration.items():
+            if isinstance(value, bool):
+                value = str(value).lower()
+            else:
+                value = str(value)
 
-            elif isinstance(config["value"], bool):
-                config["value"] = str(config["value"]).lower()
-
-            elif config["value"] is not None:
-                config["value"] = str(config["value"])
-
-            config["status"] = config["status"].value
-            config["lastModified"] = config.pop("last_modified")
-            payload["values"].append(config)
+            payload["values"].update({reference: value})
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
@@ -470,42 +440,6 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + self.device_key
         )
         message = Message(topic, str(version))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_firmware_version_response(self, version: str) -> Message:
-        """
-        Respond to request with the device's current firmware version.
-
-        :param version: Current device firmware version
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"version: {version}")
-        topic = (
-            self.FIRMWARE_VERSION_RESPONSE
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
-        message = Message(topic, str(version))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_timestamp_request(self) -> Message:
-        """
-        Serialize device's request for current UTC timestamp of the server.
-
-        :returns: Timestamp request message
-        :rtype: Message
-        """
-        self.logger.debug("Make timestamp request")
-        topic = (
-            self.TIMESTAMP_REQUEST + self.DEVICE_PATH_PREFIX + self.device_key
-        )
-        message = Message(topic)
         self.logger.debug(f"{message}")
 
         return message

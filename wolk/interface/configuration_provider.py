@@ -13,45 +13,21 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Tuple
 from typing import Union
 
-from wolk.model.state import State
 
-ConfigurationValue = Optional[
-    Union[
-        int,
-        float,
-        bool,
-        str,
-        Tuple[int, int],
-        Tuple[int, int, int],
-        Tuple[float, float],
-        Tuple[float, float, float],
-    ]
-]
-
-
-def get_configuration() -> List[
-    Dict[str, Union[str, ConfigurationValue, State, int]]
-]:
+def get_configuration() -> Dict[str, Union[int, float, bool, str]]:
     """
     Get current configuration options.
 
-    Reads device configuration and returns it as a list of dictionaries
-    with the following fields:
-    `reference` - string that identifies configuration option
-    `value` - current configuration value, None if unable to read
-    `status` - state of the configuration: ready when functioning normally,
-    busy when in the process of changing value, and error if unable to read
-    `last_modified` - UTC timestamp when the value was last modified
+    Reads device configuration and returns it as a dictionary
+    where the key is the configuration reference and value
+    is the current configuration value.
 
     Must be implemented as non blocking.
     Must be implemented as thread safe.
 
-    :returns: configuration
-    :rtype: list
+    :returns: configurations
+    :rtype: Dict[str, Union[int, float, bool, str]]
     """
     raise NotImplementedError()

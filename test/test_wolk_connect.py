@@ -27,7 +27,6 @@ from wolk.model.configuration_command import (
     ConfigurationCommand,
     ConfigurationCommandType,
 )
-from wolk.model.device_state import DeviceState
 from wolk.model.state import State
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.message import Message
@@ -797,40 +796,12 @@ class TestWolkConnect(unittest.TestCase):
         reference = "R"
         state = State.ERROR
         value = None
-        actuator_status = ActuatorStatus(reference, state, value, None)
+        actuator_status = ActuatorStatus(reference, state, value)
         wolk_device.connectivity_service.is_connected = MagicMock(
             return_value=True
         )
         wolk_device.actuator_status_provider = MagicMock(
             return_value=(state, value)
-        )
-        wolk_device.message_factory.make_from_actuator_status = MagicMock()
-        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
-
-        wolk_device.publish_actuator_status(reference)
-        wolk_device.message_factory.make_from_actuator_status.assert_called_once_with(
-            actuator_status
-        )
-
-    def test_publish_actuator_status_with_timestamp(self):
-        """Test publishing actuator status with no timestamp from provider."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-        wolk_device.logger.setLevel(logging.CRITICAL)
-
-        reference = "R"
-        state = State.ERROR
-        value = None
-        timestamp = 12
-        actuator_status = ActuatorStatus(reference, state, value, timestamp)
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        wolk_device.actuator_status_provider = MagicMock(
-            return_value=(state, value, timestamp)
         )
         wolk_device.message_factory.make_from_actuator_status = MagicMock()
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
@@ -852,12 +823,11 @@ class TestWolkConnect(unittest.TestCase):
         reference = "R"
         state = State.ERROR
         value = None
-        timestamp = 12
         wolk_device.connectivity_service.is_connected = MagicMock(
             return_value=True
         )
         wolk_device.actuator_status_provider = MagicMock(
-            return_value=(state, value, timestamp)
+            return_value=(state, value)
         )
         wolk_device.message_factory.make_from_actuator_status = MagicMock()
         wolk_device.message_queue.put = MagicMock()
@@ -939,58 +909,6 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.message_queue.put = MagicMock()
         wolk_device.publish_configuration()
         wolk_device.message_queue.put.assert_not_called()
-
-    def test_publish_device_status_not_connected(self):
-        """Test publishing device status when not connected."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-        wolk_device.logger.setLevel(logging.CRITICAL)
-
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=False
-        )
-        wolk_device.logger.warning = MagicMock()
-        wolk_device.publish_device_status(DeviceState.CONNECTED)
-        wolk_device.logger.warning.assert_called_once()
-
-    def test_publish_device_status_fail_to_publish(self):
-        """Test publishing device status fails."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-        wolk_device.logger.setLevel(logging.CRITICAL)
-
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        wolk_device.connectivity_service.publish = MagicMock(
-            return_value=False
-        )
-        wolk_device.logger.error = MagicMock()
-        wolk_device.publish_device_status(DeviceState.CONNECTED)
-        wolk_device.logger.error.assert_called_once()
-
-    def test_publish_device_status_passes(self):
-        """Test publishing device status passes."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-        wolk_device.logger.setLevel(logging.CRITICAL)
-
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
-        wolk_device.logger.error = MagicMock()
-        wolk_device.publish_device_status(DeviceState.CONNECTED)
-        wolk_device.logger.error.assert_not_called()
 
     def test_on_inbound_message_binary_topic(self):
         """Test on inbound message with 'binary' in topic."""
@@ -1815,39 +1733,7 @@ class TestWolkConnect(unittest.TestCase):
 
         wolk_device.firmware_update.handle_abort.assert_called_once_with()
 
-    def test_on_firmware_message_firmware_version_request_fail_to_publish(
-        self,
-    ):
-        """Test receiving version request and fail to publish response."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        file_directory = "files"
-        wolk_device = WolkConnect(device).with_file_management(
-            256, 1024, file_directory
-        )
-        os.rmdir(file_directory)
-        firmware_handler = self.MockFirmwareHandler()
-        firmware_handler.get_current_version = MagicMock(return_value="1.0")
-        wolk_device.with_firmware_update(firmware_handler)
-        message = Message("some_topic", "payload")
-        wolk_device.message_deserializer.is_firmware_version_request = MagicMock(
-            return_value=True
-        )
-        wolk_device.message_factory.make_from_firmware_version_response = MagicMock(
-            return_value="1.0"
-        )
-        wolk_device.connectivity_service.publish = MagicMock(
-            return_value=False
-        )
-        wolk_device.message_queue.put = MagicMock()
-
-        wolk_device._on_firmware_message(message)
-
-        wolk_device.message_queue.put.assert_called_once()
-
-    def test_on_firmware_message_firmware_version_request_bulishes(self,):
+    def test_on_firmware_message_firmware_version_request_pulishes(self):
         """Test receiving version request and publishes response."""
         device_key = "some_key"
         device_password = "some_password"
@@ -2335,107 +2221,3 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device._on_file_url_status(file_url, status, file_name)
 
         wolk_device.message_queue.put.assert_not_called()
-
-    def test_request_timestamp_not_connected(self):
-        """Test requesting timestamp when not connected."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=False
-        )
-        wolk_device.logger.warning = MagicMock()
-        response_dictionary = {}
-
-        wolk_device.request_timestamp(response_dictionary)
-        wolk_device.logger.warning.assert_called_once()
-
-    def test_request_timestamp_fail_to_publish(self):
-        """Test requesting timestamp when it fails to publish."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        wolk_device.connectivity_service.publish = MagicMock(
-            return_value=False
-        )
-        wolk_device.message_factory.make_from_timestamp_request = MagicMock(
-            return_value=True
-        )
-
-        wolk_device.logger.error = MagicMock()
-        response_dictionary = {}
-
-        wolk_device.request_timestamp(response_dictionary)
-        wolk_device.logger.error.assert_called_once()
-
-    def test_request_timestamp_publishes(self):
-        """Test requesting timestamp when publishes."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-
-        wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
-        wolk_device.message_factory.make_from_timestamp_request = MagicMock(
-            return_value=True
-        )
-
-        wolk_device.logger.error = MagicMock()
-        response_dictionary = {}
-
-        wolk_device.request_timestamp(response_dictionary)
-        wolk_device.logger.error.assert_not_called()
-
-    def test_on_inbound_message_timestamp_request_no_dict(self):
-        """Test receiving timestamp response with no dictionary set."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-
-        wolk_device.message_deserializer.is_timestamp_response = MagicMock(
-            return_value=True
-        )
-        wolk_device.timestamp_response_dictionary = None
-        wolk_device.logger.warning = MagicMock()
-        message = Message("some_message")
-
-        wolk_device._on_inbound_message(message)
-        wolk_device.logger.warning.assert_called_once()
-
-    def test_on_inbound_message_timestamp_request_updates_dict(self):
-        """Test receiving timestamp response with no dictionary set."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-
-        wolk_device.message_deserializer.is_timestamp_response = MagicMock(
-            return_value=True
-        )
-        response_dictionary = {}
-        wolk_device.timestamp_response_dictionary = response_dictionary
-        wolk_device.logger.warning = MagicMock()
-        message = Message("some_message")
-        timestamp = 12
-        wolk_device.message_deserializer.parse_timestamp_response = MagicMock(
-            return_value=timestamp
-        )
-
-        wolk_device._on_inbound_message(message)
-        self.assertIn("timestamp", response_dictionary)

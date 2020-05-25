@@ -22,7 +22,6 @@ sys.path.append("..")  # noqa
 from wolk.model.state import State
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
-from wolk.model.device_state import DeviceState
 from wolk.model.message import Message
 from wolk.model.sensor_reading import SensorReading
 from wolk.model.file_management_status import FileManagementStatus
@@ -54,6 +53,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference = "B"
         value = False
         expected_value = str(value).lower()
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.SENSOR_READING
@@ -63,7 +63,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"data": expected_value})
+        expected_payload = json.dumps(
+            {"data": expected_value, "utc": timestamp}
+        )
         expected_message = Message(expected_topic, expected_payload)
 
         reading = SensorReading(reference, value)
@@ -79,6 +81,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference = "SNL"
         value = "string\nin\na\ncouple\nof\nrows"
         expected_value = value  # escaped in json.dumps
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.SENSOR_READING
@@ -88,7 +91,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"data": expected_value})
+        expected_payload = json.dumps(
+            {"data": expected_value, "utc": timestamp}
+        )
         expected_message = Message(expected_topic, expected_payload)
 
         reading = SensorReading(reference, value)
@@ -118,6 +123,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference = "MVF"
         value = (12.3, 45.6)
         expected_value = ",".join(map(str, value))
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.SENSOR_READING
@@ -127,7 +133,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"data": expected_value})
+        expected_payload = json.dumps(
+            {"data": expected_value, "utc": timestamp}
+        )
         expected_message = Message(expected_topic, expected_payload)
 
         reading = SensorReading(reference, value)
@@ -143,6 +151,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference = "MVS"
         value = ("string1", "string2")
         expected_value = ",".join(value)
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.SENSOR_READING
@@ -152,7 +161,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"data": expected_value})
+        expected_payload = json.dumps(
+            {"data": expected_value, "utc": timestamp}
+        )
         expected_message = Message(expected_topic, expected_payload)
 
         reading = SensorReading(reference, value)
@@ -168,6 +179,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference = "MVSNL"
         value = ("string1\nstring1", "string2")
         expected_value = ",".join(value)  # new line escaped in json dumps
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.SENSOR_READING
@@ -177,7 +189,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"data": expected_value})
+        expected_payload = json.dumps(
+            {"data": expected_value, "utc": timestamp}
+        )
         expected_message = Message(expected_topic, expected_payload)
 
         reading = SensorReading(reference, value)
@@ -219,7 +233,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         self.assertEqual(expected_message, serialized_message)
 
     def test_multiple_sensor_readings_no_timestamp(self):
-        """Test message for multiple sensor readings with no timestamp."""
+        """Test message for multiple sensor readings with no user timestamp."""
         device_key = "some_key"
         factory = WAPMF(device_key)
         reference1 = "B"
@@ -229,6 +243,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         reference3 = "F"
         value3 = 45.6
         readings = {reference1: value1, reference2: value2, reference3: value3}
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.SENSOR_READING + WAPMF.DEVICE_PATH_PREFIX + device_key
@@ -238,6 +253,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
                 reference1: str(value1).lower(),
                 reference2: ",".join(map(str, value2)),
                 reference3: str(value3),
+                "utc": timestamp,
             }
         )
         expected_message = Message(expected_topic, expected_payload)
@@ -247,12 +263,13 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         self.assertEqual(expected_message, serialized_message)
 
     def test_alarm_no_timestamp(self):
-        """Test message for alarm without timestamp."""
+        """Test message for alarm without user defined timestamp."""
         device_key = "some_key"
         factory = WAPMF(device_key)
         reference = "A"
         value = False
         expected_value = value
+        timestamp = round(time.time()) * 1000
 
         expected_topic = (
             WAPMF.ALARM
@@ -262,36 +279,12 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + WAPMF.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_payload = json.dumps({"active": expected_value})
+        expected_payload = json.dumps(
+            {"active": expected_value, "utc": timestamp}
+        )
         expected_message = Message(expected_topic, expected_payload)
 
         alarm = Alarm(reference, value)
-
-        serialized_message = factory.make_from_alarm(alarm)
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_alarm_with_code(self):
-        """Test message for alarm with code."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "A"
-        value = True
-        code = "E404"
-        expected_value = value
-
-        expected_topic = (
-            WAPMF.ALARM
-            + WAPMF.DEVICE_PATH_PREFIX
-            + device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.REFERENCE_PATH_PREFIX
-            + reference
-        )
-        expected_payload = json.dumps({"active": expected_value, "code": code})
-        expected_message = Message(expected_topic, expected_payload)
-
-        alarm = Alarm(reference, value, code)
 
         serialized_message = factory.make_from_alarm(alarm)
 
@@ -320,35 +313,6 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_message = Message(expected_topic, expected_payload)
 
         alarm = Alarm(reference, value, timestamp=timestamp)
-
-        serialized_message = factory.make_from_alarm(alarm)
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_alarm_with_timestamp_and_code(self):
-        """Test message for alarm with timestamp and code."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "A"
-        value = True
-        code = "E404"
-        expected_value = value
-        timestamp = int(round(time.time() * 1000))
-
-        expected_topic = (
-            WAPMF.ALARM
-            + WAPMF.DEVICE_PATH_PREFIX
-            + device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.REFERENCE_PATH_PREFIX
-            + reference
-        )
-        expected_payload = json.dumps(
-            {"active": expected_value, "code": code, "utc": timestamp}
-        )
-        expected_message = Message(expected_topic, expected_payload)
-
-        alarm = Alarm(reference, value, code, timestamp)
 
         serialized_message = factory.make_from_alarm(alarm)
 
@@ -438,87 +402,24 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(expected_message, serialized_message)
 
-    def test_actuator_error_with_value_none(self):
-        """Test message for actuator with error state and no value."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "A"
-        value = None
-        status = State.ERROR
-
-        actuator = ActuatorStatus(reference, status, value)
-
-        serialized_message = factory.make_from_actuator_status(actuator)
-
-        self.assertNotIn("value", json.loads(serialized_message.payload))
-
-    def test_actuator_with_timestamp(self):
-        """Test message for actuator with error state and no value."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "A"
-        value = "true"
-        status = State.READY
-        timestamp = int(round(time.time() * 1000))
-
-        actuator = ActuatorStatus(reference, status, value, timestamp)
-
-        expected_topic = (
-            WAPMF.ACTUATOR_STATUS
-            + WAPMF.DEVICE_PATH_PREFIX
-            + device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.REFERENCE_PATH_PREFIX
-            + reference
-        )
-        expected_payload = json.dumps(
-            {"status": status.value, "value": value, "utc": timestamp}
-        )
-        expected_message = Message(expected_topic, expected_payload)
-        serialized_message = factory.make_from_actuator_status(actuator)
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_actuator_error_without_timestamp(self):
-        """Test message for actuator status with no timestamp."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "A"
-        value = None
-        status = State.ERROR
-
-        actuator = ActuatorStatus(reference, status, value)
-
-        serialized_message = factory.make_from_actuator_status(actuator)
-
-        self.assertNotIn("utc", json.loads(serialized_message.payload))
-
     def test_configuration_bool(self):
         """Test message for configuration bool."""
         device_key = "some_key"
         factory = WAPMF(device_key)
         reference = "B"
         value = True
-        status = State.READY
-        timestamp = int(round(time.time() * 1000))
-        configuration = {
-            "reference": reference,
-            "value": value,
-            "last_modified": timestamp,
-            "status": status,
-        }
+        configuration = {reference: value}
 
         expected_value = configuration.copy()
-        expected_value["value"] = str(expected_value["value"]).lower()
-        expected_value["status"] = expected_value["status"].value
-        expected_value["lastModified"] = expected_value.pop("last_modified")
+        expected_value[reference] = str(expected_value[reference]).lower()
 
         expected_topic = (
             WAPMF.CONFIGURATION_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
         )
-        expected_payload = json.dumps({"values": [expected_value]})
+        expected_payload = json.dumps({"values": expected_value})
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = factory.make_from_configuration([configuration])
+        serialized_message = factory.make_from_configuration(configuration)
 
         self.assertEqual(expected_message, serialized_message)
 
@@ -528,27 +429,18 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         factory = WAPMF(device_key)
         reference = "F"
         value = 12.3
-        status = State.READY
-        timestamp = int(round(time.time() * 1000))
-        configuration = {
-            "reference": reference,
-            "value": value,
-            "last_modified": timestamp,
-            "status": status,
-        }
+        configuration = {reference: value}
 
         expected_value = configuration.copy()
-        expected_value["value"] = str(expected_value["value"]).lower()
-        expected_value["status"] = expected_value["status"].value
-        expected_value["lastModified"] = expected_value.pop("last_modified")
+        expected_value[reference] = str(expected_value[reference]).lower()
 
         expected_topic = (
             WAPMF.CONFIGURATION_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
         )
-        expected_payload = json.dumps({"values": [expected_value]})
+        expected_payload = json.dumps({"values": expected_value})
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = factory.make_from_configuration([configuration])
+        serialized_message = factory.make_from_configuration(configuration)
 
         self.assertEqual(expected_message, serialized_message)
 
@@ -558,115 +450,18 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         factory = WAPMF(device_key)
         reference = "SNL"
         value = "string\nstring"
-        status = State.READY
-        timestamp = int(round(time.time() * 1000))
-        configuration = {
-            "reference": reference,
-            "value": value,
-            "last_modified": timestamp,
-            "status": status,
-        }
+        configuration = {reference: value}
 
         expected_value = configuration.copy()
-        expected_value["value"] = str(expected_value["value"]).lower()
-        expected_value["status"] = expected_value["status"].value
-        expected_value["lastModified"] = expected_value.pop("last_modified")
+        expected_value[reference] = str(expected_value[reference]).lower()
 
         expected_topic = (
             WAPMF.CONFIGURATION_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
         )
-        expected_payload = json.dumps({"values": [expected_value]})
+        expected_payload = json.dumps({"values": expected_value})
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = factory.make_from_configuration([configuration])
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_configuration_multi_value_float(self):
-        """Test message for configuration multi value float."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "F"
-        value = (12.3, 45.6)
-        status = State.READY
-        timestamp = int(round(time.time() * 1000))
-        configuration = {
-            "reference": reference,
-            "value": value,
-            "last_modified": timestamp,
-            "status": status,
-        }
-        expected_value = configuration.copy()
-        expected_value["value"] = ",".join(map(str, expected_value["value"]))
-        expected_value["status"] = expected_value["status"].value
-        expected_value["lastModified"] = expected_value.pop("last_modified")
-
-        expected_topic = (
-            WAPMF.CONFIGURATION_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
-        )
-        expected_payload = json.dumps({"values": [expected_value]})
-        expected_message = Message(expected_topic, expected_payload)
-
-        serialized_message = factory.make_from_configuration([configuration])
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_configuration_multi_value_string_with_newline(self):
-        """Test message for configuration multi value string with newline."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "F"
-        value = ("string1\nstring1", "string2", "string3\nstring3")
-        status = State.READY
-        timestamp = int(round(time.time() * 1000))
-        configuration = {
-            "reference": reference,
-            "value": value,
-            "last_modified": timestamp,
-            "status": status,
-        }
-
-        expected_value = configuration.copy()
-        expected_value["value"] = ",".join(map(str, expected_value["value"]))
-        expected_value["status"] = expected_value["status"].value
-        expected_value["lastModified"] = expected_value.pop("last_modified")
-
-        expected_topic = (
-            WAPMF.CONFIGURATION_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
-        )
-        expected_payload = json.dumps({"values": [expected_value]})
-        expected_message = Message(expected_topic, expected_payload)
-
-        serialized_message = factory.make_from_configuration([configuration])
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_configuration_status_error_value_none(self):
-        """Test message for configuration error status and value none."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        reference = "F"
-        value = None
-        status = State.ERROR
-        timestamp = int(round(time.time() * 1000))
-        configuration = {
-            "reference": reference,
-            "value": value,
-            "last_modified": timestamp,
-            "status": status,
-        }
-
-        expected_value = configuration.copy()
-        expected_value["status"] = expected_value["status"].value
-        expected_value["lastModified"] = expected_value.pop("last_modified")
-
-        expected_topic = (
-            WAPMF.CONFIGURATION_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
-        )
-        expected_payload = json.dumps({"values": [expected_value]})
-        expected_message = Message(expected_topic, expected_payload)
-
-        serialized_message = factory.make_from_configuration([configuration])
+        serialized_message = factory.make_from_configuration(configuration)
 
         self.assertEqual(expected_message, serialized_message)
 
@@ -872,9 +667,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         device_key = "some_key"
         factory = WAPMF(device_key)
 
-        expected_topic = (
-            WAPMF.LAST_WILL + WAPMF.DEVICE_PATH_PREFIX + device_key
-        )
+        expected_topic = WAPMF.LAST_WILL + device_key
         expected_payload = None
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = factory.make_last_will_message()
@@ -895,54 +688,5 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_payload = version
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = factory.make_from_firmware_version_update(version)
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_firmware_version_response(self):
-        """Test message for firmware version response."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        version = "v1.0.0"
-
-        expected_topic = (
-            WAPMF.FIRMWARE_VERSION_RESPONSE
-            + WAPMF.DEVICE_PATH_PREFIX
-            + device_key
-        )
-        expected_payload = version
-        expected_message = Message(expected_topic, expected_payload)
-        serialized_message = factory.make_from_firmware_version_response(
-            version
-        )
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_device_state(self):
-        """Test message for device state message."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-        device_state = DeviceState.CONNECTED
-
-        expected_topic = (
-            WAPMF.DEVICE_STATUS + WAPMF.DEVICE_PATH_PREFIX + device_key
-        )
-        expected_payload = json.dumps({"state": device_state.value})
-        expected_message = Message(expected_topic, expected_payload)
-
-        serialized_message = factory.make_from_device_state(device_state)
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_timestamp_request(self):
-        """Test making timestamp message request."""
-        device_key = "some_key"
-        factory = WAPMF(device_key)
-
-        expected_topic = (
-            WAPMF.TIMESTAMP_REQUEST + WAPMF.DEVICE_PATH_PREFIX + device_key
-        )
-        expected_payload = None
-        expected_message = Message(expected_topic, expected_payload)
-        serialized_message = factory.make_from_timestamp_request()
 
         self.assertEqual(expected_message, serialized_message)

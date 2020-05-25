@@ -501,6 +501,22 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         mqtt_cs.disconnect()
         mqtt_cs.logger.debug.assert_called_once()
 
+    def test_disconnect_publishes_last_will(self):
+        """Test disconnect publishes last will."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        last_will_message = Message("last_will")
+        topics = []
+        mqtt_cs = MQTTConnectivityService(device, topics, last_will_message)
+        mqtt_cs.logger.setLevel(logging.CRITICAL)
+        mqtt_cs.is_connected = MagicMock(return_value=True)
+        mqtt_cs.publish = MagicMock()
+
+        mqtt_cs.disconnect()
+        mqtt_cs.publish.assert_called_once()
+
     def test_publish_no_message(self):
         """Test publish with no message."""
         device_key = "some_key"

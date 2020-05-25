@@ -31,11 +31,8 @@ class ActuatorStatus:
     :vartype state: State
     :ivar value: Current value of actuator, None only for error state
     :vartype value: Optional[Union[bool, int, float, str]]
-    :ivar state: Optional timestamp when reading occurred
-    :vartype state: Optional[int]
     """
 
     reference: str
     state: State
     value: Optional[Union[bool, int, float, str]] = field(default=None)
-    timestamp: Optional[int] = field(default=None)
