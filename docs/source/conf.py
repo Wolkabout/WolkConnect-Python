@@ -2,7 +2,7 @@
 #
 # This file only contains a selection of the most common options. For a full
 # list see the documentation:
-# http://www.sphinx-doc.org/en/master/config
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
 # -- Path setup --------------------------------------------------------------
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -10,23 +10,47 @@
 import os
 import sys
 
+import sphinx
+
 sys.path.insert(0, os.path.abspath(".." + os.sep + ".."))
 
 from wolk import __version__  # noqa
+
 
 # -- Project information -----------------------------------------------------
 
 project = "WolkConnect-Python"
 copyright = "2020, WolkAbout"
 author = "WolkAbout"
-
-master_doc = "index"
-
-# The full version, including alpha/beta/rc tags
 release = __version__
 
-
 # -- General configuration ---------------------------------------------------
+
+
+def monkeypatch(cls):
+    """Decorator to monkey-patch methods."""
+
+    def decorator(f):
+        method = f.__name__
+        old_method = getattr(cls, method)
+        setattr(
+            cls,
+            method,
+            lambda self, *args, **kwargs: f(old_method, self, *args, **kwargs),
+        )
+
+    return decorator
+
+
+# workaround until https://github.com/miyakogi/m2r/pull/55 is merged
+@monkeypatch(sphinx.registry.SphinxComponentRegistry)
+def add_source_parser(_old_add_source_parser, self, *args, **kwargs):
+    # signature is (parser: Type[Parser], **kwargs), but m2r expects
+    # the removed (str, parser: Type[Parser], **kwargs).
+    if isinstance(args[0], str):
+        args = args[1:]
+    return _old_add_source_parser(self, *args, **kwargs)
+
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom

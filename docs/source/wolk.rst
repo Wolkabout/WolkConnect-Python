@@ -69,6 +69,11 @@ Firmware update
     :undoc-members:
     :show-inheritance:
 
+
+
+Utility
+-------
+
 Logger factory
 ~~~~~~~~~~~~~~
 
