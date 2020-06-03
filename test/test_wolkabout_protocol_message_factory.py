@@ -268,7 +268,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         factory = WAPMF(device_key)
         reference = "A"
         value = False
-        expected_value = value
+        expected_value = str(value).lower()
         timestamp = round(time.time()) * 1000
 
         expected_topic = (
@@ -296,7 +296,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         factory = WAPMF(device_key)
         reference = "A"
         value = True
-        expected_value = value
+        expected_value = str(value).lower()
         timestamp = int(round(time.time() * 1000))
 
         expected_topic = (

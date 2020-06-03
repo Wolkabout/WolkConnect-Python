@@ -175,7 +175,9 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + alarm.reference
         )
 
-        payload: Dict[str, Union[bool, int]] = {"active": alarm.active}
+        payload: Dict[str, Union[str, int]] = {
+            "active": str(alarm.active).lower()
+        }
 
         if alarm.timestamp is not None:
             payload["utc"] = alarm.timestamp
