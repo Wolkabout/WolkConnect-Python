@@ -29,10 +29,8 @@ from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
-from wolk.model.actuator_command import ActuatorCommandType
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.alarm import Alarm
-from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.device import Device
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
@@ -594,13 +592,9 @@ class WolkConnect:
             actuation = self.message_deserializer.parse_actuator_command(
                 message
             )
-            if actuation.command == ActuatorCommandType.SET:
-                self.actuation_handler(
-                    actuation.reference, actuation.value  # type: ignore
-                )
-                self.publish_actuator_status(actuation.reference)
-            else:
-                self.publish_actuator_status(actuation.reference)
+            self.actuation_handler(actuation.reference, actuation.value)
+            self.publish_actuator_status(actuation.reference)
+
             return
 
         if self.message_deserializer.is_configuration_command(message):
@@ -615,14 +609,8 @@ class WolkConnect:
             configuration = self.message_deserializer.parse_configuration(
                 message
             )
-            if (
-                configuration.command == ConfigurationCommandType.SET
-                and configuration.value
-            ):
-                self.configuration_handler(configuration.value)  # type: ignore
-                self.publish_configuration()
-            else:
-                self.publish_configuration()
+            self.configuration_handler(configuration.value)
+            self.publish_configuration()
             return
 
         if any(is_message(message) for is_message in file_management_messages):

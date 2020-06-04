@@ -22,11 +22,8 @@ sys.path.append("..")  # noqa
 
 from wolk.wolk_connect import WolkConnect
 from wolk.model.device import Device
-from wolk.model.actuator_command import ActuatorCommand, ActuatorCommandType
-from wolk.model.configuration_command import (
-    ConfigurationCommand,
-    ConfigurationCommandType,
-)
+from wolk.model.actuator_command import ActuatorCommand
+from wolk.model.configuration_command import ConfigurationCommand
 from wolk.model.state import State
 from wolk.model.actuator_status import ActuatorStatus
 from wolk.model.message import Message
@@ -970,9 +967,7 @@ class TestWolkConnect(unittest.TestCase):
         message = Message("some_topic", "payload")
         reference = "R"
         value = 1
-        actuation_command = ActuatorCommand(
-            reference, ActuatorCommandType.SET, value
-        )
+        actuation_command = ActuatorCommand(reference, value)
         wolk_device.actuation_handler = MagicMock()
         wolk_device.actuator_status_provider = MagicMock()
         wolk_device.message_deserializer.parse_actuator_command = MagicMock(
@@ -983,30 +978,6 @@ class TestWolkConnect(unittest.TestCase):
         )
         wolk_device._on_inbound_message(message)
         wolk_device.actuation_handler.assert_called_once_with(reference, value)
-
-    def test_on_inbound_message_actuation_get(self):
-        """Test on inbound actuation message get message."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-        wolk_device.logger.setLevel(logging.CRITICAL)
-
-        message = Message("some_topic", "payload")
-        reference = "R"
-        actuation_command = ActuatorCommand(reference, ActuatorCommandType.GET)
-        wolk_device.message_deserializer.parse_actuator_command = MagicMock(
-            return_value=actuation_command
-        )
-        wolk_device.actuation_handler = MagicMock()
-        wolk_device.actuator_status_provider = MagicMock()
-        wolk_device.publish_actuator_status = MagicMock()
-        wolk_device.message_deserializer.is_actuation_command = MagicMock(
-            return_value=True
-        )
-        wolk_device._on_inbound_message(message)
-        wolk_device.publish_actuator_status.assert_called_once_with(reference)
 
     def test_on_inbound_message_configuration_no_handlers(self):
         """Test on inbound configuration message but no handler set."""
@@ -1036,9 +1007,7 @@ class TestWolkConnect(unittest.TestCase):
 
         message = Message("some_topic", "payload")
         value = {"R": 1}
-        configuration_command = ConfigurationCommand(
-            ConfigurationCommandType.SET, value
-        )
+        configuration_command = ConfigurationCommand(value)
         wolk_device.configuration_handler = MagicMock()
         wolk_device.configuration_provider = MagicMock()
         wolk_device.message_deserializer.parse_configuration = MagicMock(
@@ -1049,31 +1018,6 @@ class TestWolkConnect(unittest.TestCase):
         )
         wolk_device._on_inbound_message(message)
         wolk_device.configuration_handler.assert_called_once_with(value)
-
-    def test_on_inbound_message_configuration_get(self):
-        """Test on inbound configuration message get message."""
-        device_key = "some_key"
-        device_password = "some_password"
-        actuator_references = []
-        device = Device(device_key, device_password, actuator_references)
-        wolk_device = WolkConnect(device)
-        wolk_device.logger.setLevel(logging.CRITICAL)
-
-        message = Message("some_topic", "payload")
-        configuration_command = ConfigurationCommand(
-            ConfigurationCommandType.GET
-        )
-        wolk_device.message_deserializer.parse_configuration = MagicMock(
-            return_value=configuration_command
-        )
-        wolk_device.configuration_handler = MagicMock()
-        wolk_device.configuration_provider = MagicMock()
-        wolk_device.publish_configuration = MagicMock()
-        wolk_device.message_deserializer.is_configuration_command = MagicMock(
-            return_value=True
-        )
-        wolk_device._on_inbound_message(message)
-        wolk_device.publish_configuration.assert_called_once()
 
     def test_on_inbound_message_file_management_message(self):
         """Test on inbound file management message."""

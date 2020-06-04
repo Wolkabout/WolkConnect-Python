@@ -20,12 +20,10 @@ from .interface.message_factory import MessageFactory
 from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
 from .model.actuator_command import ActuatorCommand
-from .model.actuator_command import ActuatorCommandType
 from .model.state import State
 from .model.actuator_status import ActuatorStatus
 from .model.alarm import Alarm
 from .model.configuration_command import ConfigurationCommand
-from .model.configuration_command import ConfigurationCommandType
 from .model.device import Device
 from .model.file_management_error_type import FileManagementErrorType
 from .model.file_management_status import FileManagementStatus
@@ -49,12 +47,10 @@ from .message_deque import MessageDeque
 
 __all__ = [
     "ActuatorCommand",
-    "ActuatorCommandType",
     "State",
     "ActuatorStatus",
     "Alarm",
     "ConfigurationCommand",
-    "ConfigurationCommandType",
     "Device",
     "FileTransferPackage",
     "FirmwareUpdateStatus",

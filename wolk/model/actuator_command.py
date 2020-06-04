@@ -13,41 +13,19 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from dataclasses import dataclass
-from dataclasses import field
-from enum import Enum
-from enum import unique
-from typing import Optional
 from typing import Union
-
-
-@unique
-class ActuatorCommandType(Enum):
-    """
-    Actuator command type.
-
-    :ivar GET: Get current actuator value
-    :vartype GET: str
-    :ivar SET: Set actuator to value
-    :vartype SET: str
-    """
-
-    GET = "GET"
-    SET = "SET"
 
 
 @dataclass
 class ActuatorCommand:
     """
-    Actuator command for reference with command and optionally value.
+    Actuator command for reference with value.
 
     :ivar reference: What actuator is the command for
     :vartype reference: str
-    :ivar command: Type of command received
-    :vartype command: ActuatorCommandType
     :ivar value: Value to be set
-    :vartype value: Optional[Union[bool, int, float, str]]
+    :vartype value: Union[bool, int, float, str]
     """
 
     reference: str
-    command: ActuatorCommandType
-    value: Optional[Union[bool, int, float, str]] = field(default=None)
+    value: Union[bool, int, float, str]

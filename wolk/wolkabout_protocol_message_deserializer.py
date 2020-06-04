@@ -20,9 +20,7 @@ from typing import Tuple
 from wolk import logger_factory
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.model.actuator_command import ActuatorCommand
-from wolk.model.actuator_command import ActuatorCommandType
 from wolk.model.configuration_command import ConfigurationCommand
-from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.device import Device
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
@@ -39,9 +37,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     DEVICE_PATH_DELIMITER = "d/"
     REFERENCE_PATH_PREFIX = "r/"
     CHANNEL_DELIMITER = "/"
-    ACTUATOR_GET = "p2d/actuator_get/"
     ACTUATOR_SET = "p2d/actuator_set/"
-    CONFIGURATION_GET = "p2d/configuration_get/"
     CONFIGURATION_SET = "p2d/configuration_set/"
     FILE_BINARY_RESPONSE = "p2d/file_binary_response/"
     FILE_DELETE = "p2d/file_delete/"
@@ -68,7 +64,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{device}")
 
         self.inbound_topics = [
-            self.CONFIGURATION_GET + self.DEVICE_PATH_DELIMITER + device.key,
             self.CONFIGURATION_SET + self.DEVICE_PATH_DELIMITER + device.key,
             self.FILE_BINARY_RESPONSE
             + self.DEVICE_PATH_DELIMITER
@@ -104,14 +99,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 + self.REFERENCE_PATH_PREFIX
                 + reference
             )
-            self.inbound_topics.append(
-                self.ACTUATOR_GET
-                + self.DEVICE_PATH_DELIMITER
-                + device.key
-                + self.CHANNEL_DELIMITER
-                + self.REFERENCE_PATH_PREFIX
-                + reference
-            )
         self.logger.debug(f"inbound topics: {self.inbound_topics}")
 
     def get_inbound_topics(self) -> List[str]:
@@ -132,9 +119,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: actuation_command
         :rtype: bool
         """
-        actuation_command = message.topic.startswith(
-            self.ACTUATOR_GET
-        ) or message.topic.startswith(self.ACTUATOR_SET)
+        actuation_command = message.topic.startswith(self.ACTUATOR_SET)
         self.logger.debug(
             f"{message.topic} is actuation command: {actuation_command}"
         )
@@ -196,9 +181,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: configuration
         :rtype: bool
         """
-        configuration = message.topic.startswith(
-            self.CONFIGURATION_GET
-        ) or message.topic.startswith(self.CONFIGURATION_SET)
+        configuration = message.topic.startswith(self.CONFIGURATION_SET)
         self.logger.debug(f"{message.topic} is configuration: {configuration}")
         return configuration
 
@@ -342,38 +325,25 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         self.logger.debug(f"{message}")
         reference = message.topic.split("/")[-1]
-        value = None
 
-        if message.topic.startswith(self.ACTUATOR_SET):
-            command = ActuatorCommandType.SET
-            try:
-                payload = json.loads(
-                    message.payload.decode("utf-8")  # type: ignore
-                )
-                value = payload["value"]
-                if "\\n" in value:
-                    value = value.replace("\\n", "\n")
-                if value in ["true", "false"]:
-                    value = bool(strtobool(value))
-                else:
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        try:
-                            value = int(value)
-                        except ValueError:
-                            pass
-            except Exception:
-                self.logger.warning(
-                    f"Received invalid actuation message: {message}"
-                )
-                self.logger.info("Treating as actuator status get command")
-                command = ActuatorCommandType.GET
-                value = None
+        payload = json.loads(
+            message.payload.decode("utf-8")  # type: ignore
+        )
+        value = payload["value"]
+        if "\\n" in value:
+            value = value.replace("\\n", "\n")
+        if value in ["true", "false"]:
+            value = bool(strtobool(value))
         else:
-            command = ActuatorCommandType.GET
+            try:
+                value = float(value)
+            except ValueError:
+                try:
+                    value = int(value)
+                except ValueError:
+                    pass
 
-        actuation = ActuatorCommand(reference, command, value)
+        actuation = ActuatorCommand(reference, value)
         self.logger.info(f"Received actuation command: {actuation}")
 
         return actuation
@@ -451,29 +421,12 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         self.logger.debug(f"{message}")
 
-        if message.topic.startswith(self.CONFIGURATION_SET):
-            command = ConfigurationCommandType.SET
-            try:
-                payload = json.loads(
-                    message.payload.decode("utf-8")  # type: ignore
-                )
-                values = payload["values"]
-            except Exception:
-                self.logger.warning(
-                    f"Received invalid configuration set message: {message}"
-                )
-                self.logger.info(
-                    "Will respond with current configuration values"
-                )
-                command = ConfigurationCommandType.GET
-                values = None
-        else:
-            command = ConfigurationCommandType.GET
-            values = None
+        payload = json.loads(
+            message.payload.decode("utf-8")  # type: ignore
+        )
+        values = payload["values"]
 
-        if command == ConfigurationCommandType.SET and isinstance(
-            values, dict
-        ):
+        if isinstance(values, dict):
             for reference, value in values.items():
                 if value in ["true", "false"]:
                     value = bool(strtobool(value))
@@ -488,7 +441,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                         pass
                 values[reference] = value
 
-        configuration = ConfigurationCommand(command, values)
+        configuration = ConfigurationCommand(values)
         self.logger.info(f"Received configuration command: {configuration}")
         return configuration
 

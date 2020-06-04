@@ -13,27 +13,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from dataclasses import dataclass
-from dataclasses import field
-from enum import Enum
-from enum import unique
 from typing import Dict
-from typing import Optional
 from typing import Union
-
-
-@unique
-class ConfigurationCommandType(Enum):
-    """
-    Configuration command type.
-
-    :ivar GET: Get current configuration options
-    :vartype GET: int
-    :ivar SET: Set configuration to value
-    :vartype SET: int
-    """
-
-    GET = "GET"
-    SET = "SET"
 
 
 @dataclass
@@ -47,7 +28,4 @@ class ConfigurationCommand:
     :vartype value: Optional[dict]
     """
 
-    command: ConfigurationCommandType
-    value: Optional[Dict[str, Union[bool, int, float, str]]] = field(
-        default=None
-    )
+    value: Dict[str, Union[bool, int, float, str]]

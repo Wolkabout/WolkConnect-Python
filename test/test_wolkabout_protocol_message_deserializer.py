@@ -22,9 +22,7 @@ sys.path.append("..")  # noqa
 from wolk.model.device import Device
 from wolk.model.message import Message
 from wolk.model.actuator_command import ActuatorCommand
-from wolk.model.actuator_command import ActuatorCommandType
 from wolk.model.configuration_command import ConfigurationCommand
-from wolk.model.configuration_command import ConfigurationCommandType
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.wolkabout_protocol_message_deserializer import (
     WolkAboutProtocolMessageDeserializer as WAPMD,
@@ -41,7 +39,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     )
 
     expected_topics = [
-        WAPMD.CONFIGURATION_GET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.CONFIGURATION_SET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FILE_BINARY_RESPONSE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FILE_DELETE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
@@ -70,14 +67,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
             + WAPMD.REFERENCE_PATH_PREFIX
             + reference
         )
-        expected_topics.append(
-            WAPMD.ACTUATOR_GET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + device.key
-            + WAPMD.CHANNEL_DELIMITER
-            + WAPMD.REFERENCE_PATH_PREFIX
-            + reference
-        )
 
     def test_init(self):
         """Test creating a deserializer and assert topic lists match."""
@@ -96,14 +85,14 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     def test_is_actuation_command(self):
         """Test if message is actuation command."""
         deserializer = WAPMD(self.device)
-        message = Message(WAPMD.ACTUATOR_GET, None)
+        message = Message(WAPMD.ACTUATOR_SET, None)
 
         self.assertTrue(deserializer.is_actuation_command(message))
 
     def test_is_firmware_install(self):
         """Test if message is firmware install command."""
         deserializer = WAPMD(self.device)
-        message = Message(WAPMD.ACTUATOR_GET, None)
+        message = Message(WAPMD.ACTUATOR_SET, None)
 
         self.assertFalse(deserializer.is_firmware_install(message))
 
@@ -124,7 +113,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     def test_is_configuration_command(self):
         """Test if message is configuration command."""
         deserializer = WAPMD(self.device)
-        message = Message(WAPMD.CONFIGURATION_GET, None)
+        message = Message(WAPMD.CONFIGURATION_SET, None)
 
         self.assertTrue(deserializer.is_configuration_command(message))
 
@@ -189,7 +178,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)  # Disable logging
         reference = "SW"
-        command = ActuatorCommandType.SET
         value = False
 
         incoming_topic = (
@@ -205,7 +193,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ActuatorCommand(reference, command, value)
+        expected = ActuatorCommand(reference, value)
 
         self.assertEqual(
             expected, deserializer.parse_actuator_command(incoming_message)
@@ -216,7 +204,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
         reference = "SW"
-        command = ActuatorCommandType.SET
         value = "string\nstring"
         expected_value = value.replace("\n", "\\n")
 
@@ -233,7 +220,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ActuatorCommand(reference, command, value)
+        expected = ActuatorCommand(reference, value)
 
         self.assertEqual(
             expected, deserializer.parse_actuator_command(incoming_message)
@@ -244,7 +231,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
         reference = "SL"
-        command = ActuatorCommandType.SET
         value = "12.3"
 
         incoming_topic = (
@@ -258,7 +244,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         incoming_payload = bytearray(json.dumps({"value": value}), "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ActuatorCommand(reference, command, float(value))
+        expected = ActuatorCommand(reference, float(value))
 
         self.assertEqual(
             expected, deserializer.parse_actuator_command(incoming_message)
@@ -269,7 +255,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
         reference = "SL"
-        command = ActuatorCommandType.SET
         value = "12"
 
         incoming_topic = (
@@ -283,56 +268,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         incoming_payload = bytearray(json.dumps({"value": value}), "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ActuatorCommand(reference, command, int(value))
-
-        self.assertEqual(
-            expected, deserializer.parse_actuator_command(incoming_message)
-        )
-
-    def test_parse_acutator_command_set_invalid(self):
-        """Test parse actuator command with command set and invalid value."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        reference = "SL"
-        command = ActuatorCommandType.GET
-        value = 12
-
-        incoming_topic = (
-            WAPMD.ACTUATOR_SET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-            + WAPMD.CHANNEL_DELIMITER
-            + WAPMD.REFERENCE_PATH_PREFIX
-            + reference
-        )
-        incoming_payload = bytearray(json.dumps({"value": value}), "utf-8")
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ActuatorCommand(reference, command, None)
-
-        self.assertEqual(
-            expected, deserializer.parse_actuator_command(incoming_message)
-        )
-
-    def test_parse_acutator_command_get(self):
-        """Test parse actuator command with command get."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        reference = "SL"
-        command = ActuatorCommandType.GET
-
-        incoming_topic = (
-            WAPMD.ACTUATOR_GET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-            + WAPMD.CHANNEL_DELIMITER
-            + WAPMD.REFERENCE_PATH_PREFIX
-            + reference
-        )
-        incoming_payload = None
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ActuatorCommand(reference, command, None)
+        expected = ActuatorCommand(reference, int(value))
 
         self.assertEqual(
             expected, deserializer.parse_actuator_command(incoming_message)
@@ -448,53 +384,10 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
             expected, deserializer.parse_file_binary(incoming_message)
         )
 
-    def test_parse_configuration_get(self):
-        """Test parse configuration get command."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.GET
-        value = None
-
-        incoming_topic = (
-            WAPMD.CONFIGURATION_GET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = None
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ConfigurationCommand(command, value)
-
-        self.assertEqual(
-            expected, deserializer.parse_configuration(incoming_message)
-        )
-
-    def test_parse_configuration_set_invalid(self):
-        """Test parse configuration set command with invalid payload."""
-        deserializer = WAPMD(self.device)
-        deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.GET
-        value = 32 * b"\x00"
-
-        incoming_topic = (
-            WAPMD.CONFIGURATION_SET
-            + WAPMD.DEVICE_PATH_DELIMITER
-            + self.device.key
-        )
-        incoming_payload = value
-        incoming_message = Message(incoming_topic, incoming_payload)
-
-        expected = ConfigurationCommand(command, None)
-
-        self.assertEqual(
-            expected, deserializer.parse_configuration(incoming_message)
-        )
-
     def test_parse_configuration_set_bool(self):
         """Test parse configuration set command with bool type."""
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
         reference = "B"
         value = "true"
 
@@ -508,7 +401,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ConfigurationCommand(command, {reference: True})
+        expected = ConfigurationCommand({reference: True})
 
         self.assertEqual(
             expected, deserializer.parse_configuration(incoming_message)
@@ -518,7 +411,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         """Test parse configuration set command for string with newline."""
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
         reference = "S"
         value = "string\nstring"  # escaped in json.dumps
 
@@ -532,7 +424,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ConfigurationCommand(command, {reference: value})
+        expected = ConfigurationCommand({reference: value})
 
         self.assertEqual(
             expected, deserializer.parse_configuration(incoming_message)
@@ -542,7 +434,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         """Test parse configuration set command for float."""
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
         reference = "F"
         value = 12.3
 
@@ -556,7 +447,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ConfigurationCommand(command, {reference: value})
+        expected = ConfigurationCommand({reference: value})
 
         self.assertEqual(
             expected, deserializer.parse_configuration(incoming_message)
@@ -566,7 +457,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         """Test parse configuration set command for int."""
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
-        command = ConfigurationCommandType.SET
         reference = "F"
         value = 12
 
@@ -580,7 +470,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         )
         incoming_message = Message(incoming_topic, incoming_payload)
 
-        expected = ConfigurationCommand(command, {reference: value})
+        expected = ConfigurationCommand({reference: value})
 
         self.assertEqual(
             expected, deserializer.parse_configuration(incoming_message)
