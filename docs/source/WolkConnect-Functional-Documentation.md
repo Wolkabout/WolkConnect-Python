@@ -15,7 +15,7 @@ WolkConnect libraries are open-source and released under the [Apache License 2.0
 
 WolkConnect library is intended to be used as a dependency in other firmwares or softwares that have their own existing business logic. WolkConnect library is not, by any means, a single service to control the device, it is a library intended to handle all the specific communication with WolkAbout IoT Platform.
 
-Using WolkConnect library requires minimal knowledge of WolkAbout IoT Platform, no knowledge of the internal mechanisms and protocols of WolkAbout IoT Platform is necessary. The user only utilizes APIs provided by WolkConnect library in the User Application Layer, thereby reducing time-to-market required. 
+Using WolkConnect library requires minimal knowledge of WolkAbout IoT Platform, no knowledge of the internal mechanisms and protocols of WolkAbout IoT Platform is necessary. The user only utilizes APIs provided by WolkConnect library in the User Application Layer, thereby reducing time-to-market required.
 
 The architecture of software/firmware where WolkConnect library is meant to be used is presented in _Fig.1.1_. The gray section in _Fig.1.1_ represents the developer's software/firmware.
 

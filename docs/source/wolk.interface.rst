@@ -90,4 +90,3 @@ Message queue
     :members:
     :undoc-members:
     :show-inheritance:
-
