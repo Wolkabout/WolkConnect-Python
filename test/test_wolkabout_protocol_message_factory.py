@@ -103,7 +103,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         self.assertEqual(expected_message, serialized_message)
 
     def test_sensor_with_timestamp(self):
-        """Test valid messagefor sensor reading with timestamp."""
+        """Test valid message for sensor reading with timestamp."""
         device_key = "some_key"
         factory = WAPMF(device_key)
         reference = "TS"
@@ -671,6 +671,18 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_payload = None
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = factory.make_last_will_message()
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_keep_alive_message(self):
+        """Test message for keep alive."""
+        device_key = "some_key"
+        factory = WAPMF(device_key)
+
+        expected_topic = WAPMF.KEEP_ALIVE + device_key
+        expected_payload = None
+        expected_message = Message(expected_topic, expected_payload)
+        serialized_message = factory.make_keep_alive_message()
 
         self.assertEqual(expected_message, serialized_message)
 

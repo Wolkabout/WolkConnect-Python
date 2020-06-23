@@ -37,6 +37,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     DEVICE_PATH_DELIMITER = "d/"
     REFERENCE_PATH_PREFIX = "r/"
     CHANNEL_DELIMITER = "/"
+    KEEP_ALIVE_RESPONSE = "pong/"
     ACTUATOR_SET = "p2d/actuator_set/"
     CONFIGURATION_SET = "p2d/configuration_set/"
     FILE_BINARY_RESPONSE = "p2d/file_binary_response/"
@@ -64,6 +65,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{device}")
 
         self.inbound_topics = [
+            self.KEEP_ALIVE_RESPONSE + device.key,
             self.CONFIGURATION_SET + self.DEVICE_PATH_DELIMITER + device.key,
             self.FILE_BINARY_RESPONSE
             + self.DEVICE_PATH_DELIMITER
@@ -109,6 +111,23 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :rtype: List[str]
         """
         return self.inbound_topics
+
+    def is_keep_alive_response(self, message: Message) -> bool:
+        """
+        Check if message is keep alive response.
+
+        :param message: The message received
+        :type message: Message
+        :returns: keep_alive_response
+        :rtype: bool
+        """
+        keep_alive_response = message.topic.startswith(
+            self.KEEP_ALIVE_RESPONSE
+        )
+        self.logger.debug(
+            f"{message.topic} is keep alive response: {keep_alive_response}"
+        )
+        return keep_alive_response
 
     def is_actuation_command(self, message: Message) -> bool:
         """
@@ -312,6 +331,25 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             f"{message.topic} is file url abort: {file_url_download_abort}"
         )
         return file_url_download_abort
+
+    def parse_keep_alive_response(self, message: Message) -> int:
+        """
+        Parse the message into an UTC timestamp.
+
+        :param message: The message received
+        :type message: Message
+        :returns: timestamp
+        :rtype: int
+        """
+        self.logger.debug(f"{message}")
+        payload = json.loads(
+            message.payload.decode("utf-8")  # type: ignore
+        )
+
+        timestamp = payload["value"]
+
+        self.logger.debug(f"received timestamp: {timestamp}")
+        return timestamp
 
     def parse_actuator_command(self, message: Message) -> ActuatorCommand:
         """

@@ -211,3 +211,13 @@ class MessageFactory(ABC):
         :rtype: Message
         """
         raise NotImplementedError()
+
+    @abstractmethod
+    def make_keep_alive_message(self) -> Message:
+        """
+        Serialize a keep alive message.
+
+        :returns: keep alive message
+        :rtype: Message
+        """
+        raise NotImplementedError()

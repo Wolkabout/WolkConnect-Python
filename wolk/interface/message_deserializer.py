@@ -49,6 +49,18 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def is_keep_alive_response(self, message: Message) -> bool:
+        """
+        Check if message is keep alive response.
+
+        :param message: The message received
+        :type message: Message
+        :returns: keep_alive_response
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def is_configuration_command(self, message: Message) -> bool:
         """
         Check if message is configuration command.
@@ -201,6 +213,18 @@ class MessageDeserializer(ABC):
         :type message: Message
         :returns: actuation
         :rtype: ActuatorCommand
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def parse_keep_alive_response(self, message: Message) -> int:
+        """
+        Parse the message into an UTC timestamp.
+
+        :param message: The message received
+        :type message: Message
+        :returns: timestamp
+        :rtype: int
         """
         raise NotImplementedError()
 

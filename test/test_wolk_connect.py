@@ -438,6 +438,7 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
             False,
+            False,
             True,
         ]
         wolk_device.connectivity_service.connect = MagicMock(return_value=True)
@@ -456,6 +457,7 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.actuator_status_provider = True
         wolk_device.publish_actuator_status = MagicMock()
         wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.keep_alive_service_enabled = False
 
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
@@ -478,6 +480,7 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.configuration_provider = True
         wolk_device.publish_configuration = MagicMock()
         wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.keep_alive_service_enabled = False
 
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
@@ -504,6 +507,7 @@ class TestWolkConnect(unittest.TestCase):
         )
         wolk_device.message_queue.put = MagicMock()
         wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.keep_alive_service_enabled = False
 
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
@@ -511,6 +515,9 @@ class TestWolkConnect(unittest.TestCase):
             True,
         ]
         wolk_device.connectivity_service.connect = MagicMock(return_value=True)
+        wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
         wolk_device.connect()
         wolk_device.message_queue.put.assert_called_once()
         os.rmdir(file_directory)
@@ -529,6 +536,7 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_queue.put = MagicMock()
         wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.keep_alive_service_enabled = False
 
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
@@ -560,6 +568,7 @@ class TestWolkConnect(unittest.TestCase):
         )
         wolk_device.message_queue.put = MagicMock()
         wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.keep_alive_service_enabled = False
 
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
@@ -589,6 +598,7 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_queue.put = MagicMock()
         wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.keep_alive_service_enabled = False
 
         wolk_device.connectivity_service.is_connected = MagicMock()
         wolk_device.connectivity_service.is_connected.side_effect = [
@@ -599,6 +609,29 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connect()
         wolk_device.message_queue.put.assert_not_called()
         os.rmdir(file_directory)
+
+    def test_connect_keep_alive_enabled(self):
+        """Test connecting with enabled keep alive service."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+
+        wolk_device = WolkConnect(device)
+        wolk_device.connectivity_service.publish = MagicMock(return_value=True)
+        wolk_device.message_queue.put = MagicMock()
+        wolk_device.logger.setLevel(logging.CRITICAL)
+
+        wolk_device.connectivity_service.is_connected = MagicMock()
+        wolk_device.connectivity_service.is_connected.side_effect = [
+            False,
+            True,
+        ]
+        wolk_device.connectivity_service.connect = MagicMock(return_value=True)
+        wolk_device._send_keep_alive = MagicMock()
+        wolk_device.connect()
+        wolk_device._send_keep_alive.assert_called_once()
+        wolk_device.keep_alive_service.cancel()
 
     def test_disconnect_not_connected(self):
         """Test calling disconnect when not connected."""
@@ -630,6 +663,23 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connectivity_service.disconnect = MagicMock()
         wolk_device.disconnect()
         wolk_device.logger.debug.assert_called_once()
+
+    def test_disconnect_when_connected_stops_keep_alive(self):
+        """Test calling disconnect when connected stops keep alive service."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+        wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.disconnect = MagicMock()
+        wolk_device.keep_alive_service = device
+        wolk_device.keep_alive_service.cancel = MagicMock()
+        wolk_device.disconnect()
+        wolk_device.keep_alive_service.cancel.assert_called_once()
 
     def test_add_sensor_reading(self):
         """Test adding sensor reading to message queue."""
@@ -1018,6 +1068,26 @@ class TestWolkConnect(unittest.TestCase):
         )
         wolk_device._on_inbound_message(message)
         wolk_device.configuration_handler.assert_called_once_with(value)
+
+    def test_on_inbound_message_keep_alive_response(self):
+        """Test on inbound keep alive response message."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+        wolk_device.logger.setLevel(logging.CRITICAL)
+        timestamp = 1
+
+        message = Message("some_topic", "payload")
+        wolk_device.message_deserializer.parse_keep_alive_response = MagicMock(
+            return_value=timestamp
+        )
+        wolk_device.message_deserializer.is_keep_alive_response = MagicMock(
+            return_value=True
+        )
+        wolk_device._on_inbound_message(message)
+        self.assertEqual(timestamp, wolk_device.last_platform_timestamp)
 
     def test_on_inbound_message_file_management_message(self):
         """Test on inbound file management message."""
@@ -2138,7 +2208,7 @@ class TestWolkConnect(unittest.TestCase):
         self.assertEqual(2, wolk_device.message_queue.put.call_count)
 
     def test_on_file_url_status_with_file_name_publishes(self):
-        """Test on url upload status and publishes message.."""
+        """Test on url upload status and publishes message."""
         device_key = "some_key"
         device_password = "some_password"
         actuator_references = []
@@ -2165,3 +2235,87 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device._on_file_url_status(file_url, status, file_name)
 
         wolk_device.message_queue.put.assert_not_called()
+
+    def test_keep_alive_service_disabled(self):
+        """Test keep alive service is disabled."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+
+        wolk_device = WolkConnect(device).with_keep_alive_service(False)
+
+        self.assertFalse(wolk_device.keep_alive_service_enabled)
+        self.assertIsNone(wolk_device.keep_alive_service)
+
+    def test_keep_alive_service_custom_interval(self):
+        """Test on url upload status and publishes message.."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        interval = 15
+
+        wolk_device = WolkConnect(device).with_keep_alive_service(
+            True, interval
+        )
+
+        self.assertTrue(wolk_device.keep_alive_service_enabled)
+        self.assertEqual(interval, wolk_device.keep_alive_interval)
+
+    def test_send_keep_alive_not_connected(self):
+        """Test seding keep alive message when not connected."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        wolk_device.message_factory.make_keep_alive_message = MagicMock()
+
+        wolk_device._send_keep_alive()
+
+        wolk_device.message_factory.make_keep_alive_message.assert_not_called()
+
+    def test_send_keep_alive_connected(self):
+        """Test seding keep alive message when connected."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+
+        wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        wolk_device.connectivity_service.publish = MagicMock()
+
+        wolk_device._send_keep_alive()
+
+        wolk_device.connectivity_service.publish.assert_called_once()
+
+    def test_request_timestamp_when_none(self):
+        """Test request timestamp returns none."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+        wolk_device.logger.setLevel(logging.CRITICAL)
+
+        self.assertIsNone(wolk_device.request_timestamp())
+
+    def test_request_timestamp_when_not_none(self):
+        """Test request timestamp returns value."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+        wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.last_platform_timestamp = 1
+
+        self.assertIsNotNone(wolk_device.request_timestamp())

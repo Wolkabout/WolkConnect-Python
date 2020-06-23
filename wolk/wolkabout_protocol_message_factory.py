@@ -51,6 +51,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     FILE_LIST_RESPONSE = "d2p/file_list_response/"
     FILE_UPLOAD_STATUS = "d2p/file_upload_status/"
     FILE_URL_DOWNLOAD_STATUS = "d2p/file_url_download_status/"
+    KEEP_ALIVE = "ping/"
 
     def __init__(self, device_key: str) -> None:
         """
@@ -73,6 +74,19 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = self.LAST_WILL + self.device_key
+        message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_keep_alive_message(self) -> Message:
+        """
+        Serialize a keep alive message.
+
+        :returns: keep alive message
+        :rtype: Message
+        """
+        topic = self.KEEP_ALIVE + self.device_key
         message = Message(topic)
         self.logger.debug(f"{message}")
 

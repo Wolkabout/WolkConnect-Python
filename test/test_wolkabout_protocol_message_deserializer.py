@@ -39,6 +39,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     )
 
     expected_topics = [
+        WAPMD.KEEP_ALIVE_RESPONSE + device.key,
         WAPMD.CONFIGURATION_SET + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FILE_BINARY_RESPONSE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
         WAPMD.FILE_DELETE + WAPMD.DEVICE_PATH_DELIMITER + device.key,
@@ -88,6 +89,13 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         message = Message(WAPMD.ACTUATOR_SET, None)
 
         self.assertTrue(deserializer.is_actuation_command(message))
+
+    def test_is_keep_alive_response(self):
+        """Test if message is keep alive response."""
+        deserializer = WAPMD(self.device)
+        message = Message(WAPMD.KEEP_ALIVE_RESPONSE, None)
+
+        self.assertTrue(deserializer.is_keep_alive_response(message))
 
     def test_is_firmware_install(self):
         """Test if message is firmware install command."""
@@ -272,6 +280,22 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
 
         self.assertEqual(
             expected, deserializer.parse_actuator_command(incoming_message)
+        )
+
+    def test_parse_keep_alive_response(self):
+        """Test parse keep alive response message."""
+        deserializer = WAPMD(self.device)
+        deserializer.logger.setLevel(logging.CRITICAL)
+        timestamp = 123
+
+        incoming_topic = WAPMD.KEEP_ALIVE_RESPONSE + self.device.key
+        incoming_payload = bytearray(json.dumps({"value": timestamp}), "utf-8")
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        expected = timestamp
+
+        self.assertEqual(
+            expected, deserializer.parse_keep_alive_response(incoming_message)
         )
 
     def test_parse_firmware_install(self):

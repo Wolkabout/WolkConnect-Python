@@ -44,6 +44,7 @@ from wolk.model.state import State
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
 from wolk.os_file_management import OSFileManagement
 from wolk.os_firmware_update import OSFirmwareUpdate
+from wolk.repeating_timer import RepeatingTimer
 from wolk.wolkabout_protocol_message_deserializer import (
     WolkAboutProtocolMessageDeserializer as WAPMDeserializer,
 )
@@ -90,6 +91,12 @@ class WolkConnect:
     :vartype message_factory: MessageFactory
     :ivar message_queue: Store data before sending
     :vartype message_queue: MessageQueue
+    :ivar keep_alive_service_enabled: Enable keep alive service
+    :vartype keep_alive_service_enabled: bool
+    :ivar keep_alive_interval: Interval in seconds when to publish message
+    :vartype keep_alive_interval: int
+    :ivar keep_alive_service: Keep alive service
+    :vartype keep_alive_service: RepeatingTimer or None
     """
 
     def __init__(
@@ -172,6 +179,12 @@ class WolkConnect:
         self.connectivity_service.set_inbound_message_listener(
             self._on_inbound_message
         )
+
+        self.keep_alive_service_enabled = True
+        self.keep_alive_interval = 60
+        self.keep_alive_service: Optional[RepeatingTimer] = None
+
+        self.last_platform_timestamp: Optional[int] = None
 
     def with_actuators(
         self,
@@ -361,6 +374,32 @@ class WolkConnect:
 
         return self
 
+    def with_keep_alive_service(
+        self, enabled: bool, interval: Optional[int] = None
+    ):
+        """
+        Enable or disable keep alive service.
+
+        :param enabled: Enable or disable keep alive service
+        :type enabled: bool
+        :param interval: Interval in seconds, default is 60
+        :type interval: int or None
+        """
+        if not enabled:
+            self.keep_alive_service_enabled = False
+            self.keep_alive_service = None
+
+        if interval:
+            self.keep_alive_interval = interval
+
+        return self
+
+    def _send_keep_alive(self):
+        if not self.connectivity_service.is_connected():
+            return
+        message = self.message_factory.make_keep_alive_message()
+        self.connectivity_service.publish(message)
+
     def connect(self) -> None:
         """
         Connect the device to the WolkAbout IoT Platform.
@@ -407,11 +446,20 @@ class WolkConnect:
 
                 self.firmware_update.report_result()
 
+            if self.keep_alive_service_enabled:
+                self._send_keep_alive()
+                self.keep_alive_service = RepeatingTimer(
+                    self.keep_alive_interval, self._send_keep_alive
+                )
+                self.keep_alive_service.start()
+
     def disconnect(self) -> None:
         """Disconnect the device from WolkAbout IoT Platform."""
         if not self.connectivity_service.is_connected():
             return
         self.logger.debug("Disconnecting")
+        if self.keep_alive_service is not None:
+            self.keep_alive_service.cancel()
         self.connectivity_service.disconnect()
 
     def add_sensor_reading(
@@ -551,6 +599,22 @@ class WolkConnect:
             self.logger.error("Failed to publish configuration options!")
             self.message_queue.put(message)
 
+    def request_timestamp(self) -> Optional[int]:
+        """
+        Return last received timestamp from Platform.
+
+        If keep alive service is disabled or device didn't connect
+        at least once, then this will return None.
+
+        :returns: UTC timestamp in milliseconds
+        :rtype: int or None
+        """
+        if self.last_platform_timestamp is None:
+            self.logger.warning("No timestamp available, returning None")
+            return None
+
+        return self.last_platform_timestamp
+
     def _on_inbound_message(self, message: Message) -> None:
         """
         Handle inbound messages.
@@ -611,6 +675,18 @@ class WolkConnect:
             )
             self.configuration_handler(configuration.value)
             self.publish_configuration()
+            return
+
+        if self.message_deserializer.is_keep_alive_response(message):
+            timestamp = self.message_deserializer.parse_keep_alive_response(
+                message
+            )
+            self.logger.debug(
+                "Updating last platfrom timestamp "
+                f"from {self.last_platform_timestamp}"
+                f" to {timestamp}"
+            )
+            self.last_platform_timestamp = timestamp
             return
 
         if any(is_message(message) for is_message in file_management_messages):
