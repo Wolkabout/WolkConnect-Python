@@ -217,6 +217,8 @@ def main():
     while True:
         try:
             timestamp = round(time.time()) * 1000
+            # If unable to get system time use:
+            # timestamp = wolk_device.request_timestamp()
             temperature = random.uniform(15, 30)
             humidity = random.uniform(10, 55)
             pressure = random.uniform(975, 1030)

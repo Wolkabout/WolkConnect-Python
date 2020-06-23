@@ -24,8 +24,7 @@ Supported device communication protocols:
 
 ## Prerequisite
 
-* Python 3.7
-* Python 3.7 pip
+* Python 3.7+
 
 
 ## Installation
@@ -34,7 +33,7 @@ There are two ways to install this package
 
 ### Installing with pip
 ```console
-python3.7 -m pip install wolk-connect
+python3 -m pip install wolk-connect
 ```
 
 ### Installing from source
@@ -44,18 +43,18 @@ Clone this repository from the command line using:
 git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
-Install dependencies by invoking `python3.7 -m pip install -r requirements.txt`
+Install dependencies by invoking `python3 -m pip install -r requirements.txt`
 
 Install the package by running:
 ```console
-python3.7 setup.py install
+python3 setup.py install
 ```
 
 ## Example Usage
 
 **Establishing connection with WolkAbout IoT platform:**
 
-Create a device on WolkAbout IoT platform by importing [Full-example-deviceTemplate.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/Full-example-deviceTemplate.json) .<br />
+Create a device on WolkAbout IoT platform by using the provided *Full example* device type.
 This manifest fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/main.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
@@ -64,9 +63,7 @@ import wolk
 # Setup device credentials which you got
 # when the device was created on the platform
 device = wolk.Device(
-    key="device_key",
-    password="some_password",
-    actuator_references=["SW", "SL"],
+    key="device_key", password="some_password", actuator_references=["SW", "SL"],
 )
 
 
@@ -150,6 +147,10 @@ wolk_device.add_alarm("HH", True)
 wolk_device.add_alarm("HH", False)
 ```
 
+Optionally pass a `timestamp` as `round(time.time()) * 1000`.
+This is useful for maintaining data history when readings are not published immediately after adding them to storage.
+If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
+
 ### Data publish strategy
 
 Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
@@ -179,6 +180,25 @@ This will call the `configuration_provider` to read the current configuration an
 wolk_device.disconnect()
 ```
 
+### Ping keep-alive service
+
+By default, the library publishes a keep alive message every 60 seconds to the Platform, to update the device's last report for cases when the device doesn't publish data often.
+This service can be disabled to reduce bandwidth or battery usage, or the interval can be modified:
+
+```python
+wolk_device = wolk.WolkConnect(device=device).with_keep_alive_service(
+    enabled=True, interval=60
+)
+```
+
+Additionally, if this service is enabled and the device establishes connection to the Platform, then each keep alive message sent will be responded with the current UTC timestamp on the Platform.
+
+This timestamp will be saved and updated for each response, and can be accessed with:
+
+```python
+platform_timestamp = wolk_device.request_timestamp()
+```
+
 ### Data persistence
 
 WolkAbout Python Connector provides a mechanism for persisting data in situations where readings can not be sent to WolkAbout IoT platform.
@@ -189,9 +209,9 @@ Data persistence mechanism used **by default** stores data in-memory by using `c
 In cases when provided in-file persistence is suboptimal, one can use custom persistence by implementing `MessageQueue`, and forwarding it to the constructor in the following manner:
 
 ```python
-wolk_device = wolk.WolkConnect(
-    device=device
-).with_custom_message_queue(custom_message_queue)
+wolk_device = wolk.WolkConnect(device=device).with_custom_message_queue(
+    custom_message_queue
+)
 wolk_device.connect()
 ```
 
@@ -225,9 +245,7 @@ wolk_device = (
         max_file_size=100 * 1000 * 1000,
         file_directory="files",
     )
-    .with_firmware_update(
-        firmware_handler=MyFirmwareHandler()
-    )
+    .with_firmware_update(firmware_handler=MyFirmwareHandler())
 )
 ```
 

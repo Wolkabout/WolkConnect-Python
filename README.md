@@ -25,8 +25,7 @@ Supported device communication protocols:
 ## Prerequisite
 
 
-* Python 3.7
-* Python 3.7 pip
+* Python 3.7+
 
 
 ## Installation
@@ -35,7 +34,7 @@ There are two ways to install this package
 
 ### Installing with pip
 ```console
-python3.7 -m pip install wolk-connect
+python3 -m pip install wolk-connect
 ```
 
 ### Installing from source
@@ -45,18 +44,18 @@ Clone this repository from the command line using:
 git clone https://github.com/Wolkabout/WolkConnect-Python.git
 ```
 
-Install dependencies by invoking `python3.7 -m pip install -r requirements.txt`
+Install dependencies by invoking `python3 -m pip install -r requirements.txt`
 
 Install the package by running:
 ```console
-python3.7 setup.py install
+python3 setup.py install
 ```
 
 ## Example Usage
 
 ### Establishing connection with WolkAbout IoT platform
 
-Create a device on WolkAbout IoT platform by importing [Simple-example-deviceTemplate.json](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/Simple-example-deviceTemplate.json).<br />
+Create a device on WolkAbout IoT platform by using the provided *Simple example* device type.
 This template fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the sending of a temperature sensor reading.
 
 ```python
