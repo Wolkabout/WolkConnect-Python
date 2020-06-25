@@ -29,7 +29,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-wolk.logging_config("debug", "wolk.log")
+# wolk.logging_config("debug", "wolk.log")
 
 firmware_version = "1.0"
 configuration_file = "configuration.json"
