@@ -199,9 +199,10 @@ class MQTTConnectivityService(ConnectivityService):
         :raises RuntimeError: Unexpected disconnection
         """
         self.connected = False
-        self.connected_rc = None
+        self.connected_rc = return_code
         self.logger.debug(f"Connected : {self.connected}")
-        if return_code != 0:
+        self.logger.debug(f"Return code : {return_code}")
+        if return_code not in [0, 5]:
             self.logger.error("Unexpected disconnect!")
             self.logger.info("Attempting to reconnect..")
             self.connect()
@@ -273,12 +274,14 @@ class MQTTConnectivityService(ConnectivityService):
             if self.connected_rc == 0:
                 self.logger.info("Connected!")
                 self.timeout = None
+                self.connected_rc = None
                 break
 
             if self.connected_rc == 1:
                 self.logger.warning(
                     "Connection refused - incorrect protocol version"
                 )
+                self.connected_rc = None
                 self.timeout = None
                 return False
 
@@ -286,28 +289,33 @@ class MQTTConnectivityService(ConnectivityService):
                 self.logger.warning(
                     "Connection refused - invalid client identifier"
                 )
+                self.connected_rc = None
                 self.timeout = None
                 return False
 
             if self.connected_rc == 3:
                 self.logger.warning("Connection refused - server unavailable")
                 self.timeout = None
+                self.connected_rc = None
                 return False
 
             if self.connected_rc == 4:
                 self.logger.warning(
                     "Connection refused - bad username or password"
                 )
+                self.connected_rc = None
                 self.timeout = None
                 return False
 
             if self.connected_rc == 5:
                 self.logger.warning("Connection refused - not authorised")
+                self.connected_rc = None
                 self.timeout = None
                 return False
 
             if self.connected_rc not in list(range(6)):
                 self.logger.warning("Unknown retun code")
+                self.connected_rc = None
                 self.timeout = None
                 return False
 
