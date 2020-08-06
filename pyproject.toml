@@ -1,0 +1,30 @@
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.coverage.report]
+exclude_lines = [
+  "raise NotImplementedError",
+  "def __repr__",
+  "if __name__ == .__main__.:",
+]
+
+[tool.coverage.run]
+branch = true
+omit = ["*/.local/*", "/usr/*"]
+
+[tool.coverage.html]
+directory = "coverage_html_directory"

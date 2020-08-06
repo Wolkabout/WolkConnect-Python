@@ -5,5 +5,5 @@ wolk
    :maxdepth: 4
 
    wolk
-   wolk.models
-   wolk.interfaces
+   wolk.model
+   wolk.interface

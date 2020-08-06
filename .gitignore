@@ -26,6 +26,7 @@ wheels/
 # Sphinx documentation
 docs/_static/
 docs/_templates/
+docs/build/
 
 # pyenv
 .python-version
@@ -42,6 +43,16 @@ venv.bak/
 # PyCharm
 .idea/
 
+# mypy
+.mypy_cache/
+
+# Coverage.py
+.coverage
+coverage_html_directory/
+
 # Sublime Text
 *.sublime-project
 *.sublime-workspace
+
+# Logs
+*.log

@@ -5,14 +5,20 @@ Project documentation is built using [Sphinx docs](http://sphinx-doc.org/), whic
 
 Sphinx docs is pip-installable via `pip install sphinx`.  Once installed, open a command line in the docs folder and run the following commands:
 
-```bash
-$ sudo pip install -r requirements.txt
+```console
+pip install -r requirements.txt
 ```
 
 This will install the requirements needed for the generating the docs. Afterwards you can run:
 
-```bash
-$ make html
+- Linux:
+```console
+make html
+```
+- Windows:
+```console
+sphinx-build -b html .\source\ .\build\
 ```
 
-The docs will be generated, the output files will be placed in the `build/html/` directory, and can be browsed (locally) with any browser.
+
+The docs will be generated, the output files will be placed in the `build/` directory, and can be browsed (locally) with any browser.
