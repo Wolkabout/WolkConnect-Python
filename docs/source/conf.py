@@ -23,6 +23,8 @@ project = "WolkConnect-Python"
 copyright = "2020, WolkAbout"
 author = "WolkAbout"
 release = __version__
+master_doc = "index"
+
 
 # -- General configuration ---------------------------------------------------
 
