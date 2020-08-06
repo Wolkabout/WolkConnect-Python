@@ -14,7 +14,7 @@ Actuator command
 Actuator state
 ~~~~~~~~~~~~~~
 
-.. automodule:: wolk.model.actuator_state
+.. automodule:: wolk.model.state
     :members:
     :undoc-members:
     :show-inheritance:
@@ -47,14 +47,6 @@ Device
 ~~~~~~
 
 .. automodule:: wolk.model.device
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Device state
-~~~~~~~~~~~~
-
-.. automodule:: wolk.model.device_state
     :members:
     :undoc-members:
     :show-inheritance:
