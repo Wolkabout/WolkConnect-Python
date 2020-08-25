@@ -118,6 +118,7 @@ class WolkConnect:
         :param ca_cert: String path to Certificate Authority certificate file
         :type ca_cert: str, optional
         """
+        logger_factory.logger_factory.set_device_key(device.key)
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )

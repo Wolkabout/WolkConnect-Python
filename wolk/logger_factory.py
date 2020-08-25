@@ -20,30 +20,32 @@ class LoggerFactory:
     """Factory for issuing ready to use loggers in other modules."""
 
     def __init__(
-        self,
-        level=logging.INFO,
-        log_format="%(asctime)s - %(levelname)s "
-        "[%(filename)s:%(lineno)s - %(funcName)s() ] - %(message)s",
-        console=True,
-        log_file=None,
+        self, level=logging.INFO, console=True, log_file=None,
     ):
         """
         Create a factory that will give loggers through calls to get_logger().
 
         :param level: Set the desired logging level
         :type level: int or None
-        :param log_format: Desired logging format
-        :type log_format: str or None
         :param console: Should the log messages be outputted to the console
         :type console: bool or None
         :param log_file: Name of the log file to output to
         :type log_file: str or None
         """
         self.level = level
-        self.log_format = log_format
+        self.device_key = None
         self.console = console
         self.log_file = log_file
         self.loggers: List[logging.Logger] = []
+
+    def set_device_key(self, device_key):
+        """
+        Set device key.
+
+        :param device_key: Device key
+        :type device_key: str
+        """
+        self.device_key = device_key
 
     def get_logger(self, name, level=None):
         """
@@ -64,7 +66,12 @@ class LoggerFactory:
         else:
             logger.setLevel(self.level)
 
-        formatter = logging.Formatter(self.log_format)
+        formatter = logging.Formatter(
+            "%(asctime)s - '"
+            + str(self.device_key)
+            + "' - %(levelname)s [%(filename)s:%(lineno)s"
+            + " - %(funcName)s()] - %(message)s"
+        )
 
         if self.console:
 
