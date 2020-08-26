@@ -44,7 +44,7 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_sensor_readings(
+    def make_from_multiple_sensor_readings(
         self,
         readings: Dict[
             str,
@@ -57,6 +57,29 @@ class MessageFactory(ABC):
 
         :param readings: Dictionary of reference: value pairs
         :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_sensor_readings_history(
+        self,
+        reference: str,
+        readings: List[
+            Tuple[
+                int,
+                Union[
+                    bool, str, int, Tuple[int, ...], float, Tuple[float, ...]
+                ],
+            ]
+        ],
+    ) -> Message:
+        """
+        Serialize history of sensor readings to send to WolkAbout IoT Platform.
+
+        :param readings: List of tuples of timestamp,data
+        :type readings: List[Tuple[int, Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]]
         :returns: message
         :rtype: Message
         """

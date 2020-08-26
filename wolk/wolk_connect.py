@@ -16,6 +16,7 @@ import os
 from inspect import signature
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -489,24 +490,48 @@ class WolkConnect:
 
     def add_sensor_readings(
         self,
-        readings: Dict[str, ReadingValue],
+        readings: Union[
+            Dict[str, ReadingValue], List[Tuple[int, ReadingValue]]
+        ],
+        reference: Optional[str] = None,
         timestamp: Optional[int] = None,
     ) -> None:
         """
         Place multiple sensor readings into storage.
 
-        :param readings: Dictionary of reference: value pairs
-        :type readings: Dict[str, Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]]
+        Pass `readings` as dictionary of sensor reference: value pairs and
+        omit passing a `reference` argument. Used for sending multiple sensor's
+        data belonging to a single timestamp.
+
+        Pass `reading` as a list of tuples where the first element is
+        the timestamp and the second element is the sensor reading data,
+        pass `reference` for the sensor reference and omit passing
+        the `timestamp` argument.
+        Used for sending sending history of sensor readings.
+
+        :param readings: Dictionary of different sensor readings or list of single sensor's data history
+        :type readings: Union[Dict[str, ReadingValue], List[Tuple[int, ReadingValue]]]
+        :param reference: The reference of the sensor to which the reading belong to
+        :type reference: Optional[str]
         :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
-            f"Adding sensor readings: readings:{readings}, "
+            f"Adding sensor readings for reference '{reference}': "
+            f"readings:{readings}, "
             f"timestamp = {timestamp}"
         )
-        message = self.message_factory.make_from_sensor_readings(
-            readings, timestamp
-        )
+        if reference is None and isinstance(readings, dict):
+            message = self.message_factory.make_from_multiple_sensor_readings(
+                readings, timestamp
+            )
+        elif reference is not None and isinstance(readings, list):
+            message = self.message_factory.make_from_sensor_readings_history(
+                reference, readings
+            )
+        else:
+            self.logger.warning("Invalid values provided - ignoring")
+            return
         self.message_queue.put(message)
 
     def add_alarm(

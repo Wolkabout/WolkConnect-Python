@@ -130,7 +130,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
-    def make_from_sensor_readings(
+    def make_from_multiple_sensor_readings(
         self,
         readings: Dict[
             str,
@@ -163,6 +163,53 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             payload.update({"utc": int(timestamp)})
         else:
             payload.update({"utc": round(time()) * 1000})
+
+        message = Message(topic, json.dumps(payload))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_sensor_readings_history(
+        self,
+        reference: str,
+        readings: List[
+            Tuple[
+                int,
+                Union[
+                    bool, str, int, Tuple[int, ...], float, Tuple[float, ...]
+                ],
+            ]
+        ],
+    ) -> Message:
+        """
+        Serialize history of sensor readings to send to WolkAbout IoT Platform.
+
+        :param readings: List of tuples of timestamp,data
+        :type readings: List[Tuple[int, Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]]
+        :returns: message
+        :rtype: Message
+        """
+        self.logger.debug(f"reference:{reference}, readings:{readings}")
+
+        topic = (
+            self.SENSOR_READING
+            + self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.REFERENCE_PATH_PREFIX
+            + reference
+        )
+
+        payload: List[Dict[str, Union[int, str]]] = []
+        for reading in readings:
+            timestamp, value = reading
+            if isinstance(value, tuple):
+                value = ",".join(map(str, value))
+            elif isinstance(value, bool):
+                value = str(value).lower()
+            else:
+                value = str(value)
+            payload.append({"utc": timestamp, "data": value})
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
