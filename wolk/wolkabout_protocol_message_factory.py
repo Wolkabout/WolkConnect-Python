@@ -92,16 +92,23 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
-    def make_from_sensor_reading(self, reading: SensorReading) -> Message:
+    def make_from_sensor_reading(
+        self, reading: Union[SensorReading, List[SensorReading]]
+    ) -> Message:
         """
         Serialize the sensor reading to be sent to WolkAbout IoT Platform.
 
         :param reading: Sensor reading to be serialized
-        :type reading: SensorReading
+        :type reading: Union[SensorReading, List[SensorReading]]
         :returns: message
         :rtype: Message
         """
         self.logger.debug(f"{reading}")
+
+        if isinstance(reading, SensorReading):
+            reference = reading.reference
+        else:
+            reference = reading[0].reference
 
         topic = (
             self.SENSOR_READING
@@ -109,21 +116,33 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.REFERENCE_PATH_PREFIX
-            + reading.reference
+            + reference
         )
 
-        if isinstance(reading.value, tuple):
-            reading.value = ",".join(map(str, reading.value))
+        if not isinstance(reading, list):
+            reading = [reading]
 
-        elif isinstance(reading.value, bool):
-            reading.value = str(reading.value).lower()
+        payload: List[Dict[str, Union[int, str]]] = []
 
-        payload: Dict[str, Union[str, int]] = {"data": str(reading.value)}
+        for single_reading in reading:
+            serialized_reading: Dict[str, Union[int, str]] = {}
+            if isinstance(single_reading.value, tuple):
+                serialized_reading["data"] = ",".join(
+                    map(str, single_reading.value)
+                )
 
-        if reading.timestamp is not None:
-            payload.update({"utc": int(reading.timestamp)})
-        else:
-            payload.update({"utc": round(time()) * 1000})
+            elif isinstance(single_reading.value, bool):
+                serialized_reading["data"] = str(single_reading.value).lower()
+
+            else:
+                serialized_reading["data"] = str(single_reading.value)
+
+            if single_reading.timestamp is not None:
+                serialized_reading["utc"] = int(single_reading.timestamp)
+            else:
+                serialized_reading["utc"] = round(time() * 1000)
+
+            payload.append(serialized_reading)
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")

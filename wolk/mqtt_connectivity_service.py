@@ -12,6 +12,7 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
+from threading import Lock
 from time import sleep
 from time import time
 from typing import Any
@@ -90,6 +91,7 @@ class MQTTConnectivityService(ConnectivityService):
         ] = lambda message: print("\n\nNo inbound message listener set!\n\n")
         self.timeout: Optional[int] = None
         self.timeout_interval = 10
+        self.mutex = Lock()
 
     def is_connected(self) -> bool:
         """
@@ -220,6 +222,8 @@ class MQTTConnectivityService(ConnectivityService):
         if self.connected:
             return True
 
+        self.mutex.acquire()
+
         self.client.on_connect = self.on_mqtt_connect
         self.client.on_disconnect = self.on_mqtt_disconnect
         self.client.on_message = self.on_mqtt_message
@@ -231,6 +235,7 @@ class MQTTConnectivityService(ConnectivityService):
                 self.logger.exception(
                     f"Something went wrong when setting TLS: {exception}"
                 )
+                self.mutex.release()
                 return False
         self.client.username_pw_set(self.device.key, self.device.password)
         self.client.will_set(
@@ -254,6 +259,7 @@ class MQTTConnectivityService(ConnectivityService):
             self.logger.exception(
                 f"Something went wrong while connecting: {exception}"
             )
+            self.mutex.release()
             return False
 
         self.client.loop_start()
@@ -265,6 +271,7 @@ class MQTTConnectivityService(ConnectivityService):
             if round(time()) > self.timeout:
                 self.logger.warning("Connection timed out!")
                 self.timeout = None
+                self.mutex.release()
                 return False
 
             if self.connected_rc is None:
@@ -283,6 +290,7 @@ class MQTTConnectivityService(ConnectivityService):
                 )
                 self.connected_rc = None
                 self.timeout = None
+                self.mutex.release()
                 return False
 
             if self.connected_rc == 2:
@@ -291,12 +299,14 @@ class MQTTConnectivityService(ConnectivityService):
                 )
                 self.connected_rc = None
                 self.timeout = None
+                self.mutex.release()
                 return False
 
             if self.connected_rc == 3:
                 self.logger.warning("Connection refused - server unavailable")
                 self.timeout = None
                 self.connected_rc = None
+                self.mutex.release()
                 return False
 
             if self.connected_rc == 4:
@@ -305,23 +315,27 @@ class MQTTConnectivityService(ConnectivityService):
                 )
                 self.connected_rc = None
                 self.timeout = None
+                self.mutex.release()
                 return False
 
             if self.connected_rc == 5:
                 self.logger.warning("Connection refused - not authorised")
                 self.connected_rc = None
                 self.timeout = None
+                self.mutex.release()
                 return False
 
             if self.connected_rc not in list(range(6)):
                 self.logger.warning("Unknown retun code")
                 self.connected_rc = None
                 self.timeout = None
+                self.mutex.release()
                 return False
 
         self.logger.debug(f"Subscribing to topics: {self.topics}")
         for topic in self.topics:
             self.client.subscribe(topic, 2)
+        self.mutex.release()
         return True
 
     def disconnect(self) -> None:
@@ -351,16 +365,20 @@ class MQTTConnectivityService(ConnectivityService):
                 f"Not connected, unable to publish message: {message}"
             )
             return False
+        self.mutex.acquire()
 
         info = self.client.publish(message.topic, message.payload, self.qos)
 
         if info.rc == mqtt.MQTT_ERR_SUCCESS:
             self.logger.debug(f"Published message: {message}")
+            self.mutex.release()
             return True
 
         if info.is_published():
             self.logger.debug(f"Published message: {message}")
+            self.mutex.release()
             return True
 
         self.logger.warning(f"Failed to publish message: {message}")
+        self.mutex.release()
         return False

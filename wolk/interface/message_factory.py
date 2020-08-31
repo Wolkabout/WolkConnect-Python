@@ -32,12 +32,14 @@ class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
     @abstractmethod
-    def make_from_sensor_reading(self, reading: SensorReading) -> Message:
+    def make_from_sensor_reading(
+        self, reading: Union[SensorReading, List[SensorReading]]
+    ) -> Message:
         """
         Serialize a sensor reading to be sent to WolkAbout IoT Platform.
 
         :param reading: Reading to be serialized
-        :type reading: SensorReading
+        :type reading: Union[SensorReading, List[SensorReading]
         :returns: message
         :rtype: Message
         """

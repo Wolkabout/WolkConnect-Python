@@ -693,6 +693,18 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.add_sensor_reading("R", 1)
         wolk_device.message_queue.put.assert_called_once()
 
+    def test_add_sensor_reading_historical(self):
+        """Test adding sensor reading to message queue."""
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        wolk_device = WolkConnect(device)
+        wolk_device.logger.setLevel(logging.CRITICAL)
+        wolk_device.message_queue.put = MagicMock()
+        wolk_device.add_sensor_reading("R", [(1, 2), (3, 4)])
+        wolk_device.message_queue.put.assert_called_once()
+
     def test_add_sensor_readings(self):
         """Test adding sensor readings to message queue."""
         device_key = "some_key"

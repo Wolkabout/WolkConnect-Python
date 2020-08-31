@@ -16,6 +16,7 @@ import os
 from inspect import signature
 from typing import Callable
 from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
@@ -118,6 +119,7 @@ class WolkConnect:
         :param ca_cert: String path to Certificate Authority certificate file
         :type ca_cert: str, optional
         """
+        logger_factory.logger_factory.set_device_key(device.key)
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
@@ -465,16 +467,21 @@ class WolkConnect:
     def add_sensor_reading(
         self,
         reference: str,
-        value: ReadingValue,
+        value: Union[ReadingValue, List[Tuple[ReadingValue, int]]],
         timestamp: Optional[int] = None,
     ) -> None:
         """
         Place a sensor reading into storage.
 
+        Pass a single reading or multiple readings as a list
+        of tuples where the first element is the reading data
+        and the second element is timestamp when the reading occurred.
+        If passing a list of readings, omit the `timestamp` argument.
+
         :param reference: The reference of the sensor
         :type reference: str
         :param value: The value of the sensor reading
-        :type value: Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]
+        :type value: Union[ReadingValue, List[Tuple[ReadingValue, int]]]
         :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
@@ -482,7 +489,12 @@ class WolkConnect:
             f"Adding sensor reading: reference = '{reference}', "
             f"value = {value}, timestamp = {timestamp}"
         )
-        reading = SensorReading(reference, value, timestamp)
+        if isinstance(value, list):
+            reading: Union[SensorReading, List[SensorReading]] = [
+                SensorReading(reference, data[0], data[1]) for data in value
+            ]
+        else:
+            reading = SensorReading(reference, value, timestamp)
         message = self.message_factory.make_from_sensor_reading(reading)
         self.message_queue.put(message)
 
