@@ -66,13 +66,18 @@ class LoggerFactory:
         else:
             logger.setLevel(self.level)
 
-        formatter = logging.Formatter(
-            "%(asctime)s - '"
-            + str(self.device_key)
-            + "' - %(levelname)s [%(filename)s:%(lineno)s"
-            + " - %(funcName)s()] - %(message)s"
-        )
-
+        if self.device_key is not None:
+            formatter = logging.Formatter(
+                "%(asctime)s - '"
+                + str(self.device_key)
+                + "' - %(levelname)s [%(filename)s:%(lineno)s"
+                + " - %(funcName)s()] - %(message)s"
+            )
+        else:
+            formatter = logging.Formatter(
+                "%(asctime)s - %(levelname)s [%(filename)s:%(lineno)s"
+                + " - %(funcName)s()] - %(message)s"
+            )
         if self.console:
 
             console_handler = logging.StreamHandler()

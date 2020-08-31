@@ -32,19 +32,21 @@ class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
     @abstractmethod
-    def make_from_sensor_reading(self, reading: SensorReading) -> Message:
+    def make_from_sensor_reading(
+        self, reading: Union[SensorReading, List[SensorReading]]
+    ) -> Message:
         """
         Serialize a sensor reading to be sent to WolkAbout IoT Platform.
 
         :param reading: Reading to be serialized
-        :type reading: SensorReading
+        :type reading: Union[SensorReading, List[SensorReading]
         :returns: message
         :rtype: Message
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_multiple_sensor_readings(
+    def make_from_sensor_readings(
         self,
         readings: Dict[
             str,
@@ -57,29 +59,6 @@ class MessageFactory(ABC):
 
         :param readings: Dictionary of reference: value pairs
         :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_sensor_readings_history(
-        self,
-        reference: str,
-        readings: List[
-            Tuple[
-                int,
-                Union[
-                    bool, str, int, Tuple[int, ...], float, Tuple[float, ...]
-                ],
-            ]
-        ],
-    ) -> Message:
-        """
-        Serialize history of sensor readings to send to WolkAbout IoT Platform.
-
-        :param readings: List of tuples of timestamp,data
-        :type readings: List[Tuple[int, Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]]
         :returns: message
         :rtype: Message
         """

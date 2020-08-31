@@ -467,16 +467,21 @@ class WolkConnect:
     def add_sensor_reading(
         self,
         reference: str,
-        value: ReadingValue,
+        value: Union[ReadingValue, List[Tuple[ReadingValue, int]]],
         timestamp: Optional[int] = None,
     ) -> None:
         """
         Place a sensor reading into storage.
 
+        Pass a single reading or multiple readings as a list
+        of tuples where the first element is the reading data
+        and the second element is timestamp when the reading occurred.
+        If passing a list of readings, omit the `timestamp` argument.
+
         :param reference: The reference of the sensor
         :type reference: str
         :param value: The value of the sensor reading
-        :type value: Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]
+        :type value: Union[ReadingValue, List[Tuple[ReadingValue, int]]]
         :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
@@ -484,54 +489,35 @@ class WolkConnect:
             f"Adding sensor reading: reference = '{reference}', "
             f"value = {value}, timestamp = {timestamp}"
         )
-        reading = SensorReading(reference, value, timestamp)
+        if isinstance(value, list):
+            reading: Union[SensorReading, List[SensorReading]] = [
+                SensorReading(reference, data[0], data[1]) for data in value
+            ]
+        else:
+            reading = SensorReading(reference, value, timestamp)
         message = self.message_factory.make_from_sensor_reading(reading)
         self.message_queue.put(message)
 
     def add_sensor_readings(
         self,
-        readings: Union[
-            Dict[str, ReadingValue], List[Tuple[int, ReadingValue]]
-        ],
-        reference: Optional[str] = None,
+        readings: Dict[str, ReadingValue],
         timestamp: Optional[int] = None,
     ) -> None:
         """
         Place multiple sensor readings into storage.
 
-        Pass `readings` as dictionary of sensor reference: value pairs and
-        omit passing a `reference` argument. Used for sending multiple sensor's
-        data belonging to a single timestamp.
-
-        Pass `reading` as a list of tuples where the first element is
-        the timestamp and the second element is the sensor reading data,
-        pass `reference` for the sensor reference and omit passing
-        the `timestamp` argument.
-        Used for sending sending history of sensor readings.
-
-        :param readings: Dictionary of different sensor readings or list of single sensor's data history
-        :type readings: Union[Dict[str, ReadingValue], List[Tuple[int, ReadingValue]]]
-        :param reference: The reference of the sensor to which the reading belong to
-        :type reference: Optional[str]
+        :param readings: Dictionary of reference: value pairs
+        :type readings: Dict[str, Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]]
         :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
-            f"Adding sensor readings for reference '{reference}': "
-            f"readings:{readings}, "
+            f"Adding sensor readings: readings:{readings}, "
             f"timestamp = {timestamp}"
         )
-        if reference is None and isinstance(readings, dict):
-            message = self.message_factory.make_from_multiple_sensor_readings(
-                readings, timestamp
-            )
-        elif reference is not None and isinstance(readings, list):
-            message = self.message_factory.make_from_sensor_readings_history(
-                reference, readings
-            )
-        else:
-            self.logger.warning("Invalid values provided - ignoring")
-            return
+        message = self.message_factory.make_from_sensor_readings(
+            readings, timestamp
+        )
         self.message_queue.put(message)
 
     def add_alarm(

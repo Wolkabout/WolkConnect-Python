@@ -34,7 +34,7 @@ from wolk.wolkabout_protocol_message_factory import (
     WolkAboutProtocolMessageFactory as WAPMF,
 )
 
-# unittest.util._MAX_LENGTH = 2000
+unittest.util._MAX_LENGTH = 2000
 
 
 class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
@@ -66,11 +66,11 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + reference
         )
         expected_payload = json.dumps(
-            {"data": expected_value, "utc": timestamp}
+            [{"data": expected_value, "utc": timestamp}]
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        reading = SensorReading(reference, value)
+        reading = SensorReading(reference, value, timestamp)
 
         serialized_message = factory.make_from_sensor_reading(reading)
 
@@ -94,11 +94,11 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + reference
         )
         expected_payload = json.dumps(
-            {"data": expected_value, "utc": timestamp}
+            [{"data": expected_value, "utc": timestamp}]
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        reading = SensorReading(reference, value)
+        reading = SensorReading(reference, value, timestamp)
 
         serialized_message = factory.make_from_sensor_reading(reading)
 
@@ -116,7 +116,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         serialized_message = factory.make_from_sensor_reading(reading)
 
-        self.assertIn("utc", json.loads(serialized_message.payload))
+        self.assertIn("utc", json.loads(serialized_message.payload)[0])
 
     def test_sensor_multi_value_float(self):
         """Test valid message for multi-value float sensor reading."""
@@ -136,11 +136,11 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + reference
         )
         expected_payload = json.dumps(
-            {"data": expected_value, "utc": timestamp}
+            [{"data": expected_value, "utc": timestamp}]
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        reading = SensorReading(reference, value)
+        reading = SensorReading(reference, value, timestamp)
 
         serialized_message = factory.make_from_sensor_reading(reading)
 
@@ -164,11 +164,11 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + reference
         )
         expected_payload = json.dumps(
-            {"data": expected_value, "utc": timestamp}
+            [{"data": expected_value, "utc": timestamp}]
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        reading = SensorReading(reference, value)
+        reading = SensorReading(reference, value, timestamp)
 
         serialized_message = factory.make_from_sensor_reading(reading)
 
@@ -192,11 +192,11 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             + reference
         )
         expected_payload = json.dumps(
-            {"data": expected_value, "utc": timestamp}
+            [{"data": expected_value, "utc": timestamp}]
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        reading = SensorReading(reference, value)
+        reading = SensorReading(reference, value, timestamp)
 
         serialized_message = factory.make_from_sensor_reading(reading)
 
@@ -228,28 +228,28 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = factory.make_from_multiple_sensor_readings(
+        serialized_message = factory.make_from_sensor_readings(
             readings, timestamp
         )
 
         self.assertEqual(expected_message, serialized_message)
 
-    def test_multiple_sensor_readings_history(self):
-        """Test message for sensor readings with history."""
+    def test_multiple_sensor_readings_historical(self):
+        """Test message for multiple sensor readings."""
         device_key = "some_key"
         factory = WAPMF(device_key)
-        reference = "SRH"
+        reference = "HS"
         value_1 = False
-        timestamp_1 = round(time.time() * 1000)
-        value_2 = 1, 2
-        timestamp_2 = timestamp_1 - 60000000
-        value_3 = 3.4
-        timestamp_3 = timestamp_2 - 60000000
-        readings = [
-            (timestamp_1, value_1),
-            (timestamp_2, value_2),
-            (timestamp_3, value_3),
-        ]
+        timestamp_1 = int(round(time.time() * 1000))
+        value_2 = (12, 23, 34)
+        timestamp_2 = timestamp_1 - 600000
+        value_3 = 45.6
+        timestamp_3 = timestamp_2 - 600000
+
+        reading_1 = SensorReading(reference, value_1, timestamp_1)
+        reading_2 = SensorReading(reference, value_2, timestamp_2)
+        reading_3 = SensorReading(reference, value_3, timestamp_3)
+        readings = [reading_1, reading_2, reading_3]
 
         expected_topic = (
             WAPMF.SENSOR_READING
@@ -261,16 +261,14 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         )
         expected_payload = json.dumps(
             [
-                {"utc": timestamp_1, "data": str(value_1).lower()},
-                {"utc": timestamp_2, "data": ",".join(map(str, value_2))},
-                {"utc": timestamp_3, "data": str(value_3)},
+                {"data": str(value_1).lower(), "utc": timestamp_1},
+                {"data": ",".join(map(str, value_2)), "utc": timestamp_2},
+                {"data": str(value_3), "utc": timestamp_3},
             ]
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = factory.make_from_sensor_readings_history(
-            reference, readings,
-        )
+        serialized_message = factory.make_from_sensor_reading(readings)
 
         self.assertEqual(expected_message, serialized_message)
 
@@ -300,9 +298,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         )
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = factory.make_from_multiple_sensor_readings(
-            readings
-        )
+        serialized_message = factory.make_from_sensor_readings(readings)
 
         self.assertEqual(expected_message, serialized_message)
 
