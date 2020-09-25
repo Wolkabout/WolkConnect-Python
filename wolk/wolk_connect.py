@@ -872,6 +872,8 @@ class WolkConnect:
         if self.connectivity_service.is_connected():
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
+        else:
+            self.message_queue.put(message)
         if (
             status.status == FirmwareUpdateStatusType.COMPLETED
             and self.firmware_update
