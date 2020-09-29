@@ -31,7 +31,7 @@ class RepeatingTimer:
     :vartype timer: threading.Timer
     """
 
-    def __init__(self, interval, f, *args, **kwargs):
+    def __init__(self, interval, f, *args, **kwargs):  # type: ignore
         r"""
         Create a repeating timer.
 
@@ -51,16 +51,16 @@ class RepeatingTimer:
 
         self.timer = None
 
-    def callback(self):
+    def callback(self) -> None:
         """Call function and start timer."""
         self.f(*self.args, **self.kwargs)
         self.start()
 
-    def cancel(self):
+    def cancel(self) -> None:
         """Cancel timer."""
         self.timer.cancel()
 
-    def start(self):
+    def start(self) -> None:
         """Start timer."""
         self.timer = Timer(self.interval, self.callback)
         self.timer.start()

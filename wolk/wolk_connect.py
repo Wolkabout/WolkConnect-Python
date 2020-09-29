@@ -54,13 +54,21 @@ from wolk.wolkabout_protocol_message_factory import (
 )
 
 ConfigurationValue = Union[
-    bool, int, float, str,
+    bool,
+    int,
+    float,
+    str,
 ]
 
 ActuatorValue = Tuple[State, Optional[Union[bool, int, float, str]]]
 
 ReadingValue = Union[
-    bool, int, Tuple[int, ...], float, Tuple[float, ...], str,
+    bool,
+    int,
+    Tuple[int, ...],
+    float,
+    Tuple[float, ...],
+    str,
 ]
 
 
@@ -188,7 +196,7 @@ class WolkConnect:
 
         self.last_platform_timestamp: Optional[int] = None
 
-    def with_actuators(
+    def with_actuators(  # type: ignore
         self,
         actuation_handler: Callable[[str, Union[bool, int, float, str]], None],
         actuator_status_provider: Callable[[str], ActuatorValue],
@@ -220,7 +228,7 @@ class WolkConnect:
 
         return self
 
-    def with_configuration(
+    def with_configuration(  # type: ignore
         self,
         configuration_handler: Callable[[Dict[str, ConfigurationValue]], None],
         configuration_provider: Callable[
@@ -254,7 +262,7 @@ class WolkConnect:
 
         return self
 
-    def with_file_management(
+    def with_file_management(  # type: ignore
         self,
         preferred_package_size: int,
         max_file_size: int,
@@ -282,12 +290,14 @@ class WolkConnect:
             self._on_file_url_status,
         )
         self.file_management.configure(
-            preferred_package_size, max_file_size, file_directory,
+            preferred_package_size,
+            max_file_size,
+            file_directory,
         )
 
         return self
 
-    def with_firmware_update(self, firmware_handler: FirmwareHandler):
+    def with_firmware_update(self, firmware_handler: FirmwareHandler):  # type: ignore
         """
         Enable firmware update for device.
 
@@ -313,7 +323,7 @@ class WolkConnect:
 
         return self
 
-    def with_custom_message_queue(self, message_queue: MessageQueue):
+    def with_custom_message_queue(self, message_queue: MessageQueue):  # type: ignore
         """
         Set custom means of storing serialized messages.
 
@@ -330,7 +340,7 @@ class WolkConnect:
 
         return self
 
-    def with_custom_protocol(
+    def with_custom_protocol(  # type: ignore
         self,
         message_factory: MessageFactory,
         message_deserializer: MessageDeserializer,
@@ -357,7 +367,7 @@ class WolkConnect:
 
         return self
 
-    def with_custom_connectivity(
+    def with_custom_connectivity(  # type: ignore
         self, connectivity_service: ConnectivityService
     ):
         """
@@ -376,7 +386,7 @@ class WolkConnect:
 
         return self
 
-    def with_keep_alive_service(
+    def with_keep_alive_service(  # type: ignore
         self, enabled: bool, interval: Optional[int] = None
     ):
         """
@@ -396,7 +406,7 @@ class WolkConnect:
 
         return self
 
-    def _send_keep_alive(self):
+    def _send_keep_alive(self) -> None:
         if not self.connectivity_service.is_connected():
             return
         message = self.message_factory.make_keep_alive_message()
@@ -440,8 +450,10 @@ class WolkConnect:
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
             if self.firmware_update:
-                message = self.message_factory.make_from_firmware_version_update(
-                    self.firmware_update.get_current_version()
+                message = (
+                    self.message_factory.make_from_firmware_version_update(
+                        self.firmware_update.get_current_version()
+                    )
                 )
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
@@ -521,7 +533,10 @@ class WolkConnect:
         self.message_queue.put(message)
 
     def add_alarm(
-        self, reference: str, active: bool, timestamp: Optional[int] = None,
+        self,
+        reference: str,
+        active: bool,
+        timestamp: Optional[int] = None,
     ) -> None:
         """
         Publish an alarm to WolkAbout IoT Platform.
@@ -578,7 +593,7 @@ class WolkConnect:
 
         actuator_status = self.actuator_status_provider(reference)
         if actuator_status is None:
-            self.logger.error(
+            self.logger.error(  # type: ignore
                 "Actuator status provider did not return "
                 f"status for reference '{reference}'"
             )
@@ -827,8 +842,10 @@ class WolkConnect:
                     FirmwareUpdateStatusType.ERROR,
                     FirmwareUpdateErrorType.FILE_NOT_PRESENT,
                 )
-                message = self.message_factory.make_from_firmware_update_status(
-                    firmware_status
+                message = (
+                    self.message_factory.make_from_firmware_update_status(
+                        firmware_status
+                    )
                 )
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)

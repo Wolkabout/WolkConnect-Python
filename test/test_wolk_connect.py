@@ -156,7 +156,8 @@ class TestWolkConnect(unittest.TestCase):
         actuator_references = []
         device = Device(device_key, device_password, actuator_references)
         wolk_device = WolkConnect(device).with_actuators(
-            lambda a, b: a, lambda a: a,
+            lambda a, b: a,
+            lambda a: a,
         )
         self.assertIsNotNone(wolk_device.actuation_handler)
 
@@ -169,7 +170,10 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device = WolkConnect(device)
 
         self.assertRaises(
-            ValueError, wolk_device.with_configuration, 13, lambda a, b, c: a,
+            ValueError,
+            wolk_device.with_configuration,
+            13,
+            lambda a, b, c: a,
         )
 
     def test_with_configuration_handler_invalid_signature(self):
@@ -196,7 +200,10 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device = WolkConnect(device)
 
         self.assertRaises(
-            ValueError, wolk_device.with_configuration, lambda a: a, 13,
+            ValueError,
+            wolk_device.with_configuration,
+            lambda a: a,
+            13,
         )
 
     def test_with_configuration_provider_invalid_signature(self):
@@ -1604,8 +1611,8 @@ class TestWolkConnect(unittest.TestCase):
         message = Message("some_topic", "payload")
 
         wolk_device.message_queue.put = MagicMock()
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
 
         wolk_device.connectivity_service.publish = MagicMock(
@@ -1625,8 +1632,8 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.logger.warning = MagicMock()
 
         wolk_device.message_queue.put = MagicMock()
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
 
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
@@ -1669,7 +1676,9 @@ class TestWolkConnect(unittest.TestCase):
 
         wolk_device.message_queue.put.assert_called_once()
 
-    def test_on_firmware_message_firmware_install_no_path_publishes(self,):
+    def test_on_firmware_message_firmware_install_no_path_publishes(
+        self,
+    ):
         """Test install command non-present file and publishes status."""
         device_key = "some_key"
         device_password = "some_password"
@@ -1774,11 +1783,11 @@ class TestWolkConnect(unittest.TestCase):
         firmware_handler.get_current_version = MagicMock(return_value="1.0")
         wolk_device.with_firmware_update(firmware_handler)
         message = Message("some_topic", "payload")
-        wolk_device.message_deserializer.is_firmware_version_request = MagicMock(
-            return_value=True
+        wolk_device.message_deserializer.is_firmware_version_request = (
+            MagicMock(return_value=True)
         )
-        wolk_device.message_factory.make_from_firmware_version_response = MagicMock(
-            return_value="1.0"
+        wolk_device.message_factory.make_from_firmware_version_response = (
+            MagicMock(return_value="1.0")
         )
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_queue.put = MagicMock()
@@ -1787,7 +1796,9 @@ class TestWolkConnect(unittest.TestCase):
 
         wolk_device.message_queue.put.assert_not_called()
 
-    def test_on_firmware_message_unknown(self,):
+    def test_on_firmware_message_unknown(
+        self,
+    ):
         """Test receiving unknown firmware message."""
         device_key = "some_key"
         device_password = "some_password"
@@ -1872,8 +1883,8 @@ class TestWolkConnect(unittest.TestCase):
             return_value=False
         )
         wolk_device.connectivity_service.publish = MagicMock()
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
         wolk_device._on_firmware_update_status(status)
 
@@ -1901,8 +1912,8 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
         )
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.message_queue.put = MagicMock()
         wolk_device._on_firmware_update_status(status)
@@ -1929,8 +1940,8 @@ class TestWolkConnect(unittest.TestCase):
             return_value=True
         )
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.message_queue.put = MagicMock()
         wolk_device._on_firmware_update_status(status)
@@ -1957,11 +1968,11 @@ class TestWolkConnect(unittest.TestCase):
             return_value=False
         )
         wolk_device.connectivity_service.publish = MagicMock()
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
-        wolk_device.message_factory.make_from_firmware_version_update = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_version_update = (
+            MagicMock(return_value=True)
         )
         wolk_device._on_firmware_update_status(status)
 
@@ -1989,11 +2000,11 @@ class TestWolkConnect(unittest.TestCase):
         wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
         )
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
-        wolk_device.message_factory.make_from_firmware_version_update = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_version_update = (
+            MagicMock(return_value=True)
         )
         wolk_device.message_queue.put = MagicMock()
         wolk_device._on_firmware_update_status(status)
@@ -2020,11 +2031,11 @@ class TestWolkConnect(unittest.TestCase):
             return_value=True
         )
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
-        wolk_device.message_factory.make_from_firmware_update_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_update_status = (
+            MagicMock(return_value=True)
         )
-        wolk_device.message_factory.make_from_firmware_version_update = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_firmware_version_update = (
+            MagicMock(return_value=True)
         )
         wolk_device.message_queue.put = MagicMock()
         wolk_device._on_firmware_update_status(status)
@@ -2042,8 +2053,8 @@ class TestWolkConnect(unittest.TestCase):
         )
         os.rmdir(file_directory)
 
-        wolk_device.message_factory.make_from_file_management_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_file_management_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
@@ -2068,8 +2079,8 @@ class TestWolkConnect(unittest.TestCase):
         )
         os.rmdir(file_directory)
 
-        wolk_device.message_factory.make_from_file_management_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_file_management_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         status = FileManagementStatus(FileManagementStatusType.FILE_TRANSFER)
@@ -2092,8 +2103,8 @@ class TestWolkConnect(unittest.TestCase):
         )
         os.rmdir(file_directory)
 
-        wolk_device.message_factory.make_from_file_management_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_file_management_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
@@ -2122,8 +2133,8 @@ class TestWolkConnect(unittest.TestCase):
         )
         os.rmdir(file_directory)
 
-        wolk_device.message_factory.make_from_file_management_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_file_management_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_factory.make_from_file_list_update = MagicMock(
@@ -2200,8 +2211,8 @@ class TestWolkConnect(unittest.TestCase):
         )
         os.rmdir(file_directory)
 
-        wolk_device.message_factory.make_from_file_management_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_file_management_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
@@ -2231,8 +2242,8 @@ class TestWolkConnect(unittest.TestCase):
         )
         os.rmdir(file_directory)
 
-        wolk_device.message_factory.make_from_file_management_status = MagicMock(
-            return_value=True
+        wolk_device.message_factory.make_from_file_management_status = (
+            MagicMock(return_value=True)
         )
         wolk_device.connectivity_service.publish = MagicMock(return_value=True)
         wolk_device.message_factory.make_from_file_url_status = MagicMock(

@@ -1,7 +1,7 @@
 """Setup file."""
 from os import path
 
-import setuptools  # type: ignore
+import setuptools
 
 from wolk import __version__
 

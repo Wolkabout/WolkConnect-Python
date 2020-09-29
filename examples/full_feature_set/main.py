@@ -36,7 +36,10 @@ configuration_file = "configuration.json"
 configurations = {}
 
 ConfigurationValue = Union[
-    bool, int, float, str,
+    bool,
+    int,
+    float,
+    str,
 ]
 
 

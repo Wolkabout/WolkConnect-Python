@@ -30,9 +30,9 @@ class MessageDeque(MessageQueue):
     :vartype queue: collections.deque
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a double ended queue to store messages."""
-        self.queue = deque()
+        self.queue: deque = deque()
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )

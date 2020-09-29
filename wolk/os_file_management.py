@@ -413,7 +413,7 @@ class OSFileManagement(FileManagement):
 
         shutil.copy2(
             os.path.realpath(self.temp_file.name), file_path  # type: ignore
-        )  # type: ignore
+        )
         self.temp_file.close()  # type: ignore
 
         if not os.path.exists(file_path):
