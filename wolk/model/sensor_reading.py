@@ -34,6 +34,11 @@ class SensorReading:
 
     reference: str
     value: Union[
-        bool, int, Tuple[int, ...], float, Tuple[float, ...], str,
+        bool,
+        int,
+        Tuple[int, ...],
+        float,
+        Tuple[float, ...],
+        str,
     ]
     timestamp: Optional[int] = field(default=None)

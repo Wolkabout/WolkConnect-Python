@@ -14,14 +14,13 @@
 #   limitations under the License.
 import logging
 from typing import List
+from typing import Optional
 
 
 class LoggerFactory:
     """Factory for issuing ready to use loggers in other modules."""
 
-    def __init__(
-        self, level=logging.INFO, console=True, log_file=None,
-    ):
+    def __init__(self, level=logging.INFO, console=True, log_file=None):  # type: ignore
         """
         Create a factory that will give loggers through calls to get_logger().
 
@@ -38,7 +37,7 @@ class LoggerFactory:
         self.log_file = log_file
         self.loggers: List[logging.Logger] = []
 
-    def set_device_key(self, device_key):
+    def set_device_key(self, device_key: str) -> None:
         """
         Set device key.
 
@@ -47,7 +46,9 @@ class LoggerFactory:
         """
         self.device_key = device_key
 
-    def get_logger(self, name, level=None):
+    def get_logger(
+        self, name: str, level: Optional[int] = None
+    ) -> logging.Logger:
         """
         Return a ready to use logger instance.
 
@@ -115,7 +116,7 @@ LEVELS = {
 }
 
 
-def logging_config(level, log_file=None):
+def logging_config(level: str, log_file: Optional[str] = None) -> None:
     """
     Set desired log level and designate a log file.
 

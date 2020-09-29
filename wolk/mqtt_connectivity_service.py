@@ -20,7 +20,7 @@ from typing import Callable
 from typing import List
 from typing import Optional
 
-from paho.mqtt import client as mqtt  # type: ignore
+from paho.mqtt import client as mqtt
 
 from wolk import logger_factory
 from wolk.interface.connectivity_service import ConnectivityService
@@ -356,10 +356,6 @@ class MQTTConnectivityService(ConnectivityService):
         :returns: result
         :rtype: bool
         """
-        if message is None:
-            self.logger.warning("No message to publish!")
-            return False
-
         if not self.connected:
             self.logger.warning(
                 f"Not connected, unable to publish message: {message}"

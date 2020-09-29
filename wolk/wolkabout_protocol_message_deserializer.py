@@ -342,9 +342,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :rtype: int
         """
         self.logger.debug(f"{message}")
-        payload = json.loads(
-            message.payload.decode("utf-8")  # type: ignore
-        )
+        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
 
         timestamp = payload["value"]
 
@@ -364,9 +362,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{message}")
         reference = message.topic.split("/")[-1]
 
-        payload = json.loads(
-            message.payload.decode("utf-8")  # type: ignore
-        )
+        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
         value = payload["value"]
         if "\\n" in value:
             value = value.replace("\\n", "\n")
@@ -459,9 +455,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         self.logger.debug(f"{message}")
 
-        payload = json.loads(
-            message.payload.decode("utf-8")  # type: ignore
-        )
+        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
         values = payload["values"]
 
         if isinstance(values, dict):
