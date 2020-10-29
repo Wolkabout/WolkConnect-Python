@@ -22,6 +22,9 @@ from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import Union
+from urllib.parse import urlparse
+
+import requests
 
 
 module_path = os.sep + ".." + os.sep + ".." + os.sep
@@ -84,7 +87,9 @@ def configuration_provider() -> Dict[str, ConfigurationValue]:
         configurations: Dict[str, ConfigurationValue] = {}
         for reference, value in loaded.items():
             if isinstance(value, list):
-                if isinstance(value[0], str):
+                if len(value) == 0:
+                    configurations.update({reference: []})
+                elif isinstance(value[0], str):
                     value = ",".join(value)
 
             configurations.update({reference: value})
@@ -92,7 +97,7 @@ def configuration_provider() -> Dict[str, ConfigurationValue]:
         return configurations
 
 
-def main():
+def main() -> None:
     """
     Demonstrate all functionality of wolk module.
 
@@ -113,14 +118,15 @@ def main():
     # List actuator references included on your device
     actuator_references = ["SW", "SL"]
     device = wolk.Device(
-        key="device_key",
-        password="some_password",
+        key="danilo_url_test",
+        password="E4TRPINKKF",
         actuator_references=actuator_references,
     )
     try:
         global configurations
         with open(configuration_file) as file:
             configurations = json.load(file)
+        wolk.logging_config(configurations["LL"])  # Log level
     except Exception:
         print(
             "Failed load configuraiton options "
@@ -180,7 +186,7 @@ def main():
     wolk_device = (
         wolk.WolkConnect(
             device=device,
-            host="api-demo.wolkabout.com",
+            host="integration5.wolkabout.com",
             port=8883,
             ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
         )
@@ -204,6 +210,68 @@ def main():
         # .with_custom_message_queue(message_queue)
     )
 
+    def custom_url_download(self, file_url: str) -> None:  # type: ignore
+        """
+        Start file transfer from specified URL.
+
+        :param file_url: URL from where to download file
+        :type file_url: str
+        """
+        print("THIS IS THE CUSTOM DOWNLOADER")
+        if self.current_status is not None:
+            self.logger.warning(
+                "Not in idle state, ignoring file upload initiation"
+            )
+            return
+
+        if not bool(urlparse(file_url).scheme):
+            self.logger.error(f"Received URL '{file_url}' is not valid!")
+            self.current_status = wolk.FileManagementStatus(
+                wolk.FileManagementStatusType.ERROR,
+                wolk.FileManagementErrorType.MALFORMED_URL,
+            )
+            self.url_status_callback(file_url, self.current_status, None)
+            self.handle_file_upload_abort()
+            return
+
+        self.file_url = file_url
+        self.file_name = self.file_url.split("/")[-1]
+        file_path = os.path.join(
+            os.path.abspath(self.file_directory), self.file_name
+        )
+        self.current_status = wolk.FileManagementStatus(
+            wolk.FileManagementStatusType.FILE_TRANSFER
+        )
+        self.url_status_callback(file_url, self.current_status, self.file_name)
+
+        response = requests.get(file_url)
+        with open(file_path, "ab") as file:
+            file.write(response.content)
+            file.flush()
+            os.fsync(file)  # type: ignore
+
+        if not os.path.exists(file_path):
+            self.logger.error(f"File failed to store to at: {file_path}")
+            self.current_status = wolk.FileManagementStatus(
+                wolk.FileManagementStatusType.ERROR,
+                wolk.FileManagementErrorType.FILE_SYSTEM_ERROR,
+            )
+            self.url_status_callback(
+                file_url, self.current_status, self.file_name
+            )
+            self.handle_file_url_download_abort()
+            return
+
+        self.logger.info(f"File obtained from URL: '{file_url}'")
+        self.current_status = wolk.FileManagementStatus(
+            wolk.FileManagementStatusType.FILE_READY
+        )
+        self.url_status_callback(file_url, self.current_status, self.file_name)
+
+        self.current_status = None
+
+    wolk_device.file_management.set_custom_url_downloader(custom_url_download)
+
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
@@ -215,44 +283,48 @@ def main():
     wolk_device.publish_actuator_status("SW")
     wolk_device.publish_actuator_status("SL")
 
-    publish_period_seconds = 5
+    publish_period_seconds = configurations["HB"]  # Heart beat
 
     while True:
         try:
-            timestamp = round(time.time()) * 1000
-            # If unable to get system time use:
-            # timestamp = wolk_device.request_timestamp()
-            temperature = random.uniform(15, 30)
-            humidity = random.uniform(10, 55)
-            pressure = random.uniform(975, 1030)
-            accelerometer = (
-                random.uniform(0, 100),
-                random.uniform(0, 100),
-                random.uniform(0, 100),
-            )
+            if wolk_device.connectivity_service.is_connected():
+                timestamp = round(time.time()) * 1000
+                # If unable to get system time use:
+                # timestamp = wolk_device.request_timestamp()
+                temperature = random.uniform(15, 30)
+                humidity = random.uniform(10, 55)
+                pressure = random.uniform(975, 1030)
+                accelerometer = (
+                    random.uniform(0, 100),
+                    random.uniform(0, 100),
+                    random.uniform(0, 100),
+                )
 
-            publish_period_seconds = configurations["HB"]  # Heart beat
-            wolk.logging_config(configurations["LL"])  # Log level
+                # Enabled feeds
+                if "T" in configurations["EF"]:
+                    wolk_device.add_sensor_reading("T", temperature, timestamp)
+                if "H" in configurations["EF"]:
+                    wolk_device.add_sensor_reading("H", humidity, timestamp)
+                    if humidity > 50:
+                        # Adds an alarm event to the queue
+                        wolk_device.add_alarm("HH", True)
+                    else:
+                        wolk_device.add_alarm("HH", False)
+                if "P" in configurations["EF"]:
+                    wolk_device.add_sensor_reading("P", pressure, timestamp)
+                if "ACL" in configurations["EF"]:
+                    wolk_device.add_sensor_reading(
+                        "ACL", accelerometer, timestamp
+                    )
 
-            # Enabled feeds
-            if "T" in configurations["EF"]:
-                wolk_device.add_sensor_reading("T", temperature, timestamp)
-            if "H" in configurations["EF"]:
-                wolk_device.add_sensor_reading("H", humidity, timestamp)
-                if humidity > 50:
-                    # Adds an alarm event to the queue
-                    wolk_device.add_alarm("HH", True)
-                else:
-                    wolk_device.add_alarm("HH", False)
-            if "P" in configurations["EF"]:
-                wolk_device.add_sensor_reading("P", pressure, timestamp)
-            if "ACL" in configurations["EF"]:
-                wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
+            else:
+                wolk_device.connect()
 
             # Publishes all sensor readings and alarms from the queue
             # to the WolkAbout IoT Platform
             print("Publishing buffered messages")
             wolk_device.publish()
+            publish_period_seconds = configurations["HB"]
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
             print("\tReceived KeyboardInterrupt. Exiting script")

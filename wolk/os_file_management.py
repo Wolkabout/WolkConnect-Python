@@ -108,6 +108,18 @@ class OSFileManagement(FileManagement):
         if not os.path.exists(os.path.abspath(self.file_directory)):
             os.makedirs(os.path.abspath(self.file_directory))
 
+    def set_custom_url_downloader(
+        self, downloader: Callable[[str], None]
+    ) -> None:
+        """
+        Set the URL file downloader to a custom implementation.
+
+        :param downloader: Function that will download the file from the URL
+        :type downloader: Callable[[str], None]
+        """
+        self.logger.debug(f"Setting custom url downloader to {downloader}")
+        self.handle_file_url_download_initiation = downloader  # type: ignore
+
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
     ) -> None:
@@ -181,7 +193,7 @@ class OSFileManagement(FileManagement):
                 existing_file.seek(chunk_index * self.preferred_package_size)
                 chunk = existing_file.read(self.preferred_package_size)
                 if not chunk:
-                    self.logger.error("File size too small!")
+                    self.logger.error("Read chunk returned None!")
                     break
 
                 sha256_file_hash.update(chunk)
@@ -195,6 +207,21 @@ class OSFileManagement(FileManagement):
                 )
                 self.current_status = FileManagementStatus(
                     FileManagementStatusType.FILE_READY
+                )
+                self.status_callback(file_name, self.current_status)
+
+                self.current_status = None
+                self.last_package_hash = 32 * b"\x00"
+                return
+
+            else:
+                self.logger.warning(
+                    "File requested for transfer already on device, "
+                    "but the hashes do not match!"
+                )
+                self.current_status = FileManagementStatus(
+                    FileManagementStatusType.ERROR,
+                    FileManagementErrorType.FILE_HASH_MISMATCH,
                 )
                 self.status_callback(file_name, self.current_status)
 
@@ -336,9 +363,9 @@ class OSFileManagement(FileManagement):
             self.logger.error(
                 "Failed to write package, aborting file transfer"
             )
-            self.current_status.status = FileManagementStatusType.ERROR
-            self.current_status.error = (
-                FileManagementErrorType.FILE_SYSTEM_ERROR
+            self.current_status = FileManagementStatus(
+                FileManagementStatusType.ERROR,
+                FileManagementErrorType.FILE_SYSTEM_ERROR,
             )
             self.status_callback(
                 self.file_name, self.current_status  # type: ignore

@@ -71,6 +71,18 @@ class FileManagement(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def set_custom_url_downloader(
+        self, downloader: Callable[[str], None]
+    ) -> None:
+        """
+        Set the URL file downloader to a custom implementation.
+
+        :param downloader: Function that will download the file from the URL
+        :type downloader: Callable[[str], None]
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
     ) -> None:
