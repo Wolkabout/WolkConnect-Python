@@ -109,7 +109,7 @@ class OSFileManagement(FileManagement):
         if not os.path.exists(os.path.abspath(self.file_directory)):
             os.makedirs(os.path.abspath(self.file_directory))
 
-    def set_custom_url_downloader(  # type: ignore
+    def set_custom_url_downloader(
         self, downloader: Callable[[str, str], bool]
     ) -> None:
         """

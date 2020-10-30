@@ -72,13 +72,13 @@ class FileManagement(ABC):
 
     @abstractmethod
     def set_custom_url_downloader(
-        self, downloader: Callable[[str], None]
+        self, downloader: Callable[[str, str], bool]
     ) -> None:
         """
         Set the URL file downloader to a custom implementation.
 
         :param downloader: Function that will download the file from the URL
-        :type downloader: Callable[[str], None]
+        :type downloader: Callable[[str, str], bool]
         """
         raise NotImplementedError()
 
