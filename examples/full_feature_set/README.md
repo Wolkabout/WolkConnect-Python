@@ -251,7 +251,7 @@ wolk_device = (
 ```
 
 File management can also perform downloads from a specified URL,
-but if this implementation is not satisfactory, then this function can be overriden like so:
+but if the default implementation is not satisfactory, then this function can be overriden like so:
 
 ```python
 def url_download(file_url: str, file_path: str) -> bool:
