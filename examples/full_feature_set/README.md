@@ -250,6 +250,33 @@ wolk_device = (
 )
 ```
 
+File management can also perform downloads from a specified URL,
+but if this implementation is not satisfactory, then this function can be overriden like so:
+
+```python
+def url_download(file_url: str, file_path: str) -> bool:
+    """
+    Download file from specified URL.
+
+    :param file_url: URL from which to download file
+    :type file_url: str
+    :param file_path: Path where to store file
+    :type: file_path: str
+    :returns: Successful download
+    :rtype: bool
+    """
+    pass
+
+
+wolk_device = (
+    wolk.WolkConnect(device=device)
+    .with_file_management(
+        preferred_package_size=1000 * 1000,
+        max_file_size=100 * 1000 * 1000,
+        file_directory="files",
+        custom_url_download=url_download,
+    )
+```
 
 ### Debugging
 

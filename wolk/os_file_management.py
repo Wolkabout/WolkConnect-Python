@@ -69,6 +69,7 @@ class OSFileManagement(FileManagement):
         self.status_callback = status_callback
         self.packet_request_callback = packet_request_callback
         self.url_status_callback = url_status_callback
+        self.download_url = OSFileManagement.url_download
         self.preferred_package_size = 0
         self.max_file_size = 0
         self.file_directory = ""
@@ -108,17 +109,17 @@ class OSFileManagement(FileManagement):
         if not os.path.exists(os.path.abspath(self.file_directory)):
             os.makedirs(os.path.abspath(self.file_directory))
 
-    def set_custom_url_downloader(
-        self, downloader: Callable[[str], None]
+    def set_custom_url_downloader(  # type: ignore
+        self, downloader: Callable[[str, str], bool]
     ) -> None:
         """
         Set the URL file downloader to a custom implementation.
 
         :param downloader: Function that will download the file from the URL
-        :type downloader: Callable[[str], None]
+        :type downloader: Callable[[str, str], bool]
         """
         self.logger.debug(f"Setting custom url downloader to {downloader}")
-        self.handle_file_url_download_initiation = downloader  # type: ignore
+        self.download_url = downloader  # type: ignore
 
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
@@ -500,11 +501,7 @@ class OSFileManagement(FileManagement):
         )
         self.url_status_callback(file_url, self.current_status, self.file_name)
 
-        response = requests.get(file_url)
-        with open(file_path, "ab") as file:
-            file.write(response.content)
-            file.flush()
-            os.fsync(file)  # type: ignore
+        self.download_url(file_url, file_path)
 
         if not os.path.exists(file_path):
             self.logger.error(f"File failed to store to at: {file_path}")
@@ -613,3 +610,23 @@ class OSFileManagement(FileManagement):
             self.file_name, self.current_status  # type: ignore
         )
         self.handle_file_upload_abort()
+
+    @staticmethod
+    def url_download(file_url: str, file_path: str) -> bool:
+        """
+        Attempt to download file from specified URL.
+
+        :param file_url: URL from which to download file
+        :type file_url: str
+        :param file_path: Path where to store file
+        :type: file_path: str
+        :returns: Successful download
+        :rtype: bool
+        """
+        response = requests.get(file_url)
+        with open(file_path, "ab") as file:
+            file.write(response.content)
+            file.flush()
+            os.fsync(file)  # type: ignore
+
+        return os.path.exists(file_path)

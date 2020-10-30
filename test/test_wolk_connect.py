@@ -246,6 +246,20 @@ class TestWolkConnect(unittest.TestCase):
         self.assertTrue(os.path.exists(file_directory))
         os.rmdir(file_directory)
 
+    def test_with_file_management_with_custom_url_download(self):
+        """Test enabling file management module with custorm url download."""
+        download = True
+        device_key = "some_key"
+        device_password = "some_password"
+        actuator_references = []
+        device = Device(device_key, device_password, actuator_references)
+        file_directory = "files"
+        wolk_device = WolkConnect(device).with_file_management(  # noqa
+            256, 1024, file_directory, download
+        )
+        os.rmdir(file_directory)
+        self.assertEqual(download, wolk_device.file_management.download_url)
+
     def test_with_firmware_update_no_file_management(self):
         """Test enabling firmware update module fails if no file management."""
         device_key = "some_key"

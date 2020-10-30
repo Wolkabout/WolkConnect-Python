@@ -22,7 +22,6 @@ from typing import Dict
 from typing import Optional
 from typing import Tuple
 from typing import Union
-from urllib.parse import urlparse
 
 import requests
 
@@ -118,8 +117,8 @@ def main() -> None:
     # List actuator references included on your device
     actuator_references = ["SW", "SL"]
     device = wolk.Device(
-        key="danilo_url_test",
-        password="E4TRPINKKF",
+        key="device_key",
+        password="some_password",
         actuator_references=actuator_references,
     )
     try:
@@ -166,6 +165,27 @@ def main() -> None:
         elif reference == actuator_references[1]:
             slider.value = value
 
+    # The URL download implementation can be substituted
+    # This is optional and passed as an argument when creating wolk_device
+    def url_download(file_url: str, file_path: str) -> bool:
+        """
+        Download file from specified URL.
+
+        :param file_url: URL from which to download file
+        :type file_url: str
+        :param file_path: Path where to store file
+        :type: file_path: str
+        :returns: Successful download
+        :rtype: bool
+        """
+        response = requests.get(file_url)
+        with open(file_path, "ab") as file:
+            file.write(response.content)
+            file.flush()
+            os.fsync(file)  # type: ignore
+
+        return os.path.exists(file_path)
+
     # Extend this class to handle the installing of the firmware file
     class MyFirmwareHandler(wolk.FirmwareHandler):
         def install_firmware(self, firmware_file_path: str) -> None:
@@ -186,7 +206,7 @@ def main() -> None:
     wolk_device = (
         wolk.WolkConnect(
             device=device,
-            host="integration5.wolkabout.com",
+            host="api-demo.wolkabout.com",
             port=8883,
             ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
         )
@@ -202,6 +222,7 @@ def main() -> None:
             preferred_package_size=1000 * 1000,
             max_file_size=100 * 1000 * 1000,
             file_directory="files",
+            custom_url_download=url_download,
         )
         .with_firmware_update(firmware_handler=MyFirmwareHandler())
         # Possibility to provide custom implementations for some features
@@ -209,68 +230,6 @@ def main() -> None:
         # .with_custom_connectivity(connectivity_service)
         # .with_custom_message_queue(message_queue)
     )
-
-    def custom_url_download(self, file_url: str) -> None:  # type: ignore
-        """
-        Start file transfer from specified URL.
-
-        :param file_url: URL from where to download file
-        :type file_url: str
-        """
-        print("THIS IS THE CUSTOM DOWNLOADER")
-        if self.current_status is not None:
-            self.logger.warning(
-                "Not in idle state, ignoring file upload initiation"
-            )
-            return
-
-        if not bool(urlparse(file_url).scheme):
-            self.logger.error(f"Received URL '{file_url}' is not valid!")
-            self.current_status = wolk.FileManagementStatus(
-                wolk.FileManagementStatusType.ERROR,
-                wolk.FileManagementErrorType.MALFORMED_URL,
-            )
-            self.url_status_callback(file_url, self.current_status, None)
-            self.handle_file_upload_abort()
-            return
-
-        self.file_url = file_url
-        self.file_name = self.file_url.split("/")[-1]
-        file_path = os.path.join(
-            os.path.abspath(self.file_directory), self.file_name
-        )
-        self.current_status = wolk.FileManagementStatus(
-            wolk.FileManagementStatusType.FILE_TRANSFER
-        )
-        self.url_status_callback(file_url, self.current_status, self.file_name)
-
-        response = requests.get(file_url)
-        with open(file_path, "ab") as file:
-            file.write(response.content)
-            file.flush()
-            os.fsync(file)  # type: ignore
-
-        if not os.path.exists(file_path):
-            self.logger.error(f"File failed to store to at: {file_path}")
-            self.current_status = wolk.FileManagementStatus(
-                wolk.FileManagementStatusType.ERROR,
-                wolk.FileManagementErrorType.FILE_SYSTEM_ERROR,
-            )
-            self.url_status_callback(
-                file_url, self.current_status, self.file_name
-            )
-            self.handle_file_url_download_abort()
-            return
-
-        self.logger.info(f"File obtained from URL: '{file_url}'")
-        self.current_status = wolk.FileManagementStatus(
-            wolk.FileManagementStatusType.FILE_READY
-        )
-        self.url_status_callback(file_url, self.current_status, self.file_name)
-
-        self.current_status = None
-
-    wolk_device.file_management.set_custom_url_downloader(custom_url_download)
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")

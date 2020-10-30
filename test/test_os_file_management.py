@@ -78,6 +78,22 @@ class TestOSFileManagement(unittest.TestCase):
         self.assertTrue(os.path.exists(file_directory))
         os.rmdir(file_directory)
 
+    def test_set_custom_url_downloader(self):
+        """Test setting custom URL downloader."""
+        downloader = True
+        mock_status_callback = MagicMock(return_value=None)
+        mock_packet_request_callback = MagicMock(return_value=None)
+        mock_url_status_callback = MagicMock(return_value=None)
+
+        file_management = OSFileManagement(
+            mock_status_callback,
+            mock_packet_request_callback,
+            mock_url_status_callback,
+        )
+
+        file_management.set_custom_url_downloader(downloader)
+        self.assertEqual(downloader, file_management.download_url)
+
     def test_handle_upload_initiation_not_idle_state(self):
         """Test handle upload initiation when module not idle."""
         mock_status_callback = MagicMock(return_value=None)
