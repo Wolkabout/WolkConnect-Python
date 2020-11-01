@@ -657,8 +657,8 @@ class WolkConnect:
         """
         if "binary" in message.topic:
             self.logger.debug(
-                f"Received message: {message.topic} , "
-                f"{len(message.payload)}"  # type: ignore
+                f"Received message: {message.topic} , "  # type: ignore
+                f"{len(message.payload)}"
             )
         else:
             self.logger.debug(f"Received message: {message}")
