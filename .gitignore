@@ -56,3 +56,6 @@ coverage_html_directory/
 
 # Logs
 *.log
+
+# VS Code
+.vscode
