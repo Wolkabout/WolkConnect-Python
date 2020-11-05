@@ -132,9 +132,9 @@ class MQTTConnectivityService(ConnectivityService):
         received_message = Message(message.topic, message.payload)
         if "binary" in received_message.topic:  # To skip printing file binary
             self.logger.debug(
-                "Received MQTT message: "  # type: ignore
+                "Received MQTT message: "
                 f"{received_message.topic} , "
-                f"size: {len(received_message.payload)} bytes"
+                f"size: {len(received_message.payload)} bytes"  # type: ignore
             )
         else:
             self.logger.debug(f"Received MQTT message: {received_message}")
