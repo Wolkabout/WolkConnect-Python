@@ -1,2 +1,2 @@
-paho_mqtt==1.4.0
+paho_mqtt>=1.5.1
 requests>=2.18.1

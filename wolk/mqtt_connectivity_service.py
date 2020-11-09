@@ -169,7 +169,7 @@ class MQTTConnectivityService(ConnectivityService):
             if self.topics:
                 for topic in self.topics:
                     self.client.subscribe(topic, 2)
-            self.logger.debug(f"Connected : {self.connected}")
+            self.logger.info(f"Connected : {self.connected}")
         elif (
             return_code == 1
         ):  # Connection refused - incorrect protocol version
@@ -197,17 +197,15 @@ class MQTTConnectivityService(ConnectivityService):
         :type _userdata: str
         :param return_code: Disconnection result
         :type return_code: int
-
-        :raises RuntimeError: Unexpected disconnection
         """
         self.connected = False
         self.connected_rc = return_code
         self.logger.debug(f"Connected : {self.connected}")
         self.logger.debug(f"Return code : {return_code}")
         if return_code not in [0, 5]:
-            self.logger.error("Unexpected disconnect!")
+            self.logger.warning("Unexpected disconnect!")
             self.logger.info("Attempting to reconnect..")
-            self.connect()
+            self.client.reconnect()
 
     def connect(self) -> bool:
         """
@@ -231,6 +229,8 @@ class MQTTConnectivityService(ConnectivityService):
             try:
                 self.client.tls_set(self.ca_cert)
                 self.client.tls_insecure_set(True)
+            except ValueError:
+                pass  # Ignore previously set TLS error
             except Exception as exception:
                 self.logger.exception(
                     f"Something went wrong when setting TLS: {exception}"
