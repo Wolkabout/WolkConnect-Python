@@ -267,6 +267,7 @@ class WolkConnect:
         preferred_package_size: int,
         max_file_size: int,
         file_directory: str,
+        custom_url_download: Optional[Callable[[str, str], bool]] = None,
     ):
         """
         Enable file management on the device.
@@ -277,6 +278,8 @@ class WolkConnect:
         :type max_file_size: int
         :param file_directory: Directory where files are stored
         :type file_directory: str
+        :param custom_url_download: Optional custom function for downloading file from URL
+        :type custom_url_download: Optional[Callable[[str, str], bool]]
         """
         self.logger.debug(
             f"Preferred package size: {preferred_package_size}, "
@@ -294,6 +297,9 @@ class WolkConnect:
             max_file_size,
             file_directory,
         )
+
+        if custom_url_download is not None:
+            self.file_management.set_custom_url_downloader(custom_url_download)
 
         return self
 
@@ -651,8 +657,8 @@ class WolkConnect:
         """
         if "binary" in message.topic:
             self.logger.debug(
-                f"Received message: {message.topic} , "  # type: ignore
-                f"{len(message.payload)}"
+                f"Received message: {message.topic} , "
+                f"{len(message.payload)}"  # type: ignore
             )
         else:
             self.logger.debug(f"Received message: {message}")

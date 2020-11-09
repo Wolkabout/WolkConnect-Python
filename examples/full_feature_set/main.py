@@ -23,6 +23,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+import requests
+
 
 module_path = os.sep + ".." + os.sep + ".." + os.sep
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
@@ -84,7 +86,9 @@ def configuration_provider() -> Dict[str, ConfigurationValue]:
         configurations: Dict[str, ConfigurationValue] = {}
         for reference, value in loaded.items():
             if isinstance(value, list):
-                if isinstance(value[0], str):
+                if len(value) == 0:
+                    configurations.update({reference: []})
+                elif isinstance(value[0], str):
                     value = ",".join(value)
 
             configurations.update({reference: value})
@@ -92,7 +96,7 @@ def configuration_provider() -> Dict[str, ConfigurationValue]:
         return configurations
 
 
-def main():
+def main() -> None:
     """
     Demonstrate all functionality of wolk module.
 
@@ -121,6 +125,7 @@ def main():
         global configurations
         with open(configuration_file) as file:
             configurations = json.load(file)
+        wolk.logging_config(configurations["LL"])  # Log level
     except Exception:
         print(
             "Failed load configuraiton options "
@@ -160,6 +165,27 @@ def main():
         elif reference == actuator_references[1]:
             slider.value = value
 
+    # The URL download implementation can be substituted
+    # This is optional and passed as an argument when creating wolk_device
+    def url_download(file_url: str, file_path: str) -> bool:
+        """
+        Download file from specified URL.
+
+        :param file_url: URL from which to download file
+        :type file_url: str
+        :param file_path: Path where to store file
+        :type: file_path: str
+        :returns: Successful download
+        :rtype: bool
+        """
+        response = requests.get(file_url)
+        with open(file_path, "ab") as file:
+            file.write(response.content)
+            file.flush()
+            os.fsync(file)  # type: ignore
+
+        return os.path.exists(file_path)
+
     # Extend this class to handle the installing of the firmware file
     class MyFirmwareHandler(wolk.FirmwareHandler):
         def install_firmware(self, firmware_file_path: str) -> None:
@@ -196,6 +222,7 @@ def main():
             preferred_package_size=1000 * 1000,
             max_file_size=100 * 1000 * 1000,
             file_directory="files",
+            custom_url_download=url_download,
         )
         .with_firmware_update(firmware_handler=MyFirmwareHandler())
         # Possibility to provide custom implementations for some features
@@ -215,44 +242,48 @@ def main():
     wolk_device.publish_actuator_status("SW")
     wolk_device.publish_actuator_status("SL")
 
-    publish_period_seconds = 5
+    publish_period_seconds = configurations["HB"]  # Heart beat
 
     while True:
         try:
-            timestamp = round(time.time()) * 1000
-            # If unable to get system time use:
-            # timestamp = wolk_device.request_timestamp()
-            temperature = random.uniform(15, 30)
-            humidity = random.uniform(10, 55)
-            pressure = random.uniform(975, 1030)
-            accelerometer = (
-                random.uniform(0, 100),
-                random.uniform(0, 100),
-                random.uniform(0, 100),
-            )
+            if wolk_device.connectivity_service.is_connected():
+                timestamp = round(time.time()) * 1000
+                # If unable to get system time use:
+                # timestamp = wolk_device.request_timestamp()
+                temperature = random.uniform(15, 30)
+                humidity = random.uniform(10, 55)
+                pressure = random.uniform(975, 1030)
+                accelerometer = (
+                    random.uniform(0, 100),
+                    random.uniform(0, 100),
+                    random.uniform(0, 100),
+                )
 
-            publish_period_seconds = configurations["HB"]  # Heart beat
-            wolk.logging_config(configurations["LL"])  # Log level
+                # Enabled feeds
+                if "T" in configurations["EF"]:
+                    wolk_device.add_sensor_reading("T", temperature, timestamp)
+                if "H" in configurations["EF"]:
+                    wolk_device.add_sensor_reading("H", humidity, timestamp)
+                    if humidity > 50:
+                        # Adds an alarm event to the queue
+                        wolk_device.add_alarm("HH", True)
+                    else:
+                        wolk_device.add_alarm("HH", False)
+                if "P" in configurations["EF"]:
+                    wolk_device.add_sensor_reading("P", pressure, timestamp)
+                if "ACL" in configurations["EF"]:
+                    wolk_device.add_sensor_reading(
+                        "ACL", accelerometer, timestamp
+                    )
 
-            # Enabled feeds
-            if "T" in configurations["EF"]:
-                wolk_device.add_sensor_reading("T", temperature, timestamp)
-            if "H" in configurations["EF"]:
-                wolk_device.add_sensor_reading("H", humidity, timestamp)
-                if humidity > 50:
-                    # Adds an alarm event to the queue
-                    wolk_device.add_alarm("HH", True)
-                else:
-                    wolk_device.add_alarm("HH", False)
-            if "P" in configurations["EF"]:
-                wolk_device.add_sensor_reading("P", pressure, timestamp)
-            if "ACL" in configurations["EF"]:
-                wolk_device.add_sensor_reading("ACL", accelerometer, timestamp)
+            else:
+                wolk_device.connect()
 
             # Publishes all sensor readings and alarms from the queue
             # to the WolkAbout IoT Platform
             print("Publishing buffered messages")
             wolk_device.publish()
+            publish_period_seconds = configurations["HB"]
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
             print("\tReceived KeyboardInterrupt. Exiting script")
