@@ -56,8 +56,8 @@ python3 setup.py install
 
 ### Establishing connection with WolkAbout IoT platform
 
-Create a device on WolkAbout IoT platform by using the provided *Simple example* device type.
-This template fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the sending of a temperature sensor reading.
+Create a device on WolkAbout IoT Platform by using the *Simple example* device type that is available on the platform.
+This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the periodic sending of a temperature sensor reading.
 
 ```python
 import wolk

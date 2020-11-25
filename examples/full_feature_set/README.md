@@ -55,8 +55,8 @@ python3 setup.py install
 
 **Establishing connection with WolkAbout IoT platform:**
 
-Create a device on WolkAbout IoT platform by using the provided *Full example* device type.
-This manifest fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/main.py) and demonstrates all the functionality of WolkConnect-Python library.
+Create a device on WolkAbout IoT Platform by using the *Full example* device type that is available on the platform.
+This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/main.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
 import wolk
