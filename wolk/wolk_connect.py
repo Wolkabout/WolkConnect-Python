@@ -715,7 +715,7 @@ class WolkConnect:
                 message
             )
             self.logger.debug(
-                "Updating last platfrom timestamp "
+                "Updating last platform timestamp "
                 f"from {self.last_platform_timestamp}"
                 f" to {timestamp}"
             )
@@ -863,7 +863,7 @@ class WolkConnect:
             self.firmware_update.handle_abort()
             return
 
-        self.logger.warning(f"Recevied unknown firmware message: {message}")
+        self.logger.warning(f"Received unknown firmware message: {message}")
 
     def _on_package_request(
         self, file_name: str, chunk_index: int, chunk_size: int
