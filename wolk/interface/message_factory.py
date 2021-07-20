@@ -20,73 +20,13 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-from wolk.model.actuator_status import ActuatorStatus
-from wolk.model.alarm import Alarm
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
-from wolk.model.sensor_reading import SensorReading
 
 
 class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
-
-    @abstractmethod
-    def make_from_sensor_reading(
-        self, reading: Union[SensorReading, List[SensorReading]]
-    ) -> Message:
-        """
-        Serialize a sensor reading to be sent to WolkAbout IoT Platform.
-
-        :param reading: Reading to be serialized
-        :type reading: Union[SensorReading, List[SensorReading]
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_sensor_readings(
-        self,
-        readings: Dict[
-            str,
-            Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]],
-        ],
-        timestamp: Optional[int] = None,
-    ) -> Message:
-        """
-        Serialize multiple sensor readings to send to WolkAbout IoT Platform.
-
-        :param readings: Dictionary of reference: value pairs
-        :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_alarm(self, alarm: Alarm) -> Message:
-        """
-        Serialize an alarm event to be sent to WolkAbout IoT Platform.
-
-        :param alarm: Alarm to be serialized
-        :type alarm: Alarm
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_actuator_status(self, actuator: ActuatorStatus) -> Message:
-        """
-        Serialize an actuator status to be sent to WolkAbout IoT Platform.
-
-        :param actuator: Actuator status to be serialized
-        :type actuator: ActuatorStatus
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
 
     @abstractmethod
     def make_from_firmware_update_status(
@@ -127,20 +67,6 @@ class MessageFactory(ABC):
 
         :param version: Current device firmware version
         :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_configuration(
-        self, configuration: Dict[str, Optional[Union[int, float, bool, str]]]
-    ) -> Message:
-        """
-        Serialize device's configuration to be sent to WolkAbout IoT Platform.
-
-        :param configuration: Device's current configuration
-        :type configuration: dict
         :returns: message
         :rtype: Message
         """
@@ -201,25 +127,5 @@ class MessageFactory(ABC):
         :type status: FileManagementStatus
         :param file_name: Only present when download of file is completed
         :type file_name: Optional[str]
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_last_will_message(self) -> Message:
-        """
-        Serialize a last will message if device disconnects unexpectedly.
-
-        :returns: Last will message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_keep_alive_message(self) -> Message:
-        """
-        Serialize a keep alive message.
-
-        :returns: keep alive message
-        :rtype: Message
         """
         raise NotImplementedError()

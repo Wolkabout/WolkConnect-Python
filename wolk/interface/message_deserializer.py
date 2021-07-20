@@ -17,8 +17,6 @@ from abc import abstractmethod
 from typing import List
 from typing import Tuple
 
-from wolk.model.actuator_command import ActuatorCommand
-from wolk.model.configuration_command import ConfigurationCommand
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
 
@@ -37,37 +35,13 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def is_actuation_command(self, message: Message) -> bool:
-        """
-        Check if message is actuation command.
-
-        :param message: The message received
-        :type message: Message
-        :returns: actuation_command
-        :rtype: bool
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def is_keep_alive_response(self, message: Message) -> bool:
+    def is_time_response(self, message: Message) -> bool:
         """
         Check if message is keep alive response.
 
         :param message: The message received
         :type message: Message
         :returns: keep_alive_response
-        :rtype: bool
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def is_configuration_command(self, message: Message) -> bool:
-        """
-        Check if message is configuration command.
-
-        :param message: The message received
-        :type message: Message
-        :returns: configuration_command
         :rtype: bool
         """
         raise NotImplementedError()
@@ -205,19 +179,7 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def parse_actuator_command(self, message: Message) -> ActuatorCommand:
-        """
-        Parse the message into an ActuatorCommand.
-
-        :param message: The message received
-        :type message: Message
-        :returns: actuation
-        :rtype: ActuatorCommand
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def parse_keep_alive_response(self, message: Message) -> int:
+    def parse_time_response(self, message: Message) -> int:
         """
         Parse the message into an UTC timestamp.
 
@@ -273,18 +235,6 @@ class MessageDeserializer(ABC):
         :type message: Message
         :returns: file_transfer_package
         :rtype: FileTransferPackage
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def parse_configuration(self, message: Message) -> ConfigurationCommand:
-        """
-        Parse the message into a ConfigurationCommand.
-
-        :param message: The message received
-        :type message: Message
-        :returns: configuration
-        :rtype: ConfigurationCommand
         """
         raise NotImplementedError()
 

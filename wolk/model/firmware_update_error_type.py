@@ -18,8 +18,7 @@ from enum import Enum
 class FirmwareUpdateErrorType(Enum):
     """Enumeration of possible firmware update errors."""
 
-    UNSPECIFIED_ERROR = 0
-    FILE_NOT_PRESENT = 1
-    FILE_SYSTEM_ERROR = 2
-    INSTALLATION_FAILED = 3
-    SUBDEVICE_NOT_PRESENT = 4
+    UNKNOWN_ERROR = "UNKNOWN_ERROR"
+    FILE_SYSTEM_ERROR = "FILE_SYSTEM_ERROR"
+    UNKNOWN_FILE = "UNKNOWN_FILE"
+    INSTALLATION_FAILED = "INSTALLATION_FAILED"

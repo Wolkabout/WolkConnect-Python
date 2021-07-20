@@ -90,12 +90,12 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
 
         self.assertTrue(deserializer.is_actuation_command(message))
 
-    def test_is_keep_alive_response(self):
+    def test_is_time_response(self):
         """Test if message is keep alive response."""
         deserializer = WAPMD(self.device)
         message = Message(WAPMD.KEEP_ALIVE_RESPONSE, None)
 
-        self.assertTrue(deserializer.is_keep_alive_response(message))
+        self.assertTrue(deserializer.is_time_response(message))
 
     def test_is_firmware_install(self):
         """Test if message is firmware install command."""
@@ -282,7 +282,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
             expected, deserializer.parse_actuator_command(incoming_message)
         )
 
-    def test_parse_keep_alive_response(self):
+    def test_parse_time_response(self):
         """Test parse keep alive response message."""
         deserializer = WAPMD(self.device)
         deserializer.logger.setLevel(logging.CRITICAL)
@@ -295,7 +295,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         expected = timestamp
 
         self.assertEqual(
-            expected, deserializer.parse_keep_alive_response(incoming_message)
+            expected, deserializer.parse_time_response(incoming_message)
         )
 
     def test_parse_firmware_install(self):

@@ -37,7 +37,6 @@ class MQTTConnectivityService(ConnectivityService):
         self,
         device: Device,
         topics: List[str],
-        last_will_message: Message,
         qos: Optional[int] = 0,
         host: Optional[str] = "api-demo.wolkabout.com",
         port: Optional[int] = 8883,
@@ -50,8 +49,6 @@ class MQTTConnectivityService(ConnectivityService):
         :type device: Device
         :param topics: List of topics to subscribe to
         :type topics: List[str]
-        :param last_will_message: Message in case of unexpected disconnects
-        :type last_will_message: Message
         :param qos: Quality of Service for MQTT connection (0, 1, 2)
         :type qos: int or None
         :param host: Address of the MQTT broker
@@ -62,7 +59,6 @@ class MQTTConnectivityService(ConnectivityService):
         :type ca_cert: str or None
         """
         self.device = device
-        self.last_will_message = last_will_message
         self.qos = qos
         self.host = host
         self.port = port
@@ -76,8 +72,6 @@ class MQTTConnectivityService(ConnectivityService):
         self.logger.debug(
             f"Device key: {self.device.key} ; "
             f"Device password: {self.device.password} ;"
-            f"Actuator references: {self.device.actuator_references} ; "
-            f"Last will message: {self.last_will_message} ; "
             f"QoS: {self.qos} ; "
             f"Host: {self.host} ; "
             f"Port: {self.port} ; "
@@ -238,12 +232,6 @@ class MQTTConnectivityService(ConnectivityService):
                 self.mutex.release()
                 return False
         self.client.username_pw_set(self.device.key, self.device.password)
-        self.client.will_set(
-            self.last_will_message.topic,
-            self.last_will_message.payload,
-            2,
-            False,
-        )
 
         self.logger.debug(
             f"Connecting with parameters: host='{self.host}', "
@@ -341,8 +329,6 @@ class MQTTConnectivityService(ConnectivityService):
     def disconnect(self) -> None:
         """Disconnects the device from the WolkAbout IoT Platform."""
         self.logger.debug("Disconnecting")
-        if self.is_connected():
-            self.publish(self.last_will_message)
         self.client.loop_stop()
         self.client.disconnect()
 

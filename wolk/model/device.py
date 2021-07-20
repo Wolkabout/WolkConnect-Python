@@ -13,23 +13,25 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from dataclasses import dataclass
-from dataclasses import field
-from typing import List
 
 
 @dataclass
 class Device:
     """
-    Device identified by key and password, and list of actuator references.
+    Device identified by key and password, and its outbound data mode.
+
+    The outbound data mode is either an always connected device,
+    or a device that only periodically establishes connected and
+    then subsequently checks if there are any pending messages
+    that are intended for
 
     :ivar key: Device's key
     :vartype key: str
     :ivar password: Device's unique password
     :vartype password: str
-    :ivar actuator_references: Actuator references present on device
-    :vartype actuator_references: List[str]
+
     """
 
     key: str
     password: str
-    actuator_references: List[str] = field(default_factory=list)
+    always_connected: bool = True

@@ -19,8 +19,6 @@ from typing import Tuple
 
 from wolk import logger_factory
 from wolk.interface.message_deserializer import MessageDeserializer
-from wolk.model.actuator_command import ActuatorCommand
-from wolk.model.configuration_command import ConfigurationCommand
 from wolk.model.device import Device
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
@@ -91,16 +89,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             + self.DEVICE_PATH_DELIMITER
             + device.key,
         ]
-
-        for reference in device.actuator_references:
-            self.inbound_topics.append(
-                self.ACTUATOR_SET
-                + self.DEVICE_PATH_DELIMITER
-                + device.key
-                + self.CHANNEL_DELIMITER
-                + self.REFERENCE_PATH_PREFIX
-                + reference
-            )
         self.logger.debug(f"inbound topics: {self.inbound_topics}")
 
     def get_inbound_topics(self) -> List[str]:
@@ -112,7 +100,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         return self.inbound_topics
 
-    def is_keep_alive_response(self, message: Message) -> bool:
+    def is_time_response(self, message: Message) -> bool:
         """
         Check if message is keep alive response.
 
@@ -332,7 +320,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         )
         return file_url_download_abort
 
-    def parse_keep_alive_response(self, message: Message) -> int:
+    def parse_time_response(self, message: Message) -> int:
         """
         Parse the message into an UTC timestamp.
 
@@ -348,39 +336,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
 
         self.logger.debug(f"received timestamp: {timestamp}")
         return timestamp
-
-    def parse_actuator_command(self, message: Message) -> ActuatorCommand:
-        """
-        Parse the message into an actuation command.
-
-        :param message: Message to be deserialized
-        :type message: Message
-
-        :returns: actuation
-        :rtype: ActuatorCommand
-        """
-        self.logger.debug(f"{message}")
-        reference = message.topic.split("/")[-1]
-
-        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
-        value = payload["value"]
-        if "\\n" in value:
-            value = value.replace("\\n", "\n")
-        if value in ["true", "false"]:
-            value = bool(strtobool(value))
-        else:
-            try:
-                value = float(value)
-            except ValueError:
-                try:
-                    value = int(value)
-                except ValueError:
-                    pass
-
-        actuation = ActuatorCommand(reference, value)
-        self.logger.info(f"Received actuation command: {actuation}")
-
-        return actuation
 
     def parse_firmware_install(self, message: Message) -> str:
         """
@@ -443,39 +398,6 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 file_transfer_package = FileTransferPackage(b"", b"", b"")
         return file_transfer_package
 
-    def parse_configuration(self, message: Message) -> ConfigurationCommand:
-        """
-        Parse the message into a configuration command.
-
-        :param message: The message received
-        :type message: Message
-
-        :returns: configuration
-        :rtype: ConfigurationCommand
-        """
-        self.logger.debug(f"{message}")
-
-        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
-        values = payload["values"]
-
-        if isinstance(values, dict):
-            for reference, value in values.items():
-                if value in ["true", "false"]:
-                    value = bool(strtobool(value))
-                if isinstance(value, str):
-                    value = value.replace("\\n", "\n")
-                    try:
-                        if "." in value:
-                            value = float(value)
-                        else:
-                            value = int(value)
-                    except ValueError:
-                        pass
-                values[reference] = value
-
-        configuration = ConfigurationCommand(values)
-        self.logger.info(f"Received configuration command: {configuration}")
-        return configuration
 
     def parse_file_delete_command(self, message: Message) -> str:
         """

@@ -14,6 +14,7 @@
 #   limitations under the License.
 import os
 from inspect import signature
+from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
@@ -30,8 +31,6 @@ from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
-from wolk.model.actuator_status import ActuatorStatus
-from wolk.model.alarm import Alarm
 from wolk.model.device import Device
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
@@ -40,8 +39,6 @@ from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
-from wolk.model.sensor_reading import SensorReading
-from wolk.model.state import State
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
 from wolk.os_file_management import OSFileManagement
 from wolk.os_firmware_update import OSFirmwareUpdate
@@ -52,24 +49,6 @@ from wolk.wolkabout_protocol_message_deserializer import (
 from wolk.wolkabout_protocol_message_factory import (
     WolkAboutProtocolMessageFactory as WAPMFactory,
 )
-
-ConfigurationValue = Union[
-    bool,
-    int,
-    float,
-    str,
-]
-
-ActuatorValue = Tuple[State, Optional[Union[bool, int, float, str]]]
-
-ReadingValue = Union[
-    bool,
-    int,
-    Tuple[int, ...],
-    float,
-    Tuple[float, ...],
-    str,
-]
 
 
 class WolkConnect:
@@ -100,12 +79,6 @@ class WolkConnect:
     :vartype message_factory: MessageFactory
     :ivar message_queue: Store data before sending
     :vartype message_queue: MessageQueue
-    :ivar keep_alive_service_enabled: Enable keep alive service
-    :vartype keep_alive_service_enabled: bool
-    :ivar keep_alive_interval: Interval in seconds when to publish message
-    :vartype keep_alive_interval: int
-    :ivar keep_alive_service: Keep alive service
-    :vartype keep_alive_service: RepeatingTimer or None
     """
 
     def __init__(
@@ -137,19 +110,11 @@ class WolkConnect:
         )
 
         self.device = device
-        self.actuation_handler: Optional[
-            Callable[[str, Union[bool, int, float, str]], None]
-        ] = None
-        self.actuator_status_provider: Optional[
-            Callable[[str], ActuatorValue]
-        ] = None
+        self.actuation_handler = None
+        self.actuator_status_provider = None
 
-        self.configuration_handler: Optional[
-            Callable[[Dict[str, ConfigurationValue]], None]
-        ] = None
-        self.configuration_provider: Optional[
-            Callable[[None], Dict[str, ConfigurationValue]]
-        ] = None
+        self.configuration_handler = None
+        self.configuration_provider = None
         self.file_management: Optional[FileManagement] = None
         self.firmware_update: Optional[FirmwareUpdate] = None
         self.message_queue: MessageQueue = MessageDeque()
@@ -159,13 +124,12 @@ class WolkConnect:
         )
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
-        last_will_message = self.message_factory.make_last_will_message()
 
         if host and port and ca_cert:
             self.connectivity_service: ConnectivityService = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                last_will_message,
+                0,
                 host=host,
                 port=int(port),
                 ca_cert=ca_cert,
@@ -174,7 +138,7 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                last_will_message,
+                0,
                 host=host,
                 port=int(port),
             )
@@ -182,7 +146,7 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                last_will_message,
+                0,
                 ca_cert=wolk_ca_cert,
             )
 
@@ -199,7 +163,7 @@ class WolkConnect:
     def with_actuators(  # type: ignore
         self,
         actuation_handler: Callable[[str, Union[bool, int, float, str]], None],
-        actuator_status_provider: Callable[[str], ActuatorValue],
+        actuator_status_provider: Callable[[str], Any],
     ):
         """
         Enable controlling actuators on the device from the Platform.
@@ -230,18 +194,18 @@ class WolkConnect:
 
     def with_configuration(  # type: ignore
         self,
-        configuration_handler: Callable[[Dict[str, ConfigurationValue]], None],
+        configuration_handler: Callable[[Dict[str, Any]], None],
         configuration_provider: Callable[
-            [None], Dict[str, ConfigurationValue]
+            [None], Dict[str, Any]
         ],
     ):
         """
         Enable setting device's configuration options from the Platform.
 
         :param configuration_handler: Handle configuration commands
-        :type configuration_handler: Callable[[Dict[str,ConfigurationValue]], None]
+        :type configuration_handler: Callable[[Dict[str,Any]], None]
         :param configuration_provider: Read configuration options
-        :type configuration_provider: Callable[[None], Dict[str, ConfigurationValue]]
+        :type configuration_provider: Callable[[None], Dict[str, Any]]
         """
         self.logger.debug(
             f"Configuration handler: {configuration_handler} ; "
@@ -392,32 +356,6 @@ class WolkConnect:
 
         return self
 
-    def with_keep_alive_service(  # type: ignore
-        self, enabled: bool, interval: Optional[int] = None
-    ):
-        """
-        Enable or disable keep alive service.
-
-        :param enabled: Enable or disable keep alive service
-        :type enabled: bool
-        :param interval: Interval in seconds, default is 60
-        :type interval: int or None
-        """
-        if not enabled:
-            self.keep_alive_service_enabled = False
-            self.keep_alive_service = None
-
-        if interval:
-            self.keep_alive_interval = interval
-
-        return self
-
-    def _send_keep_alive(self) -> None:
-        if not self.connectivity_service.is_connected():
-            return
-        message = self.message_factory.make_keep_alive_message()
-        self.connectivity_service.publish(message)
-
     def connect(self) -> None:
         """
         Connect the device to the WolkAbout IoT Platform.
@@ -466,12 +404,6 @@ class WolkConnect:
 
                 self.firmware_update.report_result()
 
-            if self.keep_alive_service_enabled:
-                self._send_keep_alive()
-                self.keep_alive_service = RepeatingTimer(
-                    self.keep_alive_interval, self._send_keep_alive
-                )
-                self.keep_alive_service.start()
 
     def disconnect(self) -> None:
         """Disconnect the device from WolkAbout IoT Platform."""
@@ -485,7 +417,7 @@ class WolkConnect:
     def add_sensor_reading(
         self,
         reference: str,
-        value: Union[ReadingValue, List[Tuple[ReadingValue, int]]],
+        value: Union[Any, List[Tuple[Any, int]]],
         timestamp: Optional[int] = None,
     ) -> None:
         """
@@ -499,7 +431,7 @@ class WolkConnect:
         :param reference: The reference of the sensor
         :type reference: str
         :param value: The value of the sensor reading
-        :type value: Union[ReadingValue, List[Tuple[ReadingValue, int]]]
+        :type value: Union[Any, List[Tuple[Any, int]]]
         :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
@@ -507,59 +439,8 @@ class WolkConnect:
             f"Adding sensor reading: reference = '{reference}', "
             f"value = {value}, timestamp = {timestamp}"
         )
-        if isinstance(value, list):
-            reading: Union[SensorReading, List[SensorReading]] = [
-                SensorReading(reference, data[0], data[1]) for data in value
-            ]
-        else:
-            reading = SensorReading(reference, value, timestamp)
-        message = self.message_factory.make_from_sensor_reading(reading)
-        self.message_queue.put(message)
 
-    def add_sensor_readings(
-        self,
-        readings: Dict[str, ReadingValue],
-        timestamp: Optional[int] = None,
-    ) -> None:
-        """
-        Place multiple sensor readings into storage.
-
-        :param readings: Dictionary of reference: value pairs
-        :type readings: Dict[str, Union[bool, int, Tuple[int, ...] float, Tuple[float, ...], str]]
-        :param timestamp: Unix timestamp. If not provided, library will assign
-        :type timestamp: Optional[int]
-        """
-        self.logger.debug(
-            f"Adding sensor readings: readings:{readings}, "
-            f"timestamp = {timestamp}"
-        )
-        message = self.message_factory.make_from_sensor_readings(
-            readings, timestamp
-        )
-        self.message_queue.put(message)
-
-    def add_alarm(
-        self,
-        reference: str,
-        active: bool,
-        timestamp: Optional[int] = None,
-    ) -> None:
-        """
-        Publish an alarm to WolkAbout IoT Platform.
-
-        :param reference: Reference of the alarm
-        :type reference: str
-        :param active: Current state of the alarm
-        :type active: bool
-        :param timestamp: Unix timestamp. If not provided, current time will be used
-        :type timestamp: Optional[int]
-        """
-        self.logger.debug(
-            f"Add alarm event: reference = '{reference}', "
-            f"active = {active}, timestamp = {timestamp}"
-        )
-        alarm = Alarm(reference, active, timestamp)
-        message = self.message_factory.make_from_alarm(alarm)
+        message = self.message_factory.make_from_sensor_reading(reference, value, timestamp)
         self.message_queue.put(message)
 
     def publish(self) -> None:
@@ -579,58 +460,6 @@ class WolkConnect:
                 self.logger.warning(f"Failed to publish message: {message}")
                 break
         self.logger.debug("Publishing ended")
-
-    def publish_actuator_status(self, reference: str) -> None:
-        """
-        Publish the current actuator status to WolkAbout IoT Platform.
-
-        :param reference: reference of the actuator
-        :type reference: str
-        """
-        if not self.connectivity_service.is_connected():
-            self.logger.warning("Not connected, unable to publish message!")
-            return
-        self.logger.debug(
-            f"Publishing actuator status for reference '{reference}'"
-        )
-        if not self.actuator_status_provider:
-            self.logger.error("No actuator status provider is set!")
-            return
-
-        actuator_status = self.actuator_status_provider(reference)
-        if actuator_status is None:
-            self.logger.error(  # type: ignore
-                "Actuator status provider did not return "
-                f"status for reference '{reference}'"
-            )
-            return
-        message = self.message_factory.make_from_actuator_status(
-            ActuatorStatus(reference, actuator_status[0], actuator_status[1])
-        )
-
-        if not self.connectivity_service.publish(message):
-            self.logger.error(
-                f"Failed to publish actuator status for reference {reference}!"
-            )
-            self.message_queue.put(message)
-
-    def publish_configuration(self) -> None:
-        """Publish current device configuration to WolkAbout IoT Platform."""
-        if not self.connectivity_service.is_connected():
-            self.logger.warning("Not connected, unable to publish message!")
-            return
-        self.logger.debug("Publishing configuration options")
-        if not self.configuration_provider:
-            self.logger.error("No configuration provider is set!")
-            return
-
-        message = self.message_factory.make_from_configuration(
-            self.configuration_provider()  # type: ignore
-        )
-
-        if not self.connectivity_service.publish(message):
-            self.logger.error("Failed to publish configuration options!")
-            self.message_queue.put(message)
 
     def request_timestamp(self) -> Optional[int]:
         """
@@ -710,8 +539,8 @@ class WolkConnect:
             self.publish_configuration()
             return
 
-        if self.message_deserializer.is_keep_alive_response(message):
-            timestamp = self.message_deserializer.parse_keep_alive_response(
+        if self.message_deserializer.is_time_response(message):
+            timestamp = self.message_deserializer.parse_time_response(
                 message
             )
             self.logger.debug(

@@ -22,16 +22,20 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
 import wolk  # noqa
 
 # Enable debug logging by uncommenting the following line
-# wolk.logging_config("debug", "wolk.log")
+wolk.logging_config("debug")
 
 
 def main():
     """Connect to WolkAbout IoT Platform and send a random sensor reading."""
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    device = wolk.Device(key="device_key", password="some_password")
+    device = wolk.Device(key="danilo_dev", password="PW15UAM45A")
 
-    wolk_device = wolk.WolkConnect(device)
+    wolk_device = wolk.WolkConnect(
+        device,
+        host="10.0.50.168",
+        port=1883,
+    )
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
@@ -42,8 +46,8 @@ def main():
     while True:
         try:
             temperature = random.randint(-20, 80)
-            wolk_device.add_sensor_reading("T", temperature)
-            print('Publishing "T": ' + str(temperature))
+            wolk_device.add_sensor_reading("SL", temperature)
+            print('Publishing "SL": ' + str(temperature))
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:

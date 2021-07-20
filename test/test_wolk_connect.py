@@ -1113,10 +1113,10 @@ class TestWolkConnect(unittest.TestCase):
         timestamp = 1
 
         message = Message("some_topic", "payload")
-        wolk_device.message_deserializer.parse_keep_alive_response = MagicMock(
+        wolk_device.message_deserializer.parse_time_response = MagicMock(
             return_value=timestamp
         )
-        wolk_device.message_deserializer.is_keep_alive_response = MagicMock(
+        wolk_device.message_deserializer.is_time_response = MagicMock(
             return_value=True
         )
         wolk_device._on_inbound_message(message)
