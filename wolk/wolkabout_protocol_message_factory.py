@@ -17,7 +17,6 @@ from time import time
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from wolk import logger_factory
@@ -33,21 +32,22 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
     DEVICE_PATH_PREFIX = "d2p/"
-    REFERENCE_PATH_PREFIX = "r/"
-    CHANNEL_WILDCARD = "#"
     CHANNEL_DELIMITER = "/"
-    SENSOR_READING = "sensor_reading"
+
+    TIME = "time"
+    PARAMETERS = "parameters"
+    PULL_PARAMETERS = "pull_parameters"
     FEED_VALUES = "feed_values"
-    ALARM = "events"
-    ACTUATOR_STATUS = "actuator_status"
-    CONFIGURATION_STATUS = "configuration_get"
+    PULL_FEED_VALUES = "pull_feed_values"
+
     FILE_BINARY_REQUEST = "file_binary_request"
-    FIRMWARE_VERSION_UPDATE = "firmware_version_update"
-    FIRMWARE_UPDATE_STATUS = "firmware_update_status"
     FILE_LIST_UPDATE = "file_list_update"
     FILE_LIST_RESPONSE = "file_list_response"
     FILE_UPLOAD_STATUS = "file_upload_status"
     FILE_URL_DOWNLOAD_STATUS = "file_url_download_status"
+
+    FIRMWARE_VERSION_UPDATE = "firmware_version_update"
+    FIRMWARE_UPDATE_STATUS = "firmware_update_status"
 
     def __init__(self, device_key: str) -> None:
         """
@@ -62,16 +62,23 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         )
         self.logger.debug(f"Device key: {device_key}")
 
-    def make_from_sensor_reading(self, reference, value, timestamp) -> Message:
+    def make_from_feed_value(
+        self,
+        reference: str,
+        value: Union[bool, int, float, str],
+        timestamp: Optional[int],
+    ) -> Message:
         """
-        Serialize the sensor reading to be sent to WolkAbout IoT Platform.
+        Serialize feed value data.
 
-        :param reading: Sensor reading to be serialized
-        :type reading: Union[SensorReading, List[SensorReading]]
+        :param reference: Feed identifier
+        :type reference: str
+        :param value: Value of the feed
+        :type value: Union[bool, int, float, str]
+        :param timestamp: Unix timestamp. Will assign current time if None
         :returns: message
         :rtype: Message
         """
-
         topic = (
             self.DEVICE_PATH_PREFIX
             + self.device_key
@@ -85,6 +92,67 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         )
 
         message = Message(topic, json.dumps(payload))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_pull_feed_values(self) -> Message:
+        """
+        Serialize message requesting any pending inbound feed values.
+
+        :returns: message
+        :rtype: Message
+        """
+        topic = (
+            self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.PULL_FEED_VALUES
+        )
+
+        message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_parameters(
+        self, parameters: Dict[str, Union[bool, int, float, str]]
+    ) -> Message:
+        """
+        Serialize device parameters to be sent to the Platform.
+
+        :param parameters: Device parameters
+        :type parameters: Dict[str, Union[bool, int, float, str]]
+        :returns: message
+        :rtype: Message
+        """
+        topic = (
+            self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.PARAMETERS
+        )
+
+        message = Message(topic, json.dumps(parameters))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_pull_parameters(self) -> Message:
+        """
+        Serialize request to pull device parameters from the Platform.
+
+        :returns: message
+        :rtype: Message
+        """
+        topic = (
+            self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.PULL_PARAMETERS
+        )
+
+        message = Message(topic)
         self.logger.debug(f"{message}")
 
         return message

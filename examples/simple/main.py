@@ -29,7 +29,9 @@ def main():
     """Connect to WolkAbout IoT Platform and send a random sensor reading."""
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    device = wolk.Device(key="danilo_dev", password="PW15UAM45A")
+    device = wolk.Device(
+        key="danilo_dev", password="PW15UAM45A", always_connected=False
+    )
 
     wolk_device = wolk.WolkConnect(
         device,
@@ -39,14 +41,16 @@ def main():
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
-    wolk_device.connect()
+    # wolk_device.connect()
+    wolk_device.pull_parameters()
+    wolk_device.pull_feed_values()
 
     publish_period_seconds = 5
 
     while True:
         try:
             temperature = random.randint(-20, 80)
-            wolk_device.add_sensor_reading("SL", temperature)
+            wolk_device.add_feed_value("SL", temperature)
             print('Publishing "SL": ' + str(temperature))
             wolk_device.publish()
             time.sleep(publish_period_seconds)

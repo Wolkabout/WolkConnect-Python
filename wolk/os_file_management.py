@@ -25,7 +25,7 @@ from typing import List
 from typing import Optional
 from urllib.parse import urlparse
 
-import requests
+import requests  # type: ignore
 
 from wolk import logger_factory
 from wolk.interface.file_management import FileManagement
@@ -325,7 +325,7 @@ class OSFileManagement(FileManagement):
             or self.last_package_hash != package.previous_hash
         ):
             self.logger.warning("Received invalid file package")
-            self.retry_count += 1  # type: ignore
+            self.retry_count += 1
 
             if self.retry_count >= self.max_retries:
                 self.logger.error(
@@ -335,9 +335,7 @@ class OSFileManagement(FileManagement):
                     FileManagementStatusType.ERROR,
                     FileManagementErrorType.RETRY_COUNT_EXCEEDED,
                 )
-                self.status_callback(
-                    self.file_name, self.current_status  # type: ignore
-                )
+                self.status_callback(self.file_name, self.current_status)
                 self.handle_file_upload_abort()
                 return
 
@@ -345,8 +343,8 @@ class OSFileManagement(FileManagement):
                 f"Requesting package #{self.next_package_index} again"
             )
             self.packet_request_callback(
-                self.file_name,  # type: ignore
-                self.next_package_index,  # type: ignore
+                self.file_name,
+                self.next_package_index,
                 self.preferred_package_size + 64,
             )
 
@@ -357,9 +355,9 @@ class OSFileManagement(FileManagement):
         self.last_package_hash = package.current_hash
 
         try:
-            self.temp_file.write(package.data)  # type: ignore
-            self.temp_file.flush()  # type: ignore
-            os.fsync(self.temp_file)  # type: ignore
+            self.temp_file.write(package.data)
+            self.temp_file.flush()
+            os.fsync(self.temp_file)
         except Exception:
             self.logger.error(
                 "Failed to write package, aborting file transfer"
@@ -368,25 +366,20 @@ class OSFileManagement(FileManagement):
                 FileManagementStatusType.ERROR,
                 FileManagementErrorType.FILE_SYSTEM_ERROR,
             )
-            self.status_callback(
-                self.file_name, self.current_status  # type: ignore
-            )
+            self.status_callback(self.file_name, self.current_status)
             self.handle_file_upload_abort()
             return
 
-        self.next_package_index += 1  # type: ignore
+        self.next_package_index += 1
 
-        if (
-            self.next_package_index  # type: ignore
-            < self.expected_number_of_packages
-        ):
+        if self.next_package_index < self.expected_number_of_packages:
             self.logger.debug(
                 f"Stored package, requesting "
                 f"#{self.next_package_index}/"
                 f"#{self.expected_number_of_packages}"
             )
             self.packet_request_callback(
-                self.file_name,  # type: ignore
+                self.file_name,
                 self.next_package_index,
                 self.preferred_package_size + 64,
             )
@@ -398,18 +391,14 @@ class OSFileManagement(FileManagement):
         valid_file = False
 
         sha256_received_file_hash = base64.b64decode(
-            self.file_hash + ("=" * (-len(self.file_hash) % 4))  # type: ignore
+            self.file_hash + ("=" * (-len(self.file_hash) % 4))
         )
         sha256_file_hash = hashlib.sha256()
 
-        for index in range(self.expected_number_of_packages):  # type: ignore
+        for index in range(self.expected_number_of_packages):
 
-            self.temp_file.seek(  # type: ignore
-                index * self.preferred_package_size
-            )
-            chunk = self.temp_file.read(  # type: ignore
-                self.preferred_package_size
-            )
+            self.temp_file.seek(index * self.preferred_package_size)
+            chunk = self.temp_file.read(self.preferred_package_size)
             if not chunk:
                 self.logger.error("File size too small!")
                 break
@@ -425,9 +414,7 @@ class OSFileManagement(FileManagement):
             self.current_status.error = (
                 FileManagementErrorType.FILE_HASH_MISMATCH
             )
-            self.status_callback(
-                self.file_name, self.current_status  # type: ignore
-            )
+            self.status_callback(self.file_name, self.current_status)
             self.handle_file_upload_abort()
             return
 
@@ -436,13 +423,11 @@ class OSFileManagement(FileManagement):
 
         file_path = os.path.join(
             os.path.abspath(self.file_directory),
-            self.file_name,  # type: ignore
+            self.file_name,
         )
 
-        shutil.copy2(
-            os.path.realpath(self.temp_file.name), file_path  # type: ignore
-        )
-        self.temp_file.close()  # type: ignore
+        shutil.copy2(os.path.realpath(self.temp_file.name), file_path)
+        self.temp_file.close()
 
         if not os.path.exists(file_path):
             self.logger.error(f"File failed to store to at: {file_path}")
@@ -450,9 +435,7 @@ class OSFileManagement(FileManagement):
                 FileManagementStatusType.ERROR,
                 FileManagementErrorType.FILE_SYSTEM_ERROR,
             )
-            self.status_callback(
-                self.file_name, self.current_status  # type: ignore
-            )
+            self.status_callback(self.file_name, self.current_status)
             self.handle_file_upload_abort()
             return
 
@@ -460,9 +443,7 @@ class OSFileManagement(FileManagement):
         self.current_status = FileManagementStatus(
             FileManagementStatusType.FILE_READY
         )
-        self.status_callback(
-            self.file_name, self.current_status  # type: ignore
-        )
+        self.status_callback(self.file_name, self.current_status)
 
         self.current_status = None
         self.retry_count = None
@@ -604,11 +585,9 @@ class OSFileManagement(FileManagement):
         self.logger.error("Timed out waiting for next package, aborting")
         self.current_status = FileManagementStatus(
             FileManagementStatusType.ERROR,
-            FileManagementErrorType.UNSPECIFIED_ERROR,
+            FileManagementErrorType.UNKNOWN_ERROR,
         )
-        self.status_callback(
-            self.file_name, self.current_status  # type: ignore
-        )
+        self.status_callback(self.file_name, self.current_status)
         self.handle_file_upload_abort()
 
     @staticmethod
@@ -627,6 +606,6 @@ class OSFileManagement(FileManagement):
         with open(file_path, "ab") as file:
             file.write(response.content)
             file.flush()
-            os.fsync(file)  # type: ignore
+            os.fsync(file)
 
         return os.path.exists(file_path)

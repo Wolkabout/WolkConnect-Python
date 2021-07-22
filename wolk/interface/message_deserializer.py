@@ -14,8 +14,10 @@
 #   limitations under the License.
 from abc import ABC
 from abc import abstractmethod
+from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import Union
 
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
@@ -37,11 +39,59 @@ class MessageDeserializer(ABC):
     @abstractmethod
     def is_time_response(self, message: Message) -> bool:
         """
-        Check if message is keep alive response.
+        Check if message is response to time request.
 
         :param message: The message received
         :type message: Message
-        :returns: keep_alive_response
+        :returns: is_time_response
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_file_management_message(self, message: Message) -> bool:
+        """
+        Check if message is any kind of file management related message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_file_management_message
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_firmware_message(self, message: Message) -> bool:
+        """
+        Check if message is any kind of firmware related message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_firmware_message
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_feed_message(self, message: Message) -> bool:
+        """
+        Check if message is for incoming feed values.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_feed_message
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_parameters_message(self, message: Message) -> bool:
+        """
+        Check if message is for updating device parameters.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_parameters_message
         :rtype: bool
         """
         raise NotImplementedError()
@@ -247,5 +297,19 @@ class MessageDeserializer(ABC):
         :type message: Message
         :returns: file_name
         :rtype: str
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def parse_parameters(
+        self, message: Message
+    ) -> Dict[str, Union[bool, int, float, str]]:
+        """
+        Parse the incoming parameters message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: parameters
+        :rtype: Dict[str, Union[bool, int, float, str]]
         """
         raise NotImplementedError()

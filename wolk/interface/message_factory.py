@@ -17,7 +17,6 @@ from abc import abstractmethod
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from wolk.model.file_management_status import FileManagementStatus
@@ -29,13 +28,67 @@ class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
     @abstractmethod
+    def make_from_feed_value(
+        self,
+        reference: str,
+        value: Union[bool, int, float, str],
+        timestamp: Optional[int],
+    ) -> Message:
+        """
+        Serialize feed value data.
+
+        :param reference: Feed identifier
+        :type reference: str
+        :param value: Value of the feed
+        :type value: Union[bool, int, float, str]
+        :param timestamp: Unix timestamp. Will assign current time if None
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_pull_feed_values(self) -> Message:
+        """
+        Serialize message requesting any pending inbound feed values.
+
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_parameters(
+        self, parameters: Dict[str, Union[bool, int, float, str]]
+    ) -> Message:
+        """
+        Serialize device parameters to be sent to the Platform.
+
+        :param parameters: Device parameters
+        :type parameters: Dict[str, Union[bool, int, float, str]]
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_pull_parameters(self) -> Message:
+        """
+        Serialize request to pull device parameters from the Platform.
+
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def make_from_firmware_update_status(
         self, firmware_update_status: FirmwareUpdateStatus
     ) -> Message:
         """
         Report the current status of the firmware update process.
 
-        :param firmware_update_status: Current status of the firmware update process
+        :param firmware_update_status: Status of the firmware update process
         :type firmware_update_status: FirmwareUpdateStatus
         :returns: message
         :rtype: Message

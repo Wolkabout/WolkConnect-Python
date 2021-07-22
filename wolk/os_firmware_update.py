@@ -85,7 +85,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if os.path.exists("last_firmware_version.txt"):
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
+                FirmwareUpdateErrorType.UNKNOWN_ERROR,
             )
             self.logger.error("Previous firmware update did not complete!")
             self.status_callback(self.current_status)
@@ -95,7 +95,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if not os.path.exists(file_path):
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.FILE_NOT_PRESENT,
+                FirmwareUpdateErrorType.UNKNOWN_FILE,
             )
             self.logger.error("File not present at given path!")
             self.status_callback(self.current_status)
@@ -116,7 +116,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
 
         self.install_timer = Timer(
             5.0,
-            self.firmware_handler.install_firmware(file_path),  # type: ignore
+            self.firmware_handler.install_firmware(file_path),
         )  # For possible abort command
         self.install_timer.start()
 
@@ -168,7 +168,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             "Firmware version changed, reporting installation completed"
         )
         self.current_status = FirmwareUpdateStatus(
-            FirmwareUpdateStatusType.COMPLETED
+            FirmwareUpdateStatusType.SUCCESS
         )
         self.status_callback(self.current_status)
         self._reset_state()

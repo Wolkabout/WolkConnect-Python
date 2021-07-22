@@ -128,7 +128,7 @@ class MQTTConnectivityService(ConnectivityService):
             self.logger.debug(
                 "Received MQTT message: "
                 f"{received_message.topic} , "
-                f"size: {len(received_message.payload)} bytes"  # type: ignore
+                f"size: {len(received_message.payload)} bytes"
             )
         else:
             self.logger.debug(f"Received MQTT message: {received_message}")

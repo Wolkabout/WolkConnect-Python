@@ -29,7 +29,8 @@ class Device:
     :vartype key: str
     :ivar password: Device's unique password
     :vartype password: str
-
+    :ivar always_connected: Is the device always connected or only periodically
+    :vartype always_connected: bool
     """
 
     key: str

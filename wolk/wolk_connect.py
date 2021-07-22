@@ -1,4 +1,4 @@
-"""Heart and soul of this library. Wraps in all functionality."""
+"""Core of this package. Wraps in all functionality."""
 #   Copyright 2020 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,13 +13,8 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import os
-from inspect import signature
-from typing import Any
 from typing import Callable
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from wolk import logger_factory
@@ -42,7 +37,6 @@ from wolk.model.message import Message
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
 from wolk.os_file_management import OSFileManagement
 from wolk.os_firmware_update import OSFirmwareUpdate
-from wolk.repeating_timer import RepeatingTimer
 from wolk.wolkabout_protocol_message_deserializer import (
     WolkAboutProtocolMessageDeserializer as WAPMDeserializer,
 )
@@ -50,19 +44,13 @@ from wolk.wolkabout_protocol_message_factory import (
     WolkAboutProtocolMessageFactory as WAPMFactory,
 )
 
+# from inspect import signature
+
 
 class WolkConnect:
     """
     Exchange data with WolkAbout IoT Platform.
 
-    :ivar actuation_handler: Function for handling actuation commands
-    :vartype actuation_handler: Callable[[str, Union[bool, int, float, str]], None] or None
-    :ivar actuator_status_provider: Function for getting current actuator status
-    :vartype actuator_status_provider: Callable[[str], ActuatorValue] or None
-    :ivar configuration_handler: Function for handling configuration commands
-    :vartype configuration_handler: Callable[[dict], None] or None
-    :ivar configuration_provider: Function for getting current configuration options
-    :vartype configuration_provider: Callable[[None], dict] or None
     :ivar connectivity_service: Means of sending/receiving data
     :vartype connectivity_service: ConnectivityService
     :ivar device: Contains device key and password, and actuator references
@@ -110,11 +98,7 @@ class WolkConnect:
         )
 
         self.device = device
-        self.actuation_handler = None
-        self.actuator_status_provider = None
 
-        self.configuration_handler = None
-        self.configuration_provider = None
         self.file_management: Optional[FileManagement] = None
         self.firmware_update: Optional[FirmwareUpdate] = None
         self.message_queue: MessageQueue = MessageDeque()
@@ -154,84 +138,14 @@ class WolkConnect:
             self._on_inbound_message
         )
 
-        self.keep_alive_service_enabled = True
-        self.keep_alive_interval = 60
-        self.keep_alive_service: Optional[RepeatingTimer] = None
-
         self.last_platform_timestamp: Optional[int] = None
-
-    def with_actuators(  # type: ignore
-        self,
-        actuation_handler: Callable[[str, Union[bool, int, float, str]], None],
-        actuator_status_provider: Callable[[str], Any],
-    ):
-        """
-        Enable controlling actuators on the device from the Platform.
-
-        :param actuation_handler: Handle actuation commands
-        :type actuation_handler: Callable[[str, Union[bool, int, float, str]], None]
-        :param actuator_status_provider: Read actuator status
-        :type actuator_status_provider: Callable[[str], ActuatorValue]
-        """
-        self.logger.debug(
-            f"Actuation handler: {actuation_handler} ; "
-            f"Actuator status provider: {actuator_status_provider}"
-        )
-
-        if not callable(actuation_handler):
-            raise ValueError(f"{actuation_handler} is not a callable!")
-        if len(signature(actuation_handler).parameters) != 2:
-            raise ValueError(f"{actuation_handler} invalid signature!")
-        self.actuation_handler = actuation_handler
-
-        if not callable(actuator_status_provider):
-            raise ValueError(f"{actuator_status_provider} is not a callable!")
-        if len(signature(actuator_status_provider).parameters) != 1:
-            raise ValueError(f"{actuator_status_provider} invalid signature!")
-        self.actuator_status_provider = actuator_status_provider
-
-        return self
-
-    def with_configuration(  # type: ignore
-        self,
-        configuration_handler: Callable[[Dict[str, Any]], None],
-        configuration_provider: Callable[
-            [None], Dict[str, Any]
-        ],
-    ):
-        """
-        Enable setting device's configuration options from the Platform.
-
-        :param configuration_handler: Handle configuration commands
-        :type configuration_handler: Callable[[Dict[str,Any]], None]
-        :param configuration_provider: Read configuration options
-        :type configuration_provider: Callable[[None], Dict[str, Any]]
-        """
-        self.logger.debug(
-            f"Configuration handler: {configuration_handler} ; "
-            f"Configuration provider: {configuration_provider}"
-        )
-
-        if not callable(configuration_handler):
-            raise ValueError(f"{configuration_handler} is not a callable!")
-        if len(signature(configuration_handler).parameters) != 1:
-            raise ValueError(f"{configuration_handler} invalid signature!")
-        self.configuration_handler = configuration_handler
-
-        if not callable(configuration_provider):
-            raise ValueError(f"{configuration_provider} is not a callable!")
-        if len(signature(configuration_provider).parameters) != 0:
-            raise ValueError(f"{configuration_provider} invalid signature!")
-        self.configuration_provider = configuration_provider
-
-        return self
 
     def with_file_management(  # type: ignore
         self,
         preferred_package_size: int,
         max_file_size: int,
         file_directory: str,
-        custom_url_download: Optional[Callable[[str, str], bool]] = None,
+        url_downloader: Optional[Callable[[str, str], bool]] = None,
     ):
         """
         Enable file management on the device.
@@ -242,8 +156,8 @@ class WolkConnect:
         :type max_file_size: int
         :param file_directory: Directory where files are stored
         :type file_directory: str
-        :param custom_url_download: Optional custom function for downloading file from URL
-        :type custom_url_download: Optional[Callable[[str, str], bool]]
+        :param url_downloader: Function for downloading file from URL
+        :type url_downloader: Optional[Callable[[str, str], bool]]
         """
         self.logger.debug(
             f"Preferred package size: {preferred_package_size}, "
@@ -262,8 +176,8 @@ class WolkConnect:
             file_directory,
         )
 
-        if custom_url_download is not None:
-            self.file_management.set_custom_url_downloader(custom_url_download)
+        if url_downloader is not None:
+            self.file_management.set_custom_url_downloader(url_downloader)
 
         return self
 
@@ -273,7 +187,7 @@ class WolkConnect:
 
         Requires that file management is previously enabled on device.
 
-        :param firmware_handler: Provide firmware version and handle installation
+        :param firmware_handler: Provide firmware version & handle installation
         :type firmware_handler: FirmwareHandler
         """
         self.logger.debug(f"Firmware handler: {firmware_handler}")
@@ -295,7 +209,7 @@ class WolkConnect:
 
     def with_custom_message_queue(self, message_queue: MessageQueue):  # type: ignore
         """
-        Set custom means of storing serialized messages.
+        Use custom means of storing serialized messages.
 
         :param message_queue: Custom message queue
         :type message_queue: MessageQueue
@@ -361,8 +275,7 @@ class WolkConnect:
         Connect the device to the WolkAbout IoT Platform.
 
         If the connection is made, then it also sends information
-        regarding current actuator statuses, configuration option values,
-        list of files present on device, current firmware version
+        about list of files present on device, current firmware version
         and the result of the firmware update process.
         """
         self.logger.debug("Connecting")
@@ -380,12 +293,6 @@ class WolkConnect:
             return
 
         if self.connectivity_service.is_connected():
-
-            if self.actuator_status_provider:
-                for reference in self.device.actuator_references:
-                    self.publish_actuator_status(reference)
-            if self.configuration_provider:
-                self.publish_configuration()
             if self.file_management:
                 file_list = self.file_management.get_file_list()
                 message = self.message_factory.make_from_file_list_update(
@@ -404,43 +311,41 @@ class WolkConnect:
 
                 self.firmware_update.report_result()
 
+            if self.device.always_connected is False:
+                self.pull_parameters()
+                self.pull_feed_values()
 
     def disconnect(self) -> None:
         """Disconnect the device from WolkAbout IoT Platform."""
         if not self.connectivity_service.is_connected():
             return
         self.logger.debug("Disconnecting")
-        if self.keep_alive_service is not None:
-            self.keep_alive_service.cancel()
         self.connectivity_service.disconnect()
 
-    def add_sensor_reading(
+    def add_feed_value(
         self,
         reference: str,
-        value: Union[Any, List[Tuple[Any, int]]],
+        value: Union[bool, int, float, str],
         timestamp: Optional[int] = None,
     ) -> None:
         """
-        Place a sensor reading into storage.
+        Place a feed value into storage.
 
-        Pass a single reading or multiple readings as a list
-        of tuples where the first element is the reading data
-        and the second element is timestamp when the reading occurred.
-        If passing a list of readings, omit the `timestamp` argument.
-
-        :param reference: The reference of the sensor
+        :param reference: Feed reference
         :type reference: str
-        :param value: The value of the sensor reading
-        :type value: Union[Any, List[Tuple[Any, int]]]
+        :param value: Value of the feed
+        :type value: Union[bool, int, float, str]
         :param timestamp: Unix timestamp. If not provided, library will assign
         :type timestamp: Optional[int]
         """
         self.logger.debug(
-            f"Adding sensor reading: reference = '{reference}', "
+            f"Adding feed value: reference = '{reference}', "
             f"value = {value}, timestamp = {timestamp}"
         )
 
-        message = self.message_factory.make_from_sensor_reading(reference, value, timestamp)
+        message = self.message_factory.make_from_feed_value(
+            reference, value, timestamp
+        )
         self.message_queue.put(message)
 
     def publish(self) -> None:
@@ -461,12 +366,57 @@ class WolkConnect:
                 break
         self.logger.debug("Publishing ended")
 
+    def pull_parameters(self) -> None:
+        """Issue a message to pull commanded feed values."""
+        self.logger.debug("Sending pull feed values request")
+        if self.device.always_connected:
+            self.logger.warning(
+                "Always connected devices (PUSH) do not"
+                " need to issue pull commands."
+            )
+            return
+        if not self.connectivity_service.is_connected():
+            self.logger.warning(
+                "Not connected - not sending pull feed values message"
+            )
+            return
+
+        message = self.message_factory.make_pull_parameters()
+
+        if self.connectivity_service.publish(message):
+            self.message_queue.get()
+        else:
+            self.logger.warning(f"Failed to publish message: {message}")
+
+    def pull_feed_values(self) -> None:
+        """Issue a message to pull commanded feed values."""
+        self.logger.debug("Sending pull feed values request")
+        if self.device.always_connected:
+            self.logger.warning(
+                "Always connected devices (PUSH) do not"
+                " need to issue pull commands."
+            )
+            return
+        if not self.connectivity_service.is_connected():
+            self.logger.warning(
+                "Not connected - not sending pull feed values message"
+            )
+            return
+
+        message = self.message_factory.make_pull_feed_values()
+
+        if self.connectivity_service.publish(message):
+            self.message_queue.get()
+        else:
+            self.logger.warning(f"Failed to publish message: {message}")
+
+    # TODO: refactor or remove?
     def request_timestamp(self) -> Optional[int]:
         """
         Return last received timestamp from Platform.
 
-        If keep alive service is disabled or device didn't connect
-        at least once, then this will return None.
+        If the device didn't connect at least once,
+        then this will return None.
 
         :returns: UTC timestamp in milliseconds
         :rtype: int or None
@@ -487,63 +437,17 @@ class WolkConnect:
         if "binary" in message.topic:
             self.logger.debug(
                 f"Received message: {message.topic} , "
-                f"{len(message.payload)}"  # type: ignore
+                f"{len(message.payload)}"
             )
         else:
             self.logger.debug(f"Received message: {message}")
 
-        file_management_messages = [
-            self.message_deserializer.is_file_purge_command,
-            self.message_deserializer.is_file_delete_command,
-            self.message_deserializer.is_file_binary_response,
-            self.message_deserializer.is_file_upload_initiate,
-            self.message_deserializer.is_file_upload_abort,
-            self.message_deserializer.is_file_list_request,
-            self.message_deserializer.is_file_list_confirm,
-            self.message_deserializer.is_file_url_initiate,
-            self.message_deserializer.is_file_url_abort,
-        ]
-
-        firmware_update_messages = [
-            self.message_deserializer.is_firmware_install,
-            self.message_deserializer.is_firmware_abort,
-        ]
-
-        if self.message_deserializer.is_actuation_command(message):
-            if not self.actuation_handler or not self.actuator_status_provider:
-                self.logger.warning(
-                    f"Received unexpected actuation message: {message}"
-                )
-                return
-            actuation = self.message_deserializer.parse_actuator_command(
-                message
-            )
-            self.actuation_handler(actuation.reference, actuation.value)
-            self.publish_actuator_status(actuation.reference)
-
-            return
-
-        if self.message_deserializer.is_configuration_command(message):
-            if (
-                not self.configuration_provider
-                or not self.configuration_handler
-            ):
-                self.logger.warning(
-                    f"Received unexpected configuration message: {message}"
-                )
-                return
-            configuration = self.message_deserializer.parse_configuration(
-                message
-            )
-            self.configuration_handler(configuration.value)
-            self.publish_configuration()
-            return
+        # TODO: pull parameters handle
+        # TODO: pull feed value handle
 
         if self.message_deserializer.is_time_response(message):
-            timestamp = self.message_deserializer.parse_time_response(
-                message
-            )
-            self.logger.debug(
+            timestamp = self.message_deserializer.parse_time_response(message)
+            self.logger.info(
                 "Updating last platform timestamp "
                 f"from {self.last_platform_timestamp}"
                 f" to {timestamp}"
@@ -551,11 +455,11 @@ class WolkConnect:
             self.last_platform_timestamp = timestamp
             return
 
-        if any(is_message(message) for is_message in file_management_messages):
+        if self.message_deserializer.is_file_management_message(message):
             self._on_file_management_message(message)
             return
 
-        if any(is_message(message) for is_message in firmware_update_messages):
+        if self.message_deserializer.is_firmware_message(message):
             self._on_firmware_message(message)
             return
 
@@ -655,7 +559,7 @@ class WolkConnect:
             )
             firmware_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
+                FirmwareUpdateErrorType.UNKNOWN_ERROR,
             )
             message = self.message_factory.make_from_firmware_update_status(
                 firmware_status
@@ -668,14 +572,14 @@ class WolkConnect:
             file_name = self.message_deserializer.parse_firmware_install(
                 message
             )
-            file_path = self.file_management.get_file_path(file_name)  # type: ignore
+            file_path = self.file_management.get_file_path(file_name)
             if not file_path:
                 self.logger.error(
                     f"Specified file not found on device! Message: {message}"
                 )
                 firmware_status = FirmwareUpdateStatus(
                     FirmwareUpdateStatusType.ERROR,
-                    FirmwareUpdateErrorType.FILE_NOT_PRESENT,
+                    FirmwareUpdateErrorType.UNKNOWN_FILE,
                 )
                 message = (
                     self.message_factory.make_from_firmware_update_status(
@@ -727,7 +631,7 @@ class WolkConnect:
         else:
             self.message_queue.put(message)
         if (
-            status.status == FirmwareUpdateStatusType.COMPLETED
+            status.status == FirmwareUpdateStatusType.SUCCESS
             and self.firmware_update
         ):
             version = self.firmware_update.get_current_version()
@@ -746,7 +650,7 @@ class WolkConnect:
         """
         Report file upload status to WolkAbout IoT Platform.
 
-        :param file_name: File being transfered
+        :param file_name: File being transferred
         :type file_name: str
         :param status: Description of current status
         :type status: FileManagementStatus
