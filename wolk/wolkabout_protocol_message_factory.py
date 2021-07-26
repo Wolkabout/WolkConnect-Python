@@ -21,6 +21,7 @@ from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.message_factory import MessageFactory
+from wolk.model.data_type import DataType
 from wolk.model.feed_type import FeedType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
@@ -37,13 +38,17 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     CHANNEL_DELIMITER = "/"
 
     TIME = "time"
+
     PARAMETERS = "parameters"
     PULL_PARAMETERS = "pull_parameters"
+
     FEED_VALUES = "feed_values"
     PULL_FEED_VALUES = "pull_feed_values"
 
     FEED_REGISTRATION = "feed_registration"
     FEED_REMOVAL = "feed_removal"
+
+    ATTRIBUTE_REGISTRATION = "attribute_registration"
 
     FILE_BINARY_REQUEST = "file_binary_request"
     FILE_LIST_UPDATE = "file_list_update"
@@ -223,6 +228,35 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         )
 
         payload = [reference]
+
+        message = Message(topic, json.dumps(payload))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_attribute_registration(
+        self, name: str, data_type: DataType, value: str
+    ) -> Message:
+        """
+        Serialize request to register an attribute for the device.
+
+        :param name: Unique identifier
+        :type name: str
+        :param data_type: Type of data this attribute holds
+        :type data_type: DataType
+        :param value: Value of the attribute
+        :type value: str
+        :returns: message
+        :rtype: Message
+        """
+        topic = (
+            self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.ATTRIBUTE_REGISTRATION
+        )
+
+        payload = [{"name": name, "dataType": data_type.value, "value": value}]
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")

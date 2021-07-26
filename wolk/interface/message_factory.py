@@ -19,6 +19,7 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from wolk.model.data_type import DataType
 from wolk.model.feed_type import FeedType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
@@ -114,6 +115,24 @@ class MessageFactory(ABC):
 
         :param reference: Unique identifier
         :type reference: str
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_attribute_registration(
+        self, name: str, data_type: DataType, value: str
+    ) -> Message:
+        """
+        Serialize request to register an attribute for the device.
+
+        :param name: Unique identifier
+        :type name: str
+        :param data_type: Type of data this attribute holds
+        :type data_type: DataType
+        :param value: Value of the attribute
+        :type value: str
         :returns: message
         :rtype: Message
         """

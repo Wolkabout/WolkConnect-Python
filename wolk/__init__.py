@@ -16,6 +16,7 @@ from .interface.message_factory import MessageFactory
 from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
 from .model.data_delivery import DataDelivery
+from .model.data_type import DataType
 from .model.device import Device
 from .model.unit import Unit
 from .model.file_management_error_type import FileManagementErrorType
@@ -45,6 +46,7 @@ __all__ = [
     "Alarm",
     "ConfigurationCommand",
     "DataDelivery",
+    "DataType",
     "Device",
     "FileTransferPackage",
     "FirmwareUpdateStatus",

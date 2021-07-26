@@ -30,6 +30,7 @@ from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
 from wolk.model.data_delivery import DataDelivery
+from wolk.model.data_type import DataType
 from wolk.model.device import Device
 from wolk.model.feed_type import FeedType
 from wolk.model.file_management_error_type import FileManagementErrorType
@@ -510,6 +511,39 @@ class WolkConnect:
         """
         self.logger.debug(f"Remove feed called with: reference='{reference}'")
         message = self.message_factory.make_feed_removal(reference)
+
+        if not self.connectivity_service.publish(message):
+            self.logger.warning(f"Failed to publish message: {message}")
+            self.message_queue.put(message)
+
+    def register_attribute(
+        self, name: str, data_type: DataType, value: str
+    ) -> None:
+        """
+        Register an attribute for the device.
+
+        The attribute name must be unique per device.
+        All attributes created by a device are always required and read-only.
+        If an attribute with the given name already exists,
+        the value will be updated.
+
+        :param name: Unique attribute name
+        :type name: str
+        :param data_type: Data type this attribute will hold
+        :type data_type: DataType
+        :param value: Value of the attribute
+        :type value: str
+        """
+        self.logger.debug(
+            "Register attribute called with: "
+            f"name='{name}', "
+            f"data_type={data_type}, "
+            f"value='{value}'"
+        )
+
+        message = self.message_factory.make_attribute_registration(
+            name, data_type, value
+        )
 
         if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
