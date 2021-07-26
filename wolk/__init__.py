@@ -15,6 +15,7 @@ from .interface.message_deserializer import MessageDeserializer
 from .interface.message_factory import MessageFactory
 from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
+from .model.data_delivery import DataDelivery
 from .model.device import Device
 from .model.file_management_error_type import FileManagementErrorType
 from .model.file_management_status import FileManagementStatus
@@ -42,6 +43,7 @@ __all__ = [
     "ActuatorStatus",
     "Alarm",
     "ConfigurationCommand",
+    "DataDelivery",
     "Device",
     "FileTransferPackage",
     "FirmwareUpdateStatus",

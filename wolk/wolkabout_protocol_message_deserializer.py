@@ -152,34 +152,33 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         )
         return is_time_response
 
-    def is_feed_message(self, message: Message) -> bool:
+    def is_feed_values(self, message: Message) -> bool:
         """
         Check if message is for incoming feed values.
 
         :param message: The message received
         :type message: Message
-        :returns: is_feed_message
+        :returns: is_feed_values
         :rtype: bool
         """
-        is_feed_message = message.topic == self.feed_values_topic
-        self.logger.debug(f"{message.topic} is feed value: {is_feed_message}")
-        return is_feed_message
+        is_feed_values = message.topic == self.feed_values_topic
+        self.logger.debug(f"{message.topic} is feed values: {is_feed_values}")
+        return is_feed_values
 
-    def is_parameters_message(self, message: Message) -> bool:
+    def is_parameters(self, message: Message) -> bool:
         """
         Check if message is for updating device parameters.
 
         :param message: The message received
         :type message: Message
-        :returns: is_parameters_message
+        :returns: is_parameters
         :rtype: bool
         """
-        is_parameters_message = message.topic == self.parameters_topic
+        is_parameters = message.topic == self.parameters_topic
         self.logger.debug(
-            f"{message.topic} is parameters message: "
-            f"{is_parameters_message}"
+            f"{message.topic} is parameters message: " f"{is_parameters}"
         )
-        return is_parameters_message
+        return is_parameters
 
     def is_file_management_message(self, message: Message) -> bool:
         """
@@ -552,3 +551,24 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         except Exception as e:
             self.logger.exception(f"Failed to parse parameters message: {e}")
             return {}
+
+    def parse_feed_values(
+        self, message: Message
+    ) -> List[Dict[str, Union[bool, int, float, str]]]:
+        """
+        Parse the incoming feed values message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: feed_values
+        :rtype: List[Dict[str, Union[bool, int, float, str]]]
+        """
+        self.logger.debug(f"{message}")
+        try:
+            feed_values = json.loads(
+                message.payload.decode("utf-8")  # type: ignore
+            )
+            return feed_values
+        except Exception as e:
+            self.logger.exception(f"Failed to parse feed values message: {e}")
+            return {}  # type: ignore

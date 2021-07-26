@@ -13,7 +13,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import os
+from inspect import signature
 from typing import Callable
+from typing import Dict
+from typing import List
 from typing import Optional
 from typing import Union
 
@@ -26,6 +29,7 @@ from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
+from wolk.model.data_delivery import DataDelivery
 from wolk.model.device import Device
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
@@ -44,7 +48,7 @@ from wolk.wolkabout_protocol_message_factory import (
     WolkAboutProtocolMessageFactory as WAPMFactory,
 )
 
-# from inspect import signature
+IncomingData = List[Dict[str, Union[bool, int, float, str]]]
 
 
 class WolkConnect:
@@ -181,6 +185,34 @@ class WolkConnect:
 
         return self
 
+    def with_incoming_feed_value_handler(  # type: ignore
+        self, incoming_feed_value_handler: Callable[[IncomingData], None]
+    ):
+        """
+        Enable device to respond to incoming feed value change commands.
+
+        Commands will be delivered as a list of dictionaries that contain
+        a feed_reference:value pair, and a "timestamp" field that specifies
+        when this command was issued from the platform.
+        The timestamp is an int representing Unix milliseconds.
+
+        :param incoming_feed_value_handler: Handler of feed value commands
+        :type incoming_feed_value_handler: Callable[[IncomingData], None]
+        """
+        self.logger.debug(
+            f"Incoming feed value handler: {incoming_feed_value_handler}"
+        )
+
+        if not callable(incoming_feed_value_handler):
+            raise ValueError(
+                f"{incoming_feed_value_handler} is not a callable!"
+            )
+        if len(signature(incoming_feed_value_handler).parameters) != 1:
+            raise ValueError(
+                f"{incoming_feed_value_handler} invalid signature!"
+            )
+        self.incoming_feed_value_handler = incoming_feed_value_handler
+
     def with_firmware_update(self, firmware_handler: FirmwareHandler):  # type: ignore
         """
         Enable firmware update for device.
@@ -311,7 +343,7 @@ class WolkConnect:
 
                 self.firmware_update.report_result()
 
-            if self.device.always_connected is False:
+            if self.device.data_delivery == DataDelivery.PULL:
                 self.pull_parameters()
                 self.pull_feed_values()
 
@@ -368,8 +400,8 @@ class WolkConnect:
 
     def pull_parameters(self) -> None:
         """Issue a message to pull commanded feed values."""
-        self.logger.debug("Sending pull feed values request")
-        if self.device.always_connected:
+        self.logger.debug("Sending pull parameters request")
+        if self.device.data_delivery == DataDelivery.PUSH:
             self.logger.warning(
                 "Always connected devices (PUSH) do not"
                 " need to issue pull commands."
@@ -377,7 +409,7 @@ class WolkConnect:
             return
         if not self.connectivity_service.is_connected():
             self.logger.warning(
-                "Not connected - not sending pull feed values message"
+                "Not connected - not sending pull parameters message"
             )
             return
 
@@ -391,7 +423,7 @@ class WolkConnect:
     def pull_feed_values(self) -> None:
         """Issue a message to pull commanded feed values."""
         self.logger.debug("Sending pull feed values request")
-        if self.device.always_connected:
+        if self.device.data_delivery == DataDelivery.PUSH:
             self.logger.warning(
                 "Always connected devices (PUSH) do not"
                 " need to issue pull commands."
@@ -442,8 +474,30 @@ class WolkConnect:
         else:
             self.logger.debug(f"Received message: {message}")
 
-        # TODO: pull parameters handle
-        # TODO: pull feed value handle
+        # TODO: parameters handle
+        if self.message_deserializer.is_parameters(message):
+            # TODO: "FIRMWARE_UPDATE_CHECK_TIME"
+            return
+            # NOTE: Other optional parameters?
+
+        if self.message_deserializer.is_feed_values(message):
+            if self.incoming_feed_value_handler:
+                self.logger.info(
+                    f"Received feed values message: {message.payload}"  # type: ignore
+                )
+                feed_values = self.message_deserializer.parse_feed_values(
+                    message
+                )
+                if not feed_values:
+                    self.logger.warning(
+                        "Unable to parse feed values, ignoring"
+                    )
+                    return
+                self.logger.debug(
+                    f"Calling incoming feed value handler with: {feed_values}"
+                )
+                self.incoming_feed_value_handler(feed_values)
+                return
 
         if self.message_deserializer.is_time_response(message):
             timestamp = self.message_deserializer.parse_time_response(message)

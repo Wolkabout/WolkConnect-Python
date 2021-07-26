@@ -73,25 +73,25 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def is_feed_message(self, message: Message) -> bool:
+    def is_feed_values(self, message: Message) -> bool:
         """
         Check if message is for incoming feed values.
 
         :param message: The message received
         :type message: Message
-        :returns: is_feed_message
+        :returns: is_feed_values
         :rtype: bool
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def is_parameters_message(self, message: Message) -> bool:
+    def is_parameters(self, message: Message) -> bool:
         """
         Check if message is for updating device parameters.
 
         :param message: The message received
         :type message: Message
-        :returns: is_parameters_message
+        :returns: is_parameters
         :rtype: bool
         """
         raise NotImplementedError()
@@ -311,5 +311,19 @@ class MessageDeserializer(ABC):
         :type message: Message
         :returns: parameters
         :rtype: Dict[str, Union[bool, int, float, str]]
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def parse_feed_values(
+        self, message: Message
+    ) -> List[Dict[str, Union[bool, int, float, str]]]:
+        """
+        Parse the incoming feed values message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: feed_values
+        :rtype: List[Dict[str, Union[bool, int, float, str]]]
         """
         raise NotImplementedError()

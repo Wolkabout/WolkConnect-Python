@@ -25,7 +25,7 @@ from typing import List
 from typing import Optional
 from urllib.parse import urlparse
 
-import requests  # type: ignore
+import requests
 
 from wolk import logger_factory
 from wolk.interface.file_management import FileManagement
