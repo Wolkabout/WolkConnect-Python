@@ -36,7 +36,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     PLATFORM_TO_DEVICE = "p2d/"
     CHANNEL_DELIMITER = "/"
 
-    TIME_RESPONSE = "time"
+    TIME = "time"
     PARAMETERS = "parameters"
     FEED_VALUES = "feed_values"
 
@@ -66,7 +66,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{device}")
         self.key = device.key
 
-        self.time_response_topic = self._form_topic(self.TIME_RESPONSE)
+        self.time_topic = self._form_topic(self.TIME)
         self.feed_values_topic = self._form_topic(self.FEED_VALUES)
         self.parameters_topic = self._form_topic(self.PARAMETERS)
 
@@ -86,7 +86,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.firmware_install_topic = self._form_topic(self.FIRMWARE_INSTALL)
 
         self.inbound_topics = [
-            self.time_response_topic,
+            self.time_topic,
             self.feed_values_topic,
             self.parameters_topic,
             self.file_binary_topic,
@@ -146,7 +146,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: is_time_response
         :rtype: bool
         """
-        is_time_response = message.topic == self.time_response_topic
+        is_time_response = message.topic == self.time_topic
         self.logger.debug(
             f"{message.topic} is time response: {is_time_response}"
         )
@@ -217,9 +217,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: firmware_update_install
         :rtype: bool
         """
-        firmware_update_install = message.topic.startswith(
-            self.FIRMWARE_INSTALL
-        )
+        firmware_update_install = message.topic == self.firmware_install_topic
         self.logger.debug(
             f"{message.topic} is firmware install: {firmware_update_install}"
         )
@@ -234,7 +232,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: firmware_update_abort
         :rtype: bool
         """
-        firmware_update_abort = message.topic.startswith(self.FIRMWARE_ABORT)
+        firmware_update_abort = message.topic == self.firmware_abort_topic
         self.logger.debug(
             f"{message.topic} is firmware abort: {firmware_update_abort}"
         )
@@ -249,7 +247,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_binary
         :rtype: bool
         """
-        file_binary = message.topic.startswith(self.FILE_BINARY)
+        file_binary = message.topic == self.file_binary_topic
         self.logger.debug(f"{message.topic} is file binary: {file_binary}")
         return file_binary
 
@@ -262,7 +260,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_delete_command
         :rtype: bool
         """
-        file_delete_command = message.topic.startswith(self.FILE_DELETE)
+        file_delete_command = message.topic == self.file_delete_topic
         self.logger.debug(
             f"{message.topic} is file delete: {file_delete_command}"
         )
@@ -277,7 +275,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_purge_command
         :rtype: bool
         """
-        file_purge_command = message.topic.startswith(self.FILE_PURGE)
+        file_purge_command = message.topic == self.file_purge_topic
         self.logger.debug(
             f"{message.topic} is file purge: {file_purge_command}"
         )
@@ -292,7 +290,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_list_confirm
         :rtype: bool
         """
-        file_list_confirm = message.topic.startswith(self.FILE_LIST_CONFIRM)
+        file_list_confirm = message.topic == self.file_list_confirm_topic
         self.logger.debug(
             f"{message.topic} is file list confirm: {file_list_confirm}"
         )
@@ -307,7 +305,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_list_request
         :rtype: bool
         """
-        file_list_request = message.topic.startswith(self.FILE_LIST_REQUEST)
+        file_list_request = message.topic == self.file_list_request_topic
         self.logger.debug(
             f"{message.topic} is file list request: {file_list_request}"
         )
@@ -322,11 +320,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_upload_initiate
         :rtype: bool
         """
-        file_upload_initiate = message.topic.startswith(
-            self.FILE_UPLOAD_INITIATE
-        )
+        file_upload_initiate = message.topic == self.file_upload_initiate_topic
         self.logger.debug(
-            f"{message.topic} is file upload init: {file_upload_initiate}"
+            f"{message.topic} is file upload initiate: {file_upload_initiate}"
         )
         return file_upload_initiate
 
@@ -339,11 +335,11 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_upload_abort_command
         :rtype: bool
         """
-        file_upload_abort_command = message.topic.startswith(
-            self.FILE_UPLOAD_ABORT
+        file_upload_abort_command = (
+            message.topic == self.file_upload_abort_topic
         )
         self.logger.debug(
-            f"{message.topic} is file purge: {file_upload_abort_command}"
+            f"{message.topic} is file upload abort: {file_upload_abort_command}"
         )
         return file_upload_abort_command
 
@@ -356,11 +352,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_url_download_init
         :rtype: bool
         """
-        file_url_download_init = message.topic.startswith(
-            self.FILE_URL_INITIATE
-        )
+        file_url_download_init = message.topic == self.file_url_initiate_topic
         self.logger.debug(
-            f"{message.topic} is file url download: {file_url_download_init}"
+            f"{message.topic} is file URL download: {file_url_download_init}"
         )
         return file_url_download_init
 
@@ -373,9 +367,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_url_download_abort
         :rtype: bool
         """
-        file_url_download_abort = message.topic.startswith(self.FILE_URL_ABORT)
+        file_url_download_abort = message.topic == self.file_url_abort_topic
         self.logger.debug(
-            f"{message.topic} is file url abort: {file_url_download_abort}"
+            f"{message.topic} is file URL abort: {file_url_download_abort}"
         )
         return file_url_download_abort
 
@@ -391,7 +385,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{message}")
         payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
 
-        timestamp = payload["value"]
+        timestamp = payload
 
         self.logger.debug(f"received timestamp: {timestamp}")
         return timestamp

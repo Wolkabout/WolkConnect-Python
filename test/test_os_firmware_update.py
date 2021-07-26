@@ -106,7 +106,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
         file_handle = open("last_firmware_version.txt", "w")
         expected_status = FirmwareUpdateStatus(
             FirmwareUpdateStatusType.ERROR,
-            FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
+            FirmwareUpdateErrorType.UNKNOWN_ERROR,
         )
 
         firmware_update.handle_install("some_file")
@@ -122,6 +122,10 @@ class TestOSFirmwareUpdate(unittest.TestCase):
         """Test receiving install command when file does not exist."""
         mock_status_callback = MagicMock()
         mock_firmware_handler = self.MockFirmwareHandler()
+        firmware_version = "1.0"
+        mock_firmware_handler.get_current_version = MagicMock(
+            return_value=firmware_version
+        )
 
         firmware_update = OSFirmwareUpdate(
             mock_firmware_handler, mock_status_callback
@@ -130,7 +134,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
 
         expected_status = FirmwareUpdateStatus(
             FirmwareUpdateStatusType.ERROR,
-            FirmwareUpdateErrorType.FILE_NOT_PRESENT,
+            FirmwareUpdateErrorType.UNKNOWN_FILE,
         )
 
         firmware_update.handle_install("some_file")
@@ -280,7 +284,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
             return_value=firmware_version
         )
         expected_status = FirmwareUpdateStatus(
-            FirmwareUpdateStatusType.COMPLETED
+            FirmwareUpdateStatusType.SUCCESS
         )
 
         firmware_update.report_result()

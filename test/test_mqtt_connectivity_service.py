@@ -291,15 +291,6 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
 
         self.mqtt_cs.logger.debug.assert_called_once()
 
-    def test_disconnect_publishes_last_will(self):
-        """Test disconnect publishes last will."""
-        self.mqtt_cs.is_connected = MagicMock(return_value=True)
-        self.mqtt_cs.publish = MagicMock()
-
-        self.mqtt_cs.disconnect()
-
-        self.mqtt_cs.publish.assert_called_once()
-
     def test_publish_no_message(self):
         """Test publish with no message."""
         message = None

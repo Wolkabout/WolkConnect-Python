@@ -63,9 +63,9 @@ def main():
 
     while True:
         try:
-            temperature = random.randint(-20, 80)
-            wolk_device.add_feed_value("SL", temperature)
-            print('Publishing "SL": ' + str(temperature))
+            slider = random.randint(-20, 80)
+            wolk_device.add_feed_value("SL", slider)
+            print('Publishing "SL": ' + str(slider))
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:

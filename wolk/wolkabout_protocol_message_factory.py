@@ -34,7 +34,7 @@ from wolk.model.unit import Unit
 class WolkAboutProtocolMessageFactory(MessageFactory):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
-    DEVICE_PATH_PREFIX = "d2p/"
+    DEVICE_TO_PLATFORM = "d2p/"
     CHANNEL_DELIMITER = "/"
 
     TIME = "time"
@@ -90,18 +90,18 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.FEED_VALUES
         )
 
         payload = {reference: value}
-        payload["utc"] = (
+        payload["timestamp"] = (
             timestamp if timestamp is not None else round(time() * 1000)
         )
 
-        message = Message(topic, json.dumps(payload))
+        message = Message(topic, json.dumps([payload]))
         self.logger.debug(f"{message}")
 
         return message
@@ -114,7 +114,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.PULL_FEED_VALUES
@@ -137,7 +137,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.PARAMETERS
@@ -156,7 +156,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.PULL_PARAMETERS
@@ -189,7 +189,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.FEED_REGISTRATION
@@ -204,6 +204,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         if isinstance(unit, Unit):
             payload["unitGuid"] = unit.value
         else:
+            # TODO: Log warning
             payload["unitGuid"] = unit
 
         message = Message(topic, json.dumps([payload]))
@@ -221,7 +222,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.FEED_REMOVAL
@@ -250,7 +251,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         topic = (
-            self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
             + self.CHANNEL_DELIMITER
             + self.ATTRIBUTE_REGISTRATION
@@ -284,9 +285,10 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             f"chunk_size: {chunk_size}"
         )
         topic = (
-            self.FILE_BINARY_REQUEST
-            + self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FILE_BINARY_REQUEST
         )
         payload = {
             "fileName": file_name,
@@ -309,7 +311,10 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         """
         self.logger.debug(f"{file_list}")
         topic = (
-            self.FILE_LIST_UPDATE + self.DEVICE_PATH_PREFIX + self.device_key
+            self.DEVICE_TO_PLATFORM
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FILE_LIST_UPDATE
         )
         message = Message(
             topic, json.dumps([{"fileName": file} for file in file_list])
@@ -329,7 +334,10 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         """
         self.logger.debug(f"{file_list}")
         topic = (
-            self.FILE_LIST_RESPONSE + self.DEVICE_PATH_PREFIX + self.device_key
+            self.DEVICE_TO_PLATFORM
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FILE_LIST_RESPONSE
         )
         message = Message(
             topic, json.dumps([{"fileName": file} for file in file_list])
@@ -346,14 +354,17 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         :param status: Current file management status
         :type status: FileManagementStatus
-        :param file_name: Name of file being transfered
+        :param file_name: Name of file being transferred
         :type file_name: str
         :returns: message
         :rtype: Message
         """
         self.logger.debug(f" status: {status}, file_name: {file_name}")
         topic = (
-            self.FILE_UPLOAD_STATUS + self.DEVICE_PATH_PREFIX + self.device_key
+            self.DEVICE_TO_PLATFORM
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FILE_UPLOAD_STATUS
         )
         payload = {"fileName": file_name, "status": status.status.value}
         if (
@@ -387,9 +398,10 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             f"file_url: {file_url}, status: {status}, file_name: {file_name}"
         )
         topic = (
-            self.FILE_URL_DOWNLOAD_STATUS
-            + self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FILE_URL_DOWNLOAD_STATUS
         )
         payload = {"fileUrl": file_url, "status": status.status.value}
 
@@ -421,7 +433,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         self.logger.debug(f"{firmware_update_status}")
         topic = (
             self.FIRMWARE_UPDATE_STATUS
-            + self.DEVICE_PATH_PREFIX
+            + self.DEVICE_TO_PLATFORM
             + self.device_key
         )
         payload = {"status": firmware_update_status.status.value}
@@ -448,9 +460,10 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         """
         self.logger.debug(f"version: {version}")
         topic = (
-            self.FIRMWARE_VERSION_UPDATE
-            + self.DEVICE_PATH_PREFIX
+            self.DEVICE_TO_PLATFORM
             + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FIRMWARE_VERSION_UPDATE
         )
         message = Message(topic, str(version))
         self.logger.debug(f"{message}")
