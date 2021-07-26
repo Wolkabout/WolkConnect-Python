@@ -19,9 +19,11 @@ from typing import List
 from typing import Optional
 from typing import Union
 
+from wolk.model.feed_type import FeedType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
+from wolk.model.unit import Unit
 
 
 class MessageFactory(ABC):
@@ -76,6 +78,42 @@ class MessageFactory(ABC):
         """
         Serialize request to pull device parameters from the Platform.
 
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_feed_registration(
+        self,
+        name: str,
+        reference: str,
+        feed_type: FeedType,
+        unit: Union[Unit, str],
+    ) -> Message:
+        """
+        Serialize request to register a feed for the device on the Platform.
+
+        :param name: Feed name
+        :type name: str
+        :param reference: Unique identifier
+        :type reference: str
+        :param feed_type: Is the feed one or two-way communication
+        :type feed_type: FeedType
+        :param unit: Unit used to measure this feed
+        :type unit: Union[Unit, str]
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_feed_removal(self, reference: str) -> Message:
+        """
+        Serialize request to remove a feed from the device on the Platform.
+
+        :param reference: Unique identifier
+        :type reference: str
         :returns: message
         :rtype: Message
         """
@@ -158,7 +196,7 @@ class MessageFactory(ABC):
 
         :param status: Current file management status
         :type status: FileManagementStatus
-        :param file_name: Name of file being transfered
+        :param file_name: Name of file being transferred
         :type file_name: str
         :returns: message
         :rtype: Message

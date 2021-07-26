@@ -31,6 +31,7 @@ from wolk.interface.message_queue import MessageQueue
 from wolk.message_deque import MessageDeque
 from wolk.model.data_delivery import DataDelivery
 from wolk.model.device import Device
+from wolk.model.feed_type import FeedType
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
@@ -38,6 +39,7 @@ from wolk.model.firmware_update_error_type import FirmwareUpdateErrorType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
+from wolk.model.unit import Unit
 from wolk.mqtt_connectivity_service import MQTTConnectivityService as MQTTCS
 from wolk.os_file_management import OSFileManagement
 from wolk.os_firmware_update import OSFirmwareUpdate
@@ -212,6 +214,8 @@ class WolkConnect:
                 f"{incoming_feed_value_handler} invalid signature!"
             )
         self.incoming_feed_value_handler = incoming_feed_value_handler
+
+        return self
 
     def with_firmware_update(self, firmware_handler: FirmwareHandler):  # type: ignore
         """
@@ -437,10 +441,9 @@ class WolkConnect:
 
         message = self.message_factory.make_pull_feed_values()
 
-        if self.connectivity_service.publish(message):
-            self.message_queue.get()
-        else:
+        if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
+            self.message_queue.put(message)
 
     # TODO: refactor or remove?
     def request_timestamp(self) -> Optional[int]:
@@ -459,6 +462,59 @@ class WolkConnect:
 
         return self.last_platform_timestamp
 
+    def register_feed(
+        self,
+        name: str,
+        reference: str,
+        feed_type: FeedType,
+        unit: Union[Unit, str],
+    ) -> None:
+        """
+        Register a new feed for the device.
+
+        Feed is identified by name, unique reference, type (in or in/out)
+        and unit; Where unit is either a default available unit listed in
+        Unit enumeration, or a custom user defined unit that should be passed
+        as a string value.
+
+        :param name: Feed name
+        :type name: str
+        :param reference: Unique identifier
+        :type reference: str
+        :param feed_type: Is the feed one or two-way communication
+        :type feed_type: FeedType
+        :param unit: Unit used to measure this feed
+        :type unit: Union[Unit, str]
+        """
+        self.logger.debug(
+            "Register feed called with: "
+            f"name='{name}', "
+            f"reference='{reference}', "
+            f"feed_type={feed_type}, "
+            f"unit='{unit}'"
+        )
+        message = self.message_factory.make_feed_registration(
+            name, reference, feed_type, unit
+        )
+
+        if not self.connectivity_service.publish(message):
+            self.logger.warning(f"Failed to publish message: {message}")
+            self.message_queue.put(message)
+
+    def remove_feed(self, reference: str) -> None:
+        """
+        Remove a feed from the device.
+
+        :param reference: Unique identifier
+        :type reference: str
+        """
+        self.logger.debug(f"Remove feed called with: reference='{reference}'")
+        message = self.message_factory.make_feed_removal(reference)
+
+        if not self.connectivity_service.publish(message):
+            self.logger.warning(f"Failed to publish message: {message}")
+            self.message_queue.put(message)
+
     def _on_inbound_message(self, message: Message) -> None:
         """
         Handle inbound messages.
@@ -474,8 +530,8 @@ class WolkConnect:
         else:
             self.logger.debug(f"Received message: {message}")
 
-        # TODO: parameters handle
         if self.message_deserializer.is_parameters(message):
+            # TODO: parameters handle
             # TODO: "FIRMWARE_UPDATE_CHECK_TIME"
             return
             # NOTE: Other optional parameters?
@@ -490,7 +546,7 @@ class WolkConnect:
                 )
                 if not feed_values:
                     self.logger.warning(
-                        "Unable to parse feed values, ignoring"
+                        "Failed to parse incoming feed values, ignoring"
                     )
                     return
                 self.logger.debug(
@@ -498,6 +554,11 @@ class WolkConnect:
                 )
                 self.incoming_feed_value_handler(feed_values)
                 return
+            self.logger.warning(
+                "Received incoming feed values,"
+                " but no handler has been set!"
+            )
+            return
 
         if self.message_deserializer.is_time_response(message):
             timestamp = self.message_deserializer.parse_time_response(message)

@@ -21,11 +21,13 @@ from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.message_factory import MessageFactory
+from wolk.model.feed_type import FeedType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
+from wolk.model.unit import Unit
 
 
 class WolkAboutProtocolMessageFactory(MessageFactory):
@@ -39,6 +41,9 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     PULL_PARAMETERS = "pull_parameters"
     FEED_VALUES = "feed_values"
     PULL_FEED_VALUES = "pull_feed_values"
+
+    FEED_REGISTRATION = "feed_registration"
+    FEED_REMOVAL = "feed_removal"
 
     FILE_BINARY_REQUEST = "file_binary_request"
     FILE_LIST_UPDATE = "file_list_update"
@@ -153,6 +158,73 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         )
 
         message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_feed_registration(
+        self,
+        name: str,
+        reference: str,
+        feed_type: FeedType,
+        unit: Union[Unit, str],
+    ) -> Message:
+        """
+        Serialize request to register a feed on the Platform.
+
+        :param name: Feed name
+        :type name: str
+        :param reference: Unique identifier
+        :type reference: str
+        :param feed_type: Is the feed one or two-way communication
+        :type feed_type: FeedType
+        :param unit: Unit used to measure this feed
+        :type unit: Union[Unit, str]
+        :returns: message
+        :rtype: Message
+        """
+        topic = (
+            self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FEED_REGISTRATION
+        )
+
+        payload = {
+            "name": name,
+            "reference": reference,
+            "type": feed_type.value,
+        }
+
+        if isinstance(unit, Unit):
+            payload["unitGuid"] = unit.value
+        else:
+            payload["unitGuid"] = unit
+
+        message = Message(topic, json.dumps([payload]))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_feed_removal(self, reference: str) -> Message:
+        """
+        Serialize request to remove a feed from the device on the Platform.
+
+        :param reference: Unique identifier
+        :type reference: str
+        :returns: message
+        :rtype: Message
+        """
+        topic = (
+            self.DEVICE_PATH_PREFIX
+            + self.device_key
+            + self.CHANNEL_DELIMITER
+            + self.FEED_REMOVAL
+        )
+
+        payload = [reference]
+
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message

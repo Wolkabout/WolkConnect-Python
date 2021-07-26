@@ -17,6 +17,7 @@ from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
 from .model.data_delivery import DataDelivery
 from .model.device import Device
+from .model.unit import Unit
 from .model.file_management_error_type import FileManagementErrorType
 from .model.file_management_status import FileManagementStatus
 from .model.file_management_status_type import FileManagementStatusType
@@ -67,6 +68,7 @@ __all__ = [
     "OSFirmwareUpdate",
     "logging_config",
     "RepeatingTimer",
+    "Unit",
     "WolkConnect",
     "WolkAboutProtocolMessageFactory",
     "WolkAboutProtocolMessageDeserializer",
