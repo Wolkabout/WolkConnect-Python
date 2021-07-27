@@ -22,6 +22,10 @@ sys.path.append("..")
 
 from wolk.wolk_connect import WolkConnect
 from wolk.model.device import Device
+from wolk.model.data_delivery import DataDelivery
+from wolk.model.data_type import DataType
+from wolk.model.feed_type import FeedType
+from wolk.model.unit import Unit
 from wolk.model.message import Message
 from wolk.model.firmware_update_status import (
     FirmwareUpdateStatus,
@@ -292,7 +296,6 @@ class TestWolkConnect(unittest.TestCase):
             return_value=False
         )
         self.wolk_device.message_queue.put = MagicMock()
-        self.wolk_device.keep_alive_service_enabled = False
 
         self.wolk_device.connectivity_service.is_connected = MagicMock()
         self.wolk_device.connectivity_service.is_connected.side_effect = [
@@ -319,7 +322,6 @@ class TestWolkConnect(unittest.TestCase):
             return_value=True
         )
         self.wolk_device.message_queue.put = MagicMock()
-        self.wolk_device.keep_alive_service_enabled = False
 
         self.wolk_device.connectivity_service.is_connected = MagicMock()
         self.wolk_device.connectivity_service.is_connected.side_effect = [
@@ -346,7 +348,6 @@ class TestWolkConnect(unittest.TestCase):
             return_value=False
         )
         self.wolk_device.message_queue.put = MagicMock()
-        self.wolk_device.keep_alive_service_enabled = False
 
         self.wolk_device.connectivity_service.is_connected = MagicMock()
         self.wolk_device.connectivity_service.is_connected.side_effect = [
@@ -373,7 +374,6 @@ class TestWolkConnect(unittest.TestCase):
             return_value=True
         )
         self.wolk_device.message_queue.put = MagicMock()
-        self.wolk_device.keep_alive_service_enabled = False
 
         self.wolk_device.connectivity_service.is_connected = MagicMock()
         self.wolk_device.connectivity_service.is_connected.side_effect = [
@@ -386,6 +386,27 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.connect()
         self.wolk_device.message_queue.put.assert_not_called()
         os.rmdir(self.file_directory)
+
+    def test_connect_publish_pull_device(self):
+        """Test connecting passes and PULL type device calls pull functions."""
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.pull_parameters = MagicMock()
+        self.wolk_device.pull_feed_values = MagicMock()
+
+        self.wolk_device.connectivity_service.is_connected = MagicMock()
+        self.wolk_device.connectivity_service.is_connected.side_effect = [
+            False,
+            True,
+        ]
+        self.wolk_device.connectivity_service.connect = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connect()
+        self.wolk_device.pull_parameters.assert_called_once()
+        self.wolk_device.pull_feed_values.assert_called_once()
 
     def test_disconnect_not_connected(self):
         """Test calling disconnect when not connected."""
@@ -485,8 +506,8 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device._on_inbound_message(self.message)
         self.wolk_device.logger.warning.assert_called_once()
 
-    def test_on_inbound_message_keep_alive_response(self):
-        """Test on inbound keep alive response message."""
+    def test_on_inbound_message_time_response(self):
+        """Test on inbound time response message."""
         timestamp = 1
 
         self.wolk_device.message_deserializer.is_time_response = MagicMock(
@@ -1346,6 +1367,72 @@ class TestWolkConnect(unittest.TestCase):
 
         self.wolk_device.message_queue.put.assert_not_called()
 
+    def test_on_parameters_message(self):
+        """Test on parameters message received."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_deserializer.parse_parameters = MagicMock()
+        self.wolk_device.message_deserializer.is_parameters = MagicMock(
+            return_value=True
+        )
+        self.wolk_device._on_inbound_message(Message("test"))
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_on_feed_values_message_no_handler(self):
+        """Test on feed values message received with no handler."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_deserializer.is_parameters = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_deserializer.is_feed_values = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.incoming_feed_value_handler = None
+        self.wolk_device._on_inbound_message(Message("test"))
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_on_feed_values_message_fail_to_parse(self):
+        """Test on feed values message that failed to parse."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_deserializer.is_parameters = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_deserializer.is_feed_values = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_deserializer.parse_feed_values = MagicMock(
+            return_value=None
+        )
+        self.wolk_device.incoming_feed_value_handler = True
+        self.wolk_device._on_inbound_message(Message("test"))
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_on_feed_values_message(self):
+        """Test on feed values message."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_deserializer.is_parameters = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_deserializer.is_feed_values = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_deserializer.parse_feed_values = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.incoming_feed_value_handler = MagicMock()
+        self.wolk_device._on_inbound_message(Message("test"))
+
+        self.wolk_device.incoming_feed_value_handler.assert_called_once_with(
+            True
+        )
+        self.wolk_device.logger.warning.assert_not_called()
+
     def test_request_timestamp_when_none(self):
         """Test request timestamp returns none."""
         self.assertIsNone(self.wolk_device.request_timestamp())
@@ -1355,3 +1442,303 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.last_platform_timestamp = 1
 
         self.assertIsNotNone(self.wolk_device.request_timestamp())
+
+    def test_add_feed_value(self):
+        """Test add feed value."""
+        self.wolk_device.logger.setLevel(logging.CRITICAL)
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.message_factory.make_from_feed_value = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.add_feed_value("foo", "bar")
+
+        self.wolk_device.message_queue.put.assert_called_once()
+
+    def test_pull_parameters_not_pull_device(self):
+        """Test pull parameters for a device that isn't PULL."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+
+        self.wolk_device.pull_parameters()
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_pull_parameters_not_connected(self):
+        """Test pull parameters when not connected."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+
+        self.wolk_device.pull_parameters()
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_pull_parameters_fails_to_publish(self):
+        """Test pull parameters fails to publish."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+        self.wolk_device.message_factory.make_pull_parameters = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+
+        self.wolk_device.pull_parameters()
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_pull_parameters_publishes(self):
+        """Test pull parameters publishes."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+        self.wolk_device.message_factory.make_pull_parameters = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.pull_parameters()
+
+        self.wolk_device.logger.warning.assert_not_called()
+
+    def test_pull_feed_values_not_pull_device(self):
+        """Test pull feed values for a device that isn't PULL."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+
+        self.wolk_device.pull_feed_values()
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_pull_feed_values_not_connected(self):
+        """Test pull feed values when not connected."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+
+        self.wolk_device.pull_feed_values()
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_pull_feed_values_fails_to_publish(self):
+        """Test pull feed values fails to publish."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+        self.wolk_device.message_factory.make_pull_feed_values = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+
+        self.wolk_device.pull_feed_values()
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_pull_feed_values_publishes(self):
+        """Test pull feed values publishes."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.device.data_delivery = DataDelivery.PULL
+        self.wolk_device.message_factory.make_pull_feed_values = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.pull_feed_values()
+
+        self.wolk_device.logger.warning.assert_not_called()
+
+    def test_register_feed_not_connected(self):
+        """Test registering a feed when not connected."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_factory.make_feed_registration = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.register_feed("foo", "bar", FeedType.IN, Unit.CELSIUS)
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_register_feed_fails_to_publish(self):
+        """Test registering a feed when not connected."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_factory.make_feed_registration = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+
+        self.wolk_device.register_feed("foo", "bar", FeedType.IN, Unit.CELSIUS)
+
+        self.wolk_device.logger.warning.assert_called_once()
+        self.wolk_device.message_queue.put.assert_called_once()
+
+    def test_register_feed_custom_unit(self):
+        """Test registering a feed with custom unit."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_factory.make_feed_registration = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.register_feed("foo", "bar", FeedType.IN, "custom")
+
+        self.wolk_device.logger.warning.assert_called_once()
+
+    def test_remove_feed_not_connected(self):
+        """Test removing a feed when not connected."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_factory.make_feed_removal = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.remove_feed("foo")
+
+        self.wolk_device.logger.warning.assert_called_once()
+        self.wolk_device.message_queue.put.assert_called_once()
+
+    def test_remove_feed_fail_to_publish(self):
+        """Test removing a feed fails to publish."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_factory.make_feed_removal = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+
+        self.wolk_device.remove_feed("foo")
+
+        self.wolk_device.logger.warning.assert_called_once()
+        self.wolk_device.message_queue.put.assert_called_once()
+
+    def test_remove_feed_publishes(self):
+        """Test remove feed request publishes."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_factory.make_feed_removal = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=True
+        )
+
+        self.wolk_device.remove_feed("foo")
+
+        self.wolk_device.logger.warning.assert_not_called()
+        self.wolk_device.message_queue.put.assert_not_called()
+
+    def test_register_attribute_not_connected(self):
+        """Test registering attribute when not connected."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_factory.make_attribute_registration = (
+            MagicMock(return_value=True)
+        )
+
+        self.wolk_device.register_attribute("foo", DataType.STRING, "bar")
+
+        self.wolk_device.logger.warning.assert_called_once()
+        self.wolk_device.message_queue.put.assert_called_once()
+
+    def test_register_attribute_fails_to_publish(self):
+        """Test registering attribute that fails to publish."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=False
+        )
+        self.wolk_device.message_factory.make_attribute_registration = (
+            MagicMock(return_value=True)
+        )
+
+        self.wolk_device.register_attribute("foo", DataType.STRING, "bar")
+
+        self.wolk_device.logger.warning.assert_called_once()
+        self.wolk_device.message_queue.put.assert_called_once()
+
+    def test_register_attribute_publishes(self):
+        """Test registering attribute publishes."""
+        self.wolk_device.logger.setLevel(logging.WARNING)
+        self.wolk_device.logger.warning = MagicMock()
+        self.wolk_device.message_queue.put = MagicMock()
+        self.wolk_device.connectivity_service.is_connected = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.connectivity_service.publish = MagicMock(
+            return_value=True
+        )
+        self.wolk_device.message_factory.make_attribute_registration = (
+            MagicMock(return_value=True)
+        )
+
+        self.wolk_device.register_attribute("foo", DataType.STRING, "bar")
+
+        self.wolk_device.logger.warning.assert_not_called()
+        self.wolk_device.message_queue.put.assert_not_called()

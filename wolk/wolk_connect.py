@@ -120,7 +120,7 @@ class WolkConnect:
             self.connectivity_service: ConnectivityService = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                0,
+                qos=1,
                 host=host,
                 port=int(port),
                 ca_cert=ca_cert,
@@ -129,7 +129,7 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                0,
+                qos=1,
                 host=host,
                 port=int(port),
             )
@@ -137,7 +137,7 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                0,
+                qos=1,
                 ca_cert=wolk_ca_cert,
             )
 
@@ -383,6 +383,7 @@ class WolkConnect:
         message = self.message_factory.make_from_feed_value(
             reference, value, timestamp
         )
+        # NOTE: if device is PUSH, do we try to publish instantly?
         self.message_queue.put(message)
 
     def publish(self) -> None:
@@ -420,9 +421,7 @@ class WolkConnect:
 
         message = self.message_factory.make_pull_parameters()
 
-        if self.connectivity_service.publish(message):
-            self.message_queue.get()
-        else:
+        if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
 
     def pull_feed_values(self) -> None:
@@ -444,7 +443,6 @@ class WolkConnect:
 
         if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
-            self.message_queue.put(message)
 
     # TODO: refactor or remove?
     def request_timestamp(self) -> Optional[int]:
@@ -507,6 +505,13 @@ class WolkConnect:
             name, reference, feed_type, unit
         )
 
+        if not self.connectivity_service.is_connected():
+            self.logger.warning(
+                "Not connected - not sending register feed request"
+            )
+            self.message_queue.put(message)
+            return
+
         if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
             self.message_queue.put(message)
@@ -520,6 +525,13 @@ class WolkConnect:
         """
         self.logger.debug(f"Remove feed called with: reference='{reference}'")
         message = self.message_factory.make_feed_removal(reference)
+
+        if not self.connectivity_service.is_connected():
+            self.logger.warning(
+                "Not connected - not sending remove feed request"
+            )
+            self.message_queue.put(message)
+            return
 
         if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
@@ -554,6 +566,13 @@ class WolkConnect:
             name, data_type, value
         )
 
+        if not self.connectivity_service.is_connected():
+            self.logger.warning(
+                "Not connected - not sending register attribute request"
+            )
+            self.message_queue.put(message)
+            return
+
         if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
             self.message_queue.put(message)
@@ -575,32 +594,31 @@ class WolkConnect:
 
         if self.message_deserializer.is_parameters(message):
             # TODO: parameters handle
-            # TODO: "FIRMWARE_UPDATE_CHECK_TIME"
-            return
+            # NOTE: "FIRMWARE_UPDATE_CHECK_TIME"
             # NOTE: Other optional parameters?
+            parameters = self.message_deserializer.parse_parameters(message)
+            self.logger.warning(f"TODO: handle parameters: {parameters}")
+            return
 
         if self.message_deserializer.is_feed_values(message):
-            if self.incoming_feed_value_handler:
-                self.logger.info(
-                    f"Received feed values message: {message.payload}"  # type: ignore
+            if self.incoming_feed_value_handler is None:
+                self.logger.warning(
+                    "Received incoming feed values,"
+                    " but no handler has been set!"
                 )
-                feed_values = self.message_deserializer.parse_feed_values(
-                    message
-                )
-                if not feed_values:
-                    self.logger.warning(
-                        "Failed to parse incoming feed values, ignoring"
-                    )
-                    return
-                self.logger.debug(
-                    f"Calling incoming feed value handler with: {feed_values}"
-                )
-                self.incoming_feed_value_handler(feed_values)
                 return
-            self.logger.warning(
-                "Received incoming feed values,"
-                " but no handler has been set!"
+
+            feed_values = self.message_deserializer.parse_feed_values(message)
+            if not feed_values:
+                self.logger.warning(
+                    "Failed to parse incoming feed values, ignoring"
+                )
+                return
+
+            self.logger.info(
+                f"Calling incoming feed value handler with: {feed_values}"
             )
+            self.incoming_feed_value_handler(feed_values)
             return
 
         if self.message_deserializer.is_time_response(message):
