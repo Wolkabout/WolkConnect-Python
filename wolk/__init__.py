@@ -8,7 +8,7 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
-__version__ = "4.1.3"
+__version__ = "5.0.0"
 from .interface.connectivity_service import ConnectivityService
 from .interface.firmware_handler import FirmwareHandler
 from .interface.message_deserializer import MessageDeserializer
@@ -17,6 +17,7 @@ from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
 from .model.data_delivery import DataDelivery
 from .model.data_type import DataType
+from .model.feed_type import FeedType
 from .model.device import Device
 from .model.unit import Unit
 from .model.file_management_error_type import FileManagementErrorType
@@ -40,14 +41,10 @@ from .message_deque import MessageDeque
 
 
 __all__ = [
-    "ActuatorCommand",
-    "State",
-    "ActuatorStatus",
-    "Alarm",
-    "ConfigurationCommand",
     "DataDelivery",
     "DataType",
     "Device",
+    "FeedType",
     "FileTransferPackage",
     "FirmwareUpdateStatus",
     "FirmwareUpdateStatusType",
@@ -56,11 +53,6 @@ __all__ = [
     "FileManagementStatusType",
     "FileManagementErrorType",
     "Message",
-    "SensorReading",
-    "handle_actuation",
-    "get_actuator_status",
-    "handle_configuration",
-    "get_configuration",
     "ConnectivityService",
     "FirmwareHandler",
     "MessageDeserializer",
