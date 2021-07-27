@@ -494,6 +494,15 @@ class WolkConnect:
             f"feed_type={feed_type}, "
             f"unit='{unit}'"
         )
+
+        if not isinstance(unit, Unit):
+            self.logger.warning(
+                "Registering feed with user defined unit "
+                f"'{unit}'. "
+                "If this unit is not present on the platform, "
+                "this request will fail."
+            )
+
         message = self.message_factory.make_feed_registration(
             name, reference, feed_type, unit
         )

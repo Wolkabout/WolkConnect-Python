@@ -196,7 +196,6 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         if isinstance(unit, Unit):
             payload["unitGuid"] = unit.value
         else:
-            # TODO: Log warning
             payload["unitGuid"] = unit
 
         message = Message(topic, json.dumps([payload]))
@@ -215,9 +214,9 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         """
         topic = self.common_topic + self.FEED_REMOVAL
 
-        payload = [reference]
+        payload = json.dumps([reference])
 
-        message = Message(topic, json.dumps(payload))
+        message = Message(topic, payload)
         self.logger.debug(f"{message}")
 
         return message

@@ -20,6 +20,9 @@ import unittest
 sys.path.append("..")  # noqa
 
 from wolk.model.message import Message
+from wolk.model.data_type import DataType
+from wolk.model.feed_type import FeedType
+from wolk.model.unit import Unit
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status_type import FileManagementStatusType
@@ -239,6 +242,136 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_message = Message(expected_topic, expected_payload)
 
         serialized_message = self.factory.make_time_request()
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_pull_feed_values_message(self):
+        """Test message for pull feed values request."""
+        expected_topic = self.factory.common_topic + WAPMF.PULL_FEED_VALUES
+        expected_payload = None
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_pull_feed_values()
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_parameters_message(self):
+        """Test message for push parameters value."""
+        expected_topic = self.factory.common_topic + WAPMF.PARAMETERS
+        values = {
+            "bool_parameter": False,
+            "int_parameter": 1,
+            "float_parameter": 13.37,
+            "string_parameter": "foo",
+        }
+        expected_payload = json.dumps(values)
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_from_parameters(values)
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_pull_parameters_message(self):
+        """Test message for pull parameters request."""
+        expected_topic = self.factory.common_topic + WAPMF.PULL_PARAMETERS
+        expected_payload = None
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_pull_parameters()
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_feed_registration_message(self):
+        """Test message for feed registration request."""
+        expected_topic = self.factory.common_topic + WAPMF.FEED_REGISTRATION
+
+        name = "test_feed_name"
+        reference = "test_feed_reference"
+        feed_type = FeedType.IN
+        unit = Unit.CELSIUS
+
+        expected_payload = json.dumps(
+            [
+                {
+                    "name": name,
+                    "reference": reference,
+                    "type": feed_type.value,
+                    "unitGuid": unit.value,
+                }
+            ]
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_feed_registration(
+            name, reference, feed_type, unit
+        )
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_feed_registration_message_custom_unit(self):
+        """Test message for feed registration request with custom unit."""
+        expected_topic = self.factory.common_topic + WAPMF.FEED_REGISTRATION
+
+        name = "test_feed_name"
+        reference = "test_feed_reference"
+        feed_type = FeedType.IN
+        unit = "USER_DEFINED_UNIT"
+
+        expected_payload = json.dumps(
+            [
+                {
+                    "name": name,
+                    "reference": reference,
+                    "type": feed_type.value,
+                    "unitGuid": unit,
+                }
+            ]
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_feed_registration(
+            name, reference, feed_type, unit
+        )
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_feed_removal_message(self):
+        """Test message for feed removal."""
+        expected_topic = self.factory.common_topic + WAPMF.FEED_REMOVAL
+
+        reference = "test_feed_reference"
+
+        expected_payload = json.dumps([reference])
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_feed_removal(reference)
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_attribute_registration_message(self):
+        """Test message for attribute registration."""
+        expected_topic = (
+            self.factory.common_topic + WAPMF.ATTRIBUTE_REGISTRATION
+        )
+
+        name = "test_attribute_name"
+        data_type = DataType.STRING
+        value = "test_attribute_value"
+
+        expected_payload = json.dumps(
+            [
+                {
+                    "name": name,
+                    "dataType": data_type.value,
+                    "value": value,
+                }
+            ]
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_attribute_registration(
+            name, data_type, value
+        )
 
         self.assertEqual(expected_message, serialized_message)
 
