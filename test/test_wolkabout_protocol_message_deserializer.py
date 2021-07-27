@@ -16,6 +16,7 @@ import json
 import logging
 import sys
 import unittest
+from unittest.mock import MagicMock
 
 sys.path.append("..")  # noqa
 
@@ -35,7 +36,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         password="some_password",
     )
 
-    # TODO: update
     expected_topics = [
         WAPMD.PLATFORM_TO_DEVICE
         + device.key
@@ -405,3 +405,69 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         self.assertEqual(
             expected, self.deserializer.parse_file_initiate(incoming_message)
         )
+
+    def test_parse_parameters(self):
+        """Test parsing the parameters message received from the Platform."""
+        self.deserializer.logger.setLevel(logging.CRITICAL)
+        parameters = {"FIRMWARE_UPDATE_CHECK_TIME": 1}
+
+        expected = parameters
+
+        incoming_topic = self.deserializer.parameters_topic
+        incoming_payload = json.dumps(parameters)
+
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, self.deserializer.parse_parameters(incoming_message)
+        )
+
+    def test_parse_parameters_exception(self):
+        """Test parsing faulty parameters message from the Platform."""
+        self.deserializer.logger.setLevel(logging.CRITICAL)
+        self.deserializer.logger.exception = MagicMock()
+
+        expected = {}
+
+        incoming_topic = self.deserializer.parameters_topic
+        incoming_payload = "{"
+
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, self.deserializer.parse_parameters(incoming_message)
+        )
+        self.deserializer.logger.exception.assert_called_once()
+
+    def test_parse_feed_values(self):
+        """Test parsing the feed values message received from the Platform."""
+        self.deserializer.logger.setLevel(logging.CRITICAL)
+        feed_values = [{"reference": True, "timestamp": 123}]
+
+        expected = feed_values
+
+        incoming_topic = self.deserializer.feed_values_topic
+        incoming_payload = json.dumps(feed_values)
+
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, self.deserializer.parse_feed_values(incoming_message)
+        )
+
+    def test_parse_feed_values_exception(self):
+        """Test parsing faulty feed values message from the Platform."""
+        self.deserializer.logger.setLevel(logging.CRITICAL)
+        self.deserializer.logger.exception = MagicMock()
+
+        expected = []
+
+        incoming_topic = self.deserializer.feed_values_topic
+        incoming_payload = "["
+
+        incoming_message = Message(incoming_topic, incoming_payload)
+
+        self.assertEqual(
+            expected, self.deserializer.parse_feed_values(incoming_message)
+        )
+        self.deserializer.logger.exception.assert_called_once()

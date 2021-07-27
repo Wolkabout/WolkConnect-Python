@@ -538,9 +538,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         self.logger.debug(f"{message}")
         try:
-            parameters = json.loads(
-                message.payload.decode("utf-8")  # type: ignore
-            )
+            parameters = json.loads(message.payload)
             return parameters
         except Exception as e:
             self.logger.exception(f"Failed to parse parameters message: {e}")
@@ -559,10 +557,8 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         self.logger.debug(f"{message}")
         try:
-            feed_values = json.loads(
-                message.payload.decode("utf-8")  # type: ignore
-            )
+            feed_values = json.loads(message.payload)
             return feed_values
         except Exception as e:
             self.logger.exception(f"Failed to parse feed values message: {e}")
-            return {}  # type: ignore
+            return []
