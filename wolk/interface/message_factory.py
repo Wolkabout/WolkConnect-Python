@@ -44,7 +44,7 @@ class MessageFactory(ABC):
         :type reference: str
         :param value: Value of the feed
         :type value: Union[bool, int, float, str]
-        :param timestamp: Unix timestamp. Will assign current time if None
+        :param timestamp: Unix timestamp in ms. Default to current time if None
         :returns: message
         :rtype: Message
         """
@@ -54,6 +54,16 @@ class MessageFactory(ABC):
     def make_pull_feed_values(self) -> Message:
         """
         Serialize message requesting any pending inbound feed values.
+
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_time_request(self) -> Message:
+        """
+        Serialize message requesting platform timestamp.
 
         :returns: message
         :rtype: Message

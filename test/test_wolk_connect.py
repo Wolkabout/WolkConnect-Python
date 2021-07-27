@@ -68,6 +68,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up values that are commonly used in tests."""
+        self.maxDiff = None
         self.device_key = "some_key"
         self.device_password = "some_password"
         self.device = Device(self.device_key, self.device_password)
@@ -456,58 +457,6 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.publish()
         self.wolk_device.message_queue.get.assert_called_once()
 
-    @unittest.skip("Refactor for feed value or parameters")
-    def test_publish_configuration_not_connected(self):
-        """Test publishing configuration when not connected."""
-        self.wolk_device.logger.setLevel(logging.WARNING)
-        self.wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=False
-        )
-        self.wolk_device.logger.warning = MagicMock()
-        self.wolk_device.publish_configuration()
-        self.wolk_device.logger.warning.assert_called_once()
-
-    @unittest.skip("Refactor for feed value or parameters")
-    def test_publish_configuration_no_provider(self):
-        """Test publishing configuration with no configuration provider."""
-        self.wolk_device.logger.setLevel(logging.ERROR)
-        self.wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        self.wolk_device.logger.error = MagicMock()
-        self.wolk_device.publish_configuration()
-        self.wolk_device.logger.error.assert_called_once()
-
-    @unittest.skip("Refactor for feed value or parameters")
-    def test_publish_configuration_fail_to_publish(self):
-        """Test publishing configuration fails."""
-        self.wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        self.wolk_device.configuration_provider = MagicMock()
-        self.wolk_device.message_factory.make_from_configuration = MagicMock()
-        self.wolk_device.connectivity_service.publish = MagicMock(
-            return_value=False
-        )
-        self.wolk_device.message_queue.put = MagicMock()
-        self.wolk_device.publish_configuration()
-        self.wolk_device.message_queue.put.assert_called_once()
-
-    @unittest.skip("Refactor for feed value or parameters")
-    def test_publish_configuration_publishes(self):
-        """Test publishing configuration passes."""
-        self.wolk_device.connectivity_service.is_connected = MagicMock(
-            return_value=True
-        )
-        self.wolk_device.configuration_provider = MagicMock()
-        self.wolk_device.message_factory.make_from_configuration = MagicMock()
-        self.wolk_device.connectivity_service.publish = MagicMock(
-            return_value=True
-        )
-        self.wolk_device.message_queue.put = MagicMock()
-        self.wolk_device.publish_configuration()
-        self.wolk_device.message_queue.put.assert_not_called()
-
     def test_on_inbound_message_binary_topic(self):
         """Test on inbound message with 'binary' in topic."""
         self.wolk_device.logger.setLevel(logging.WARNING)
@@ -525,7 +474,6 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device._on_inbound_message(self.message)
         self.wolk_device.logger.warning.assert_called_once()
 
-    @unittest.skip("Refactor for param or feed")
     def test_on_inbound_message_actuation_no_handlers(self):
         """Test on inbound actuation message but no actuation handler set."""
         self.wolk_device.logger.setLevel(logging.WARNING)
@@ -537,7 +485,6 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device._on_inbound_message(self.message)
         self.wolk_device.logger.warning.assert_called_once()
 
-    @unittest.skip("Refactor")
     def test_on_inbound_message_keep_alive_response(self):
         """Test on inbound keep alive response message."""
         timestamp = 1

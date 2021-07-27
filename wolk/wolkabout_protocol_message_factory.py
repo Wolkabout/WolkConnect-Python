@@ -71,6 +71,9 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             str(self.__class__.__name__)
         )
         self.logger.debug(f"Device key: {device_key}")
+        self.common_topic = (
+            self.DEVICE_TO_PLATFORM + self.device_key + self.CHANNEL_DELIMITER
+        )
 
     def make_from_feed_value(
         self,
@@ -85,16 +88,11 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :type reference: str
         :param value: Value of the feed
         :type value: Union[bool, int, float, str]
-        :param timestamp: Unix timestamp. Will assign current time if None
+        :param timestamp: Unix timestamp in ms. Default to current time if None
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FEED_VALUES
-        )
+        topic = self.common_topic + self.FEED_VALUES
 
         payload = {reference: value}
         payload["timestamp"] = (
@@ -106,6 +104,20 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
+    def make_time_request(self) -> Message:
+        """
+        Serialize message requesting platform timestamp.
+
+        :returns: message
+        :rtype: Message
+        """
+        topic = self.common_topic + self.TIME
+
+        message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
     def make_pull_feed_values(self) -> Message:
         """
         Serialize message requesting any pending inbound feed values.
@@ -113,12 +125,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.PULL_FEED_VALUES
-        )
+        topic = self.common_topic + self.PULL_FEED_VALUES
 
         message = Message(topic)
         self.logger.debug(f"{message}")
@@ -136,12 +143,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.PARAMETERS
-        )
+        topic = self.common_topic + self.PARAMETERS
 
         message = Message(topic, json.dumps(parameters))
         self.logger.debug(f"{message}")
@@ -155,12 +157,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.PULL_PARAMETERS
-        )
+        topic = self.common_topic + self.PULL_PARAMETERS
 
         message = Message(topic)
         self.logger.debug(f"{message}")
@@ -188,12 +185,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FEED_REGISTRATION
-        )
+        topic = self.common_topic + self.FEED_REGISTRATION
 
         payload = {
             "name": name,
@@ -221,12 +213,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FEED_REMOVAL
-        )
+        topic = self.common_topic + self.FEED_REMOVAL
 
         payload = [reference]
 
@@ -250,12 +237,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :returns: message
         :rtype: Message
         """
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.ATTRIBUTE_REGISTRATION
-        )
+        topic = self.common_topic + self.ATTRIBUTE_REGISTRATION
 
         payload = [{"name": name, "dataType": data_type.value, "value": value}]
 
@@ -284,12 +266,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             f"chunk_index: {chunk_index}, "
             f"chunk_size: {chunk_size}"
         )
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FILE_BINARY_REQUEST
-        )
+        topic = self.common_topic + self.FILE_BINARY_REQUEST
+
         payload = {
             "fileName": file_name,
             "chunkIndex": chunk_index,
@@ -310,12 +288,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FILE_LIST_UPDATE
-        )
+        topic = self.common_topic + self.FILE_LIST_UPDATE
+
         message = Message(
             topic, json.dumps([{"fileName": file} for file in file_list])
         )
@@ -333,12 +307,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FILE_LIST_RESPONSE
-        )
+        topic = self.common_topic + self.FILE_LIST_RESPONSE
+
         message = Message(
             topic, json.dumps([{"fileName": file} for file in file_list])
         )
@@ -360,12 +330,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f" status: {status}, file_name: {file_name}")
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FILE_UPLOAD_STATUS
-        )
+        topic = self.common_topic + self.FILE_UPLOAD_STATUS
+
         payload = {"fileName": file_name, "status": status.status.value}
         if (
             status.status == FileManagementStatusType.ERROR
@@ -397,12 +363,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         self.logger.debug(
             f"file_url: {file_url}, status: {status}, file_name: {file_name}"
         )
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FILE_URL_DOWNLOAD_STATUS
-        )
+        topic = self.common_topic + self.FILE_URL_DOWNLOAD_STATUS
+
         payload = {"fileUrl": file_url, "status": status.status.value}
 
         if (
@@ -431,11 +393,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"{firmware_update_status}")
-        topic = (
-            self.FIRMWARE_UPDATE_STATUS
-            + self.DEVICE_TO_PLATFORM
-            + self.device_key
-        )
+        topic = self.common_topic + self.FIRMWARE_UPDATE_STATUS
         payload = {"status": firmware_update_status.status.value}
 
         if (
@@ -459,12 +417,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"version: {version}")
-        topic = (
-            self.DEVICE_TO_PLATFORM
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.FIRMWARE_VERSION_UPDATE
-        )
+        topic = self.common_topic + self.FIRMWARE_VERSION_UPDATE
+
         message = Message(topic, str(version))
         self.logger.debug(f"{message}")
 

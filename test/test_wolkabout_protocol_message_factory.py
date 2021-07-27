@@ -51,12 +51,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         value = "string"
         timestamp = round(time.time()) * 1000
 
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FEED_VALUES
-        )
+        expected_topic = self.factory.common_topic + WAPMF.FEED_VALUES
         expected_payload = json.dumps(
             [{reference: value, "timestamp": timestamp}]
         )
@@ -72,12 +67,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test message for file list update."""
         file_list = ["file1.txt", "file2.bin", "file3 with spaces.jpg"]
 
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_LIST_UPDATE
-        )
+        expected_topic = self.factory.common_topic + WAPMF.FILE_LIST_UPDATE
         expected_payload = json.dumps(
             [{"fileName": file} for file in file_list]
         )
@@ -91,12 +81,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test message for file list request."""
         file_list = ["file1.txt", "file2.bin", "file3 with spaces.jpg"]
 
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_LIST_RESPONSE
-        )
+        expected_topic = self.factory.common_topic + WAPMF.FILE_LIST_RESPONSE
         expected_payload = json.dumps(
             [{"fileName": file} for file in file_list]
         )
@@ -114,12 +99,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         chunk_index = 0
         chunk_size = 256
 
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_BINARY_REQUEST
-        )
+        expected_topic = self.factory.common_topic + WAPMF.FILE_BINARY_REQUEST
         expected_payload = json.dumps(
             {
                 "fileName": file_name,
@@ -138,12 +118,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test message for file management status with file ready."""
         file_name = "file_name"
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_UPLOAD_STATUS
-        )
+        expected_topic = self.factory.common_topic + WAPMF.FILE_UPLOAD_STATUS
         expected_payload = json.dumps(
             {"fileName": file_name, "status": status.status.value}
         )
@@ -161,12 +136,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             FileManagementStatusType.ERROR,
             FileManagementErrorType.UNKNOWN_ERROR,
         )
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_UPLOAD_STATUS
-        )
+        expected_topic = self.factory.common_topic + WAPMF.FILE_UPLOAD_STATUS
         expected_payload = json.dumps(
             {
                 "fileName": file_name,
@@ -187,10 +157,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         file_url = "file_url"
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
         expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_URL_DOWNLOAD_STATUS
+            self.factory.common_topic + WAPMF.FILE_URL_DOWNLOAD_STATUS
         )
         expected_payload = json.dumps(
             {
@@ -214,10 +181,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             FileManagementErrorType.MALFORMED_URL,
         )
         expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FILE_URL_DOWNLOAD_STATUS
+            self.factory.common_topic + WAPMF.FILE_URL_DOWNLOAD_STATUS
         )
         expected_payload = json.dumps(
             {
@@ -237,10 +201,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test message for firmware update status."""
         status = FirmwareUpdateStatus(FirmwareUpdateStatusType.INSTALLING)
         expected_topic = (
-            WAPMF.FIRMWARE_UPDATE_STATUS
-            + WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
+            self.factory.common_topic + WAPMF.FIRMWARE_UPDATE_STATUS
         )
+
         expected_payload = json.dumps({"status": status.status.value})
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = self.factory.make_from_firmware_update_status(
@@ -256,10 +219,9 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             FirmwareUpdateErrorType.INSTALLATION_FAILED,
         )
         expected_topic = (
-            WAPMF.FIRMWARE_UPDATE_STATUS
-            + WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
+            self.factory.common_topic + WAPMF.FIRMWARE_UPDATE_STATUS
         )
+
         expected_payload = json.dumps(
             {"status": status.status.value, "error": status.error.value}
         )
@@ -270,19 +232,13 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(expected_message, serialized_message)
 
-    @unittest.skip("TODO")
     def test_time_request_message(self):
         """Test message for time request."""
-        expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.TIME
-        )
+        expected_topic = self.factory.common_topic + WAPMF.TIME
         expected_payload = None
         expected_message = Message(expected_topic, expected_payload)
 
-        serialized_message = None
+        serialized_message = self.factory.make_time_request()
 
         self.assertEqual(expected_message, serialized_message)
 
@@ -291,10 +247,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         version = "v1.0.0"
 
         expected_topic = (
-            WAPMF.DEVICE_TO_PLATFORM
-            + self.device_key
-            + WAPMF.CHANNEL_DELIMITER
-            + WAPMF.FIRMWARE_VERSION_UPDATE
+            self.factory.common_topic + WAPMF.FIRMWARE_VERSION_UPDATE
         )
         expected_payload = version
         expected_message = Message(expected_topic, expected_payload)

@@ -44,6 +44,14 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         WAPMD.PLATFORM_TO_DEVICE
         + device.key
         + WAPMD.CHANNEL_DELIMITER
+        + WAPMD.FEED_VALUES,
+        WAPMD.PLATFORM_TO_DEVICE
+        + device.key
+        + WAPMD.CHANNEL_DELIMITER
+        + WAPMD.PARAMETERS,
+        WAPMD.PLATFORM_TO_DEVICE
+        + device.key
+        + WAPMD.CHANNEL_DELIMITER
         + WAPMD.FILE_BINARY,
         WAPMD.PLATFORM_TO_DEVICE
         + device.key
@@ -89,20 +97,19 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
 
     def setUp(self):
         """Set up commonly used values in tests."""
+        self.maxDiff = None
         self.device = Device(
             key="some_key",
             password="some_password",
         )
         self.deserializer = WAPMD(self.device)
 
-    @unittest.skip("Skip until updated topics")
     def test_inbound_topics_match(self):
         """Test creating a deserializer and assert topic lists match."""
         self.assertEqual(
-            self.expected_topics, self.deserializer.inbound_topics
+            set(self.expected_topics), set(self.deserializer.inbound_topics)
         )
 
-    @unittest.skip("Skip until updated topics")
     def test_get_inbound_topics(self):
         """Test inbound topics are valid for device."""
         self.assertEqual(
