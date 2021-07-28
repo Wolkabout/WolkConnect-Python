@@ -17,6 +17,7 @@ from abc import abstractmethod
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from wolk.model.data_type import DataType
@@ -26,6 +27,9 @@ from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
 from wolk.model.unit import Unit
 
+OutgoingDataTypes = Union[bool, int, float, str]
+Reading = Tuple[str, OutgoingDataTypes]
+
 
 class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
@@ -33,17 +37,14 @@ class MessageFactory(ABC):
     @abstractmethod
     def make_from_feed_value(
         self,
-        reference: str,
-        value: Union[bool, int, float, str],
+        reading: Union[Reading, List[Reading]],
         timestamp: Optional[int],
     ) -> Message:
         """
         Serialize feed value data.
 
-        :param reference: Feed identifier
-        :type reference: str
-        :param value: Value of the feed
-        :type value: Union[bool, int, float, str]
+        :param reading: Feed value data as (reference, value) or list of tuple
+        :type reading: Union[Reading, List[Reading]]
         :param timestamp: Unix timestamp in ms. Default to current time if None
         :returns: message
         :rtype: Message

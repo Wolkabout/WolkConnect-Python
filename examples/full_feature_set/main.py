@@ -20,7 +20,6 @@ import time
 from traceback import print_exc
 from typing import Dict
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 import requests
@@ -112,15 +111,13 @@ def main() -> None:
     Pass all of these to a WolkConnect class
     and start a loop to send different types of random readings.
     """
+    # TODO: Update this example
+    print("TODO: Update this example")
+    return
+
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    # List actuator references included on your device
-    actuator_references = ["SW", "SL"]
-    device = wolk.Device(
-        key="device_key",
-        password="some_password",
-        actuator_references=actuator_references,
-    )
+    device = wolk.Device(key="device_key", password="some_password")
     try:
         global configurations
         with open(configuration_file) as file:
@@ -128,42 +125,17 @@ def main() -> None:
         wolk.logging_config(configurations["LL"])  # Log level
     except Exception:
         print(
-            "Failed load configuraiton options "
+            "Failed load configuration options "
             f"from file '{configuration_file}'"
         )
         print_exc()
-        sys.exit(1)
+        raise RuntimeError
 
-    class Actuator:
+    class InOutFeed:
         def __init__(
             self, inital_value: Optional[Union[bool, int, float, str]]
         ):
             self.value = inital_value
-
-    switch = Actuator(False)
-    slider = Actuator(0)
-
-    # Provide a way to read actuator status if your device has actuators
-    def actuator_status_provider(
-        reference: str,
-    ) -> Tuple[wolk.State, Optional[Union[bool, int, float, str]]]:
-        if reference == actuator_references[0]:
-            return wolk.State.READY, switch.value
-        elif reference == actuator_references[1]:
-            return wolk.State.READY, slider.value
-
-        return wolk.State.ERROR, None
-
-    # Provide an actuation handler if your device has actuators
-    def actuation_handler(
-        reference: str, value: Union[bool, int, float, str]
-    ) -> None:
-        print(f"Setting actuator '{reference}' to value: {value}")
-        if reference == actuator_references[0]:
-            switch.value = value
-
-        elif reference == actuator_references[1]:
-            slider.value = value
 
     # The URL download implementation can be substituted
     # This is optional and passed as an argument when creating wolk_device
@@ -210,14 +182,6 @@ def main() -> None:
             port=8883,
             ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
         )
-        .with_actuators(
-            actuation_handler=actuation_handler,
-            actuator_status_provider=actuator_status_provider,
-        )
-        .with_configuration(
-            configuration_handler=configuration_handler,
-            configuration_provider=configuration_provider,
-        )
         .with_file_management(
             preferred_package_size=1000 * 1000,
             max_file_size=100 * 1000 * 1000,
@@ -235,13 +199,6 @@ def main() -> None:
     print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
 
-    # Successfully connecting to the platform will publish device configuration
-    # all actuator statuses, files present on device, current firmware version
-    # and the result of a firmware update if it occurred
-    wolk_device.publish_configuration()
-    wolk_device.publish_actuator_status("SW")
-    wolk_device.publish_actuator_status("SL")
-
     publish_period_seconds = configurations["HB"]  # Heart beat
 
     while True:
@@ -253,11 +210,6 @@ def main() -> None:
                 temperature = random.uniform(15, 30)
                 humidity = random.uniform(10, 55)
                 pressure = random.uniform(975, 1030)
-                accelerometer = (
-                    random.uniform(0, 100),
-                    random.uniform(0, 100),
-                    random.uniform(0, 100),
-                )
 
                 # Enabled feeds
                 if "T" in configurations["EF"]:
@@ -271,10 +223,6 @@ def main() -> None:
                         wolk_device.add_alarm("HH", False)
                 if "P" in configurations["EF"]:
                     wolk_device.add_sensor_reading("P", pressure, timestamp)
-                if "ACL" in configurations["EF"]:
-                    wolk_device.add_sensor_reading(
-                        "ACL", accelerometer, timestamp
-                    )
 
             else:
                 wolk_device.connect()

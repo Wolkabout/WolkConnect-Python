@@ -18,6 +18,7 @@ from typing import Callable
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from wolk import logger_factory
@@ -52,6 +53,8 @@ from wolk.wolkabout_protocol_message_factory import (
 )
 
 IncomingData = List[Dict[str, Union[bool, int, float, str]]]
+OutgoingDataTypes = Union[bool, int, float, str]
+Reading = Tuple[str, OutgoingDataTypes]
 
 
 class WolkConnect:
@@ -361,28 +364,33 @@ class WolkConnect:
 
     def add_feed_value(
         self,
-        reference: str,
-        value: Union[bool, int, float, str],
+        reading: Union[Reading, List[Reading]],
         timestamp: Optional[int] = None,
     ) -> None:
         """
-        Place a feed value into storage.
+        Place a feed value reading into storage.
 
-        :param reference: Feed reference
-        :type reference: str
-        :param value: Value of the feed
-        :type value: Union[bool, int, float, str]
-        :param timestamp: Unix timestamp. If not provided, library will assign
+        A reading is identified by a unique feed reference string and
+        the current value of the feed.
+
+        This reading can either be passed as a tuple of (reference, value)
+        for a single feed or as a list of previously mentioned tuples
+        to pass multiple feed readings at once.
+
+        A Unix epoch timestamp in milliseconds as int can be provided to
+        denote when the reading occurred. By default, the current system
+        provided time will be assigned to a reading.
+
+        :param reading: Feed value reading
+        :type reading: Union[Reading, List[Reading]]
+        :param timestamp: Unix timestamp. Defaults to system time.
         :type timestamp: Optional[int]
         """
         self.logger.debug(
-            f"Adding feed value: reference = '{reference}', "
-            f"value = {value}, timestamp = {timestamp}"
+            f"Adding feed value: reading: {reading}, timestamp = {timestamp}"
         )
 
-        message = self.message_factory.make_from_feed_value(
-            reference, value, timestamp
-        )
+        message = self.message_factory.make_from_feed_value(reading, timestamp)
         # NOTE: if device is PUSH, do we try to publish instantly?
         self.message_queue.put(message)
 

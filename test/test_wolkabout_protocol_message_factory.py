@@ -48,8 +48,8 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test that object is created with correct device key."""
         self.assertEqual(self.device_key, self.factory.device_key)
 
-    def test_feed_values(self):
-        """Test valid message for string with newline sensor reading."""
+    def test_feed_value(self):
+        """Test valid message for string feed."""
         reference = "SNL"
         value = "string"
         timestamp = round(time.time()) * 1000
@@ -61,10 +61,36 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_message = Message(expected_topic, expected_payload)
 
         serialized_message = self.factory.make_from_feed_value(
-            reference, value, timestamp
+            (reference, value), timestamp
         )
 
         self.assertEqual(expected_message, serialized_message)
+
+    def test_feed_values(self):
+        """Test valid message for two string feeds."""
+        reference = "SNL"
+        value = "string"
+        reference_2 = "SNL"
+        value_2 = "string"
+        timestamp = round(time.time()) * 1000
+
+        expected_topic = self.factory.common_topic + WAPMF.FEED_VALUES
+        expected_payload = json.dumps(
+            [{reference: value, "timestamp": timestamp}]
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_from_feed_value(
+            [(reference, value), (reference_2, value_2)], timestamp
+        )
+
+        self.assertEqual(expected_message, serialized_message)
+
+    def test_feed_value_throws_on_invalid_data(self):
+        """Test valid message for two string feeds."""
+        self.assertRaises(
+            ValueError, self.factory.make_from_feed_value, "foo", 1
+        )
 
     def test_file_list_update(self):
         """Test message for file list update."""

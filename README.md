@@ -75,17 +75,13 @@ wolk_device = wolk.WolkConnect(
 wolk_device.connect()
 ```
 
-### Adding sensor readings
+### Adding feed values
 
 ```python
-wolk_device.add_sensor_reading("T", 26.93)
+wolk_device.add_feed_value(("T", 26.93))
 
-# Multi-value sensor reading
-wolk_device.add_sensor_reading("ACL", (4, 2, 0))
-```
-or multiple sensors at once with `add_sensor_readings`:
-```python
-wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
+# or multiple feed value readings
+wolk_device.add_feed_value([("T": 27.11), ("H": 54.34), ("P", 1002.3)])
 ```
 
 Optionally pass a `timestamp` as `round(time.time()) * 1000`.
@@ -95,7 +91,7 @@ If `timestamp` is not provided, the library will assign a timestamp before placi
 
 ### Data publish strategy
 
-Stored sensor readings are pushed to WolkAbout IoT platform on demand by calling:
+Stored feed values are pushed to WolkAbout IoT platform on demand by calling:
 ```python
 wolk_device.publish()
 ```

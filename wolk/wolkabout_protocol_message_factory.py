@@ -17,6 +17,7 @@ from time import time
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 from typing import Union
 
 from wolk import logger_factory
@@ -29,6 +30,9 @@ from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
 from wolk.model.unit import Unit
+
+OutgoingDataTypes = Union[bool, int, float, str]
+Reading = Tuple[str, OutgoingDataTypes]
 
 
 class WolkAboutProtocolMessageFactory(MessageFactory):
@@ -77,29 +81,37 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
     def make_from_feed_value(
         self,
-        reference: str,
-        value: Union[bool, int, float, str],
+        reading: Union[Reading, List[Reading]],
         timestamp: Optional[int],
     ) -> Message:
         """
         Serialize feed value data.
 
-        :param reference: Feed identifier
-        :type reference: str
-        :param value: Value of the feed
-        :type value: Union[bool, int, float, str]
+        :param reading: Feed value data as (reference, value) or list of tuple
+        :type reading: Union[Reading, List[Reading]]
         :param timestamp: Unix timestamp in ms. Default to current time if None
+        :raises ValueError: Reading is invalid data type
         :returns: message
         :rtype: Message
         """
         topic = self.common_topic + self.FEED_VALUES
 
-        payload = {reference: value}
-        payload["timestamp"] = (
+        if isinstance(reading, tuple):
+            reference, value = reading
+            feed_value = {reference: value}
+        elif isinstance(reading, list):
+            feed_value = dict(reading)
+        else:
+            raise ValueError(
+                f"Expected reading as tuple or list, got {type(reading)}"
+            )
+
+        feed_value["timestamp"] = (
             timestamp if timestamp is not None else round(time() * 1000)
         )
+        payload = [feed_value]
 
-        message = Message(topic, json.dumps([payload]))
+        message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message

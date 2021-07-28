@@ -23,49 +23,28 @@ import wolk  # noqa
 
 # NOTE: Enable debug logging by uncommenting the following line
 # Optionally, as a second argument pass a file name
-wolk.logging_config("debug")
+# wolk.logging_config("debug")
 
 
 def main():
     """Connect to WolkAbout IoT Platform and send a random sensor reading."""
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    device = wolk.Device(
-        key="danilo_pull_dev",
-        password="AIGAYDA51S",
-        data_delivery=wolk.DataDelivery.PULL,
-    )
+    device = wolk.Device(key="some_key", password="some_password")
 
-    def incoming_feed_value_handler(feed_values):
-        for feed_value in feed_values:
-            for reference, value in feed_value.items():
-                if reference == "timestamp":
-                    continue
-
-                if reference == "SL":
-                    print("[dummy] setting SL to: " + value)
-
-    wolk_device = wolk.WolkConnect(
-        device,
-        host="10.0.50.168",
-        port=1883,
-    ).with_incoming_feed_value_handler(incoming_feed_value_handler)
+    wolk_device = wolk.WolkConnect(device)
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
 
-    # NOTE: Connect calls these implicitly
-    # wolk_device.pull_parameters()
-    # wolk_device.pull_feed_values()
-
-    publish_period_seconds = 45
+    publish_period_seconds = 60
 
     while True:
         try:
-            slider = random.randint(-20, 80)
-            wolk_device.add_feed_value("SL", slider)
-            print('Publishing "SL": ' + str(slider))
+            temperature = random.randint(-20, 80)
+            wolk_device.add_feed_value(("T", temperature))
+            print(f'Publishing "T": {temperature}')
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
