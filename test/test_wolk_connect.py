@@ -1037,7 +1037,7 @@ class TestWolkConnect(unittest.TestCase):
         )
         self.wolk_device.message_queue.put = MagicMock()
 
-        self.wolk_device._on_package_request("file", 0, 64)
+        self.wolk_device._on_package_request("file", 0)
 
         self.wolk_device.message_queue.put.assert_called_once()
 
@@ -1053,7 +1053,7 @@ class TestWolkConnect(unittest.TestCase):
         )
         self.wolk_device.message_queue.put = MagicMock()
 
-        self.wolk_device._on_package_request("file", 0, 64)
+        self.wolk_device._on_package_request("file", 0)
 
         self.wolk_device.message_queue.put.assert_not_called()
 

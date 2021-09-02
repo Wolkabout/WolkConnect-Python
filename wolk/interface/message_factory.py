@@ -165,7 +165,7 @@ class MessageFactory(ABC):
 
     @abstractmethod
     def make_from_package_request(
-        self, file_name: str, chunk_index: int, chunk_size: int
+        self, file_name: str, chunk_index: int
     ) -> Message:
         """
         Request a package of the file from WolkAbout IoT Platform.
@@ -174,8 +174,6 @@ class MessageFactory(ABC):
         :type file_name: str
         :param chunk_index: Index of the requested package
         :type chunk_index: int
-        :param chunk_size: Size of the requested package
-        :type chunk_size: int
         :returns: message
         :rtype: Message
         """
@@ -194,24 +192,28 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_file_list_update(self, file_list: List[str]) -> Message:
+    def make_from_file_list_update(
+        self, file_list: List[Dict[str, Union[str, int]]]
+    ) -> Message:
         """
         Serialize list of files present on device.
 
         :param file_list: Files present on device
-        :type file_list: List[str]
+        :type file_list: List[Dict[str, Union[str, int]]]
         :returns: message
         :rtype: Message
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_file_list_request(self, file_list: List[str]) -> Message:
+    def make_from_file_list_request(
+        self, file_list: List[Dict[str, Union[str, int]]]
+    ) -> Message:
         """
         Serialize list of files present on device.
 
         :param file_list: Files present on device
-        :type file_list: List[str]
+        :type file_list: List[Dict[str, Union[str, int]]]
         :returns: message
         :rtype: Message
         """

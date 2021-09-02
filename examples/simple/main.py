@@ -23,16 +23,25 @@ import wolk  # noqa
 
 # NOTE: Enable debug logging by uncommenting the following line
 # Optionally, as a second argument pass a file name
-# wolk.logging_config("debug")
+wolk.logging_config("debug")
 
 
 def main():
     """Connect to WolkAbout IoT Platform and send a random sensor reading."""
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    device = wolk.Device(key="some_key", password="some_password")
+    device = wolk.Device(key="danilo_fm_dev", password="61XDBF3DLC")
 
-    wolk_device = wolk.WolkConnect(device)
+    wolk_device = wolk.WolkConnect(
+        device,
+        host="intergation1.wolkabout.com",
+        port=1883,
+        # ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+    ).with_file_management(
+        preferred_package_size=1000 * 1000,
+        max_file_size=100 * 1000 * 1000,
+        file_directory="files",
+    )
 
     # Establish a connection to the WolkAbout IoT Platform
     print("Connecting to WolkAbout IoT Platform")

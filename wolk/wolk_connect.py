@@ -782,9 +782,7 @@ class WolkConnect:
 
         self.logger.warning(f"Received unknown firmware message: {message}")
 
-    def _on_package_request(
-        self, file_name: str, chunk_index: int, chunk_size: int
-    ) -> None:
+    def _on_package_request(self, file_name: str, chunk_index: int) -> None:
         """
         Handle file transfer package requests.
 
@@ -792,11 +790,9 @@ class WolkConnect:
         :type file_name: str
         :param chunk_index: The index of the requested chunk
         :type chunk_index: int
-        :param chunk_size: The size of the requested chunk
-        :type chunk_size: int
         """
         message = self.message_factory.make_from_package_request(
-            file_name, chunk_index, chunk_size
+            file_name, chunk_index
         )
         if not self.connectivity_service.publish(message):
             self.message_queue.put(message)

@@ -258,7 +258,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         return message
 
     def make_from_package_request(
-        self, file_name: str, chunk_index: int, chunk_size: int
+        self, file_name: str, chunk_index: int
     ) -> Message:
         """
         Request a package of the file from WolkAbout IoT Platform.
@@ -267,62 +267,57 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :type file_name: str
         :param chunk_index: Index of the requested package
         :type chunk_index: int
-        :param chunk_size: Size of the requested package
-        :type chunk_size: int
         :returns: message
         :rtype: Message
         """
         self.logger.debug(
-            f"file_name: '{file_name}', "
-            f"chunk_index: {chunk_index}, "
-            f"chunk_size: {chunk_size}"
+            f"file_name: '{file_name}', " f"chunk_index: {chunk_index}, "
         )
         topic = self.common_topic + self.FILE_BINARY_REQUEST
 
         payload = {
-            "fileName": file_name,
+            "name": file_name,
             "chunkIndex": chunk_index,
-            "chunkSize": chunk_size,
         }
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_file_list_update(self, file_list: List[str]) -> Message:
+    def make_from_file_list_update(
+        self, file_list: List[Dict[str, Union[str, int]]]
+    ) -> Message:
         """
         Serialize list of files present on device.
 
         :param file_list: Files present on device
-        :type file_list: List[str]
+        :type file_list: List[Dict[str, Union[str, int]]]
         :returns: message
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
         topic = self.common_topic + self.FILE_LIST_UPDATE
 
-        message = Message(
-            topic, json.dumps([{"fileName": file} for file in file_list])
-        )
+        message = Message(topic, json.dumps(file_list))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_file_list_request(self, file_list: List[str]) -> Message:
+    def make_from_file_list_request(
+        self, file_list: List[Dict[str, Union[str, int]]]
+    ) -> Message:
         """
         Serialize list of files present on device.
 
         :param file_list: Files present on device
-        :type file_list: List[str]
+        :type file_list: List[Dict[str, Union[str, int]]]
         :returns: message
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
         topic = self.common_topic + self.FILE_LIST_RESPONSE
 
-        message = Message(
-            topic, json.dumps([{"fileName": file} for file in file_list])
-        )
+        message = Message(topic, json.dumps(file_list))
         self.logger.debug(f"{message}")
 
         return message
@@ -343,7 +338,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         self.logger.debug(f" status: {status}, file_name: {file_name}")
         topic = self.common_topic + self.FILE_UPLOAD_STATUS
 
-        payload = {"fileName": file_name, "status": status.status.value}
+        payload = {"name": file_name, "status": status.status.value}
         if (
             status.status == FileManagementStatusType.ERROR
             and status.error is not None

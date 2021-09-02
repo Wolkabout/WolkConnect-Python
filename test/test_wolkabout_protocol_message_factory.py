@@ -126,19 +126,17 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         """Test message file package request."""
         file_name = "file_name"
         chunk_index = 0
-        chunk_size = 256
 
         expected_topic = self.factory.common_topic + WAPMF.FILE_BINARY_REQUEST
         expected_payload = json.dumps(
             {
-                "fileName": file_name,
+                "name": file_name,
                 "chunkIndex": chunk_index,
-                "chunkSize": chunk_size,
             }
         )
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = self.factory.make_from_package_request(
-            file_name, chunk_index, chunk_size
+            file_name, chunk_index
         )
 
         self.assertEqual(expected_message, serialized_message)
@@ -149,7 +147,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
         expected_topic = self.factory.common_topic + WAPMF.FILE_UPLOAD_STATUS
         expected_payload = json.dumps(
-            {"fileName": file_name, "status": status.status.value}
+            {"name": file_name, "status": status.status.value}
         )
         expected_message = Message(expected_topic, expected_payload)
         serialized_message = self.factory.make_from_file_management_status(
@@ -168,7 +166,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         expected_topic = self.factory.common_topic + WAPMF.FILE_UPLOAD_STATUS
         expected_payload = json.dumps(
             {
-                "fileName": file_name,
+                "name": file_name,
                 "status": status.status.value,
                 "error": status.error.value,
             }

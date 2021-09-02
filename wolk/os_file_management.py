@@ -20,9 +20,11 @@ import shutil
 from tempfile import NamedTemporaryFile
 from threading import Timer
 from typing import Callable
+from typing import Dict
 from typing import IO
 from typing import List
 from typing import Optional
+from typing import Union
 from urllib.parse import urlparse
 
 import requests
@@ -47,7 +49,7 @@ class OSFileManagement(FileManagement):
     def __init__(
         self,
         status_callback: Callable[[str, FileManagementStatus], None],
-        packet_request_callback: Callable[[str, int, int], None],
+        packet_request_callback: Callable[[str, int], None],
         url_status_callback: Callable[
             [str, FileManagementStatus, Optional[str]], None
         ],
@@ -58,8 +60,8 @@ class OSFileManagement(FileManagement):
         :param status_callback: Reporting current file transfer status
         :type status_callback: Callable[[FileManagementStatus], None]
         :param packet_request_callback: Request file packet from Platform
-        :type packet_request_callback: Callable[[str, int, int], None]
-        :param url_status_callback: Report file url download status
+        :type packet_request_callback: Callable[[str, int], None]
+        :param url_status_callback: Report file URL download status
         :type url_status_callback: Callable[[str, FileManagementStatus, Optional[str]], None]
         """
         self.logger = logger_factory.logger_factory.get_logger(
@@ -118,7 +120,7 @@ class OSFileManagement(FileManagement):
         :param downloader: Function that will download the file from the URL
         :type downloader: Callable[[str, str], bool]
         """
-        self.logger.debug(f"Setting custom url downloader to {downloader}")
+        self.logger.debug(f"Setting custom URL downloader to {downloader}")
         self.download_url = downloader  # type: ignore
 
     def handle_upload_initiation(
@@ -243,16 +245,7 @@ class OSFileManagement(FileManagement):
         self.logger.info(f"Initializing file transfer: '{file_name}'")
         self.status_callback(self.file_name, self.current_status)
 
-        if self.file_size < self.preferred_package_size:
-            self.packet_request_callback(
-                self.file_name, self.next_package_index, self.file_size + 64
-            )
-        else:
-            self.packet_request_callback(
-                self.file_name,
-                self.next_package_index,
-                self.preferred_package_size + 64,
-            )
+        self.packet_request_callback(self.file_name, self.next_package_index)
 
         self.request_timeout = Timer(60.0, self._timeout)
         self.request_timeout.start()
@@ -343,9 +336,7 @@ class OSFileManagement(FileManagement):
                 f"Requesting package #{self.next_package_index} again"
             )
             self.packet_request_callback(
-                self.file_name,
-                self.next_package_index,
-                self.preferred_package_size + 64,
+                self.file_name, self.next_package_index
             )
 
             self.request_timeout = Timer(60.0, self._timeout)
@@ -381,7 +372,6 @@ class OSFileManagement(FileManagement):
             self.packet_request_callback(
                 self.file_name,
                 self.next_package_index,
-                self.preferred_package_size + 64,
             )
 
             self.request_timeout = Timer(60.0, self._timeout)
@@ -511,26 +501,33 @@ class OSFileManagement(FileManagement):
         self.file_name = None
         self.current_status = None
 
-    def get_file_list(self) -> List[str]:
+    def get_file_list(self) -> List[Dict[str, Union[str, int]]]:
         """
         Return list of files present on device.
 
+        Each list item is a dictionary that contains the name of the file,
+        its size in bytes, and a MD5 checksum of the file.
+
         :returns: file_list
-        :rtype: List[str]
+        :rtype: List[Dict[str, Union[str, int]]]
         """
-        file_list = os.listdir(os.path.abspath(self.file_directory))
+        files = os.listdir(os.path.abspath(self.file_directory))
+        files_list = []
 
-        if file_list:
-            for item in file_list:
-                if not os.path.isfile(
-                    os.path.join(os.path.abspath(self.file_directory), item)
-                ) or item.startswith("."):
-                    file_list.remove(item)
-        else:
-            file_list = []
+        for item in files:
+            file_path = os.path.join(
+                os.path.abspath(self.file_directory), item
+            )
+            if not os.path.isfile(file_path) or item.startswith("."):
+                continue
+            with open(file_path, "rb") as file:
+                data = file.read()
+                hash = hashlib.md5(data).hexdigest()
+            size = os.path.getsize(file_path)
+            files_list.append({"name": item, "size": size, "hash": hash})
 
-        self.logger.debug(f"Files on device: {file_list}")
-        return file_list
+        self.logger.debug(f"Files on device: {files_list}")
+        return files_list  # type: ignore
 
     def get_file_path(self, file_name: str) -> Optional[str]:
         """
@@ -544,7 +541,7 @@ class OSFileManagement(FileManagement):
         self.logger.debug(f"Get file path for file: {file_name}")
         file_path = None
         for file in self.get_file_list():
-            if file == file_name:
+            if file["name"] == file_name:
                 file_path = os.path.join(
                     os.path.abspath(self.file_directory), file_name
                 )

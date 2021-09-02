@@ -260,7 +260,7 @@ class TestOSFileManagement(unittest.TestCase):
         )
 
         file_management.packet_request_callback.assert_called_once_with(
-            file_name, 0, file_size + 64
+            file_name, 0
         )
         os.rmdir(file_directory)
         file_management.request_timeout.cancel()

@@ -194,8 +194,8 @@ class MQTTConnectivityService(ConnectivityService):
         """
         self.connected = False
         self.connected_rc = return_code
-        self.logger.debug(f"Connected : {self.connected}")
-        self.logger.debug(f"Return code : {return_code}")
+        self.logger.info(f"Connected : {self.connected}")
+        self.logger.info(f"Return code : {return_code}")
         if return_code not in [0, 5]:
             self.logger.warning("Unexpected disconnect!")
             self.logger.info("Attempting to reconnect..")

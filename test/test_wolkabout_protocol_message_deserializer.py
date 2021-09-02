@@ -368,9 +368,9 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         incoming_payload = bytearray(
             json.dumps(
                 {
-                    "fileName": file_name,
-                    "fileSize": file_size,
-                    "fileHash": file_hash,
+                    "name": file_name,
+                    "size": file_size,
+                    "hash": file_hash,
                 }
             ),
             "utf-8",
@@ -394,8 +394,8 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
             json.dumps(
                 {
                     "obviously_wrong_name": file_name,
-                    "fileSize": file_size,
-                    "fileHash": file_hash,
+                    "size": file_size,
+                    "hash": file_hash,
                 }
             ),
             "utf-8",

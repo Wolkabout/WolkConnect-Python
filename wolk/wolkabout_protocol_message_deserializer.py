@@ -501,7 +501,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: (file_name, file_size, file_hash)
+        :returns: (name, size, hash)
         :rtype: Tuple[str, int, str]
         """
         self.logger.debug(f"{message}")
@@ -510,14 +510,14 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 message.payload.decode("utf-8")  # type: ignore
             )
             self.logger.debug(
-                f'file_name={payload["fileName"]}, '
-                f'file_size={payload["fileSize"]}, '
-                f'file_hash={payload["fileHash"]}'
+                f'name={payload["name"]}, '
+                f'size={payload["size"]}, '
+                f'hash={payload["hash"]}'
             )
             return (
-                payload["fileName"],
-                payload["fileSize"],
-                payload["fileHash"],
+                payload["name"],
+                payload["size"],
+                payload["hash"],
             )
         except Exception:
             self.logger.warning(

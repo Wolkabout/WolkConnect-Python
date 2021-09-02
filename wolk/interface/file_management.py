@@ -15,8 +15,10 @@
 from abc import ABC
 from abc import abstractmethod
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_transfer_package import FileTransferPackage
@@ -131,12 +133,16 @@ class FileManagement(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_file_list(self) -> List[str]:
+    def get_file_list(self) -> List[Dict[str, Union[str, int]]]:
         """
         Return list of files present on device.
 
+        Each list item is a dictionary that contains the name of the file,
+        its size in bytes, and a MD5 checksum of the file.
+
         :returns: file_list
-        :rtype: List[str]
+        :rtype: List[Dict[str, Union[str, int]]]
+
         """
         raise NotImplementedError()
 
