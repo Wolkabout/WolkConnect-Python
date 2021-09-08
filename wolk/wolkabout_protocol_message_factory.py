@@ -55,8 +55,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
     ATTRIBUTE_REGISTRATION = "attribute_registration"
 
     FILE_BINARY_REQUEST = "file_binary_request"
-    FILE_LIST_UPDATE = "file_list_update"
-    FILE_LIST_RESPONSE = "file_list_response"
+    FILE_LIST = "file_list"
     FILE_UPLOAD_STATUS = "file_upload_status"
     FILE_URL_DOWNLOAD_STATUS = "file_url_download_status"
 
@@ -284,7 +283,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
-    def make_from_file_list_update(
+    def make_from_file_list(
         self, file_list: List[Dict[str, Union[str, int]]]
     ) -> Message:
         """
@@ -296,26 +295,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
-        topic = self.common_topic + self.FILE_LIST_UPDATE
-
-        message = Message(topic, json.dumps(file_list))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_file_list_request(
-        self, file_list: List[Dict[str, Union[str, int]]]
-    ) -> Message:
-        """
-        Serialize list of files present on device.
-
-        :param file_list: Files present on device
-        :type file_list: List[Dict[str, Union[str, int]]]
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"{file_list}")
-        topic = self.common_topic + self.FILE_LIST_RESPONSE
+        topic = self.common_topic + self.FILE_LIST
 
         message = Message(topic, json.dumps(file_list))
         self.logger.debug(f"{message}")
@@ -409,23 +389,6 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             payload["error"] = firmware_update_status.error.value
 
         message = Message(topic, json.dumps(payload))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_firmware_version_update(self, version: str) -> Message:
-        """
-        Report the current version of firmware to WolkAbout IoT Platform.
-
-        :param version: Firmware version to report
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"version: {version}")
-        topic = self.common_topic + self.FIRMWARE_VERSION_UPDATE
-
-        message = Message(topic, str(version))
         self.logger.debug(f"{message}")
 
         return message

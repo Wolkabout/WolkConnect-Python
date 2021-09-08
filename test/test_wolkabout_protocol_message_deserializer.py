@@ -64,11 +64,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         WAPMD.PLATFORM_TO_DEVICE
         + device.key
         + WAPMD.CHANNEL_DELIMITER
-        + WAPMD.FILE_LIST_CONFIRM,
-        WAPMD.PLATFORM_TO_DEVICE
-        + device.key
-        + WAPMD.CHANNEL_DELIMITER
-        + WAPMD.FILE_LIST_REQUEST,
+        + WAPMD.FILE_LIST,
         WAPMD.PLATFORM_TO_DEVICE
         + device.key
         + WAPMD.CHANNEL_DELIMITER
@@ -152,18 +148,6 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
 
         self.assertTrue(self.deserializer.is_file_purge_command(message))
 
-    def test_is_file_list_confirm(self):
-        """Test if message is file list confirm."""
-        message = Message(self.deserializer.file_list_confirm_topic, None)
-
-        self.assertTrue(self.deserializer.is_file_list_confirm(message))
-
-    def test_is_file_list_request(self):
-        """Test if message is file list request."""
-        message = Message(self.deserializer.file_list_request_topic, None)
-
-        self.assertTrue(self.deserializer.is_file_list_request(message))
-
     def test_is_file_upload_initiate(self):
         """Test if message is file upload initiate."""
         message = Message(self.deserializer.file_upload_initiate_topic, None)
@@ -209,9 +193,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         file_name = "install_me.bin"
 
         incoming_topic = self.deserializer.firmware_install_topic
-        incoming_payload = bytearray(
-            json.dumps({"fileName": file_name}), "utf-8"
-        )
+        incoming_payload = bytearray(json.dumps(file_name), "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
         expected = file_name
@@ -224,12 +206,9 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     def test_parse_firmware_install_invalid(self):
         """Test parse invalid firmware install command."""
         self.deserializer.logger.setLevel(logging.CRITICAL)
-        file_name = "install_me.bin"
 
         incoming_topic = self.deserializer.firmware_install_topic
-        incoming_payload = bytearray(
-            json.dumps({"file_name": file_name}), "utf-8"
-        )
+        incoming_payload = bytearray('{"file_name": file_name', "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
         expected = ""
@@ -294,12 +273,10 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         """Test parse file delete command."""
         self.deserializer.logger.setLevel(logging.CRITICAL)
         file_name = "delete_me.bin"
-        expected = file_name
+        expected = [file_name]
 
         incoming_topic = self.deserializer.file_delete_topic
-        incoming_payload = bytearray(
-            json.dumps({"fileName": file_name}), "utf-8"
-        )
+        incoming_payload = bytearray(json.dumps([file_name]), "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
         self.assertEqual(
@@ -310,13 +287,10 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     def test_parse_file_delete_command_invalid(self):
         """Test parse file delete invalid command."""
         self.deserializer.logger.setLevel(logging.CRITICAL)
-        file_name = "delete_me.bin"
-        expected = ""
+        expected = []
 
         incoming_topic = self.deserializer.file_delete_topic
-        incoming_payload = bytearray(
-            json.dumps({"file_name": file_name}), "utf-8"
-        )
+        incoming_payload = bytearray('{"file_name": file_name', "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
         self.assertEqual(
@@ -331,9 +305,7 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
         expected = file_url
 
         incoming_topic = self.deserializer.file_url_initiate_topic
-        incoming_payload = bytearray(
-            json.dumps({"fileUrl": file_url}), "utf-8"
-        )
+        incoming_payload = bytearray(json.dumps(file_url), "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
         self.assertEqual(
@@ -343,13 +315,10 @@ class WolkAboutProtocolMessageDeserializerTests(unittest.TestCase):
     def test_parse_file_url_invalid(self):
         """Test parse file URL invalid command."""
         self.deserializer.logger.setLevel(logging.CRITICAL)
-        file_url = "http://hello.there.hi/resource.png"
         expected = ""
 
         incoming_topic = self.deserializer.file_url_initiate_topic
-        incoming_payload = bytearray(
-            json.dumps({"file_url": file_url}), "utf-8"
-        )
+        incoming_payload = bytearray('{"file_url": file_url', "utf-8")
         incoming_message = Message(incoming_topic, incoming_payload)
 
         self.assertEqual(

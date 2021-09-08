@@ -128,19 +128,22 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_with_file_management(self):
         """Test enabling file management module."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         self.assertTrue(os.path.exists(self.file_directory))
         os.rmdir(self.file_directory)
 
     def test_with_file_management_with_custom_url_download(self):
         """Test enabling file management module with custom URL download."""
-        download = True
+
+        def _downloader(a, b):
+            pass
+
         self.wolk_device.with_file_management(
-            256, 1024, self.file_directory, download
+            self.file_directory, 1024, _downloader
         )
         os.rmdir(self.file_directory)
         self.assertEqual(
-            download, self.wolk_device.file_management.download_url
+            _downloader, self.wolk_device.file_management.url_downloader
         )
 
     def test_with_firmware_update_no_file_management(self):
@@ -151,7 +154,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_with_firmware_update_and_file_management(self):
         """Test enabling firmware update module with file management module."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -159,7 +162,8 @@ class TestWolkConnect(unittest.TestCase):
 
         self.wolk_device.with_firmware_update(self.firmware_handler)
 
-        self.firmware_handler.get_current_version.assert_called_once()
+        self.assertIsNotNone(self.wolk_device.file_management)
+        self.assertIsNotNone(self.wolk_device.firmware_update)
 
     def test_with_custom_message_queue_invalid_instance(self):
         """Test using custom message queue with passing bad message queue."""
@@ -288,7 +292,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_connect_publish_file_list_fails(self):
         """Test connecting passes and fails to publishes file list."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         self.wolk_device.file_management.get_file_list = MagicMock(
             return_value=[]
         )
@@ -309,12 +313,14 @@ class TestWolkConnect(unittest.TestCase):
             return_value=False
         )
         self.wolk_device.connect()
-        self.wolk_device.message_queue.put.assert_called_once()
+        self.wolk_device.message_queue.put.assert_any_call(
+            Message("d2p/some_key/file_list", "[]")
+        )
         os.rmdir(self.file_directory)
 
     def test_connect_publish_file_list(self):
         """Test connecting passes and publishes file list."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         self.wolk_device.file_management.get_file_list = MagicMock(
             return_value=[]
         )
@@ -341,7 +347,7 @@ class TestWolkConnect(unittest.TestCase):
             return_value="1.0"
         )
 
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         self.wolk_device.with_firmware_update(self.firmware_handler)
         self.wolk_device.file_management = None
         self.wolk_device.connectivity_service.publish = MagicMock(
@@ -367,7 +373,7 @@ class TestWolkConnect(unittest.TestCase):
             return_value="1.0"
         )
 
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         self.wolk_device.with_firmware_update(self.firmware_handler)
         self.wolk_device.file_management = None
         self.wolk_device.connectivity_service.publish = MagicMock(
@@ -565,7 +571,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_invalid_file_upload_init(self):
         """Test on file management message - invalid file upload initiate."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_upload_initiate = (
@@ -580,7 +586,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_upload_init(self):
         """Test on file management message file upload initiate."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_upload_initiate = (
@@ -597,7 +603,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_binary_response(self):
         """Test on file management message file binary response."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_binary_response = (
@@ -616,7 +622,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_upload_abort(self):
         """Test on file management message file upload abort."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_upload_abort = MagicMock(
@@ -628,7 +634,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_url_abort(self):
         """Test on file management message file URL abort."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_url_abort = MagicMock(
@@ -640,7 +646,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_invalid_file_url_init(self):
         """Test on file management message - invalid file URL initiate."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_url_initiate = MagicMock(
@@ -655,7 +661,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_url_init(self):
         """Test on file management message file URL initiate."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_url_initiate = MagicMock(
@@ -672,31 +678,28 @@ class TestWolkConnect(unittest.TestCase):
             "URL"
         )
 
-    def test_on_file_management_message_file_list_request_fail_to_publish(
-        self,
-    ):
-        """Test on file list request fails to publish and puts in queue."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+    def test_on_file_management_message_file_file_list_(self):
+        """Test on file management message file URL initiate."""
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
-        self.wolk_device.message_deserializer.is_file_list_request = MagicMock(
+        self.wolk_device.message_deserializer.is_file_url_initiate = MagicMock(
             return_value=True
         )
-        self.wolk_device.file_management.get_file_list = MagicMock(
-            return_value=[]
+        self.wolk_device.message_deserializer.parse_file_url = MagicMock(
+            return_value="URL"
         )
-        self.wolk_device.connectivity_service.publish = MagicMock(
-            return_value=False
+        self.wolk_device.file_management.handle_file_url_download_initiation = (
+            MagicMock()
         )
-        self.wolk_device.message_queue.put = MagicMock()
-
         self.wolk_device._on_file_management_message(self.message)
-
-        self.wolk_device.message_queue.put.assert_called_once()
+        self.wolk_device.file_management.handle_file_url_download_initiation.assert_called_once_with(
+            "URL"
+        )
 
     def test_on_file_management_message_file_list_request_publishes(self):
         """Test on file list request fails to publish and puts in queue."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_list_request = MagicMock(
@@ -716,7 +719,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_delete_invalid_name(self):
         """Test receiving invalid file delete command."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_delete_command = (
@@ -733,7 +736,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_delete_fail_to_publish(self):
         """Test receiving file delete command and fail to publish file list."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_delete_command = (
@@ -746,8 +749,8 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.file_management.get_file_list = MagicMock(
             return_value=[]
         )
-        self.wolk_device.message_factory.make_from_file_list_update = (
-            MagicMock(return_value=True)
+        self.wolk_device.message_factory.make_from_file_list = MagicMock(
+            return_value=True
         )
         self.wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
@@ -760,7 +763,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_delete_publishes(self):
         """Test receiving file delete command and send file list."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_delete_command = (
@@ -773,8 +776,8 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.file_management.get_file_list = MagicMock(
             return_value=[]
         )
-        self.wolk_device.message_factory.make_from_file_list_update = (
-            MagicMock(return_value=True)
+        self.wolk_device.message_factory.make_from_file_list = MagicMock(
+            return_value=True
         )
         self.wolk_device.connectivity_service.publish = MagicMock(
             return_value=True
@@ -787,7 +790,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_purge_fail_to_publish(self):
         """Test receiving file purge command and fail to publish file list."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_purge_command = (
@@ -797,8 +800,8 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.file_management.get_file_list = MagicMock(
             return_value=[]
         )
-        self.wolk_device.message_factory.make_from_file_list_update = (
-            MagicMock(return_value=True)
+        self.wolk_device.message_factory.make_from_file_list = MagicMock(
+            return_value=True
         )
         self.wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
@@ -811,7 +814,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_management_message_file_purge_publishes(self):
         """Test receiving file purge command and send file list."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_deserializer.is_file_purge_command = (
@@ -821,8 +824,8 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.file_management.get_file_list = MagicMock(
             return_value=[]
         )
-        self.wolk_device.message_factory.make_from_file_list_update = (
-            MagicMock(return_value=True)
+        self.wolk_device.message_factory.make_from_file_list = MagicMock(
+            return_value=True
         )
         self.wolk_device.connectivity_service.publish = MagicMock(
             return_value=True
@@ -833,23 +836,9 @@ class TestWolkConnect(unittest.TestCase):
 
         self.wolk_device.message_queue.put.assert_not_called()
 
-    def test_on_file_management_message_file_list_confirm(self):
-        """Test receiving file list confirm message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
-        os.rmdir(self.file_directory)
-
-        self.wolk_device.message_deserializer.is_file_list_confirm = MagicMock(
-            return_value=True
-        )
-        self.wolk_device.file_management.handle_file_list_confirm = MagicMock()
-
-        self.wolk_device._on_file_management_message(self.message)
-
-        self.wolk_device.file_management.handle_file_list_confirm.assert_called_once()
-
     def test_on_file_management_message_unkown(self):
         """Test receiving unknown file management message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.logger.warning = MagicMock()
@@ -890,7 +879,7 @@ class TestWolkConnect(unittest.TestCase):
         self,
     ):
         """Test install command non-present file and fail to publish status."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -918,7 +907,7 @@ class TestWolkConnect(unittest.TestCase):
         self,
     ):
         """Test install command non-present file and publishes status."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -946,7 +935,7 @@ class TestWolkConnect(unittest.TestCase):
         self,
     ):
         """Test install command present file calls handle install."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -973,7 +962,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_message_firmware_abort(self):
         """Test abort command calls handle abort."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -989,7 +978,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_message_firmware_version_request_pulishes(self):
         """Test receiving version request and publishes response."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1013,7 +1002,7 @@ class TestWolkConnect(unittest.TestCase):
     def test_on_firmware_message_unknown(self):
         """Test receiving unknown firmware message."""
         self.wolk_device.logger.setLevel(logging.WARNING)
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1027,7 +1016,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_package_request_fails_to_publish(self):
         """Test making package request and failing to send it."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.wolk_device.message_factory.make_from_package_request = MagicMock(
             return_value=True
@@ -1043,7 +1032,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_package_request_publishes(self):
         """Test making package request and publishing it."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.wolk_device.message_factory.make_from_package_request = MagicMock(
             return_value=True
@@ -1059,7 +1048,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_update_status_not_connected(self):
         """Test on firmware update status call when not connected."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1080,7 +1069,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_update_status_fail_to_publish(self):
         """Test on firmware update status and fail to publish."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1104,7 +1093,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_update_status_publishes(self):
         """Test on firmware update status and publishes the message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1128,7 +1117,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_update_status_completed_not_connected(self):
         """Test on firmware status completed and not connected."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1152,7 +1141,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_update_status_completed_fail_to_publish(self):
         """Test on firmware status completed and fail to publish."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1179,7 +1168,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_firmware_update_status_completed_publishes(self):
         """Test on firmware status completed and publishes message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
         self.firmware_handler.get_current_version = MagicMock(
             return_value="1.0"
@@ -1205,7 +1194,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_upload_status_fail_to_publish(self):
         """Test on file upload status and fail to publish message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_management_status = (
@@ -1223,7 +1212,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_upload_status_publishes(self):
         """Test on file upload status and publishes message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_management_status = (
@@ -1241,7 +1230,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_upload_status_file_ready_fail_to_publish(self):
         """Test on file upload status and fail to publish message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_management_status = (
@@ -1250,10 +1239,12 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.connectivity_service.publish = MagicMock(
             return_value=False
         )
-        self.wolk_device.message_factory.make_from_file_list_update = (
-            MagicMock(return_value=True)
+        self.wolk_device.message_factory.make_from_file_list = MagicMock(
+            return_value=True
         )
-        self.wolk_device.file_management.get_file_list = MagicMock()
+        self.wolk_device.file_management.get_file_list = MagicMock(
+            return_value=[]
+        )
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
         self.wolk_device.message_queue.put = MagicMock()
 
@@ -1263,7 +1254,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_upload_status_file_ready_published(self):
         """Test on file upload status and publishes message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_management_status = (
@@ -1272,10 +1263,12 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.connectivity_service.publish = MagicMock(
             return_value=True
         )
-        self.wolk_device.message_factory.make_from_file_list_update = (
-            MagicMock(return_value=True)
+        self.wolk_device.message_factory.make_from_file_list = MagicMock(
+            return_value=True
         )
-        self.wolk_device.file_management.get_file_list = MagicMock()
+        self.wolk_device.file_management.get_file_list = MagicMock(
+            return_value=[]
+        )
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
         self.wolk_device.message_queue.put = MagicMock()
 
@@ -1285,7 +1278,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_url_status_fail_to_publish(self):
         """Test on file URL status and fail to publish update."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_url_status = MagicMock(
@@ -1303,7 +1296,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_url_status_publishes(self):
         """Test on file URL status and publishes update."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_url_status = MagicMock(
@@ -1321,7 +1314,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_url_status_with_file_name_fail_to_publish(self):
         """Test on URL upload status and fail to publish message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_management_status = (
@@ -1333,7 +1326,9 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.message_factory.make_from_file_url_status = MagicMock(
             return_value=True
         )
-        self.wolk_device.file_management.get_file_list = MagicMock()
+        self.wolk_device.file_management.get_file_list = MagicMock(
+            return_value=[]
+        )
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
         self.wolk_device.message_queue.put = MagicMock()
 
@@ -1345,7 +1340,7 @@ class TestWolkConnect(unittest.TestCase):
 
     def test_on_file_url_status_with_file_name_publishes(self):
         """Test on URL upload status and publishes message."""
-        self.wolk_device.with_file_management(256, 1024, self.file_directory)
+        self.wolk_device.with_file_management(self.file_directory, 1024)
         os.rmdir(self.file_directory)
 
         self.wolk_device.message_factory.make_from_file_management_status = (
@@ -1357,7 +1352,9 @@ class TestWolkConnect(unittest.TestCase):
         self.wolk_device.message_factory.make_from_file_url_status = MagicMock(
             return_value=True
         )
-        self.wolk_device.file_management.get_file_list = MagicMock()
+        self.wolk_device.file_management.get_file_list = MagicMock(
+            return_value=[]
+        )
         status = FileManagementStatus(FileManagementStatusType.FILE_READY)
         self.wolk_device.message_queue.put = MagicMock()
 

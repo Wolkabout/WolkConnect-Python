@@ -18,7 +18,7 @@ from enum import Enum
 class FileManagementErrorType(Enum):
     """Enumeration of available file management errors."""
 
-    UNKNOWN_ERROR = "UNKNOWN_ERROR"
+    UNKNOWN = "UNKNOWN"
     TRANSFER_PROTOCOL_DISABLED = "TRANSFER_PROTOCOL_DISABLED"
     UNSUPPORTED_FILE_SIZE = "UNSUPPORTED_FILE_SIZE"
     MALFORMED_URL = "MALFORMED_URL"

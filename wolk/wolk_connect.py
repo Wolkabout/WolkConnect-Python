@@ -116,6 +116,7 @@ class WolkConnect:
         self.message_deserializer: MessageDeserializer = WAPMDeserializer(
             self.device
         )
+        self.parameters: Dict[str, Union[int, bool, float, str]] = {}
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
@@ -123,7 +124,7 @@ class WolkConnect:
             self.connectivity_service: ConnectivityService = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                qos=1,
+                qos=2,
                 host=host,
                 port=int(port),
                 ca_cert=ca_cert,
@@ -132,7 +133,7 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                qos=1,
+                qos=2,
                 host=host,
                 port=int(port),
             )
@@ -140,7 +141,7 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                qos=1,
+                qos=2,
                 ca_cert=wolk_ca_cert,
             )
 
@@ -152,27 +153,23 @@ class WolkConnect:
 
     def with_file_management(  # type: ignore
         self,
-        preferred_package_size: int,
-        max_file_size: int,
         file_directory: str,
+        preferred_package_size: int = 0,
         url_downloader: Optional[Callable[[str, str], bool]] = None,
     ):
         """
         Enable file management on the device.
 
-        :param preferred_package_size: Size of file package chunk in bytes
-        :type preferred_package_size: int
-        :param max_file_size: Maximum supported file size in bytes
-        :type max_file_size: int
         :param file_directory: Directory where files are stored
         :type file_directory: str
+        :param preferred_package_size: Size in kilobytes, 0 means no limit
+        :type preferred_package_size: int
         :param url_downloader: Function for downloading file from URL
         :type url_downloader: Optional[Callable[[str, str], bool]]
         """
         self.logger.debug(
-            f"Preferred package size: {preferred_package_size}, "
-            f"maximum file size: {max_file_size}, "
-            f"file directory: '{file_directory}'"
+            f"File directory: '{file_directory}',"
+            f"preferred package size: {preferred_package_size}, "
         )
 
         self.file_management = OSFileManagement(
@@ -181,9 +178,8 @@ class WolkConnect:
             self._on_file_url_status,
         )
         self.file_management.configure(
-            preferred_package_size,
-            max_file_size,
             file_directory,
+            preferred_package_size,
         )
 
         if url_downloader is not None:
@@ -238,12 +234,6 @@ class WolkConnect:
         self.firmware_update = OSFirmwareUpdate(
             firmware_handler, self._on_firmware_update_status
         )
-
-        message = self.message_factory.make_from_firmware_version_update(
-            self.firmware_update.get_current_version()
-        )
-        self.message_queue.put(message)
-        self.firmware_update.report_result()
 
         return self
 
@@ -333,23 +323,42 @@ class WolkConnect:
             return
 
         if self.connectivity_service.is_connected():
+            parameters: dict = {}
+            parameters["FILE_TRANSFER_PLATFORM_ENABLED"] = False
+            parameters["FIRMWARE_UPDATE_ENABLED"] = False
+            parameters["FILE_TRANSFER_URL_ENABLED"] = False
             if self.file_management:
+                parameters["FILE_TRANSFER_PLATFORM_ENABLED"] = True
+                parameters[
+                    "FILE_TRANSFER_URL_ENABLED"
+                ] = self.file_management.supports_url_download()
+                parameters[
+                    "MAXIMUM_MESSAGE_SIZE"
+                ] = self.file_management.get_preffered_package_size()
+
                 file_list = self.file_management.get_file_list()
-                message = self.message_factory.make_from_file_list_update(
-                    file_list
-                )
+                message = self.message_factory.make_from_file_list(file_list)
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
             if self.firmware_update:
-                message = (
-                    self.message_factory.make_from_firmware_version_update(
-                        self.firmware_update.get_current_version()
-                    )
-                )
-                if not self.connectivity_service.publish(message):
-                    self.message_queue.put(message)
+                parameters["FIRMWARE_UPDATE_ENABLED"] = True
+                current_version = self.firmware_update.get_current_version()
+                parameters["FIRMWARE_VERSION"] = current_version
+                # TODO: "FIRMWARE_UPDATE_CHECK_TIME"
+                # TODO: "FIRMWARE_UPDATE_REPOSITORY"
 
                 self.firmware_update.report_result()
+
+            self.logger.debug(f"Updating device parameters with: {parameters}")
+            self.parameters.update(parameters)
+            self.logger.info(
+                f"Publishing device parameters: {self.parameters}"
+            )
+            message = self.message_factory.make_from_parameters(
+                self.parameters
+            )
+            if not self.connectivity_service.publish(message):
+                self.message_queue.put(message)
 
             if self.device.data_delivery == DataDelivery.PULL:
                 self.pull_parameters()
@@ -605,7 +614,8 @@ class WolkConnect:
             # NOTE: "FIRMWARE_UPDATE_CHECK_TIME"
             # NOTE: Other optional parameters?
             parameters = self.message_deserializer.parse_parameters(message)
-            self.logger.warning(f"TODO: handle parameters: {parameters}")
+            self.logger.warning(f"TODO: parameters update: {parameters}")
+            self.parameters.update(parameters)
             return
 
         if self.message_deserializer.is_feed_values(message):
@@ -697,25 +707,21 @@ class WolkConnect:
                 )
             return
 
-        if self.message_deserializer.is_file_list_request(message):
+        if self.message_deserializer.is_file_list(message):
             file_list = self.file_management.get_file_list()
-            message = self.message_factory.make_from_file_list_request(
-                file_list
-            )
+            message = self.message_factory.make_from_file_list(file_list)
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
             return
 
         if self.message_deserializer.is_file_delete_command(message):
-            file_name = self.message_deserializer.parse_file_delete_command(
+            file_names = self.message_deserializer.parse_file_delete_command(
                 message
             )
-            if file_name != "":  # ignore invalid messages
-                self.file_management.handle_file_delete(file_name)
+            if file_names:  # ignore invalid messages
+                self.file_management.handle_file_delete(file_names)
                 file_list = self.file_management.get_file_list()
-                message = self.message_factory.make_from_file_list_update(
-                    file_list
-                )
+                message = self.message_factory.make_from_file_list(file_list)
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
             return
@@ -723,15 +729,9 @@ class WolkConnect:
         if self.message_deserializer.is_file_purge_command(message):
             self.file_management.handle_file_purge()
             file_list = self.file_management.get_file_list()
-            message = self.message_factory.make_from_file_list_update(
-                file_list
-            )
+            message = self.message_factory.make_from_file_list(file_list)
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
-            return
-
-        if self.message_deserializer.is_file_list_confirm(message):
-            self.file_management.handle_file_list_confirm()
             return
 
         self.logger.warning(f"Received unknown message: {message}")
@@ -743,7 +743,7 @@ class WolkConnect:
             )
             firmware_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.UNKNOWN_ERROR,
+                FirmwareUpdateErrorType.UNKNOWN,
             )
             message = self.message_factory.make_from_firmware_update_status(
                 firmware_status
@@ -810,19 +810,19 @@ class WolkConnect:
                 self.message_queue.put(message)
         else:
             self.message_queue.put(message)
+
         if (
             status.status == FirmwareUpdateStatusType.SUCCESS
             and self.firmware_update
         ):
             version = self.firmware_update.get_current_version()
-            message = self.message_factory.make_from_firmware_version_update(
-                version
-            )
+            self.parameters.update({"FIRMWARE_VERSION": version})
             if self.connectivity_service.is_connected():
+                message = self.message_factory.make_from_parameters(
+                    self.parameters
+                )
                 if not self.connectivity_service.publish(message):
                     self.message_queue.put(message)
-            else:
-                self.message_queue.put(message)
 
     def _on_file_upload_status(
         self, file_name: str, status: FileManagementStatus
@@ -845,9 +845,7 @@ class WolkConnect:
             and self.file_management
         ):
             file_list = self.file_management.get_file_list()
-            message = self.message_factory.make_from_file_list_update(
-                file_list
-            )
+            message = self.message_factory.make_from_file_list(file_list)
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)
 
@@ -876,8 +874,6 @@ class WolkConnect:
 
         if file_name and self.file_management:
             file_list = self.file_management.get_file_list()
-            message = self.message_factory.make_from_file_list_update(
-                file_list
-            )
+            message = self.message_factory.make_from_file_list(file_list)
             if not self.connectivity_service.publish(message):
                 self.message_queue.put(message)

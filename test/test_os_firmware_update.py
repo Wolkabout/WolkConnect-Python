@@ -106,7 +106,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
         file_handle = open("last_firmware_version.txt", "w")
         expected_status = FirmwareUpdateStatus(
             FirmwareUpdateStatusType.ERROR,
-            FirmwareUpdateErrorType.UNKNOWN_ERROR,
+            FirmwareUpdateErrorType.UNKNOWN,
         )
 
         firmware_update.handle_install("some_file")
@@ -184,7 +184,7 @@ class TestOSFirmwareUpdate(unittest.TestCase):
 
         firmware_update.handle_abort()
 
-        firmware_update.install_timer.cancel.assert_called_once()
+        self.assertIsNone(firmware_update.install_timer)
 
     def test_handle_abort_when_not_idle(self):
         """Test receiving the abort command when module not idle."""

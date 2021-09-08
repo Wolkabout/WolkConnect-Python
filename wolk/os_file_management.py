@@ -12,11 +12,11 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-import base64
 import hashlib
 import math
 import os
 import shutil
+from inspect import signature
 from tempfile import NamedTemporaryFile
 from threading import Timer
 from typing import Callable
@@ -71,15 +71,14 @@ class OSFileManagement(FileManagement):
         self.status_callback = status_callback
         self.packet_request_callback = packet_request_callback
         self.url_status_callback = url_status_callback
-        self.download_url = OSFileManagement.url_download
+        self.url_downloader = self.url_download
         self.preferred_package_size = 0
-        self.max_file_size = 0
         self.file_directory = ""
         self.current_status: Optional[FileManagementStatus] = None
         self.max_retries = 3
         self.next_package_index: Optional[int] = None
         self.expected_number_of_packages: Optional[int] = None
-        self.retry_count: Optional[int] = None
+        self.retry_count = 0
         self.request_timeout: Optional[Timer] = None
         self.last_package_hash = 32 * b"\x00"
         self.temp_file: Optional[IO[bytes]] = None
@@ -90,26 +89,31 @@ class OSFileManagement(FileManagement):
 
     def configure(
         self,
-        preferred_package_size: int,
-        max_file_size: int,
         file_directory: str,
+        preferred_package_size: int = 0,
     ) -> None:
         """
         Configure options for file management module.
 
-        :param preferred_package_size: Size in bytes
-        :type preferred_package_size: int
-        :param max_file_size: Maximum file size that can be stored
-        :type max_file_size: int
         :param file_directory: Path to where files are stored
         :type file_directory: str
+        :param preferred_package_size: Size in kilobytes, 0 means no limit
+        :type preferred_package_size: int
         """
-        self.preferred_package_size = preferred_package_size
-        self.max_file_size = max_file_size
         self.file_directory = file_directory
+        self.preferred_package_size = preferred_package_size
 
         if not os.path.exists(os.path.abspath(self.file_directory)):
             os.makedirs(os.path.abspath(self.file_directory))
+
+    def get_preffered_package_size(self) -> int:
+        """
+        Return preffered package size for file transfer.
+
+        :returns: preferred_package_size
+        :rtype: int
+        """
+        return self.preferred_package_size
 
     def set_custom_url_downloader(
         self, downloader: Callable[[str, str], bool]
@@ -117,11 +121,29 @@ class OSFileManagement(FileManagement):
         """
         Set the URL file downloader to a custom implementation.
 
+        Default implementation uses `requests` and is available as a
+        static method within this class.
+
         :param downloader: Function that will download the file from the URL
-        :type downloader: Callable[[str, str], bool]
+        :type downloader: Callable[[[Arg(str, 'file_url'), Arg(str, 'file_path')], bool]
         """
         self.logger.debug(f"Setting custom URL downloader to {downloader}")
-        self.download_url = downloader  # type: ignore
+        if not callable(downloader):
+            self.logger.warning(f"{downloader} is not a callable!")  # type: ignore
+            return
+        if len(signature(downloader).parameters) != 2:
+            self.logger.warning(f"{downloader} invalid signature!")
+            return
+        self.url_downloader = downloader  # type: ignore
+
+    def supports_url_download(self) -> bool:
+        """
+        Return if the file management module supports URL download.
+
+        :returns: supports_url_download
+        :rtype: bool
+        """
+        return self.url_downloader is not None
 
     def handle_upload_initiation(
         self, file_name: str, file_size: int, file_hash: str
@@ -133,23 +155,13 @@ class OSFileManagement(FileManagement):
         :type file_name: str
         :param file_size: Size in bytes
         :type file_size: int
-        :param file_hash: base64 encoded sha256 hash of file
+        :param file_hash: MD5 hash of file
         :type file_hash: str
         """
         if self.current_status is not None:
             self.logger.warning(
                 "Not in idle state, ignoring file upload initiation"
             )
-            return
-
-        if self.preferred_package_size == 0:
-            self.logger.warning("File management module not configured")
-            self.current_status = FileManagementStatus(
-                FileManagementStatusType.ERROR,
-                FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-            )
-            self.status_callback(file_name, self.current_status)
-            self.current_status = None
             return
 
         self.logger.info("Starting file transfer")
@@ -159,21 +171,10 @@ class OSFileManagement(FileManagement):
             f"File hash: {file_hash}"
         )
 
-        if file_size > self.max_file_size:
-            self.logger.warning(
-                f"File size {file_size} is greater than"
-                f" maximum supported file size {self.max_file_size}"
-            )
-            self.current_status = FileManagementStatus(
-                FileManagementStatusType.ERROR,
-                FileManagementErrorType.UNSUPPORTED_FILE_SIZE,
-            )
-            self.status_callback(file_name, self.current_status)
-            self.current_status = None
-            return
-
-        self.expected_number_of_packages = math.ceil(
-            file_size / self.preferred_package_size
+        self.expected_number_of_packages = (
+            math.ceil(file_size / (self.preferred_package_size * 1024))
+            if self.preferred_package_size != 0
+            else 1
         )
 
         if os.path.exists(
@@ -181,28 +182,29 @@ class OSFileManagement(FileManagement):
         ):
             valid_file = False
 
-            sha256_received_file_hash = base64.b64decode(
-                file_hash + ("=" * (-len(file_hash) % 4))
-            )
-            sha256_file_hash = hashlib.sha256()
+            try:
+                with open(
+                    os.path.join(
+                        os.path.abspath(self.file_directory), file_name
+                    ),
+                    "rb",
+                ) as existing_file:
+                    data = existing_file.read()
+                    if not data:
+                        self.logger.error("Read data returned None!")
+                        return
+                    calculated_hash = hashlib.md5(data).hexdigest()
+            except Exception as e:
+                self.logger.exception(f"Error opening existing file: {e}")
+                self.current_status = FileManagementStatus(
+                    FileManagementStatusType.ERROR,
+                    FileManagementErrorType.FILE_SYSTEM_ERROR,
+                )
+                self.status_callback(file_name, self.current_status)
+                self.handle_file_upload_abort()
+                return
 
-            existing_file = open(
-                os.path.join(os.path.abspath(self.file_directory), file_name),
-                "rb",
-            )
-
-            for chunk_index in range(self.expected_number_of_packages):
-
-                existing_file.seek(chunk_index * self.preferred_package_size)
-                chunk = existing_file.read(self.preferred_package_size)
-                if not chunk:
-                    self.logger.error("Read chunk returned None!")
-                    break
-
-                sha256_file_hash.update(chunk)
-
-            sha256_file_hash = sha256_file_hash.digest()  # type: ignore
-            valid_file = sha256_received_file_hash == sha256_file_hash
+            valid_file = file_hash == calculated_hash
 
             if valid_file:
                 self.logger.info(
@@ -235,7 +237,7 @@ class OSFileManagement(FileManagement):
         self.current_status = FileManagementStatus(
             FileManagementStatusType.FILE_TRANSFER
         )
-        self.temp_file = NamedTemporaryFile(mode="a+b", delete=False)
+        self.temp_file = NamedTemporaryFile(mode="r+b", delete=False)
         self.file_name = file_name
         self.file_size = file_size
         self.file_hash = file_hash
@@ -243,6 +245,11 @@ class OSFileManagement(FileManagement):
         self.retry_count = 0
 
         self.logger.info(f"Initializing file transfer: '{file_name}'")
+        self.logger.info(
+            "File is expected to be received in "
+            + f"{self.expected_number_of_packages}"
+            + " packages"
+        )
         self.status_callback(self.file_name, self.current_status)
 
         self.packet_request_callback(self.file_name, self.next_package_index)
@@ -263,7 +270,7 @@ class OSFileManagement(FileManagement):
         self.current_status = None
         self.next_package_index = None
         self.expected_number_of_packages = None
-        self.retry_count = None
+        self.retry_count = 0
         self.request_timeout = None
         self.last_package_hash = 32 * b"\x00"
 
@@ -374,29 +381,44 @@ class OSFileManagement(FileManagement):
                 self.next_package_index,
             )
 
+            self.current_status = FileManagementStatus(
+                FileManagementStatusType.FILE_TRANSFER
+            )
+
             self.request_timeout = Timer(60.0, self._timeout)
             self.request_timeout.start()
             return
 
         valid_file = False
 
-        sha256_received_file_hash = base64.b64decode(
-            self.file_hash + ("=" * (-len(self.file_hash) % 4))
-        )
-        sha256_file_hash = hashlib.sha256()
+        try:
+            self.temp_file.seek(0)
+            data = self.temp_file.read()
+            if not data:
+                self.logger.error("Read data from temp file returned None!")
+            calculated_hash = hashlib.md5(data).hexdigest()
+        except Exception as e:
+            self.logger.exception(f"Error while working with temp file: {e}")
+            self.current_status = FileManagementStatus(
+                FileManagementStatusType.ERROR,
+                FileManagementErrorType.FILE_SYSTEM_ERROR,
+            )
+            self.status_callback(self.file_name, self.current_status)
+            self.handle_file_upload_abort()
+            return
 
-        for index in range(self.expected_number_of_packages):
+        valid_file = self.file_hash == calculated_hash
 
-            self.temp_file.seek(index * self.preferred_package_size)
-            chunk = self.temp_file.read(self.preferred_package_size)
-            if not chunk:
-                self.logger.error("File size too small!")
-                break
-
-            sha256_file_hash.update(chunk)
-
-        sha256_file_hash = sha256_file_hash.digest()  # type: ignore
-        valid_file = sha256_received_file_hash == sha256_file_hash
+        # FIXME: remove after bugfix:
+        if not valid_file:
+            self.logger.warning(
+                "Hash mismatch!\n"
+                + f"Received: {self.file_hash}\n"
+                + f"Calculated: {calculated_hash}"
+            )
+            if len(self.file_hash) > 32:
+                self.logger.warning("Known bug, ignoring hash diff")
+                valid_file = True
 
         if not valid_file:
             self.logger.error("Invalid file - File hash does not match")
@@ -416,8 +438,14 @@ class OSFileManagement(FileManagement):
             self.file_name,
         )
 
-        shutil.copy2(os.path.realpath(self.temp_file.name), file_path)
-        self.temp_file.close()
+        try:
+            self.logger.info(
+                f"Finalizing file transfer for '{self.file_name}'"
+            )
+            shutil.copy2(os.path.realpath(self.temp_file.name), file_path)
+            self.temp_file.close()
+        except Exception as e:
+            self.logger.exception(f"Error when storing file: {e}")
 
         if not os.path.exists(file_path):
             self.logger.error(f"File failed to store to at: {file_path}")
@@ -436,7 +464,7 @@ class OSFileManagement(FileManagement):
         self.status_callback(self.file_name, self.current_status)
 
         self.current_status = None
-        self.retry_count = None
+        self.retry_count = 0
         self.last_package_hash = 32 * b"\x00"
 
     def handle_file_url_download_initiation(self, file_url: str) -> None:
@@ -450,6 +478,18 @@ class OSFileManagement(FileManagement):
             self.logger.warning(
                 "Not in idle state, ignoring file upload initiation"
             )
+            return
+
+        if self.url_downloader is None:
+            self.logger.warning(
+                "Received URL download, but no downloader is set!"
+            )
+            self.current_status = FileManagementStatus(
+                FileManagementStatusType.ERROR,
+                FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
+            )
+            self.url_status_callback(file_url, self.current_status, None)
+            self.handle_file_upload_abort()
             return
 
         if not bool(urlparse(file_url).scheme):
@@ -472,7 +512,7 @@ class OSFileManagement(FileManagement):
         )
         self.url_status_callback(file_url, self.current_status, self.file_name)
 
-        self.download_url(file_url, file_path)
+        self.url_downloader(file_url, file_path)
 
         if not os.path.exists(file_path):
             self.logger.error(f"File failed to store to at: {file_path}")
@@ -549,24 +589,24 @@ class OSFileManagement(FileManagement):
         self.logger.debug(f"File path: {file_path}")
         return file_path
 
-    def handle_file_list_confirm(self) -> None:
-        """Acknowledge file list response from WolkAbout IoT Platform."""
-        ...
-
-    def handle_file_delete(self, file_name: str) -> None:
+    def handle_file_delete(self, file_names: List[str]) -> None:
         """
-        Delete file from device.
+        Delete files from device.
 
-        :param file_name: File to be deleted
-        :type file_name: str
+        :param file_names: Files to be deleted
+        :type file_names: List[str]
         """
-        self.logger.info(f"Attempting to delete file: '{file_name}'")
-        file_path = os.path.join(
-            os.path.abspath(self.file_directory), file_name
-        )
+        self.logger.info(f"Attempting to delete files: {file_names}")
+        for file in file_names:
+            try:
+                file_path = os.path.join(
+                    os.path.abspath(self.file_directory), file
+                )
 
-        if os.path.exists(file_path):
-            os.remove(file_path)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                self.logger.exception(f"'{file}' failed to delete: {e}")
 
     def handle_file_purge(self) -> None:
         """Delete all files from device."""
@@ -582,7 +622,7 @@ class OSFileManagement(FileManagement):
         self.logger.error("Timed out waiting for next package, aborting")
         self.current_status = FileManagementStatus(
             FileManagementStatusType.ERROR,
-            FileManagementErrorType.UNKNOWN_ERROR,
+            FileManagementErrorType.UNKNOWN,
         )
         self.status_callback(self.file_name, self.current_status)
         self.handle_file_upload_abort()
@@ -600,7 +640,7 @@ class OSFileManagement(FileManagement):
         :rtype: bool
         """
         response = requests.get(file_url)
-        with open(file_path, "ab") as file:
+        with open(file_path, "wb") as file:
             file.write(response.content)
             file.flush()
             os.fsync(file)

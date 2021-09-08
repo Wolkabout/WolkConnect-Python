@@ -157,25 +157,13 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def is_file_list_confirm(self, message: Message) -> bool:
+    def is_file_list(self, message: Message) -> bool:
         """
-        Check if message is file list confirm.
+        Check if message is file list request message.
 
         :param message: The message received
         :type message: Message
-        :returns: file_list_confirm
-        :rtype: bool
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def is_file_list_request(self, message: Message) -> bool:
-        """
-        Check if message is file list request.
-
-        :param message: The message received
-        :type message: Message
-        :returns: file_list_request
+        :returns: file_list
         :rtype: bool
         """
         raise NotImplementedError()
@@ -289,14 +277,14 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def parse_file_delete_command(self, message: Message) -> str:
+    def parse_file_delete_command(self, message: Message) -> List[str]:
         """
-        Parse the message into a file name to delete.
+        Parse the message into a list of file names.
 
         :param message: The message received
         :type message: Message
         :returns: file_name
-        :rtype: str
+        :rtype: List[str]
         """
         raise NotImplementedError()
 

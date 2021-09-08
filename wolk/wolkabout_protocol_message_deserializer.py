@@ -43,8 +43,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     FILE_BINARY = "file_binary_response"
     FILE_DELETE = "file_delete"
     FILE_PURGE = "file_purge"
-    FILE_LIST_CONFIRM = "file_list_confirm"
-    FILE_LIST_REQUEST = "file_list_request"
+    FILE_LIST = "file_list"
     FILE_UPLOAD_ABORT = "file_upload_abort"
     FILE_UPLOAD_INITIATE = "file_upload_initiate"
     FILE_URL_ABORT = "file_url_download_abort"
@@ -73,8 +72,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.file_binary_topic = self._form_topic(self.FILE_BINARY)
         self.file_delete_topic = self._form_topic(self.FILE_DELETE)
         self.file_purge_topic = self._form_topic(self.FILE_PURGE)
-        self.file_list_confirm_topic = self._form_topic(self.FILE_LIST_CONFIRM)
-        self.file_list_request_topic = self._form_topic(self.FILE_LIST_REQUEST)
+        self.file_list = self._form_topic(self.FILE_LIST)
         self.file_upload_abort_topic = self._form_topic(self.FILE_UPLOAD_ABORT)
         self.file_upload_initiate_topic = self._form_topic(
             self.FILE_UPLOAD_INITIATE
@@ -92,8 +90,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             self.file_binary_topic,
             self.file_delete_topic,
             self.file_purge_topic,
-            self.file_list_confirm_topic,
-            self.file_list_request_topic,
+            self.file_list,
             self.file_upload_abort_topic,
             self.file_upload_initiate_topic,
             self.file_url_abort_topic,
@@ -109,8 +106,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             self.is_file_binary_response,
             self.is_file_upload_initiate,
             self.is_file_upload_abort,
-            self.is_file_list_request,
-            self.is_file_list_confirm,
+            self.is_file_list,
             self.is_file_url_initiate,
             self.is_file_url_abort,
         ]
@@ -281,35 +277,18 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         )
         return file_purge_command
 
-    def is_file_list_confirm(self, message: Message) -> bool:
+    def is_file_list(self, message: Message) -> bool:
         """
-        Check if message is file list confirm.
+        Check if message is file list request message.
 
         :param message: The message received
         :type message: Message
-        :returns: file_list_confirm
+        :returns: file_list
         :rtype: bool
         """
-        file_list_confirm = message.topic == self.file_list_confirm_topic
-        self.logger.debug(
-            f"{message.topic} is file list confirm: {file_list_confirm}"
-        )
-        return file_list_confirm
-
-    def is_file_list_request(self, message: Message) -> bool:
-        """
-        Check if message is file list request.
-
-        :param message: The message received
-        :type message: Message
-        :returns: file_list_request
-        :rtype: bool
-        """
-        file_list_request = message.topic == self.file_list_request_topic
-        self.logger.debug(
-            f"{message.topic} is file list request: {file_list_request}"
-        )
-        return file_list_request
+        file_list = message.topic == self.file_list
+        self.logger.debug(f"{message.topic} is file list request: {file_list}")
+        return file_list
 
     def is_file_upload_initiate(self, message: Message) -> bool:
         """
@@ -403,7 +382,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            file_name = payload["fileName"]
+            file_name = payload
         except Exception:
             self.logger.warning(
                 f"Received invalid firmware install message: {message}"
@@ -451,27 +430,27 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 file_transfer_package = FileTransferPackage(b"", b"", b"")
         return file_transfer_package
 
-    def parse_file_delete_command(self, message: Message) -> str:
+    def parse_file_delete_command(self, message: Message) -> List[str]:
         """
-        Parse the message into a file name to delete.
+        Parse the message into a list of file names.
 
         :param message: The message received
         :type message: Message
         :returns: file_name
-        :rtype: str
+        :rtype: List[str]
         """
         self.logger.debug(f"{message}")
         try:
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            self.logger.debug(f'file name: {payload["fileName"]}')
-            return payload["fileName"]
+            self.logger.debug(f"file names: {payload}")
+            return payload
         except Exception:
             self.logger.warning(
                 f"Failed to get file name from message {message}"
             )
-            return ""
+            return []
 
     def parse_file_url(self, message: Message) -> str:
         """
@@ -487,8 +466,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            self.logger.debug(f'file URL: {payload["fileUrl"]}')
-            return payload["fileUrl"]
+            return payload
         except Exception:
             self.logger.warning(
                 f"Failed to get file URL from message {message}"

@@ -108,7 +108,7 @@ class MQTTConnectivityService(ConnectivityService):
         self.logger.debug(f"Message listener set to: {listener}")
         self.inbound_message_listener = listener
 
-    def on_mqtt_message(
+    def _on_mqtt_message(
         self, _client: mqtt.Client, _userdata: Any, message: mqtt.MQTTMessage
     ) -> None:
         """
@@ -134,7 +134,7 @@ class MQTTConnectivityService(ConnectivityService):
             self.logger.debug(f"Received MQTT message: {received_message}")
         self.inbound_message_listener(received_message)
 
-    def on_mqtt_connect(
+    def _on_mqtt_connect(
         self,
         _client: mqtt.Client,
         _userdata: Any,
@@ -163,7 +163,7 @@ class MQTTConnectivityService(ConnectivityService):
             if self.topics:
                 for topic in self.topics:
                     self.client.subscribe(topic, 2)
-            self.logger.info(f"Connected : {self.connected}")
+            self.logger.debug(f"Connected : {self.connected}")
         elif (
             return_code == 1
         ):  # Connection refused - incorrect protocol version
@@ -179,7 +179,7 @@ class MQTTConnectivityService(ConnectivityService):
         elif return_code == 5:  # Connection refused - not authorised
             self.connected_rc = 5
 
-    def on_mqtt_disconnect(
+    def _on_mqtt_disconnect(
         self, _client: mqtt.Client, _userdata: Any, return_code: int
     ) -> None:
         """
@@ -194,12 +194,23 @@ class MQTTConnectivityService(ConnectivityService):
         """
         self.connected = False
         self.connected_rc = return_code
-        self.logger.info(f"Connected : {self.connected}")
-        self.logger.info(f"Return code : {return_code}")
+        self.logger.debug(
+            f"Connected : {self.connected} ;" + f" Return code : {return_code}"
+        )
         if return_code not in [0, 5]:
             self.logger.warning("Unexpected disconnect!")
-            self.logger.info("Attempting to reconnect..")
-            self.client.reconnect()
+            retries = 0
+            while retries < 3:
+                try:
+                    self.logger.info("Attempting to reconnect..")
+                    self.client.reconnect()
+                    return
+                except Exception as e:
+                    retries += 1
+                    self.logger.exception(f"Reconnect failed: {e}")
+                    self.logger.info("Retrying in 5 seconds..")
+                    sleep(5)
+            self.logger.warning("Failed to reconnect")
 
     def connect(self) -> bool:
         """
@@ -216,9 +227,9 @@ class MQTTConnectivityService(ConnectivityService):
 
         self.mutex.acquire()
 
-        self.client.on_connect = self.on_mqtt_connect
-        self.client.on_disconnect = self.on_mqtt_disconnect
-        self.client.on_message = self.on_mqtt_message
+        self.client.on_connect = self._on_mqtt_connect
+        self.client.on_disconnect = self._on_mqtt_disconnect
+        self.client.on_message = self._on_mqtt_message
         if self.ca_cert:
             try:
                 self.client.tls_set(self.ca_cert)
@@ -328,7 +339,7 @@ class MQTTConnectivityService(ConnectivityService):
 
     def disconnect(self) -> None:
         """Disconnects the device from the WolkAbout IoT Platform."""
-        self.logger.debug("Disconnecting")
+        self.logger.info("Disconnecting")
         self.client.loop_stop()
         self.client.disconnect()
 

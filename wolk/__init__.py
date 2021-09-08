@@ -28,7 +28,6 @@ from .model.firmware_update_error_type import FirmwareUpdateErrorType
 from .model.firmware_update_status import FirmwareUpdateStatus
 from .model.firmware_update_status_type import FirmwareUpdateStatusType
 from .model.message import Message
-from .repeating_timer import RepeatingTimer
 from .os_file_management import OSFileManagement
 from .os_firmware_update import OSFirmwareUpdate
 from .wolk_connect import WolkConnect
@@ -61,7 +60,6 @@ __all__ = [
     "OSFileManagement",
     "OSFirmwareUpdate",
     "logging_config",
-    "RepeatingTimer",
     "Unit",
     "WolkConnect",
     "WolkAboutProtocolMessageFactory",

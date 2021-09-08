@@ -180,33 +180,7 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_firmware_version_update(self, version: str) -> Message:
-        """
-        Report the device's current firmware version to WolkAbout IoT Platform.
-
-        :param version: Current device firmware version
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_file_list_update(
-        self, file_list: List[Dict[str, Union[str, int]]]
-    ) -> Message:
-        """
-        Serialize list of files present on device.
-
-        :param file_list: Files present on device
-        :type file_list: List[Dict[str, Union[str, int]]]
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_file_list_request(
+    def make_from_file_list(
         self, file_list: List[Dict[str, Union[str, int]]]
     ) -> Message:
         """

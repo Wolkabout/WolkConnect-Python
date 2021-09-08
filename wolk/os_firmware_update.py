@@ -85,7 +85,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if os.path.exists("last_firmware_version.txt"):
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.UNKNOWN_ERROR,
+                FirmwareUpdateErrorType.UNKNOWN,
             )
             self.logger.error("Previous firmware update did not complete!")
             self.status_callback(self.current_status)
@@ -123,11 +123,11 @@ class OSFirmwareUpdate(FirmwareUpdate):
     def handle_abort(self) -> None:
         """Handle the abort command received from the platform."""
         if self.install_timer:
-            self.logger.info("Stopping installation timer")
+            self.logger.info("Stopping firmware installation delay timer")
             self.install_timer.cancel()
+            self.install_timer = None
 
         if self.current_status is not None:
-
             self.logger.info("Aborting firmware installation")
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ABORTED

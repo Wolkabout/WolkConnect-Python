@@ -92,36 +92,6 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
             ValueError, self.factory.make_from_feed_value, "foo", 1
         )
 
-    def test_file_list_update(self):
-        """Test message for file list update."""
-        file_list = ["file1.txt", "file2.bin", "file3 with spaces.jpg"]
-
-        expected_topic = self.factory.common_topic + WAPMF.FILE_LIST_UPDATE
-        expected_payload = json.dumps(
-            [{"fileName": file} for file in file_list]
-        )
-        expected_message = Message(expected_topic, expected_payload)
-
-        serialized_message = self.factory.make_from_file_list_update(file_list)
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_file_list_request(self):
-        """Test message for file list request."""
-        file_list = ["file1.txt", "file2.bin", "file3 with spaces.jpg"]
-
-        expected_topic = self.factory.common_topic + WAPMF.FILE_LIST_RESPONSE
-        expected_payload = json.dumps(
-            [{"fileName": file} for file in file_list]
-        )
-        expected_message = Message(expected_topic, expected_payload)
-
-        serialized_message = self.factory.make_from_file_list_request(
-            file_list
-        )
-
-        self.assertEqual(expected_message, serialized_message)
-
     def test_file_package_request(self):
         """Test message file package request."""
         file_name = "file_name"
@@ -161,7 +131,7 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
         file_name = "file_name"
         status = FileManagementStatus(
             FileManagementStatusType.ERROR,
-            FileManagementErrorType.UNKNOWN_ERROR,
+            FileManagementErrorType.UNKNOWN,
         )
         expected_topic = self.factory.common_topic + WAPMF.FILE_UPLOAD_STATUS
         expected_payload = json.dumps(
@@ -395,21 +365,6 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         serialized_message = self.factory.make_attribute_registration(
             name, data_type, value
-        )
-
-        self.assertEqual(expected_message, serialized_message)
-
-    def test_firmware_version_update(self):
-        """Test message for firmware version update."""
-        version = "v1.0.0"
-
-        expected_topic = (
-            self.factory.common_topic + WAPMF.FIRMWARE_VERSION_UPDATE
-        )
-        expected_payload = version
-        expected_message = Message(expected_topic, expected_payload)
-        serialized_message = self.factory.make_from_firmware_version_update(
-            version
         )
 
         self.assertEqual(expected_message, serialized_message)
