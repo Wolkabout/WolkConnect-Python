@@ -1,5 +1,5 @@
-"""Minimal example of periodically sending data to WolkAbout IoT Platform."""
-#   Copyright 2020 WolkAbout Technology s.r.o.
+"""Example of registering a new feed and attribute on WolkAbout IoT Platform."""
+#   Copyright 2021 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -50,13 +50,31 @@ def main() -> None:
     # Establish a connection to the WolkAbout IoT Platform
     wolk_device.connect()
 
+    # Example of registering a new feed on the device
+    # NOTE: See wolk.Unit and wolk.FeedType for more options.
+    wolk_device.register_feed(
+        name="New Feed",
+        reference="NF",
+        feed_type=wolk.FeedType.IN,
+        unit=wolk.Unit.NUMERIC,
+        # NOTE: Custom instance defined unit can be specified as string
+    )
+
+    # Example of registering device attribute
+    # NOTE: See wolk.DataType for more options
+    wolk_device.register_attribute(
+        name="Device activation timestamp",
+        data_type=wolk.DataType.NUMERIC,
+        value=str(int(time.time())),
+    )
+
     publish_period_seconds = 60
 
     while True:
         try:
-            temperature = random.randint(-20, 80)
-            wolk_device.add_feed_value(("T", temperature))
-            print(f'Publishing "T": {temperature}')
+            new_feed = random.randint(0, 100)
+            wolk_device.add_feed_value(("NF", new_feed))
+            print(f'Publishing "NF": {new_feed}')
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:

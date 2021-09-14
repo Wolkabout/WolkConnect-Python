@@ -1367,14 +1367,17 @@ class TestWolkConnect(unittest.TestCase):
     def test_on_parameters_message(self):
         """Test on parameters message received."""
         self.wolk_device.logger.setLevel(logging.WARNING)
-        self.wolk_device.logger.warning = MagicMock()
-        self.wolk_device.message_deserializer.parse_parameters = MagicMock()
+        self.wolk_device.message_deserializer.parse_parameters = MagicMock(
+            return_value=[{}]
+        )
         self.wolk_device.message_deserializer.is_parameters = MagicMock(
             return_value=True
         )
+        self.wolk_device.parameters = MagicMock()
+        self.wolk_device.parameters.update = MagicMock()
         self.wolk_device._on_inbound_message(Message("test"))
 
-        self.wolk_device.logger.warning.assert_called_once()
+        self.wolk_device.parameters.update.assert_called_once()
 
     def test_on_feed_values_message_no_handler(self):
         """Test on feed values message received with no handler."""

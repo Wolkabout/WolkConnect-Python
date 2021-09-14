@@ -57,7 +57,7 @@ python3 setup.py install
 ### Establishing connection with WolkAbout IoT platform
 
 Create a device on WolkAbout IoT Platform by using the *Simple example* device type that is available on the platform.
-This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the periodic sending of a temperature sensor reading.
+This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the periodic sending of a temperature feed reading.
 
 ```python
 import wolk
@@ -69,7 +69,7 @@ device = wolk.Device(key="device_key", password="some_password")
 # Pass your device and server information
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
-    device, host="api-demo.wolkabout.com", port=8883, ca_cert="path/to/ca.crt"
+    device, host="demo.wolkabout.com", port=8883, ca_cert="path/to/ca.crt"
 )
 
 wolk_device.connect()
@@ -104,4 +104,4 @@ wolk_device.disconnect()
 
 ## Additional functionality
 
-WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Read more about full feature set example [HERE](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set).
+WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Explore the [examples](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/) for more information.

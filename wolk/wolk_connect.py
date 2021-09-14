@@ -63,7 +63,7 @@ class WolkConnect:
 
     :ivar connectivity_service: Means of sending/receiving data
     :vartype connectivity_service: ConnectivityService
-    :ivar device: Contains device key and password, and actuator references
+    :ivar device: Contains device key and password
     :vartype device: Device
     :ivar file_management: File management module
     :vartype file_management: FileManagement or None
@@ -89,7 +89,7 @@ class WolkConnect:
         """
         Provide communication with WolkAbout IoT Platform.
 
-        :param device: Contains key and password, and actuator references
+        :param device: Contains key and password
         :type device: Device
         :param host: Host name or IP address of the remote broker
         :type host: str, optional
@@ -124,7 +124,6 @@ class WolkConnect:
             self.connectivity_service: ConnectivityService = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                qos=2,
                 host=host,
                 port=int(port),
                 ca_cert=ca_cert,
@@ -133,15 +132,15 @@ class WolkConnect:
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                qos=2,
                 host=host,
                 port=int(port),
             )
         else:
+            # NOTE: Default to secure connection to 'demo.wolkabout.com'
             self.connectivity_service = MQTTCS(
                 device,
                 self.message_deserializer.get_inbound_topics(),
-                qos=2,
+                port=8883,
                 ca_cert=wolk_ca_cert,
             )
 
@@ -423,7 +422,7 @@ class WolkConnect:
 
     def pull_parameters(self) -> None:
         """Issue a message to pull commanded feed values."""
-        self.logger.debug("Sending pull parameters request")
+        self.logger.info("Sending pull parameters request")
         if self.device.data_delivery == DataDelivery.PUSH:
             self.logger.warning(
                 "Always connected devices (PUSH) do not"
@@ -443,7 +442,7 @@ class WolkConnect:
 
     def pull_feed_values(self) -> None:
         """Issue a message to pull commanded feed values."""
-        self.logger.debug("Sending pull feed values request")
+        self.logger.info("Sending pull feed values request")
         if self.device.data_delivery == DataDelivery.PUSH:
             self.logger.warning(
                 "Always connected devices (PUSH) do not"
@@ -461,7 +460,6 @@ class WolkConnect:
         if not self.connectivity_service.publish(message):
             self.logger.warning(f"Failed to publish message: {message}")
 
-    # TODO: refactor or remove?
     def request_timestamp(self) -> Optional[int]:
         """
         Return last received timestamp from Platform.
@@ -473,8 +471,15 @@ class WolkConnect:
         :rtype: int or None
         """
         if self.last_platform_timestamp is None:
-            self.logger.warning("No timestamp available, returning None")
-            return None
+            self.logger.warning("No timestamp available yet, will return None")
+        if not self.connectivity_service.is_connected():
+            self.logger.warning("Not connected, not requesting new time")
+            return self.last_platform_timestamp
+
+        message = self.message_factory.make_time_request()
+
+        if not self.connectivity_service.publish(message):
+            self.logger.warning(f"Failed to publish message: {message}")
 
         return self.last_platform_timestamp
 
@@ -614,12 +619,12 @@ class WolkConnect:
             # NOTE: "FIRMWARE_UPDATE_CHECK_TIME"
             # NOTE: Other optional parameters?
             parameters = self.message_deserializer.parse_parameters(message)
-            self.logger.warning(f"TODO: parameters update: {parameters}")
+            self.logger.info(f"TODO: parameters update: {parameters}")
             self.parameters.update(parameters)
             return
 
         if self.message_deserializer.is_feed_values(message):
-            if self.incoming_feed_value_handler is None:
+            if not self.incoming_feed_value_handler:
                 self.logger.warning(
                     "Received incoming feed values,"
                     " but no handler has been set!"

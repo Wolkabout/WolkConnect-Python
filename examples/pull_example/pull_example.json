@@ -1,22 +1,30 @@
 [
   {
-    "semanticTypeId": 2215,
-    "name": "WolkConnect: Simple Example",
-    "guid": "759e5590-8e1d-4e69-9522-9d2830d7b1f0",
-    "description": "A minimalistic device type that contains a single temperature feed, measured in Celsius.",
+    "semanticTypeId": 1002,
+    "name": "WolkConnect: Pull Example",
+    "guid": "da2c9674-0d86-4772-a502-6a15e8d0a16b",
+    "description": "Device type that periodically connects to the Platform to pull feed values for its Switch and Heart beat feeds.",
     "deviceType": true,
     "attributes": [],
     "feeds": [
       {
-        "id": 2233,
-        "name": "Temperature",
-        "type": "IN",
+        "id": 1003,
+        "name": "Heart Beat",
+        "type": "IN_OUT",
         "sourceType": "DEVICE",
-        "unitGuid": "CELSIUS",
-        "reference": "T"
+        "unitGuid": "NUMERIC",
+        "reference": "HB"
+      },
+      {
+        "id": 1002,
+        "name": "Switch",
+        "type": "IN_OUT",
+        "sourceType": "DEVICE",
+        "unitGuid": "BOOLEAN",
+        "reference": "SW"
       }
     ],
-    "deviceTypeId": 2207,
+    "deviceTypeId": 1002,
     "protocol": "WOLKABOUT",
     "postProvisioning": "STANDARD",
     "parameters": {
@@ -33,6 +41,6 @@
       "FILE_TRANSFER_PLATFORM_ENABLED": "false",
       "FILE_TRANSFER_URL_ENABLED": "false"
     },
-    "id": 2207
+    "id": 1002
   }
 ]
