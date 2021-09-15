@@ -100,7 +100,7 @@ def main() -> None:
     """
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    device = wolk.Device(key="danilo_dev", password="WPZCH0RLWE")
+    device = wolk.Device(key="device_key", password="some_password")
 
     # Create an InOut feed and define a function that will handle updating its
     # value when the appropriate message has been received from the Platform
