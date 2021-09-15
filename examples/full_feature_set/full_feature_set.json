@@ -1,0 +1,54 @@
+[
+  {
+    "semanticTypeId": 1306,
+    "name": "WolkConnect: Full Feature Set",
+    "guid": "fc49c3c8-3480-4c5d-b1a3-5d1ad3b8a272",
+    "description": "This device type covers all the functionality provided by WolkConnect libraries.",
+    "deviceType": true,
+    "attributes": [],
+    "feeds": [
+      {
+        "id": 1309,
+        "name": "Temperature",
+        "type": "IN",
+        "sourceType": "DEVICE",
+        "unitGuid": "CELSIUS",
+        "reference": "T"
+      },
+      {
+        "id": 1311,
+        "name": "Heart Beat",
+        "type": "IN_OUT",
+        "sourceType": "DEVICE",
+        "unitGuid": "NUMERIC",
+        "reference": "HB"
+      },
+      {
+        "id": 1312,
+        "name": "Switch",
+        "type": "IN_OUT",
+        "sourceType": "DEVICE",
+        "unitGuid": "BOOLEAN",
+        "reference": "SW"
+      }
+    ],
+    "deviceTypeId": 1306,
+    "protocol": "WOLKABOUT",
+    "postProvisioning": "STANDARD",
+    "parameters": {
+      "FIRMWARE_UPDATE_CHECK_TIME": "-1",
+      "GATEWAY": "false",
+      "CONNECTIVITY_TYPE": "MQTT",
+      "FIRMWARE_VERSION": null,
+      "OUTBOUND_DATA_MODE": "PULL",
+      "EXTERNAL_ID": null,
+      "MAXIMUM_MESSAGE_SIZE": "0",
+      "GATEWAY_PARENT": null,
+      "OUTBOUND_DATA_RETENTION_TIME": "0",
+      "FIRMWARE_UPDATE_ENABLED": "false",
+      "FILE_TRANSFER_PLATFORM_ENABLED": "false",
+      "FILE_TRANSFER_URL_ENABLED": "false"
+    },
+    "id": 1306
+  }
+]
