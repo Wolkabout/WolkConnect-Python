@@ -14,6 +14,7 @@
 #   limitations under the License.
 import os
 import random
+import signal
 import sys
 import time
 from typing import Dict
@@ -68,6 +69,9 @@ class DummyFirmwareInstaller(wolk.FirmwareHandler):
     def install_firmware(self, firmware_file_path: str) -> None:
         """Handle the installing of the firmware file here."""
         print(f"Installing firmware from path: {firmware_file_path}")
+        # NOTE: Modify `firmware_version` and run again to report success
+        # This terminates the example
+        os.kill(os.getpid(), signal.SIGINT)
 
     def get_current_version(self) -> str:
         """Return current firmware version."""
@@ -150,36 +154,42 @@ def main() -> None:
     # Example of registering a new feed on the device
     # NOTE: See wolk.Unit and wolk.FeedType for more options.
     wolk_device.register_feed(
-        name="New Feed",
-        reference="NF",
-        feed_type=wolk.FeedType.IN,
-        unit=wolk.Unit.NUMERIC,
+        name="New Feed",  # Name that will be displayed on the UI
+        reference="NF",  # Per-device unique feed ID
+        feed_type=wolk.FeedType.IN,  # uni (IN) or bi-directional feed (In/Out)
+        unit=wolk.Unit.NUMERIC,  # Measurement unit for this feed
         # NOTE: Custom instance defined unit can be specified as string
     )
 
     # Example of registering device attribute
     # NOTE: See wolk.DataType for more options
     wolk_device.register_attribute(
-        name="Device activation timestamp",
-        data_type=wolk.DataType.NUMERIC,
-        value=str(int(time.time())),
+        name="Device activation timestamp",  # Name that will be displayed
+        data_type=wolk.DataType.NUMERIC,  # Type of data attribute will hold
+        value=str(int(time.time())),  # Value, always sent as string
     )
 
     while True:
         try:
-            if not wolk_device.connectivity_service.is_connected():
-                wolk_device.connect()
-
+            # Add feed values to outbound message queue
             wolk_device.add_feed_value(
                 [
                     (switch_feed.reference, switch_feed.value),
                     (heart_beat.reference, heart_beat.value),
                 ]
             )
+
+            # Generate a random value
             temperature = random.randint(-20, 80)
+            # Add a feed reading to the message queue
             wolk_device.add_feed_value(("T", temperature))
+
+            # Generate random value for the newly registered feed
             new_feed = random.randint(0, 100)
+            # Add feed value reading of the new feed to message queue
             wolk_device.add_feed_value(("NF", new_feed))
+
+            # Publish all queued messages
             wolk_device.publish()
             time.sleep(heart_beat.value)
         except KeyboardInterrupt:

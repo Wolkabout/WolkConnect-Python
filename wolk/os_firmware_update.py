@@ -13,7 +13,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import os
-from threading import Timer
 from typing import Callable
 from typing import Optional
 
@@ -53,7 +52,6 @@ class OSFirmwareUpdate(FirmwareUpdate):
             )
         self.firmware_handler = firmware_handler
         self.current_status: Optional[FirmwareUpdateStatus] = None
-        self.install_timer: Optional[Timer] = None
 
     def get_current_version(self) -> str:
         """
@@ -114,19 +112,10 @@ class OSFirmwareUpdate(FirmwareUpdate):
         )
         self.status_callback(self.current_status)
 
-        self.install_timer = Timer(
-            5.0,
-            self.firmware_handler.install_firmware(file_path),
-        )  # For possible abort command
-        self.install_timer.start()
+        self.firmware_handler.install_firmware(file_path)
 
     def handle_abort(self) -> None:
         """Handle the abort command received from the platform."""
-        if self.install_timer:
-            self.logger.info("Stopping firmware installation delay timer")
-            self.install_timer.cancel()
-            self.install_timer = None
-
         if self.current_status is not None:
             self.logger.info("Aborting firmware installation")
             self.current_status = FirmwareUpdateStatus(
@@ -177,4 +166,3 @@ class OSFirmwareUpdate(FirmwareUpdate):
     def _reset_state(self) -> None:
         """Reset the state of the firmware update process."""
         self.current_status = None
-        self.install_timer = None

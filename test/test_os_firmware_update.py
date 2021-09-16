@@ -160,31 +160,15 @@ class TestOSFirmwareUpdate(unittest.TestCase):
             FirmwareUpdateStatusType.INSTALLING
         )
 
-        file_handle = open("some_file", "w")
-        firmware_update.handle_install("some_file")
+        file_handle = open("test_file", "w")
+        firmware_update.handle_install("test_file")
 
         firmware_update.status_callback.assert_called_once_with(
             expected_status
         )
-        firmware_update.install_timer.cancel()
         file_handle.close()
-        os.remove("some_file")
+        os.remove("test_file")
         os.remove("last_firmware_version.txt")
-
-    def test_handle_abort_with_install_timer(self):
-        """Test receiving the abort command with install timer active."""
-        mock_status_callback = MagicMock()
-        mock_firmware_handler = self.MockFirmwareHandler()
-        firmware_update = OSFirmwareUpdate(
-            mock_firmware_handler, mock_status_callback
-        )
-        firmware_update.logger.setLevel(logging.CRITICAL)
-        firmware_update.install_timer = MagicMock()
-        firmware_update.install_timer.cancel = MagicMock()
-
-        firmware_update.handle_abort()
-
-        self.assertIsNone(firmware_update.install_timer)
 
     def test_handle_abort_when_not_idle(self):
         """Test receiving the abort command when module not idle."""

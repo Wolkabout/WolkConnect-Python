@@ -54,8 +54,12 @@ def main() -> None:
 
     while True:
         try:
+            # Generate a random value
             temperature = random.randint(-20, 80)
+
+            # Add a feed reading to the message queue
             wolk_device.add_feed_value(("T", temperature))
+
             print(f'Publishing "T": {temperature}')
             wolk_device.publish()
             time.sleep(publish_period_seconds)
