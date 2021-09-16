@@ -115,14 +115,18 @@ def main() -> None:
             # publish current feed values, disconnect and sleep
             time.sleep(heart_beat.value / 10)
 
+            # Add feed values to outbound message queue
             wolk_device.add_feed_value(
                 [
                     (switch_feed.reference, switch_feed.value),
                     (heart_beat.reference, heart_beat.value),
                 ]
             )
+
+            # Publish queued messages
             wolk_device.publish()
 
+            # Disconnect from the Platform
             wolk_device.disconnect()
             time.sleep(heart_beat.value * 0.9)
         except KeyboardInterrupt:

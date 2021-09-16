@@ -10,8 +10,6 @@
 import os
 import sys
 
-import sphinx
-
 sys.path.insert(0, os.path.abspath(".." + os.sep + ".."))
 
 from wolk import __version__  # noqa
@@ -20,39 +18,12 @@ from wolk import __version__  # noqa
 # -- Project information -----------------------------------------------------
 
 project = "WolkConnect-Python"
-copyright = "2020, WolkAbout"
+copyright = "2021, WolkAbout"
 author = "WolkAbout"
 release = __version__
-master_doc = "index"
 
 
 # -- General configuration ---------------------------------------------------
-
-
-def monkeypatch(cls):
-    """Decorator to monkey-patch methods."""
-
-    def decorator(f):
-        method = f.__name__
-        old_method = getattr(cls, method)
-        setattr(
-            cls,
-            method,
-            lambda self, *args, **kwargs: f(old_method, self, *args, **kwargs),
-        )
-
-    return decorator
-
-
-# workaround until https://github.com/miyakogi/m2r/pull/55 is merged
-@monkeypatch(sphinx.registry.SphinxComponentRegistry)
-def add_source_parser(_old_add_source_parser, self, *args, **kwargs):
-    # signature is (parser: Type[Parser], **kwargs), but m2r expects
-    # the removed (str, parser: Type[Parser], **kwargs).
-    if isinstance(args[0], str):
-        args = args[1:]
-    return _old_add_source_parser(self, *args, **kwargs)
-
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -63,7 +34,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
-    "m2r",
+    "m2r2",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -73,6 +44,7 @@ templates_path = ["_templates"]
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+
 
 source_suffix = [".rst", ".md"]
 

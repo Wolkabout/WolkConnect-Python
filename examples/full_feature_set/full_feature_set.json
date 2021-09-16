@@ -40,7 +40,7 @@
       "GATEWAY": "false",
       "CONNECTIVITY_TYPE": "MQTT",
       "FIRMWARE_VERSION": null,
-      "OUTBOUND_DATA_MODE": "PULL",
+      "OUTBOUND_DATA_MODE": "PUSH",
       "EXTERNAL_ID": null,
       "MAXIMUM_MESSAGE_SIZE": "0",
       "GATEWAY_PARENT": null,
