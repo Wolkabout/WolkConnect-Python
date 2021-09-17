@@ -45,14 +45,13 @@ WolkConnect libraries separate device’s functionality through the API into thr
 * **Connection Management** - allows controlling the connected device in order to maintain data delivery integrity:
 	* Connect
 	* Disconnect
-	* Ping keep-alive mechanism
 * **Data Handling** - valuable data to be exchanged with WolkAbout IoT Platform:
+	* Feed values
 	* Timestamp request
-	* Sensors
-	* Alarms
-	* Actuators
 * **Device management** - dynamical modification of the device properties with the goal to change device behavior:
-	* Configuration Options
+	* Feed registration
+	* Feed removal
+	* Attribute registration
 	* File Management
 	* Device Software/Firmware Update
 
@@ -70,80 +69,66 @@ Attempting to create an additional connection with the same device credentials w
 
 A device can be connected to WolkAbout IoT Platform in two ways:
 
-- **Always connected devices** - connect once and publish data when necessary. Actuations can only be used in this case, as sending actuations from WolkAbout IoT Platform are disabled when the device is offline.
-- **Periodically connected devices** - connect and publish data when needed. It is important to use disconnect here, as this is a valid device state on WolkAbout IoT Platform -  controlled offline.
-
+- **Always connected devices** - connect once and publish data when necessary.
+This is a device that has a data delivery type of `PUSH`. Feed values or other
+commands for the device are issued instantly to the device when it is connected.
+- **Periodically connected devices** - connect and publish data when needed.
+This dis a device that has a data delivery type of `PULL`. All pending commands
+from the Platform are polled by calling appropriate pull functions upon
+establishing connection.
 
 ####Disconnect
 
 
-Disconnecting will gracefully terminate the connection and the device will momentarily appear offline on WolkAbout IoT Platform. In cases of ungraceful disconnections, eg. due to a networking error, WolkAbout IoT Platform will be able to determine if the device is offline based on whether the device has sent its last will message.
+Disconnecting will gracefully terminate the connection to WolkAbout IoT Platform.
 
-
-####Ping keep-Alive Mechanism
-
-
-The ping keep-alive mechanism will periodically send a message to WolkAbout IoT Platform. This message will update the device's last report time, which is useful if the device isn't publishing data often, as it gives the user the information that the device is still connected. The default interval for sending messages is 60 seconds. This mechanism can also be disabled to reduce bandwidth usage.
 
 ###Data Handling
 
 
-Real world devices can perform a wide variety of operations that result in meaningful data. These operations could be to conduct a measurement, monitor certain conditions or execute some form of command. The data resulting from these operations have been modeled into three distinct types of data on WolkAbout IoT Platform: sensors, alarms, and actuators.
+####Feed Values
+
 
 Information needs to be distinguishable, so every piece of data sent from the device needs to have an identifier. This identifier is called a reference, and all the references of a device on WolkAbout IoT Platform must be unique.
 
-####Timestamp request
+Real world devices can perform a wide variety of operations that result in meaningful data. These operations could be to conduct a measurement, monitor certain conditions or execute some form of command. The data resulting from these operations have been modeled into two distinct types of device feeds:
+* `In` feed - where data is only published from the device to the Platform.
+* `In/Out` feed - where data is published in both directions, where the Platform can request that a feed be set to a specified value every time the ping keep-alive mechanism receives a response to its message.
 
 
-If the ping keep alive service is enabled on the device and a connection to the Platform has been established, then the user can request the UTC timestamp from the WolkConnect library.
-This functionality is particularly useful on devices that don't have a real time clock, as it enables them to add timestamps to their data messages.
-The timestamp is updated every time the ping keep-alive mechanism receives a response to its message.
-
-####Sensor readings
+#### Timestamp Request
 
 
-Sensor readings are stored on the device before explicitly being published to WolkAbout IoT Platform. If the exact time when the reading occurred is meaningful information, it can be assigned to the reading as a UTC timestamp. If this timestamp is not provided, WolkAbout IoT Platform will assign the reading a timestamp when it has been received, treating the reading like it occurred the moment it arrived. UTC timestamps are integers that can be of second or millisecond precision.
-
-Readings could be of a very high precision, and although this might not be fully displayed on the dashboard, the information is not lost and can be viewed on different parts of WolkAbout IoT Platform.
-
-Sensor readings like GPS and accelerometers that hold more than one single information and these types of readings are supported in WolkConnect libraries and on WolkAbout IoT Platform. This concept is called a multi-value reading.
-
-
-####Alarms
-
-
-Alarms are derived from some data on the device and are used to indicate the state of a condition, eg. high-temperature alarm which emerged as a result of exceeding a threshold value on the device. Alarm value can either be on or off.
-
-Like sensor readings, alarm messages are stored on the device before being published to WolkAbout IoT Platform. Alarms can also have a UTC timestamp to denote when the alarm occurred, but if the timestamp is omitted then WolkAbout IoT Platform will assign a timestamp when it receives the alarm message.
-
-
-####Actuators
-
-
-Actuators are used to enable WolkAbout IoT Platform to set the state of some part of the device, eg. flip a switch or change the gear of a motor.
-
-Single actuation consists of the command to a device and feedback from the device. A command is a message that arrived at the device. Feedback is the current status of the actuator on the device which needs to be sent to WolkAbout IoT Platform in order to complete a single actuation process. Current status has two parameters: actuator value and actuator state. Value is current value of the actuator, eg. for a switch, it can be true or false. Possible actuator states are:
-
-* **READY** - waiting to receive a command to change its value
-* **BUSY** - in the process of changing its value
-* **ERROR** - unable to comply
-
-To perform a successful actuation, the user needs to know the actuator references that have been defined for his device on the Platform, to forward them during the actuation initialization period. The user has to implement an actuation handler that will execute the commands that have been issued from WolkAbout IoT Platform. Then the user has to implement an actuator status provider that will update WolkAbout IoT Platform with the current status of the actuator.
-Publishing actuator statuses is performed immediately, but if the actuator takes time to be executed, eg. closing the gate, then the actuator status provider should update WolkAbout IoT Platform with the current values until it reaches the commanded value.
-If the device is unable to publish the actuator status, then the information will be stored on the device until the next successful publish attempt.
-
-To summarize, when the actuation command is issued from WolkAbout IoT Platform, it will be passed on to the actuation handler that will attempt to execute the command, and then the actuator status provider will report back to WolkAbout IoT Platform with the current value and the state of the actuator.
+Some devices might need a timestamp to perform some actions
+and they can issue a request from the Platform for the current Unix epoch time
 
 
 ###Device Management
 
 
-####Configuration
+####Feed Registration
 
 
-Configuration is the dynamical modification of the device properties from WolkAbout IoT Platform with the goal to change device behavior, eg. measurement heartbeat, sensors delivery reduction, enabling/disabling device interfaces, increase/decrease device logging level, etc.
+The device is able to register new feeds for itself and immediately start publishing for that feed.
+The registration request consists of the specified feed name (displayed on the Platform), reference, feed type (In or In/Out) and the measurement unit.
+The new feed needs to have per-device unique reference
+The measurement unit can be one that is by default provided by the Platform or defined by a user.
 
-Configuration requires the same way of handling messages as actuations do. When a configuration command is issued from WolkAbout IoT Platform, it will be passed to the configuration handler that will attempt to execute the command. Then the configuration status provider will report back to WolkAbout IoT Platform with the current values of the configuration parameters, with the addition that configuration parameters are always sent as a whole, even when only one value changes.
+
+####Feed Removal
+
+
+Issue a request that a specified feed, identified by reference, be removed from the device.
+Feed values for that reference will be discarded by the Platform after the feed removal request.
+
+
+####Attribute Registration
+
+
+The device is able to register an attribute that better describes this specific device.
+The registration request contains a unique name (displayed on the Platform), the data type of the attribute (enumeration),
+as well as the value of the attribute, which is always sent as a string regardless of data type.
+If an attribute with the given name already exists, its value will be updated.
 
 ####File Management
 
@@ -177,7 +162,9 @@ This firmware handler will specify the following parameters:
 ##API Examples
 
 
-To see how to utilize WolkConnect library APIs, visit one of the following files and look up detailed information in the Example Usage section:
+To see how to utilize WolkConnect library APIs, explore some examples:
 
-- [Simple example README.md](https://github.com/Wolkabout/WolkConnect-Python/blob/master/README.md) - demonstrates the sending of a temperature sensor reading
-- [Full feature set example README.md](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/README.md) - demonstrates full WolkAbout IoT Platform potential
+- [Simple example](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/) - demonstrates the periodic sending of a temperature feed value
+- [Pull example](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/pull/) - demonstrates the PULL data delivery type of device
+- [Register feed & attribute example](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/register_feed_and_attribute/) - demonstrates the registration of a new device feed and device attribute
+- [Full feature set example](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/) - demonstrates all WolkConnect features.

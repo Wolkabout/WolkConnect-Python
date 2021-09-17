@@ -61,7 +61,7 @@ def main() -> None:
     )
 
     # Example of registering device attribute
-    # NOTE: See wolk.DataType for more options
+    # NOTE: Will update value if attribute with that name already exists
     wolk_device.register_attribute(
         name="Device activation timestamp",  # Name that will be displayed
         data_type=wolk.DataType.NUMERIC,  # Type of data attribute will hold

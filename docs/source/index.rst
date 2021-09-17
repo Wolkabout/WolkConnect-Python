@@ -2,17 +2,17 @@
 WolkConnect-Python
 ******************
 
+Welcome to WolkConnect-Python's documentation!
 
 .. toctree::
 	:caption: Table of Content
-	:maxdepth: 4
+	:maxdepth: 3
 
 	WolkConnect library<functional>
 	Readme<readme>
 	Wolk Package<wolk>
-
-Complete package documentation in :ref:`modindex`
-
+	Interfaces<interfaces>
+	Models<models>
 
 Indices and tables
 ==================
