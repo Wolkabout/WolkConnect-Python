@@ -45,9 +45,9 @@
       "MAXIMUM_MESSAGE_SIZE": "0",
       "GATEWAY_PARENT": null,
       "OUTBOUND_DATA_RETENTION_TIME": "0",
-      "FIRMWARE_UPDATE_ENABLED": "false",
-      "FILE_TRANSFER_PLATFORM_ENABLED": "false",
-      "FILE_TRANSFER_URL_ENABLED": "false"
+      "FIRMWARE_UPDATE_ENABLED": "true",
+      "FILE_TRANSFER_PLATFORM_ENABLED": "true",
+      "FILE_TRANSFER_URL_ENABLED": "true"
     },
     "id": 1306
   }
