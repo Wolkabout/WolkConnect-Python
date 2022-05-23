@@ -9,10 +9,10 @@ jobs:
     timeout-minutes: 1
     steps:
       - uses: actions/checkout@v2
+      - name: Install coverage
+        run: pip3 install coverage[toml]
       - name: Install requirements
         run: pip3 install -r requirements.txt
-      - name: Install coverage
-        run: pip3 install coverage toml
       - name: Run the tests
         run: coverage run --source=wolk/ -m unittest
       - name: Report coverage
