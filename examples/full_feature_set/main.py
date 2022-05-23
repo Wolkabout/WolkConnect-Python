@@ -206,9 +206,9 @@ def main() -> None:
     wolk_device = (
         wolk.WolkConnect(
             device=device,
-            host="api-demo.wolkabout.com",
-            port=8883,
-            ca_cert=".." + os.sep + ".." + os.sep + "wolk" + os.sep + "ca.crt",
+            host="insert_host",
+            port=80, # TODO: insert port
+            ca_cert="INSERT/PATH/TO/YOUR/CA/CRT",
         )
         .with_actuators(
             actuation_handler=actuation_handler,

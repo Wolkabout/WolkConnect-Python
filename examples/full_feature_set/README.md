@@ -18,7 +18,7 @@
 ```
 [![Build Status](https://travis-ci.com/Wolkabout/WolkConnect-Python.svg?branch=master)](https://travis-ci.com/Wolkabout/WolkConnect-Python) [![PyPI version](https://badge.fury.io/py/wolk-connect.svg)](https://badge.fury.io/py/wolk-connect) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wolk-connect) ![GitHub](https://img.shields.io/github/license/wolkabout/WolkConnect-Python) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/) [![Documentation Status](https://readthedocs.org/projects/wolkconnect-python/badge/?version=latest)](https://wolkconnect-python.readthedocs.io/en/latest/?badge=latest)
 ----
-WolkAbout Python Connector library for connecting devices to [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
+WolkAbout Python Connector library for connecting devices to WolkAbout IoT platform instance.
 
 Supported device communication protocols:
 * WolkAbout Protocol
@@ -106,8 +106,8 @@ def configuration_provider():
 wolk_device = (
     wolk.WolkConnect(
         device=device,
-        host="api-demo.wolkabout.com",
-        port=8883,
+        host="insert_host",
+        port=80,# TODO: insert port
         ca_cert="path/to/ca.crt",
     )
     .with_actuators(

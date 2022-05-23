@@ -39,8 +39,8 @@ class MQTTConnectivityService(ConnectivityService):
         topics: List[str],
         last_will_message: Message,
         qos: Optional[int] = 0,
-        host: Optional[str] = "api-demo.wolkabout.com",
-        port: Optional[int] = 8883,
+        host: Optional[str] = "insert_host",
+        port: Optional[int] = 80, # TODO: insert port
         ca_cert: Optional[str] = None,
     ) -> None:
         """
