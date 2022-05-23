@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install coverage
-        run: pip3 install coverage toml
+        run: pip3 install coverage[toml]
       - name: Install requirements
         run: pip3 install -r requirements.txt
       - name: Run the tests
