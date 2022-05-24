@@ -13,7 +13,6 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import os
-from threading import Timer
 from typing import Callable
 from typing import Optional
 
@@ -53,7 +52,6 @@ class OSFirmwareUpdate(FirmwareUpdate):
             )
         self.firmware_handler = firmware_handler
         self.current_status: Optional[FirmwareUpdateStatus] = None
-        self.install_timer: Optional[Timer] = None
 
     def get_current_version(self) -> str:
         """
@@ -85,7 +83,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if os.path.exists("last_firmware_version.txt"):
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.UNSPECIFIED_ERROR,
+                FirmwareUpdateErrorType.UNKNOWN,
             )
             self.logger.error("Previous firmware update did not complete!")
             self.status_callback(self.current_status)
@@ -95,7 +93,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
         if not os.path.exists(file_path):
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ERROR,
-                FirmwareUpdateErrorType.FILE_NOT_PRESENT,
+                FirmwareUpdateErrorType.UNKNOWN_FILE,
             )
             self.logger.error("File not present at given path!")
             self.status_callback(self.current_status)
@@ -114,20 +112,11 @@ class OSFirmwareUpdate(FirmwareUpdate):
         )
         self.status_callback(self.current_status)
 
-        self.install_timer = Timer(
-            5.0,
-            self.firmware_handler.install_firmware(file_path),  # type: ignore
-        )  # For possible abort command
-        self.install_timer.start()
+        self.firmware_handler.install_firmware(file_path)
 
     def handle_abort(self) -> None:
         """Handle the abort command received from the platform."""
-        if self.install_timer:
-            self.logger.info("Stopping installation timer")
-            self.install_timer.cancel()
-
         if self.current_status is not None:
-
             self.logger.info("Aborting firmware installation")
             self.current_status = FirmwareUpdateStatus(
                 FirmwareUpdateStatusType.ABORTED
@@ -168,7 +157,7 @@ class OSFirmwareUpdate(FirmwareUpdate):
             "Firmware version changed, reporting installation completed"
         )
         self.current_status = FirmwareUpdateStatus(
-            FirmwareUpdateStatusType.COMPLETED
+            FirmwareUpdateStatusType.SUCCESS
         )
         self.status_callback(self.current_status)
         self._reset_state()
@@ -177,4 +166,3 @@ class OSFirmwareUpdate(FirmwareUpdate):
     def _reset_state(self) -> None:
         """Reset the state of the firmware update process."""
         self.current_status = None
-        self.install_timer = None

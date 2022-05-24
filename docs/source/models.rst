@@ -3,42 +3,27 @@ Models
 
 .. automodule:: wolk.model
 
-Actuator command
-~~~~~~~~~~~~~~~~
 
-.. automodule:: wolk.model.actuator_command
+Data Delivery
+~~~~~~~~~~~~~
+
+.. automodule:: wolk.model.data_delivery
     :members:
     :undoc-members:
     :show-inheritance:
 
-Actuator state
-~~~~~~~~~~~~~~
+Data Type
+~~~~~~~~~
 
-.. automodule:: wolk.model.state
+.. automodule:: wolk.model.data_type
     :members:
     :undoc-members:
     :show-inheritance:
 
-Actuator status
-~~~~~~~~~~~~~~~
+Feed Type
+~~~~~~~~~
 
-.. automodule:: wolk.model.actuator_status
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Alarm
-~~~~~
-
-.. automodule:: wolk.model.alarm
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Configuration command
-~~~~~~~~~~~~~~~~~~~~~
-
-.. automodule:: wolk.model.configuration_command
+.. automodule:: wolk.model.feed_type
     :members:
     :undoc-members:
     :show-inheritance:
@@ -116,11 +101,10 @@ Message
     :undoc-members:
     :show-inheritance:
 
+Unit
+~~~~
 
-Sensor reading
-~~~~~~~~~~~~~~
-
-.. automodule:: wolk.model.sensor_reading
+.. automodule:: wolk.model.unit
     :members:
     :undoc-members:
     :show-inheritance:

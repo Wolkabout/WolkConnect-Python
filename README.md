@@ -16,7 +16,7 @@
 
 
 ```
-[![PyPI version](https://badge.fury.io/py/wolk-connect.svg)](https://badge.fury.io/py/wolk-connect) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wolk-connect) ![GitHub](https://img.shields.io/github/license/wolkabout/WolkConnect-Python) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/) [![Documentation Status](https://readthedocs.org/projects/wolkconnect-python/badge/?version=latest)](https://wolkconnect-python.readthedocs.io/en/latest/?badge=latest)
+[![Tests and Coverage](https://github.com/Wolkabout/WolkConnect-Python/actions/workflows/tests-and-coverage.yml/badge.svg?branch=development)](https://github.com/Wolkabout/WolkConnect-Python/actions/workflows/tests-and-coverage.yml) [![PyPI version](https://badge.fury.io/py/wolk-connect.svg)](https://badge.fury.io/py/wolk-connect) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wolk-connect) ![GitHub](https://img.shields.io/github/license/wolkabout/WolkConnect-Python) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/) [![Documentation Status](https://readthedocs.org/projects/wolkconnect-python/badge/?version=latest)](https://wolkconnect-python.readthedocs.io/en/latest/?badge=latest)
 ----
 WolkAbout Python Connector library for connecting devices to WolkAbout IoT platform instance.
 
@@ -57,7 +57,7 @@ python3 setup.py install
 ### Establishing connection with WolkAbout IoT platform
 
 Create a device on WolkAbout IoT Platform by using the *Simple example* device type that is available on the platform.
-This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the periodic sending of a temperature sensor reading.
+This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the periodic sending of a temperature feed reading.
 
 ```python
 import wolk
@@ -75,17 +75,13 @@ wolk_device = wolk.WolkConnect(
 wolk_device.connect()
 ```
 
-### Adding sensor readings
+### Adding feed values
 
 ```python
-wolk_device.add_sensor_reading("T", 26.93)
+wolk_device.add_feed_value(("T", 26.93))
 
-# Multi-value sensor reading
-wolk_device.add_sensor_reading("ACL", (4, 2, 0))
-```
-or multiple sensors at once with `add_sensor_readings`:
-```python
-wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
+# or multiple feed value readings
+wolk_device.add_feed_value([("T": 27.11), ("H": 54.34), ("P", 1002.3)])
 ```
 
 Optionally pass a `timestamp` as `round(time.time()) * 1000`.
@@ -95,7 +91,7 @@ If `timestamp` is not provided, the library will assign a timestamp before placi
 
 ### Data publish strategy
 
-Stored sensor readings are pushed to WolkAbout IoT platform on demand by calling:
+Stored feed values are pushed to WolkAbout IoT platform on demand by calling:
 ```python
 wolk_device.publish()
 ```
@@ -108,4 +104,4 @@ wolk_device.disconnect()
 
 ## Additional functionality
 
-WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Read more about full feature set example [HERE](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set).
+WolkConnect-Python library has integrated additional features which can perform full WolkAbout IoT platform potential. Explore the [examples](https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/) for more information.

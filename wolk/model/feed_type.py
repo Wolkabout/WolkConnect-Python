@@ -1,5 +1,5 @@
-"""States of actuators & configurations as defined on WolkAbout IoT Platform."""
-#   Copyright 2020 WolkAbout Technology s.r.o.
+"""Enumeration of feed types."""
+#   Copyright 2021 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -13,22 +13,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 from enum import Enum
-from enum import unique
 
 
-@unique
-class State(Enum):
-    """
-    Enumeration of available states.
+class FeedType(Enum):
+    """Enumeration of available feed types."""
 
-    :ivar BUSY: Currently in busy state
-    :vartype BUSY: str
-    :ivar ERROR: Currently in error state
-    :vartype ERROR: str
-    :ivar READY: Currently in ready state
-    :vartype READY: str
-    """
-
-    READY = "READY"
-    BUSY = "BUSY"
-    ERROR = "ERROR"
+    IN = "IN"
+    IN_OUT = "IN_OUT"

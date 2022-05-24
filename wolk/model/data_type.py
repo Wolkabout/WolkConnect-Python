@@ -1,5 +1,5 @@
-"""Stub function for setting new configuration values."""
-#   Copyright 2020 WolkAbout Technology s.r.o.
+"""Enumeration of available data types on the Platform."""
+#   Copyright 2021 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -12,20 +12,15 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-from typing import Dict
-from typing import Union
+from enum import Enum
 
 
-def handle_configuration(
-    configuration: Dict[str, Union[int, float, bool, str]]
-) -> None:
-    """
-    Change device's configuration options.
+class DataType(Enum):
+    """Enumeration of data types on the Platform."""
 
-    Must be implemented as non blocking.
-    Must be implemented as thread safe.
-
-    :param configuration: Configuration options as reference:value pairs
-    :type configuration: dict
-    """
-    raise NotImplementedError()
+    STRING = "STRING"
+    NUMERIC = "NUMERIC"
+    BOOLEAN = "BOOLEAN"
+    HEXADECIMAL = "HEXADECIMAL"
+    LOCATION = "LOCATION"
+    ENUM = "ENUM"

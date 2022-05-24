@@ -14,22 +14,29 @@
 #   limitations under the License.
 from dataclasses import dataclass
 from dataclasses import field
-from typing import List
+from typing import Optional
+
+from wolk.model.data_delivery import DataDelivery
 
 
 @dataclass
 class Device:
     """
-    Device identified by key and password, and list of actuator references.
+    Device identified by key and password, and its outbound data mode.
+
+    A device's data delivery mode is either an always connected device (PUSH),
+    or a device that only periodically establishes connection and
+    then subsequently checks if there are any pending messages
+    that are intended for it (PULL).
 
     :ivar key: Device's key
     :vartype key: str
     :ivar password: Device's unique password
     :vartype password: str
-    :ivar actuator_references: Actuator references present on device
-    :vartype actuator_references: List[str]
+    :ivar data_delivery: Is the device always connected or only periodically
+    :vartype data_delivery: DataDelivery
     """
 
     key: str
     password: str
-    actuator_references: List[str] = field(default_factory=list)
+    data_delivery: Optional[DataDelivery] = field(default=DataDelivery.PUSH)

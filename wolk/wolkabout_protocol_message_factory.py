@@ -22,36 +22,45 @@ from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.message_factory import MessageFactory
-from wolk.model.actuator_status import ActuatorStatus
-from wolk.model.alarm import Alarm
+from wolk.model.data_type import DataType
+from wolk.model.feed_type import FeedType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.firmware_update_status_type import FirmwareUpdateStatusType
 from wolk.model.message import Message
-from wolk.model.sensor_reading import SensorReading
+from wolk.model.unit import Unit
+
+OutgoingDataTypes = Union[bool, int, float, str]
+Reading = Tuple[str, OutgoingDataTypes]
 
 
 class WolkAboutProtocolMessageFactory(MessageFactory):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
-    DEVICE_PATH_PREFIX = "d/"
-    REFERENCE_PATH_PREFIX = "r/"
-    CHANNEL_WILDCARD = "#"
+    DEVICE_TO_PLATFORM = "d2p/"
     CHANNEL_DELIMITER = "/"
-    LAST_WILL = "lastwill/"
-    SENSOR_READING = "d2p/sensor_reading/"
-    ALARM = "d2p/events/"
-    ACTUATOR_STATUS = "d2p/actuator_status/"
-    CONFIGURATION_STATUS = "d2p/configuration_get/"
-    FILE_BINARY_REQUEST = "d2p/file_binary_request/"
-    FIRMWARE_VERSION_UPDATE = "d2p/firmware_version_update/"
-    FIRMWARE_UPDATE_STATUS = "d2p/firmware_update_status/"
-    FILE_LIST_UPDATE = "d2p/file_list_update/"
-    FILE_LIST_RESPONSE = "d2p/file_list_response/"
-    FILE_UPLOAD_STATUS = "d2p/file_upload_status/"
-    FILE_URL_DOWNLOAD_STATUS = "d2p/file_url_download_status/"
-    KEEP_ALIVE = "ping/"
+
+    TIME = "time"
+
+    PARAMETERS = "parameters"
+    PULL_PARAMETERS = "pull_parameters"
+
+    FEED_VALUES = "feed_values"
+    PULL_FEED_VALUES = "pull_feed_values"
+
+    FEED_REGISTRATION = "feed_registration"
+    FEED_REMOVAL = "feed_removal"
+
+    ATTRIBUTE_REGISTRATION = "attribute_registration"
+
+    FILE_BINARY_REQUEST = "file_binary_request"
+    FILE_LIST = "file_list"
+    FILE_UPLOAD_STATUS = "file_upload_status"
+    FILE_URL_DOWNLOAD_STATUS = "file_url_download_status"
+
+    FIRMWARE_VERSION_UPDATE = "firmware_version_update"
+    FIRMWARE_UPDATE_STATUS = "firmware_update_status"
 
     def __init__(self, device_key: str) -> None:
         """
@@ -65,220 +74,182 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             str(self.__class__.__name__)
         )
         self.logger.debug(f"Device key: {device_key}")
-
-    def make_last_will_message(self) -> Message:
-        """
-        Serialize a last will message if device disconnects unexpectedly.
-
-        :returns: Last will message
-        :rtype: Message
-        """
-        topic = self.LAST_WILL + self.device_key
-        message = Message(topic)
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_keep_alive_message(self) -> Message:
-        """
-        Serialize a keep alive message.
-
-        :returns: keep alive message
-        :rtype: Message
-        """
-        topic = self.KEEP_ALIVE + self.device_key
-        message = Message(topic)
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_sensor_reading(
-        self, reading: Union[SensorReading, List[SensorReading]]
-    ) -> Message:
-        """
-        Serialize the sensor reading to be sent to WolkAbout IoT Platform.
-
-        :param reading: Sensor reading to be serialized
-        :type reading: Union[SensorReading, List[SensorReading]]
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"{reading}")
-
-        if isinstance(reading, SensorReading):
-            reference = reading.reference
-        else:
-            reference = reading[0].reference
-
-        topic = (
-            self.SENSOR_READING
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.REFERENCE_PATH_PREFIX
-            + reference
+        self.common_topic = (
+            self.DEVICE_TO_PLATFORM + self.device_key + self.CHANNEL_DELIMITER
         )
 
-        if not isinstance(reading, list):
-            reading = [reading]
-
-        payload: List[Dict[str, Union[int, str]]] = []
-
-        for single_reading in reading:
-            serialized_reading: Dict[str, Union[int, str]] = {}
-            if isinstance(single_reading.value, tuple):
-                serialized_reading["data"] = ",".join(
-                    map(str, single_reading.value)
-                )
-
-            elif isinstance(single_reading.value, bool):
-                serialized_reading["data"] = str(single_reading.value).lower()
-
-            else:
-                serialized_reading["data"] = str(single_reading.value)
-
-            if single_reading.timestamp is not None:
-                serialized_reading["utc"] = int(single_reading.timestamp)
-            else:
-                serialized_reading["utc"] = round(time() * 1000)
-
-            payload.append(serialized_reading)
-
-        message = Message(topic, json.dumps(payload))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_sensor_readings(
+    def make_from_feed_value(
         self,
-        readings: Dict[
-            str,
-            Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]],
-        ],
-        timestamp: Optional[int] = None,
+        reading: Union[Reading, List[Reading]],
+        timestamp: Optional[int],
     ) -> Message:
         """
-        Serialize multiple sensor readings to send to WolkAbout IoT Platform.
+        Serialize feed value data.
 
-        :param readings: Dictionary of reference: value pairs
-        :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
+        :param reading: Feed value data as (reference, value) or list of tuple
+        :type reading: Union[Reading, List[Reading]]
+        :param timestamp: Unix timestamp in ms. Default to current time if None
+        :raises ValueError: Reading is invalid data type
         :returns: message
         :rtype: Message
         """
-        self.logger.debug(f"readings:{readings}, timestamp:{timestamp}")
+        topic = self.common_topic + self.FEED_VALUES
 
-        topic = self.SENSOR_READING + self.DEVICE_PATH_PREFIX + self.device_key
-        payload = readings
-        for reference, value in payload.items():
-            if isinstance(value, tuple):
-                payload[reference] = ",".join(map(str, value))
-
-            elif isinstance(value, bool):
-                payload[reference] = str(value).lower()
-            else:
-                payload[reference] = str(value)
-
-        if timestamp is not None:
-            payload.update({"utc": int(timestamp)})
+        if isinstance(reading, tuple):
+            reference, value = reading
+            feed_value = {reference: value}
+        elif isinstance(reading, list):
+            feed_value = dict(reading)
         else:
-            payload.update({"utc": round(time()) * 1000})
+            raise ValueError(
+                f"Expected reading as tuple or list, got {type(reading)}"
+            )
+
+        feed_value["timestamp"] = (
+            timestamp if timestamp is not None else round(time() * 1000)
+        )
+        payload = [feed_value]
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_alarm(self, alarm: Alarm) -> Message:
+    def make_time_request(self) -> Message:
         """
-        Serialize the alarm to be sent to WolkAbout IoT Platform.
+        Serialize message requesting platform timestamp.
 
-        :param alarm: Alarm event to be serialized
-        :type alarm: Alarm
         :returns: message
         :rtype: Message
         """
-        self.logger.debug(f"{alarm}")
+        topic = self.common_topic + self.TIME
 
-        topic = (
-            self.ALARM
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.REFERENCE_PATH_PREFIX
-            + alarm.reference
-        )
+        message = Message(topic)
+        self.logger.debug(f"{message}")
 
-        payload: Dict[str, Union[str, int]] = {
-            "active": str(alarm.active).lower()
+        return message
+
+    def make_pull_feed_values(self) -> Message:
+        """
+        Serialize message requesting any pending inbound feed values.
+
+        :returns: message
+        :rtype: Message
+        """
+        topic = self.common_topic + self.PULL_FEED_VALUES
+
+        message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_from_parameters(
+        self, parameters: Dict[str, Union[bool, int, float, str]]
+    ) -> Message:
+        """
+        Serialize device parameters to be sent to the Platform.
+
+        :param parameters: Device parameters
+        :type parameters: Dict[str, Union[bool, int, float, str]]
+        :returns: message
+        :rtype: Message
+        """
+        topic = self.common_topic + self.PARAMETERS
+
+        message = Message(topic, json.dumps(parameters))
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_pull_parameters(self) -> Message:
+        """
+        Serialize request to pull device parameters from the Platform.
+
+        :returns: message
+        :rtype: Message
+        """
+        topic = self.common_topic + self.PULL_PARAMETERS
+
+        message = Message(topic)
+        self.logger.debug(f"{message}")
+
+        return message
+
+    def make_feed_registration(
+        self,
+        name: str,
+        reference: str,
+        feed_type: FeedType,
+        unit: Union[Unit, str],
+    ) -> Message:
+        """
+        Serialize request to register a feed on the Platform.
+
+        :param name: Feed name
+        :type name: str
+        :param reference: Unique identifier
+        :type reference: str
+        :param feed_type: Is the feed one or two-way communication
+        :type feed_type: FeedType
+        :param unit: Unit used to measure this feed
+        :type unit: Union[Unit, str]
+        :returns: message
+        :rtype: Message
+        """
+        topic = self.common_topic + self.FEED_REGISTRATION
+
+        payload = {
+            "name": name,
+            "reference": reference,
+            "type": feed_type.value,
         }
 
-        if alarm.timestamp is not None:
-            payload["utc"] = alarm.timestamp
+        if isinstance(unit, Unit):
+            payload["unitGuid"] = unit.value
         else:
-            payload["utc"] = round(time()) * 1000
+            payload["unitGuid"] = unit
 
-        message = Message(topic, json.dumps(payload))
+        message = Message(topic, json.dumps([payload]))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_actuator_status(self, actuator: ActuatorStatus) -> Message:
+    def make_feed_removal(self, reference: str) -> Message:
         """
-        Serialize the actuator status to be sent to WolkAbout IoT Platform.
+        Serialize request to remove a feed from the device on the Platform.
 
-        :param actuator: Actuator status to be serialized
-        :type actuator: ActuatorStatus
+        :param reference: Unique identifier
+        :type reference: str
         :returns: message
         :rtype: Message
         """
-        self.logger.debug(f"{actuator}")
+        topic = self.common_topic + self.FEED_REMOVAL
 
-        topic = (
-            self.ACTUATOR_STATUS
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-            + self.CHANNEL_DELIMITER
-            + self.REFERENCE_PATH_PREFIX
-            + actuator.reference
-        )
+        payload = json.dumps([reference])
 
-        if isinstance(actuator.value, bool):
-            actuator.value = str(actuator.value).lower()
-
-        payload = {"status": actuator.state.value}
-        payload["value"] = str(actuator.value)
-
-        message = Message(topic, json.dumps(payload))
+        message = Message(topic, payload)
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_configuration(
-        self, configuration: Dict[str, Optional[Union[int, float, bool, str]]]
+    def make_attribute_registration(
+        self, name: str, data_type: DataType, value: str
     ) -> Message:
         """
-        Report device's configuration to WolkAbout IoT Platform.
+        Serialize request to register an attribute for the device.
 
-        :param configuration: Device's current configuration
-        :type configuration: dict
+        :param name: Unique identifier
+        :type name: str
+        :param data_type: Type of data this attribute holds
+        :type data_type: DataType
+        :param value: Value of the attribute
+        :type value: str
         :returns: message
         :rtype: Message
         """
-        self.logger.debug(f"{configuration}")
-        topic = (
-            self.CONFIGURATION_STATUS
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
-        payload: Dict[str, Dict[str, str]] = {"values": {}}
+        topic = self.common_topic + self.ATTRIBUTE_REGISTRATION
 
-        for reference, value in configuration.items():
-            if isinstance(value, bool):
-                value = str(value).lower()
-            else:
-                value = str(value)
-
-            payload["values"].update({reference: value})
+        payload = [{"name": name, "dataType": data_type.value, "value": value}]
 
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
@@ -286,7 +257,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         return message
 
     def make_from_package_request(
-        self, file_name: str, chunk_index: int, chunk_size: int
+        self, file_name: str, chunk_index: int
     ) -> Message:
         """
         Request a package of the file from WolkAbout IoT Platform.
@@ -295,67 +266,38 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :type file_name: str
         :param chunk_index: Index of the requested package
         :type chunk_index: int
-        :param chunk_size: Size of the requested package
-        :type chunk_size: int
         :returns: message
         :rtype: Message
         """
         self.logger.debug(
-            f"file_name: '{file_name}', "
-            f"chunk_index: {chunk_index}, "
-            f"chunk_size: {chunk_size}"
+            f"file_name: '{file_name}', " f"chunk_index: {chunk_index}, "
         )
-        topic = (
-            self.FILE_BINARY_REQUEST
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
+        topic = self.common_topic + self.FILE_BINARY_REQUEST
+
         payload = {
-            "fileName": file_name,
+            "name": file_name,
             "chunkIndex": chunk_index,
-            "chunkSize": chunk_size,
         }
         message = Message(topic, json.dumps(payload))
         self.logger.debug(f"{message}")
 
         return message
 
-    def make_from_file_list_update(self, file_list: List[str]) -> Message:
+    def make_from_file_list(
+        self, file_list: List[Dict[str, Union[str, int]]]
+    ) -> Message:
         """
         Serialize list of files present on device.
 
         :param file_list: Files present on device
-        :type file_list: List[str]
+        :type file_list: List[Dict[str, Union[str, int]]]
         :returns: message
         :rtype: Message
         """
         self.logger.debug(f"{file_list}")
-        topic = (
-            self.FILE_LIST_UPDATE + self.DEVICE_PATH_PREFIX + self.device_key
-        )
-        message = Message(
-            topic, json.dumps([{"fileName": file} for file in file_list])
-        )
-        self.logger.debug(f"{message}")
+        topic = self.common_topic + self.FILE_LIST
 
-        return message
-
-    def make_from_file_list_request(self, file_list: List[str]) -> Message:
-        """
-        Serialize list of files present on device.
-
-        :param file_list: Files present on device
-        :type file_list: List[str]
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"{file_list}")
-        topic = (
-            self.FILE_LIST_RESPONSE + self.DEVICE_PATH_PREFIX + self.device_key
-        )
-        message = Message(
-            topic, json.dumps([{"fileName": file} for file in file_list])
-        )
+        message = Message(topic, json.dumps(file_list))
         self.logger.debug(f"{message}")
 
         return message
@@ -368,16 +310,15 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         :param status: Current file management status
         :type status: FileManagementStatus
-        :param file_name: Name of file being transfered
+        :param file_name: Name of file being transferred
         :type file_name: str
         :returns: message
         :rtype: Message
         """
         self.logger.debug(f" status: {status}, file_name: {file_name}")
-        topic = (
-            self.FILE_UPLOAD_STATUS + self.DEVICE_PATH_PREFIX + self.device_key
-        )
-        payload = {"fileName": file_name, "status": status.status.value}
+        topic = self.common_topic + self.FILE_UPLOAD_STATUS
+
+        payload = {"name": file_name, "status": status.status.value}
         if (
             status.status == FileManagementStatusType.ERROR
             and status.error is not None
@@ -408,11 +349,8 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         self.logger.debug(
             f"file_url: {file_url}, status: {status}, file_name: {file_name}"
         )
-        topic = (
-            self.FILE_URL_DOWNLOAD_STATUS
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
+        topic = self.common_topic + self.FILE_URL_DOWNLOAD_STATUS
+
         payload = {"fileUrl": file_url, "status": status.status.value}
 
         if (
@@ -441,11 +379,7 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
         :rtype: Message
         """
         self.logger.debug(f"{firmware_update_status}")
-        topic = (
-            self.FIRMWARE_UPDATE_STATUS
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
+        topic = self.common_topic + self.FIRMWARE_UPDATE_STATUS
         payload = {"status": firmware_update_status.status.value}
 
         if (
@@ -455,26 +389,6 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
             payload["error"] = firmware_update_status.error.value
 
         message = Message(topic, json.dumps(payload))
-        self.logger.debug(f"{message}")
-
-        return message
-
-    def make_from_firmware_version_update(self, version: str) -> Message:
-        """
-        Report the current version of firmware to WolkAbout IoT Platform.
-
-        :param version: Firmware version to report
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        self.logger.debug(f"version: {version}")
-        topic = (
-            self.FIRMWARE_VERSION_UPDATE
-            + self.DEVICE_PATH_PREFIX
-            + self.device_key
-        )
-        message = Message(topic, str(version))
         self.logger.debug(f"{message}")
 
         return message

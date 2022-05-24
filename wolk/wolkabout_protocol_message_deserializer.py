@@ -13,14 +13,13 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import json
-from distutils.util import strtobool
+from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import Union
 
 from wolk import logger_factory
 from wolk.interface.message_deserializer import MessageDeserializer
-from wolk.model.actuator_command import ActuatorCommand
-from wolk.model.configuration_command import ConfigurationCommand
 from wolk.model.device import Device
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
@@ -34,74 +33,96 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
     :vartype logger: logging.Logger
     """
 
-    DEVICE_PATH_DELIMITER = "d/"
-    REFERENCE_PATH_PREFIX = "r/"
+    PLATFORM_TO_DEVICE = "p2d/"
     CHANNEL_DELIMITER = "/"
-    KEEP_ALIVE_RESPONSE = "pong/"
-    ACTUATOR_SET = "p2d/actuator_set/"
-    CONFIGURATION_SET = "p2d/configuration_set/"
-    FILE_BINARY_RESPONSE = "p2d/file_binary_response/"
-    FILE_DELETE = "p2d/file_delete/"
-    FILE_PURGE = "p2d/file_purge/"
-    FILE_LIST_CONFIRM = "p2d/file_list_confirm/"
-    FILE_LIST_REQUEST = "p2d/file_list_request/"
-    FILE_UPLOAD_ABORT = "p2d/file_upload_abort/"
-    FILE_UPLOAD_INITIATE = "p2d/file_upload_initiate/"
-    FILE_URL_DOWNLOAD_ABORT = "p2d/file_url_download_abort/"
-    FILE_URL_DOWNLOAD_INITIATE = "p2d/file_url_download_initiate/"
-    FIRMWARE_UPDATE_ABORT = "p2d/firmware_update_abort/"
-    FIRMWARE_UPDATE_INSTALL = "p2d/firmware_update_install/"
+
+    TIME = "time"
+    PARAMETERS = "parameters"
+    FEED_VALUES = "feed_values"
+
+    FILE_BINARY = "file_binary_response"
+    FILE_DELETE = "file_delete"
+    FILE_PURGE = "file_purge"
+    FILE_LIST = "file_list"
+    FILE_UPLOAD_ABORT = "file_upload_abort"
+    FILE_UPLOAD_INITIATE = "file_upload_initiate"
+    FILE_URL_ABORT = "file_url_download_abort"
+    FILE_URL_INITIATE = "file_url_download_initiate"
+
+    FIRMWARE_ABORT = "firmware_update_abort"
+    FIRMWARE_INSTALL = "firmware_update_install"
 
     def __init__(self, device: Device) -> None:
         """
         Create inbound topics from device key.
 
-        :param device: Device key and actuator references for inbound topics
+        :param device: Contains device key used for inbound topics
         :type device: Device
         """
         self.logger = logger_factory.logger_factory.get_logger(
             str(self.__class__.__name__)
         )
         self.logger.debug(f"{device}")
+        self.key = device.key
+
+        self.time_topic = self._form_topic(self.TIME)
+        self.feed_values_topic = self._form_topic(self.FEED_VALUES)
+        self.parameters_topic = self._form_topic(self.PARAMETERS)
+
+        self.file_binary_topic = self._form_topic(self.FILE_BINARY)
+        self.file_delete_topic = self._form_topic(self.FILE_DELETE)
+        self.file_purge_topic = self._form_topic(self.FILE_PURGE)
+        self.file_list = self._form_topic(self.FILE_LIST)
+        self.file_upload_abort_topic = self._form_topic(self.FILE_UPLOAD_ABORT)
+        self.file_upload_initiate_topic = self._form_topic(
+            self.FILE_UPLOAD_INITIATE
+        )
+        self.file_url_abort_topic = self._form_topic(self.FILE_URL_ABORT)
+        self.file_url_initiate_topic = self._form_topic(self.FILE_URL_INITIATE)
+
+        self.firmware_abort_topic = self._form_topic(self.FIRMWARE_ABORT)
+        self.firmware_install_topic = self._form_topic(self.FIRMWARE_INSTALL)
 
         self.inbound_topics = [
-            self.KEEP_ALIVE_RESPONSE + device.key,
-            self.CONFIGURATION_SET + self.DEVICE_PATH_DELIMITER + device.key,
-            self.FILE_BINARY_RESPONSE
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
-            self.FILE_DELETE + self.DEVICE_PATH_DELIMITER + device.key,
-            self.FILE_PURGE + self.DEVICE_PATH_DELIMITER + device.key,
-            self.FILE_LIST_CONFIRM + self.DEVICE_PATH_DELIMITER + device.key,
-            self.FILE_LIST_REQUEST + self.DEVICE_PATH_DELIMITER + device.key,
-            self.FILE_UPLOAD_ABORT + self.DEVICE_PATH_DELIMITER + device.key,
-            self.FILE_UPLOAD_INITIATE
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
-            self.FILE_URL_DOWNLOAD_ABORT
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
-            self.FILE_URL_DOWNLOAD_INITIATE
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
-            self.FIRMWARE_UPDATE_ABORT
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
-            self.FIRMWARE_UPDATE_INSTALL
-            + self.DEVICE_PATH_DELIMITER
-            + device.key,
+            self.time_topic,
+            self.feed_values_topic,
+            self.parameters_topic,
+            self.file_binary_topic,
+            self.file_delete_topic,
+            self.file_purge_topic,
+            self.file_list,
+            self.file_upload_abort_topic,
+            self.file_upload_initiate_topic,
+            self.file_url_abort_topic,
+            self.file_url_initiate_topic,
+            self.firmware_abort_topic,
+            self.firmware_install_topic,
+        ]
+        self.logger.debug(f"inbound topics: {self.inbound_topics}")
+
+        self.file_management_message_checks = [
+            self.is_file_purge_command,
+            self.is_file_delete_command,
+            self.is_file_binary_response,
+            self.is_file_upload_initiate,
+            self.is_file_upload_abort,
+            self.is_file_list,
+            self.is_file_url_initiate,
+            self.is_file_url_abort,
         ]
 
-        for reference in device.actuator_references:
-            self.inbound_topics.append(
-                self.ACTUATOR_SET
-                + self.DEVICE_PATH_DELIMITER
-                + device.key
-                + self.CHANNEL_DELIMITER
-                + self.REFERENCE_PATH_PREFIX
-                + reference
-            )
-        self.logger.debug(f"inbound topics: {self.inbound_topics}")
+        self.firmware_update_message_checks = [
+            self.is_firmware_install,
+            self.is_firmware_abort,
+        ]
+
+    def _form_topic(self, message_type: str) -> str:
+        return (
+            self.PLATFORM_TO_DEVICE
+            + self.key
+            + self.CHANNEL_DELIMITER
+            + message_type
+        )
 
     def get_inbound_topics(self) -> List[str]:
         """
@@ -112,37 +133,76 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         """
         return self.inbound_topics
 
-    def is_keep_alive_response(self, message: Message) -> bool:
+    def is_time_response(self, message: Message) -> bool:
         """
-        Check if message is keep alive response.
+        Check if message is response to time request.
 
         :param message: The message received
         :type message: Message
-        :returns: keep_alive_response
+        :returns: is_time_response
         :rtype: bool
         """
-        keep_alive_response = message.topic.startswith(
-            self.KEEP_ALIVE_RESPONSE
-        )
+        is_time_response = message.topic == self.time_topic
         self.logger.debug(
-            f"{message.topic} is keep alive response: {keep_alive_response}"
+            f"{message.topic} is time response: {is_time_response}"
         )
-        return keep_alive_response
+        return is_time_response
 
-    def is_actuation_command(self, message: Message) -> bool:
+    def is_feed_values(self, message: Message) -> bool:
         """
-        Check if message is actuation command.
+        Check if message is for incoming feed values.
 
         :param message: The message received
         :type message: Message
-        :returns: actuation_command
+        :returns: is_feed_values
         :rtype: bool
         """
-        actuation_command = message.topic.startswith(self.ACTUATOR_SET)
+        is_feed_values = message.topic == self.feed_values_topic
+        self.logger.debug(f"{message.topic} is feed values: {is_feed_values}")
+        return is_feed_values
+
+    def is_parameters(self, message: Message) -> bool:
+        """
+        Check if message is for updating device parameters.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_parameters
+        :rtype: bool
+        """
+        is_parameters = message.topic == self.parameters_topic
         self.logger.debug(
-            f"{message.topic} is actuation command: {actuation_command}"
+            f"{message.topic} is parameters message: " f"{is_parameters}"
         )
-        return actuation_command
+        return is_parameters
+
+    def is_file_management_message(self, message: Message) -> bool:
+        """
+        Check if message is any kind of file management related message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_file_management_message
+        :rtype: bool
+        """
+        return any(
+            is_message(message)
+            for is_message in self.file_management_message_checks
+        )
+
+    def is_firmware_message(self, message: Message) -> bool:
+        """
+        Check if message is any kind of firmware related message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_firmware_message
+        :rtype: bool
+        """
+        return any(
+            is_message(message)
+            for is_message in self.firmware_update_message_checks
+        )
 
     def is_firmware_install(self, message: Message) -> bool:
         """
@@ -153,9 +213,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: firmware_update_install
         :rtype: bool
         """
-        firmware_update_install = message.topic.startswith(
-            self.FIRMWARE_UPDATE_INSTALL
-        )
+        firmware_update_install = message.topic == self.firmware_install_topic
         self.logger.debug(
             f"{message.topic} is firmware install: {firmware_update_install}"
         )
@@ -170,9 +228,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: firmware_update_abort
         :rtype: bool
         """
-        firmware_update_abort = message.topic.startswith(
-            self.FIRMWARE_UPDATE_ABORT
-        )
+        firmware_update_abort = message.topic == self.firmware_abort_topic
         self.logger.debug(
             f"{message.topic} is firmware abort: {firmware_update_abort}"
         )
@@ -187,22 +243,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_binary
         :rtype: bool
         """
-        file_binary = message.topic.startswith(self.FILE_BINARY_RESPONSE)
+        file_binary = message.topic == self.file_binary_topic
         self.logger.debug(f"{message.topic} is file binary: {file_binary}")
         return file_binary
-
-    def is_configuration_command(self, message: Message) -> bool:
-        """
-        Check if message is configuration command.
-
-        :param message: The message received
-        :type message: Message
-        :returns: configuration
-        :rtype: bool
-        """
-        configuration = message.topic.startswith(self.CONFIGURATION_SET)
-        self.logger.debug(f"{message.topic} is configuration: {configuration}")
-        return configuration
 
     def is_file_delete_command(self, message: Message) -> bool:
         """
@@ -213,7 +256,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_delete_command
         :rtype: bool
         """
-        file_delete_command = message.topic.startswith(self.FILE_DELETE)
+        file_delete_command = message.topic == self.file_delete_topic
         self.logger.debug(
             f"{message.topic} is file delete: {file_delete_command}"
         )
@@ -228,41 +271,24 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_purge_command
         :rtype: bool
         """
-        file_purge_command = message.topic.startswith(self.FILE_PURGE)
+        file_purge_command = message.topic == self.file_purge_topic
         self.logger.debug(
             f"{message.topic} is file purge: {file_purge_command}"
         )
         return file_purge_command
 
-    def is_file_list_confirm(self, message: Message) -> bool:
+    def is_file_list(self, message: Message) -> bool:
         """
-        Check if message is file list confirm.
+        Check if message is file list request message.
 
         :param message: The message received
         :type message: Message
-        :returns: file_list_confirm
+        :returns: file_list
         :rtype: bool
         """
-        file_list_confirm = message.topic.startswith(self.FILE_LIST_CONFIRM)
-        self.logger.debug(
-            f"{message.topic} is file list confirm: {file_list_confirm}"
-        )
-        return file_list_confirm
-
-    def is_file_list_request(self, message: Message) -> bool:
-        """
-        Check if message is file list request.
-
-        :param message: The message received
-        :type message: Message
-        :returns: file_list_request
-        :rtype: bool
-        """
-        file_list_request = message.topic.startswith(self.FILE_LIST_REQUEST)
-        self.logger.debug(
-            f"{message.topic} is file list request: {file_list_request}"
-        )
-        return file_list_request
+        file_list = message.topic == self.file_list
+        self.logger.debug(f"{message.topic} is file list request: {file_list}")
+        return file_list
 
     def is_file_upload_initiate(self, message: Message) -> bool:
         """
@@ -273,11 +299,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_upload_initiate
         :rtype: bool
         """
-        file_upload_initiate = message.topic.startswith(
-            self.FILE_UPLOAD_INITIATE
-        )
+        file_upload_initiate = message.topic == self.file_upload_initiate_topic
         self.logger.debug(
-            f"{message.topic} is file upload init: {file_upload_initiate}"
+            f"{message.topic} is file upload initiate: {file_upload_initiate}"
         )
         return file_upload_initiate
 
@@ -290,11 +314,11 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_upload_abort_command
         :rtype: bool
         """
-        file_upload_abort_command = message.topic.startswith(
-            self.FILE_UPLOAD_ABORT
+        file_upload_abort_command = (
+            message.topic == self.file_upload_abort_topic
         )
         self.logger.debug(
-            f"{message.topic} is file purge: {file_upload_abort_command}"
+            f"{message.topic} is file upload abort: {file_upload_abort_command}"
         )
         return file_upload_abort_command
 
@@ -307,11 +331,9 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_url_download_init
         :rtype: bool
         """
-        file_url_download_init = message.topic.startswith(
-            self.FILE_URL_DOWNLOAD_INITIATE
-        )
+        file_url_download_init = message.topic == self.file_url_initiate_topic
         self.logger.debug(
-            f"{message.topic} is file url download: {file_url_download_init}"
+            f"{message.topic} is file URL download: {file_url_download_init}"
         )
         return file_url_download_init
 
@@ -324,15 +346,13 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         :returns: file_url_download_abort
         :rtype: bool
         """
-        file_url_download_abort = message.topic.startswith(
-            self.FILE_URL_DOWNLOAD_ABORT
-        )
+        file_url_download_abort = message.topic == self.file_url_abort_topic
         self.logger.debug(
-            f"{message.topic} is file url abort: {file_url_download_abort}"
+            f"{message.topic} is file URL abort: {file_url_download_abort}"
         )
         return file_url_download_abort
 
-    def parse_keep_alive_response(self, message: Message) -> int:
+    def parse_time_response(self, message: Message) -> int:
         """
         Parse the message into an UTC timestamp.
 
@@ -344,43 +364,10 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
         self.logger.debug(f"{message}")
         payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
 
-        timestamp = payload["value"]
+        timestamp = payload
 
         self.logger.debug(f"received timestamp: {timestamp}")
         return timestamp
-
-    def parse_actuator_command(self, message: Message) -> ActuatorCommand:
-        """
-        Parse the message into an actuation command.
-
-        :param message: Message to be deserialized
-        :type message: Message
-
-        :returns: actuation
-        :rtype: ActuatorCommand
-        """
-        self.logger.debug(f"{message}")
-        reference = message.topic.split("/")[-1]
-
-        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
-        value = payload["value"]
-        if "\\n" in value:
-            value = value.replace("\\n", "\n")
-        if value in ["true", "false"]:
-            value = bool(strtobool(value))
-        else:
-            try:
-                value = float(value)
-            except ValueError:
-                try:
-                    value = int(value)
-                except ValueError:
-                    pass
-
-        actuation = ActuatorCommand(reference, value)
-        self.logger.info(f"Received actuation command: {actuation}")
-
-        return actuation
 
     def parse_firmware_install(self, message: Message) -> str:
         """
@@ -395,7 +382,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            file_name = payload["fileName"]
+            file_name = payload
         except Exception:
             self.logger.warning(
                 f"Received invalid firmware install message: {message}"
@@ -443,61 +430,27 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 file_transfer_package = FileTransferPackage(b"", b"", b"")
         return file_transfer_package
 
-    def parse_configuration(self, message: Message) -> ConfigurationCommand:
+    def parse_file_delete_command(self, message: Message) -> List[str]:
         """
-        Parse the message into a configuration command.
-
-        :param message: The message received
-        :type message: Message
-
-        :returns: configuration
-        :rtype: ConfigurationCommand
-        """
-        self.logger.debug(f"{message}")
-
-        payload = json.loads(message.payload.decode("utf-8"))  # type: ignore
-        values = payload["values"]
-
-        if isinstance(values, dict):
-            for reference, value in values.items():
-                if value in ["true", "false"]:
-                    value = bool(strtobool(value))
-                if isinstance(value, str):
-                    value = value.replace("\\n", "\n")
-                    try:
-                        if "." in value:
-                            value = float(value)
-                        else:
-                            value = int(value)
-                    except ValueError:
-                        pass
-                values[reference] = value
-
-        configuration = ConfigurationCommand(values)
-        self.logger.info(f"Received configuration command: {configuration}")
-        return configuration
-
-    def parse_file_delete_command(self, message: Message) -> str:
-        """
-        Parse the message into a file name to delete.
+        Parse the message into a list of file names.
 
         :param message: The message received
         :type message: Message
         :returns: file_name
-        :rtype: str
+        :rtype: List[str]
         """
         self.logger.debug(f"{message}")
         try:
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            self.logger.debug(f'file name: {payload["fileName"]}')
-            return payload["fileName"]
+            self.logger.debug(f"file names: {payload}")
+            return payload
         except Exception:
             self.logger.warning(
                 f"Failed to get file name from message {message}"
             )
-            return ""
+            return []
 
     def parse_file_url(self, message: Message) -> str:
         """
@@ -513,8 +466,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
             payload = json.loads(
                 message.payload.decode("utf-8")  # type: ignore
             )
-            self.logger.debug(f'file URL: {payload["fileUrl"]}')
-            return payload["fileUrl"]
+            return payload
         except Exception:
             self.logger.warning(
                 f"Failed to get file URL from message {message}"
@@ -527,7 +479,7 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
 
         :param message: The message received
         :type message: Message
-        :returns: (file_name, file_size, file_hash)
+        :returns: (name, size, hash)
         :rtype: Tuple[str, int, str]
         """
         self.logger.debug(f"{message}")
@@ -536,17 +488,55 @@ class WolkAboutProtocolMessageDeserializer(MessageDeserializer):
                 message.payload.decode("utf-8")  # type: ignore
             )
             self.logger.debug(
-                f'file_name={payload["fileName"]}, '
-                f'file_size={payload["fileSize"]}, '
-                f'file_hash={payload["fileHash"]}'
+                f'name={payload["name"]}, '
+                f'size={payload["size"]}, '
+                f'hash={payload["hash"]}'
             )
             return (
-                payload["fileName"],
-                payload["fileSize"],
-                payload["fileHash"],
+                payload["name"],
+                payload["size"],
+                payload["hash"],
             )
         except Exception:
             self.logger.warning(
                 f"Received invalid file upload initiate message: {message}"
             )
             return "", 0, ""
+
+    def parse_parameters(
+        self, message: Message
+    ) -> Dict[str, Union[bool, int, float, str]]:
+        """
+        Parse the incoming parameters message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: parameters
+        :rtype: Dict[str, Union[bool, int, float, str]]
+        """
+        self.logger.debug(f"{message}")
+        try:
+            parameters = json.loads(message.payload)
+            return parameters
+        except Exception as e:
+            self.logger.exception(f"Failed to parse parameters message: {e}")
+            return {}
+
+    def parse_feed_values(
+        self, message: Message
+    ) -> List[Dict[str, Union[bool, int, float, str]]]:
+        """
+        Parse the incoming feed values message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: feed_values
+        :rtype: List[Dict[str, Union[bool, int, float, str]]]
+        """
+        self.logger.debug(f"{message}")
+        try:
+            feed_values = json.loads(message.payload)
+            return feed_values
+        except Exception as e:
+            self.logger.exception(f"Failed to parse feed values message: {e}")
+            return []

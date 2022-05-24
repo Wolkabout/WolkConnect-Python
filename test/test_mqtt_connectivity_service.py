@@ -68,7 +68,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         """Test on mqtt message with no message."""
         self.mqtt_cs.inbound_message_listener = MagicMock()
 
-        self.mqtt_cs.on_mqtt_message(None, None, None)
+        self.mqtt_cs._on_mqtt_message(None, None, None)
 
         self.mqtt_cs.inbound_message_listener.assert_not_called()
 
@@ -77,7 +77,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         self.mqtt_cs.inbound_message_listener = MagicMock()
         message = Message("binary", b"")
 
-        self.mqtt_cs.on_mqtt_message(None, None, message)
+        self.mqtt_cs._on_mqtt_message(None, None, message)
 
         self.mqtt_cs.inbound_message_listener.assert_called_once_with(message)
 
@@ -86,59 +86,60 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         self.mqtt_cs.inbound_message_listener = MagicMock()
         message = Message("some_topic", "payload")
 
-        self.mqtt_cs.on_mqtt_message(None, None, message)
+        self.mqtt_cs._on_mqtt_message(None, None, message)
 
         self.mqtt_cs.inbound_message_listener.assert_called_once_with(message)
 
     def test_on_mqtt_connect_rc_0_without_topics(self):
         """Test on mqtt connect with return code 0 without topics."""
         self.mqtt_cs.client.subscribe = MagicMock()
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 0)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 0)
 
         self.mqtt_cs.client.subscribe.assert_not_called()
 
     def test_on_mqtt_connect_rc_0_with_topics(self):
         """Test on mqtt connect with return code 0 with topics."""
         self.mqtt_cs.topics = [1, 2, 3]
+        self.mqtt_cs.client = MagicMock()
         self.mqtt_cs.client.subscribe = MagicMock()
 
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 0)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 0)
 
         self.assertEqual(3, self.mqtt_cs.client.subscribe.call_count)
 
     def test_on_mqtt_connect_rc_1(self):
         """Test on mqtt connect with return code 1."""
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 1)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 1)
 
         self.assertEqual(1, self.mqtt_cs.connected_rc)
 
     def test_on_mqtt_connect_rc_2(self):
         """Test on mqtt connect with return code 2."""
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 2)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 2)
 
         self.assertEqual(2, self.mqtt_cs.connected_rc)
 
     def test_on_mqtt_connect_rc_3(self):
         """Test on mqtt connect with return code 3."""
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 3)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 3)
 
         self.assertEqual(3, self.mqtt_cs.connected_rc)
 
     def test_on_mqtt_connect_rc_4(self):
         """Test on mqtt connect with return code 4."""
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 4)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 4)
 
         self.assertEqual(4, self.mqtt_cs.connected_rc)
 
     def test_on_mqtt_connect_rc_5(self):
         """Test on mqtt connect with return code 5."""
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 5)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 5)
 
         self.assertEqual(5, self.mqtt_cs.connected_rc)
 
     def test_on_mqtt_connect_rc_6(self):
         """Test on mqtt connect with invalid return code 6."""
-        self.mqtt_cs.on_mqtt_connect(None, None, None, 6)
+        self.mqtt_cs._on_mqtt_connect(None, None, None, 6)
 
         self.assertEqual(None, self.mqtt_cs.connected_rc)
 
@@ -146,7 +147,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         """Test on mqtt disconnect with return code 0."""
         self.mqtt_cs.connect = MagicMock()
 
-        self.mqtt_cs.on_mqtt_disconnect(None, None, 0)
+        self.mqtt_cs._on_mqtt_disconnect(None, None, 0)
 
         self.mqtt_cs.connect.assert_not_called()
 
@@ -154,7 +155,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         """Test on mqtt disconnect with return code not 0."""
         self.mqtt_cs.client.reconnect = MagicMock()
 
-        self.mqtt_cs.on_mqtt_disconnect(None, None, 1)
+        self.mqtt_cs._on_mqtt_disconnect(None, None, 1)
 
         self.mqtt_cs.client.reconnect.assert_called_once()
 
@@ -174,7 +175,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         """Test calling connect with good ca_cert."""
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
 
         self.assertFalse(self.mqtt_cs.connect())
 
@@ -182,13 +183,13 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         """Test calling connect with bad host."""
         self.mqtt_cs.host = "bad_host"
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
 
         self.assertFalse(self.mqtt_cs.connect())
 
     def test_connect_timeout(self):
         """Test connect with timeout."""
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.timeout_interval = -1
@@ -202,7 +203,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
         """Test connect with timeout."""
         self.mqtt_cs.topics = [1, 2, 3]
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 0
@@ -215,7 +216,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_connect_rc_1(self):
         """Test connect with return code 1."""
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 1
@@ -227,7 +228,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_connect_rc_2(self):
         """Test connect with return code 2."""
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 2
@@ -238,7 +239,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_connect_rc_3(self):
         """Test connect with return code 3."""
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 3
@@ -250,7 +251,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_connect_rc_4(self):
         """Test connect with return code 4."""
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 4
@@ -262,7 +263,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_connect_rc_5(self):
         """Test connect with return code 5."""
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 5
@@ -274,7 +275,7 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_connect_rc_9_invalid(self):
         """Test connect with invalid return code 9."""
         self.mqtt_cs.ca_cert = self.ca_crt_path
-        self.mqtt_cs.on_mqtt_disconnect = MagicMock()
+        self.mqtt_cs._on_mqtt_disconnect = MagicMock()
         self.mqtt_cs.client.connect = MagicMock()
         self.mqtt_cs.logger.warning = MagicMock()
         self.mqtt_cs.connected_rc = 9
@@ -286,19 +287,12 @@ class MQTTConnectivityServiceTests(unittest.TestCase):
     def test_disconnect(self):
         """Test disconnect."""
         self.mqtt_cs.logger.debug = MagicMock()
+        self.mqtt_cs.client = MagicMock()
+        self.mqtt_cs.client.disconnect = MagicMock()
 
         self.mqtt_cs.disconnect()
 
-        self.mqtt_cs.logger.debug.assert_called_once()
-
-    def test_disconnect_publishes_last_will(self):
-        """Test disconnect publishes last will."""
-        self.mqtt_cs.is_connected = MagicMock(return_value=True)
-        self.mqtt_cs.publish = MagicMock()
-
-        self.mqtt_cs.disconnect()
-
-        self.mqtt_cs.publish.assert_called_once()
+        self.mqtt_cs.client.disconnect.assert_called_once()
 
     def test_publish_no_message(self):
         """Test publish with no message."""

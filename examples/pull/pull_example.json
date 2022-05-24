@@ -1,0 +1,46 @@
+[
+  {
+    "semanticTypeId": 1002,
+    "name": "WolkConnect: Pull Example",
+    "guid": "da2c9674-0d86-4772-a502-6a15e8d0a16b",
+    "description": "Device type that periodically connects to the Platform to pull feed values for its Switch and Heart beat feeds.",
+    "deviceType": true,
+    "attributes": [],
+    "feeds": [
+      {
+        "id": 1003,
+        "name": "Heart Beat",
+        "type": "IN_OUT",
+        "sourceType": "DEVICE",
+        "unitGuid": "NUMERIC",
+        "reference": "HB"
+      },
+      {
+        "id": 1002,
+        "name": "Switch",
+        "type": "IN_OUT",
+        "sourceType": "DEVICE",
+        "unitGuid": "BOOLEAN",
+        "reference": "SW"
+      }
+    ],
+    "deviceTypeId": 1002,
+    "protocol": "WOLKABOUT",
+    "postProvisioning": "STANDARD",
+    "parameters": {
+      "FIRMWARE_UPDATE_CHECK_TIME": null,
+      "GATEWAY": "false",
+      "CONNECTIVITY_TYPE": "MQTT",
+      "FIRMWARE_VERSION": null,
+      "OUTBOUND_DATA_MODE": "PULL",
+      "EXTERNAL_ID": null,
+      "MAXIMUM_MESSAGE_SIZE": "0",
+      "GATEWAY_PARENT": null,
+      "OUTBOUND_DATA_RETENTION_TIME": "0",
+      "FIRMWARE_UPDATE_ENABLED": "false",
+      "FILE_TRANSFER_PLATFORM_ENABLED": "false",
+      "FILE_TRANSFER_URL_ENABLED": "false"
+    },
+    "id": 1002
+  }
+]

@@ -8,23 +8,18 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
-__version__ = "4.1.3"
-from .interface.actuation_handler import handle_actuation
-from .interface.actuator_status_provider import get_actuator_status
-from .interface.configuration_handler import handle_configuration
-from .interface.configuration_provider import get_configuration
+__version__ = "5.0.0"
 from .interface.connectivity_service import ConnectivityService
 from .interface.firmware_handler import FirmwareHandler
 from .interface.message_deserializer import MessageDeserializer
 from .interface.message_factory import MessageFactory
 from .interface.message_queue import MessageQueue
 from .logger_factory import logging_config
-from .model.actuator_command import ActuatorCommand
-from .model.state import State
-from .model.actuator_status import ActuatorStatus
-from .model.alarm import Alarm
-from .model.configuration_command import ConfigurationCommand
+from .model.data_delivery import DataDelivery
+from .model.data_type import DataType
+from .model.feed_type import FeedType
 from .model.device import Device
+from .model.unit import Unit
 from .model.file_management_error_type import FileManagementErrorType
 from .model.file_management_status import FileManagementStatus
 from .model.file_management_status_type import FileManagementStatusType
@@ -33,8 +28,6 @@ from .model.firmware_update_error_type import FirmwareUpdateErrorType
 from .model.firmware_update_status import FirmwareUpdateStatus
 from .model.firmware_update_status_type import FirmwareUpdateStatusType
 from .model.message import Message
-from .repeating_timer import RepeatingTimer
-from .model.sensor_reading import SensorReading
 from .os_file_management import OSFileManagement
 from .os_firmware_update import OSFirmwareUpdate
 from .wolk_connect import WolkConnect
@@ -47,12 +40,10 @@ from .message_deque import MessageDeque
 
 
 __all__ = [
-    "ActuatorCommand",
-    "State",
-    "ActuatorStatus",
-    "Alarm",
-    "ConfigurationCommand",
+    "DataDelivery",
+    "DataType",
     "Device",
+    "FeedType",
     "FileTransferPackage",
     "FirmwareUpdateStatus",
     "FirmwareUpdateStatusType",
@@ -61,11 +52,6 @@ __all__ = [
     "FileManagementStatusType",
     "FileManagementErrorType",
     "Message",
-    "SensorReading",
-    "handle_actuation",
-    "get_actuator_status",
-    "handle_configuration",
-    "get_configuration",
     "ConnectivityService",
     "FirmwareHandler",
     "MessageDeserializer",
@@ -74,7 +60,7 @@ __all__ = [
     "OSFileManagement",
     "OSFirmwareUpdate",
     "logging_config",
-    "RepeatingTimer",
+    "Unit",
     "WolkConnect",
     "WolkAboutProtocolMessageFactory",
     "WolkAboutProtocolMessageDeserializer",

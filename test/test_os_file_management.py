@@ -23,7 +23,6 @@ from unittest.mock import MagicMock
 sys.path.append("..")  # noqa
 
 from wolk.os_file_management import OSFileManagement
-from wolk.model.file_management_error_type import FileManagementErrorType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_management_status_type import FileManagementStatusType
 from wolk.model.file_transfer_package import FileTransferPackage
@@ -45,13 +44,10 @@ class TestOSFileManagement(unittest.TestCase):
         )
 
         preferred_package_size = 1000
-        max_file_size = 1000000
         file_directory = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "files"
+            os.path.dirname(os.path.realpath(__file__)), "test_files"
         )
-        file_management.configure(
-            preferred_package_size, max_file_size, file_directory
-        )
+        file_management.configure(file_directory, preferred_package_size)
         self.assertTrue(os.path.exists(file_directory))
         os.rmdir(file_directory)
 
@@ -67,19 +63,16 @@ class TestOSFileManagement(unittest.TestCase):
             mock_url_status_callback,
         )
         preferred_package_size = 1000
-        max_file_size = 1000000
         file_directory = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "files"
+            os.path.dirname(os.path.realpath(__file__)), "test_files"
         )
         os.makedirs(os.path.abspath(file_directory))
-        file_management.configure(
-            preferred_package_size, max_file_size, file_directory
-        )
+        file_management.configure(file_directory, preferred_package_size)
         self.assertTrue(os.path.exists(file_directory))
         os.rmdir(file_directory)
 
-    def test_set_custom_url_downloader(self):
-        """Test setting custom URL downloader."""
+    def test_set_custom_url_downloader_not_callable(self):
+        """Test setting custom non-callable URL downloader."""
         downloader = True
         mock_status_callback = MagicMock(return_value=None)
         mock_packet_request_callback = MagicMock(return_value=None)
@@ -92,7 +85,22 @@ class TestOSFileManagement(unittest.TestCase):
         )
 
         file_management.set_custom_url_downloader(downloader)
-        self.assertEqual(downloader, file_management.download_url)
+        self.assertNotEqual(downloader, file_management.url_downloader)
+
+    def test_set_custom_url_downloader_not_enough_params(self):
+        """Test setting custom URL downloader with not enough params."""
+        mock_status_callback = MagicMock(return_value=None)
+        mock_packet_request_callback = MagicMock(return_value=None)
+        mock_url_status_callback = MagicMock(return_value=None)
+
+        file_management = OSFileManagement(
+            mock_status_callback,
+            mock_packet_request_callback,
+            mock_url_status_callback,
+        )
+
+        file_management.set_custom_url_downloader(lambda a: a)
+        self.assertNotEqual(lambda a: a, file_management.url_downloader)
 
     def test_handle_upload_initiation_not_idle_state(self):
         """Test handle upload initiation when module not idle."""
@@ -118,76 +126,6 @@ class TestOSFileManagement(unittest.TestCase):
 
         file_management.status_callback.assert_not_called()
 
-    def test_handle_upload_initiation_unconfigured(self):
-        """Test handle upload initiation when module not configured."""
-        mock_status_callback = MagicMock(return_value=None)
-        mock_packet_request_callback = MagicMock(return_value=None)
-        mock_url_status_callback = MagicMock(return_value=None)
-
-        file_management = OSFileManagement(
-            mock_status_callback,
-            mock_packet_request_callback,
-            mock_url_status_callback,
-        )
-        file_management.logger.setLevel(logging.CRITICAL)
-
-        file_name = "file"
-        file_size = 1024
-        file_hash = "some_hash"
-
-        file_management.handle_upload_initiation(
-            file_name, file_size, file_hash
-        )
-
-        expected_status = FileManagementStatus(
-            FileManagementStatusType.ERROR,
-            FileManagementErrorType.TRANSFER_PROTOCOL_DISABLED,
-        )
-
-        file_management.status_callback.assert_called_once_with(
-            file_name, expected_status
-        )
-
-    def test_handle_upload_initiation_file_too_big(self):
-        """Test handle upload initiation when file too big."""
-        mock_status_callback = MagicMock(return_value=None)
-        mock_packet_request_callback = MagicMock(return_value=None)
-        mock_url_status_callback = MagicMock(return_value=None)
-
-        file_management = OSFileManagement(
-            mock_status_callback,
-            mock_packet_request_callback,
-            mock_url_status_callback,
-        )
-        file_management.logger.setLevel(logging.CRITICAL)
-        preferred_package_size = 256
-        max_file_size = 512
-        file_directory = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "files"
-        )
-        os.makedirs(os.path.abspath(file_directory))
-        file_management.configure(
-            preferred_package_size, max_file_size, file_directory
-        )
-
-        file_name = "file"
-        file_size = 1024
-        file_hash = "some_hash"
-
-        file_management.handle_upload_initiation(
-            file_name, file_size, file_hash
-        )
-
-        expected_status = FileManagementStatus(
-            FileManagementStatusType.ERROR,
-            FileManagementErrorType.UNSUPPORTED_FILE_SIZE,
-        )
-
-        file_management.status_callback.assert_called_once_with(
-            file_name, expected_status
-        )
-        os.rmdir(file_directory)
-
     def test_handle_upload_initiation_valid_file(self):
         """Test handle upload initiation for valid file."""
         mock_status_callback = MagicMock(return_value=None)
@@ -201,14 +139,11 @@ class TestOSFileManagement(unittest.TestCase):
         )
         file_management.logger.setLevel(logging.CRITICAL)
         preferred_package_size = 256
-        max_file_size = 1024
         file_directory = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "files"
+            os.path.dirname(os.path.realpath(__file__)), "test_files"
         )
         os.makedirs(os.path.abspath(file_directory))
-        file_management.configure(
-            preferred_package_size, max_file_size, file_directory
-        )
+        file_management.configure(file_directory, preferred_package_size)
 
         file_name = "file"
         file_size = 512
@@ -242,14 +177,11 @@ class TestOSFileManagement(unittest.TestCase):
         )
         file_management.logger.setLevel(logging.CRITICAL)
         preferred_package_size = 512
-        max_file_size = 1024
         file_directory = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "files"
+            os.path.dirname(os.path.realpath(__file__)), "test_files"
         )
         os.makedirs(os.path.abspath(file_directory))
-        file_management.configure(
-            preferred_package_size, max_file_size, file_directory
-        )
+        file_management.configure(file_directory, preferred_package_size)
 
         file_name = "file"
         file_size = 256
@@ -260,7 +192,7 @@ class TestOSFileManagement(unittest.TestCase):
         )
 
         file_management.packet_request_callback.assert_called_once_with(
-            file_name, 0, file_size + 64
+            file_name, 0
         )
         os.rmdir(file_directory)
         file_management.request_timeout.cancel()
@@ -298,6 +230,8 @@ class TestOSFileManagement(unittest.TestCase):
             mock_url_status_callback,
         )
         file_management.logger.setLevel(logging.CRITICAL)
+        file_management.temp_file = MagicMock()
+        file_management.temp_file.close = MagicMock()
 
         file_management.handle_file_upload_abort()
 
@@ -345,33 +279,6 @@ class TestOSFileManagement(unittest.TestCase):
         file_management.handle_file_binary_response(file_transfer_package)
         file_management.request_timeout.cancel()
         file_management.packet_request_callback.assert_called()
-
-    # def test_file_package_binary(self):
-    #     """Test receiving file package cancels request timeout timer."""
-    #     mock_status_callback = MagicMock(return_value=None)
-    #     mock_packet_request_callback = MagicMock(return_value=None)
-    #     mock_url_status_callback = MagicMock(return_value=None)
-
-    #     file_management = OSFileManagement(
-    #         mock_status_callback,
-    #         mock_packet_request_callback,
-    #         mock_url_status_callback,
-    #     )
-    #     file_management.logger.setLevel(logging.CRITICAL)
-    #     file_management.current_status = True
-    #     file_management.retry_count = 0
-    #     data = b"Let's try something else"
-    #     current_hash = hashlib.sha256(data).digest()
-
-    #     hashlib.sha256 = MagicMock(return_value=b"")
-
-    #     file_transfer_package = FileTransferPackage(
-    #         32 * b"\x00", data, current_hash
-    #     )
-
-    #     file_management.handle_file_binary_response(file_transfer_package)
-    #     file_management.request_timeout.cancel()
-    #     file_management.packet_request_callback.assert_called()
 
     def test_handle_file_url_download_abort(self):
         """Test method resets state."""
@@ -459,21 +366,6 @@ class TestOSFileManagement(unittest.TestCase):
         file_path = file_management.get_file_path(file_name)
         self.assertIsNone(file_path)
 
-    def test_handle_file_list_confirm_does_nothing(self):
-        """Test file list confirm doesn't call status callbacks."""
-        mock_status_callback = MagicMock(return_value=None)
-        mock_packet_request_callback = MagicMock(return_value=None)
-        mock_url_status_callback = MagicMock(return_value=None)
-
-        file_management = OSFileManagement(
-            mock_status_callback,
-            mock_packet_request_callback,
-            mock_url_status_callback,
-        )
-        file_management.logger.setLevel(logging.CRITICAL)
-        file_management.handle_file_list_confirm()
-        file_management.status_callback.assert_not_called()
-
     def test_handle_file_delete_non_existing(self):
         """Test deleting file that doesn't exist."""
         mock_status_callback = MagicMock(return_value=None)
@@ -487,7 +379,8 @@ class TestOSFileManagement(unittest.TestCase):
         )
         file_management.logger.setLevel(logging.CRITICAL)
         file_name = "test_file"
-        file_management.handle_file_delete(file_name)
+        self.assertFalse(os.path.exists(os.path.join(os.getcwd(), file_name)))
+        file_management.handle_file_delete([file_name])
         self.assertFalse(os.path.exists(os.path.join(os.getcwd(), file_name)))
 
     def test_handle_file_delete_existing(self):
@@ -505,7 +398,7 @@ class TestOSFileManagement(unittest.TestCase):
         file_name = "test_file"
         file_handle = open(file_name, "w")
         file_handle.close()
-        file_management.handle_file_delete(file_name)
+        file_management.handle_file_delete([file_name])
         self.assertFalse(os.path.exists(os.path.join(os.getcwd(), file_name)))
 
     def test_handle_file_purge(self):

@@ -37,35 +37,35 @@ class MQTTConnectivityService(ConnectivityService):
         self,
         device: Device,
         topics: List[str],
-        last_will_message: Message,
-        qos: Optional[int] = 0,
-        host: Optional[str] = "insert_host",
-        port: Optional[int] = 80, # TODO: insert port
+        qos: int = 2,
+        host: str = "insert_host",
+        port: int = 80, # TODO: insert port
+        max_retries: int = 3,
         ca_cert: Optional[str] = None,
     ) -> None:
         """
         Provide the connection to the WolkAbout IoT Platform.
 
-        :param device: Contains device key, password and actuator references
+        :param device: Contains device key and password used for authentication
         :type device: Device
         :param topics: List of topics to subscribe to
         :type topics: List[str]
-        :param last_will_message: Message in case of unexpected disconnects
-        :type last_will_message: Message
+        :param max_retries: Number of retries when unexpected disconnect occurs
+        :type max_retries: int
         :param qos: Quality of Service for MQTT connection (0, 1, 2)
-        :type qos: int or None
+        :type qos: int
         :param host: Address of the MQTT broker
-        :type host: str or None
+        :type host: str
         :param port: Port to which to send messages
-        :type port: int or None
+        :type port: int
         :param ca_cert: Path to certificate file used to encrypt the connection
         :type ca_cert: str or None
         """
         self.device = device
-        self.last_will_message = last_will_message
         self.qos = qos
         self.host = host
         self.port = port
+        self.max_retries = max_retries
         self.connected = False
         self.connected_rc: Optional[int] = None
         self.topics = topics
@@ -76,8 +76,6 @@ class MQTTConnectivityService(ConnectivityService):
         self.logger.debug(
             f"Device key: {self.device.key} ; "
             f"Device password: {self.device.password} ;"
-            f"Actuator references: {self.device.actuator_references} ; "
-            f"Last will message: {self.last_will_message} ; "
             f"QoS: {self.qos} ; "
             f"Host: {self.host} ; "
             f"Port: {self.port} ; "
@@ -114,99 +112,6 @@ class MQTTConnectivityService(ConnectivityService):
         self.logger.debug(f"Message listener set to: {listener}")
         self.inbound_message_listener = listener
 
-    def on_mqtt_message(
-        self, _client: mqtt.Client, _userdata: Any, message: mqtt.MQTTMessage
-    ) -> None:
-        """
-        Serialize inbound messages and pass them to inbound message listener.
-
-        :param _client: Client that received the message
-        :type _client: paho.mqtt.Client
-        :param _userdata: Private user data set in Client()
-        :type _userdata: str
-        :param message: Class with members: topic, payload, qos, retain.
-        :type message: paho.mqtt.MQTTMessage
-        """
-        if not message:
-            return
-        received_message = Message(message.topic, message.payload)
-        if "binary" in received_message.topic:  # To skip printing file binary
-            self.logger.debug(
-                "Received MQTT message: "
-                f"{received_message.topic} , "
-                f"size: {len(received_message.payload)} bytes"  # type: ignore
-            )
-        else:
-            self.logger.debug(f"Received MQTT message: {received_message}")
-        self.inbound_message_listener(received_message)
-
-    def on_mqtt_connect(
-        self,
-        _client: mqtt.Client,
-        _userdata: Any,
-        _flags: int,
-        return_code: int,
-    ) -> None:
-        """
-        Handle when the client receives a CONNACK response from the server.
-
-        :param _client: Client that received the message
-        :type _client: paho.mqtt.Client
-        :param _userdata: private user data set in Client()
-        :type _userdata: str
-        :param _flags: Response flags sent by the broker
-        :type _flags: int
-        :param return_code: Connection result
-        :type return_code: int
-        """
-        self.logger.debug(f"Return code: {return_code}")
-        if return_code == 0:  # Connection successful
-
-            self.connected = True
-            self.connected_rc = 0
-            # Subscribing in on_mqtt_connect() means if we lose the connection
-            # and reconnect then subscriptions will be renewed.
-            if self.topics:
-                for topic in self.topics:
-                    self.client.subscribe(topic, 2)
-            self.logger.info(f"Connected : {self.connected}")
-        elif (
-            return_code == 1
-        ):  # Connection refused - incorrect protocol version
-            self.connected_rc = 1
-        elif (
-            return_code == 2
-        ):  # Connection refused - invalid client identifier
-            self.connected_rc = 2
-        elif return_code == 3:  # Connection refused - server unavailable
-            self.connected_rc = 3
-        elif return_code == 4:  # Connection refused - bad username or password
-            self.connected_rc = 4
-        elif return_code == 5:  # Connection refused - not authorised
-            self.connected_rc = 5
-
-    def on_mqtt_disconnect(
-        self, _client: mqtt.Client, _userdata: Any, return_code: int
-    ) -> None:
-        """
-        Handle when the client disconnects from the broker.
-
-        :param _client: Client that received the message
-        :type _client: paho.mqtt.Client
-        :param _userdata: private user data set in Client()
-        :type _userdata: str
-        :param return_code: Disconnection result
-        :type return_code: int
-        """
-        self.connected = False
-        self.connected_rc = return_code
-        self.logger.debug(f"Connected : {self.connected}")
-        self.logger.debug(f"Return code : {return_code}")
-        if return_code not in [0, 5]:
-            self.logger.warning("Unexpected disconnect!")
-            self.logger.info("Attempting to reconnect..")
-            self.client.reconnect()
-
     def connect(self) -> bool:
         """
         Establish the connection to the WolkAbout IoT platform.
@@ -222,9 +127,9 @@ class MQTTConnectivityService(ConnectivityService):
 
         self.mutex.acquire()
 
-        self.client.on_connect = self.on_mqtt_connect
-        self.client.on_disconnect = self.on_mqtt_disconnect
-        self.client.on_message = self.on_mqtt_message
+        self.client.on_connect = self._on_mqtt_connect
+        self.client.on_disconnect = self._on_mqtt_disconnect
+        self.client.on_message = self._on_mqtt_message
         if self.ca_cert:
             try:
                 self.client.tls_set(self.ca_cert)
@@ -238,12 +143,6 @@ class MQTTConnectivityService(ConnectivityService):
                 self.mutex.release()
                 return False
         self.client.username_pw_set(self.device.key, self.device.password)
-        self.client.will_set(
-            self.last_will_message.topic,
-            self.last_will_message.payload,
-            2,
-            False,
-        )
 
         self.logger.debug(
             f"Connecting with parameters: host='{self.host}', "
@@ -336,13 +235,12 @@ class MQTTConnectivityService(ConnectivityService):
         for topic in self.topics:
             self.client.subscribe(topic, 2)
         self.mutex.release()
+        self.connected = True
         return True
 
     def disconnect(self) -> None:
         """Disconnects the device from the WolkAbout IoT Platform."""
-        self.logger.debug("Disconnecting")
-        if self.is_connected():
-            self.publish(self.last_will_message)
+        self.logger.info("Disconnecting")
         self.client.loop_stop()
         self.client.disconnect()
 
@@ -378,3 +276,107 @@ class MQTTConnectivityService(ConnectivityService):
         self.logger.warning(f"Failed to publish message: {message}")
         self.mutex.release()
         return False
+
+    def _on_mqtt_message(
+        self, _client: mqtt.Client, _userdata: Any, message: mqtt.MQTTMessage
+    ) -> None:
+        """
+        Serialize inbound messages and pass them to inbound message listener.
+
+        :param _client: Client that received the message
+        :type _client: paho.mqtt.Client
+        :param _userdata: Private user data set in Client()
+        :type _userdata: str
+        :param message: Class with members: topic, payload, qos, retain.
+        :type message: paho.mqtt.MQTTMessage
+        """
+        if not message:
+            return
+        received_message = Message(message.topic, message.payload)
+        if "binary" in received_message.topic:  # To skip printing file binary
+            self.logger.debug(
+                "Received MQTT message: "
+                f"{received_message.topic} , "
+                f"size: {len(received_message.payload)} bytes"
+            )
+        else:
+            self.logger.debug(f"Received MQTT message: {received_message}")
+        self.inbound_message_listener(received_message)
+
+    def _on_mqtt_connect(
+        self,
+        _client: mqtt.Client,
+        _userdata: Any,
+        _flags: int,
+        return_code: int,
+    ) -> None:
+        """
+        Handle when the client receives a CONNACK response from the server.
+
+        :param _client: Client that received the message
+        :type _client: paho.mqtt.Client
+        :param _userdata: private user data set in Client()
+        :type _userdata: str
+        :param _flags: Response flags sent by the broker
+        :type _flags: int
+        :param return_code: Connection result
+        :type return_code: int
+        """
+        self.logger.debug(f"Return code: {return_code}")
+        if return_code == 0:  # Connection successful
+
+            self.connected = True
+            self.connected_rc = 0
+            # Subscribing in on_mqtt_connect() means if we lose the connection
+            # and reconnect then subscriptions will be renewed.
+            if self.topics:
+                for topic in self.topics:
+                    self.client.subscribe(topic, 2)
+            self.logger.debug(f"Connected : {self.connected}")
+        elif (
+            return_code == 1
+        ):  # Connection refused - incorrect protocol version
+            self.connected_rc = 1
+        elif (
+            return_code == 2
+        ):  # Connection refused - invalid client identifier
+            self.connected_rc = 2
+        elif return_code == 3:  # Connection refused - server unavailable
+            self.connected_rc = 3
+        elif return_code == 4:  # Connection refused - bad username or password
+            self.connected_rc = 4
+        elif return_code == 5:  # Connection refused - not authorised
+            self.connected_rc = 5
+
+    def _on_mqtt_disconnect(
+        self, _client: mqtt.Client, _userdata: Any, return_code: int
+    ) -> None:
+        """
+        Handle when the client disconnects from the broker.
+
+        :param _client: Client that received the message
+        :type _client: paho.mqtt.Client
+        :param _userdata: private user data set in Client()
+        :type _userdata: str
+        :param return_code: Disconnection result
+        :type return_code: int
+        """
+        self.connected = False
+        self.connected_rc = return_code
+        self.logger.debug(
+            f"Connected : {self.connected} ;" + f" Return code : {return_code}"
+        )
+        if return_code not in [0, 5]:
+            self.logger.warning("Unexpected disconnect!")
+            retries = 0
+            while retries < self.max_retries:
+                try:
+                    self.logger.info("Attempting to reconnect..")
+                    self.client.reconnect()
+                    return
+                except Exception as e:
+                    retries += 1
+                    self.logger.exception(f"Reconnect failed: {e}")
+                    self.logger.info("Retrying in 5 seconds..")
+                    sleep(5)
+            self.logger.warning("Failed to reconnect")

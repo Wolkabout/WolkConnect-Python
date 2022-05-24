@@ -20,69 +20,130 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-from wolk.model.actuator_status import ActuatorStatus
-from wolk.model.alarm import Alarm
+from wolk.model.data_type import DataType
+from wolk.model.feed_type import FeedType
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.firmware_update_status import FirmwareUpdateStatus
 from wolk.model.message import Message
-from wolk.model.sensor_reading import SensorReading
+from wolk.model.unit import Unit
+
+OutgoingDataTypes = Union[bool, int, float, str]
+Reading = Tuple[str, OutgoingDataTypes]
 
 
 class MessageFactory(ABC):
     """Serialize messages to be sent to WolkAbout IoT Platform."""
 
     @abstractmethod
-    def make_from_sensor_reading(
-        self, reading: Union[SensorReading, List[SensorReading]]
-    ) -> Message:
-        """
-        Serialize a sensor reading to be sent to WolkAbout IoT Platform.
-
-        :param reading: Reading to be serialized
-        :type reading: Union[SensorReading, List[SensorReading]
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_sensor_readings(
+    def make_from_feed_value(
         self,
-        readings: Dict[
-            str,
-            Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]],
-        ],
-        timestamp: Optional[int] = None,
+        reading: Union[Reading, List[Reading]],
+        timestamp: Optional[int],
     ) -> Message:
         """
-        Serialize multiple sensor readings to send to WolkAbout IoT Platform.
+        Serialize feed value data.
 
-        :param readings: Dictionary of reference: value pairs
-        :type readings: Dict[str,Union[bool, str, int, Tuple[int, ...], float, Tuple[float, ...]]]
+        :param reading: Feed value data as (reference, value) or list of tuple
+        :type reading: Union[Reading, List[Reading]]
+        :param timestamp: Unix timestamp in ms. Default to current time if None
         :returns: message
         :rtype: Message
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_alarm(self, alarm: Alarm) -> Message:
+    def make_pull_feed_values(self) -> Message:
         """
-        Serialize an alarm event to be sent to WolkAbout IoT Platform.
+        Serialize message requesting any pending inbound feed values.
 
-        :param alarm: Alarm to be serialized
-        :type alarm: Alarm
         :returns: message
         :rtype: Message
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_actuator_status(self, actuator: ActuatorStatus) -> Message:
+    def make_time_request(self) -> Message:
         """
-        Serialize an actuator status to be sent to WolkAbout IoT Platform.
+        Serialize message requesting platform timestamp.
 
-        :param actuator: Actuator status to be serialized
-        :type actuator: ActuatorStatus
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_from_parameters(
+        self, parameters: Dict[str, Union[bool, int, float, str]]
+    ) -> Message:
+        """
+        Serialize device parameters to be sent to the Platform.
+
+        :param parameters: Device parameters
+        :type parameters: Dict[str, Union[bool, int, float, str]]
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_pull_parameters(self) -> Message:
+        """
+        Serialize request to pull device parameters from the Platform.
+
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_feed_registration(
+        self,
+        name: str,
+        reference: str,
+        feed_type: FeedType,
+        unit: Union[Unit, str],
+    ) -> Message:
+        """
+        Serialize request to register a feed for the device on the Platform.
+
+        :param name: Feed name
+        :type name: str
+        :param reference: Unique identifier
+        :type reference: str
+        :param feed_type: Is the feed one or two-way communication
+        :type feed_type: FeedType
+        :param unit: Unit used to measure this feed
+        :type unit: Union[Unit, str]
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_feed_removal(self, reference: str) -> Message:
+        """
+        Serialize request to remove a feed from the device on the Platform.
+
+        :param reference: Unique identifier
+        :type reference: str
+        :returns: message
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def make_attribute_registration(
+        self, name: str, data_type: DataType, value: str
+    ) -> Message:
+        """
+        Serialize request to register an attribute for the device.
+
+        :param name: Unique identifier
+        :type name: str
+        :param data_type: Type of data this attribute holds
+        :type data_type: DataType
+        :param value: Value of the attribute
+        :type value: str
         :returns: message
         :rtype: Message
         """
@@ -95,7 +156,7 @@ class MessageFactory(ABC):
         """
         Report the current status of the firmware update process.
 
-        :param firmware_update_status: Current status of the firmware update process
+        :param firmware_update_status: Status of the firmware update process
         :type firmware_update_status: FirmwareUpdateStatus
         :returns: message
         :rtype: Message
@@ -104,7 +165,7 @@ class MessageFactory(ABC):
 
     @abstractmethod
     def make_from_package_request(
-        self, file_name: str, chunk_index: int, chunk_size: int
+        self, file_name: str, chunk_index: int
     ) -> Message:
         """
         Request a package of the file from WolkAbout IoT Platform.
@@ -113,58 +174,20 @@ class MessageFactory(ABC):
         :type file_name: str
         :param chunk_index: Index of the requested package
         :type chunk_index: int
-        :param chunk_size: Size of the requested package
-        :type chunk_size: int
         :returns: message
         :rtype: Message
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def make_from_firmware_version_update(self, version: str) -> Message:
-        """
-        Report the device's current firmware version to WolkAbout IoT Platform.
-
-        :param version: Current device firmware version
-        :type version: str
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_configuration(
-        self, configuration: Dict[str, Optional[Union[int, float, bool, str]]]
+    def make_from_file_list(
+        self, file_list: List[Dict[str, Union[str, int]]]
     ) -> Message:
         """
-        Serialize device's configuration to be sent to WolkAbout IoT Platform.
-
-        :param configuration: Device's current configuration
-        :type configuration: dict
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_file_list_update(self, file_list: List[str]) -> Message:
-        """
         Serialize list of files present on device.
 
         :param file_list: Files present on device
-        :type file_list: List[str]
-        :returns: message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_from_file_list_request(self, file_list: List[str]) -> Message:
-        """
-        Serialize list of files present on device.
-
-        :param file_list: Files present on device
-        :type file_list: List[str]
+        :type file_list: List[Dict[str, Union[str, int]]]
         :returns: message
         :rtype: Message
         """
@@ -179,7 +202,7 @@ class MessageFactory(ABC):
 
         :param status: Current file management status
         :type status: FileManagementStatus
-        :param file_name: Name of file being transfered
+        :param file_name: Name of file being transferred
         :type file_name: str
         :returns: message
         :rtype: Message
@@ -201,25 +224,5 @@ class MessageFactory(ABC):
         :type status: FileManagementStatus
         :param file_name: Only present when download of file is completed
         :type file_name: Optional[str]
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_last_will_message(self) -> Message:
-        """
-        Serialize a last will message if device disconnects unexpectedly.
-
-        :returns: Last will message
-        :rtype: Message
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def make_keep_alive_message(self) -> Message:
-        """
-        Serialize a keep alive message.
-
-        :returns: keep alive message
-        :rtype: Message
         """
         raise NotImplementedError()

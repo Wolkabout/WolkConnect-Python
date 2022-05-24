@@ -14,11 +14,11 @@
 #   limitations under the License.
 from abc import ABC
 from abc import abstractmethod
+from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import Union
 
-from wolk.model.actuator_command import ActuatorCommand
-from wolk.model.configuration_command import ConfigurationCommand
 from wolk.model.file_transfer_package import FileTransferPackage
 from wolk.model.message import Message
 
@@ -37,37 +37,61 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def is_actuation_command(self, message: Message) -> bool:
+    def is_time_response(self, message: Message) -> bool:
         """
-        Check if message is actuation command.
+        Check if message is response to time request.
 
         :param message: The message received
         :type message: Message
-        :returns: actuation_command
+        :returns: is_time_response
         :rtype: bool
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def is_keep_alive_response(self, message: Message) -> bool:
+    def is_file_management_message(self, message: Message) -> bool:
         """
-        Check if message is keep alive response.
+        Check if message is any kind of file management related message.
 
         :param message: The message received
         :type message: Message
-        :returns: keep_alive_response
+        :returns: is_file_management_message
         :rtype: bool
         """
         raise NotImplementedError()
 
     @abstractmethod
-    def is_configuration_command(self, message: Message) -> bool:
+    def is_firmware_message(self, message: Message) -> bool:
         """
-        Check if message is configuration command.
+        Check if message is any kind of firmware related message.
 
         :param message: The message received
         :type message: Message
-        :returns: configuration_command
+        :returns: is_firmware_message
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_feed_values(self, message: Message) -> bool:
+        """
+        Check if message is for incoming feed values.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_feed_values
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def is_parameters(self, message: Message) -> bool:
+        """
+        Check if message is for updating device parameters.
+
+        :param message: The message received
+        :type message: Message
+        :returns: is_parameters
         :rtype: bool
         """
         raise NotImplementedError()
@@ -133,25 +157,13 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def is_file_list_confirm(self, message: Message) -> bool:
+    def is_file_list(self, message: Message) -> bool:
         """
-        Check if message is file list confirm.
+        Check if message is file list request message.
 
         :param message: The message received
         :type message: Message
-        :returns: file_list_confirm
-        :rtype: bool
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def is_file_list_request(self, message: Message) -> bool:
-        """
-        Check if message is file list request.
-
-        :param message: The message received
-        :type message: Message
-        :returns: file_list_request
+        :returns: file_list
         :rtype: bool
         """
         raise NotImplementedError()
@@ -205,19 +217,7 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def parse_actuator_command(self, message: Message) -> ActuatorCommand:
-        """
-        Parse the message into an ActuatorCommand.
-
-        :param message: The message received
-        :type message: Message
-        :returns: actuation
-        :rtype: ActuatorCommand
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def parse_keep_alive_response(self, message: Message) -> int:
+    def parse_time_response(self, message: Message) -> int:
         """
         Parse the message into an UTC timestamp.
 
@@ -277,25 +277,41 @@ class MessageDeserializer(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def parse_configuration(self, message: Message) -> ConfigurationCommand:
+    def parse_file_delete_command(self, message: Message) -> List[str]:
         """
-        Parse the message into a ConfigurationCommand.
-
-        :param message: The message received
-        :type message: Message
-        :returns: configuration
-        :rtype: ConfigurationCommand
-        """
-        raise NotImplementedError()
-
-    @abstractmethod
-    def parse_file_delete_command(self, message: Message) -> str:
-        """
-        Parse the message into a file name to delete.
+        Parse the message into a list of file names.
 
         :param message: The message received
         :type message: Message
         :returns: file_name
-        :rtype: str
+        :rtype: List[str]
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def parse_parameters(
+        self, message: Message
+    ) -> Dict[str, Union[bool, int, float, str]]:
+        """
+        Parse the incoming parameters message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: parameters
+        :rtype: Dict[str, Union[bool, int, float, str]]
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def parse_feed_values(
+        self, message: Message
+    ) -> List[Dict[str, Union[bool, int, float, str]]]:
+        """
+        Parse the incoming feed values message.
+
+        :param message: The message received
+        :type message: Message
+        :returns: feed_values
+        :rtype: List[Dict[str, Union[bool, int, float, str]]]
         """
         raise NotImplementedError()

@@ -1,5 +1,5 @@
-"""Minimal example of periodically sending data to WolkAbout IoT Platform."""
-#   Copyright 2020 WolkAbout Technology s.r.o.
+"""Example of registering a new feed and attribute on WolkAbout IoT Platform."""
+#   Copyright 2021 WolkAbout Technology s.r.o.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -45,22 +45,39 @@ def main() -> None:
 
     # Create a WolkConnect object and pass your device
     # NOTE: Change Platform instance with host:str, port:int, ca_cert:str
-    wolk_device = wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
+    wolk_device = wolk.WolkConnect(device)
 
     # Establish a connection to the WolkAbout IoT Platform
     wolk_device.connect()
+
+    # Example of registering a new feed on the device
+    # NOTE: See wolk.Unit and wolk.FeedType for more options.
+    wolk_device.register_feed(
+        name="New Feed",  # Name that will be displayed on the UI
+        reference="NF",  # Per-device unique feed ID
+        feed_type=wolk.FeedType.IN,  # uni (IN) or bi-directional feed (In/Out)
+        unit=wolk.Unit.NUMERIC,  # Measurement unit for this feed
+        # NOTE: Custom instance defined unit can be specified as string
+    )
+
+    # Example of registering device attribute
+    # NOTE: Will update value if attribute with that name already exists
+    wolk_device.register_attribute(
+        name="Device activation timestamp",  # Name that will be displayed
+        data_type=wolk.DataType.NUMERIC,  # Type of data attribute will hold
+        value=str(int(time.time())),  # Value, always sent as string
+    )
 
     publish_period_seconds = 60
 
     while True:
         try:
-            # Generate a random value
-            temperature = random.randint(-20, 80)
-
-            # Add a feed reading to the message queue
-            wolk_device.add_feed_value(("T", temperature))
-
-            print(f'Publishing "T": {temperature}')
+            # Generate random value for the newly registered feed
+            new_feed = random.randint(0, 100)
+            # Add feed value reading of the new feed to message queue
+            wolk_device.add_feed_value(("NF", new_feed))
+            print(f'Publishing "NF": {new_feed}')
+            # Publish queued messages
             wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:

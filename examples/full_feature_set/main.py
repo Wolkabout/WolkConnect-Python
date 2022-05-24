@@ -12,283 +12,190 @@
 #   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
-import json
 import os
 import random
+import signal
 import sys
 import time
-from traceback import print_exc
 from typing import Dict
-from typing import Optional
-from typing import Tuple
+from typing import List
 from typing import Union
 
-import requests
-
-
-module_path = os.sep + ".." + os.sep + ".." + os.sep
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + module_path)
-import wolk  # noqa
-
-# Enable debug logging by uncommenting the following line
-# wolk.logging_config("debug", "wolk.log")
-
-firmware_version = "1.0"
-configuration_file = "configuration.json"
-configurations = {}
-
-ConfigurationValue = Union[
-    bool,
-    int,
-    float,
-    str,
-]
-
-
-def configuration_handler(
-    configuration: Dict[str, ConfigurationValue]
-) -> None:
-    """Provide a way to read device's configuration options."""
-    global configurations
+try:
+    import wolk  # noqa
+except ModuleNotFoundError:
+    print("Attempting to import WolkConnect from relative path")
     try:
-        with open(configuration_file, "r+", encoding="utf-8") as handle:
-            stored = json.load(handle)
-            for key, value in configuration.items():
-                for stored_key, stored_value in stored.items():
-                    if stored_key != key:
-                        continue
-
-                    if stored[stored_key] == value:
-                        continue
-                    if isinstance(value, str):
-                        if "," in value:
-                            if isinstance(stored_value, list):
-                                stored_value = ",".join(value)
-                                continue
-                    stored_value = value
-
-            handle.seek(0)
-            json.dump(stored, handle, indent=4)
-            handle.truncate()
-            configurations = stored.copy()
-    except Exception:
-        print(
-            "Error occurred when handling configuration"
-            f" with file {configuration_file}"
+        module_path = os.sep + ".." + os.sep + ".." + os.sep
+        sys.path.append(
+            os.path.dirname(os.path.realpath(__file__)) + module_path
         )
-        print_exc()
+        import wolk
+    except Exception as e:
+        print(f"Failed to import WolkConnect: '{e}'")
+        raise e
+
+# NOTE: Enable debug logging by uncommenting the following line
+# Optionally, as a second argument pass a file name
+# wolk.logging_config("debug")
 
 
-def configuration_provider() -> Dict[str, ConfigurationValue]:
-    """Provide a way to set device's configuration options."""
-    with open(configuration_file, "r+", encoding="utf-8") as handle:
-        loaded = json.load(handle)
-        configurations: Dict[str, ConfigurationValue] = {}
-        for reference, value in loaded.items():
-            if isinstance(value, list):
-                if len(value) == 0:
-                    configurations.update({reference: []})
-                elif isinstance(value[0], str):
-                    value = ",".join(value)
+class InOutFeedExample:
+    """
+    Holds a value that can be modified.
 
-            configurations.update({reference: value})
+    Example of a feed that has its own data, as well as the ability
+    to set this data to a specified value commanded from the Platform.
+    """
 
-        return configurations
+    def __init__(
+        self, reference: str, initial_value: Union[bool, int, float, str]
+    ):
+        """Set the value of the feed and store its reference."""
+        print(
+            f"Initializing InOut feed '{reference}' with value: {initial_value}"
+        )
+        self.reference = reference
+        self.value = initial_value
+
+
+firmware_version = "5.0"
+
+
+# Extend this class to handle the installing of the firmware file
+class DummyFirmwareInstaller(wolk.FirmwareHandler):
+    """Example of a firmware installer implantation."""
+
+    def install_firmware(self, firmware_file_path: str) -> None:
+        """Handle the installing of the firmware file here."""
+        print(f"Installing firmware from path: {firmware_file_path}")
+        # NOTE: Modify `firmware_version` and run again to report success
+        # This terminates the example
+        os.kill(os.getpid(), signal.SIGINT)
+
+    def get_current_version(self) -> str:
+        """Return current firmware version."""
+        return firmware_version
 
 
 def main() -> None:
     """
-    Demonstrate all functionality of wolk module.
+    Demonstrate the full use of all Platform enabled devices.
 
-    Create actuation handler and actuator status provider
-    for switch and slider actuators.
+    Includes a random temperature feed, an in/out switch feed,
+    an in/out heart beat feed that controls publishing intervals,
+    a random generic numeric in feed that has been registered by the device,
+    and a registered device attribute that indicates activation time.
 
-    Create configuration handler and configuration provider
-    for 4 types of configuration options.
+    The device also supports file management, reporting the content of
+    a specified folder. It accepts commands to remove files or initiate
+    a file transfer, either by MQTT packages of a specified size or
+    by downloading from the specified URL.
+    Provided URL download implementation is achieved using `requests`,
+    this function can be overridden if necessary.
 
-    Create a firmware installer and handler
-    for enabling firmware update.
+    On top of supporting file management, the device also supports firmware
+    update capabilities. It will report its current firmware version as a
+    part of its parameters update message upon connection. The device
+    then complies with commands to attempt to install firmware from a file
+    that is present on the device.
 
-    Pass all of these to a WolkConnect class
-    and start a loop to send different types of random readings.
+    Pass all of these to a WolkConnect class and start a loop.
     """
     # Insert the device credentials received
     # from WolkAbout IoT Platform when creating the device
-    # List actuator references included on your device
-    actuator_references = ["SW", "SL"]
-    device = wolk.Device(
-        key="device_key",
-        password="some_password",
-        actuator_references=actuator_references,
-    )
-    try:
-        global configurations
-        with open(configuration_file) as file:
-            configurations = json.load(file)
-        wolk.logging_config(configurations["LL"])  # Log level
-    except Exception:
-        print(
-            "Failed load configuraiton options "
-            f"from file '{configuration_file}'"
-        )
-        print_exc()
-        sys.exit(1)
+    device = wolk.Device(key="device_key", password="some_password")
 
-    class Actuator:
-        def __init__(
-            self, inital_value: Optional[Union[bool, int, float, str]]
-        ):
-            self.value = inital_value
+    # Create an InOut feed and define a function that will handle updating its
+    # value when the appropriate message has been received from the Platform
+    switch_feed = InOutFeedExample("SW", False)
+    heart_beat = InOutFeedExample("HB", 120)
 
-    switch = Actuator(False)
-    slider = Actuator(0)
-
-    # Provide a way to read actuator status if your device has actuators
-    def actuator_status_provider(
-        reference: str,
-    ) -> Tuple[wolk.State, Optional[Union[bool, int, float, str]]]:
-        if reference == actuator_references[0]:
-            return wolk.State.READY, switch.value
-        elif reference == actuator_references[1]:
-            return wolk.State.READY, slider.value
-
-        return wolk.State.ERROR, None
-
-    # Provide an actuation handler if your device has actuators
-    def actuation_handler(
-        reference: str, value: Union[bool, int, float, str]
+    def incoming_feed_value_handler(
+        feed_values: List[Dict[str, Union[bool, int, float, str]]]
     ) -> None:
-        print(f"Setting actuator '{reference}' to value: {value}")
-        if reference == actuator_references[0]:
-            switch.value = value
+        for feed_value in feed_values:
+            for reference, value in feed_value.items():
+                if reference == switch_feed.reference:
+                    print(f"Setting '{reference}' to: {value}")
+                    switch_feed.value = value
+                    break
 
-        elif reference == actuator_references[1]:
-            slider.value = value
+                if reference == heart_beat.reference:
+                    print(f"Setting '{reference}' to: {value}")
+                    heart_beat.value = value
+                    break
 
-    # The URL download implementation can be substituted
-    # This is optional and passed as an argument when creating wolk_device
-    def url_download(file_url: str, file_path: str) -> bool:
-        """
-        Download file from specified URL.
-
-        :param file_url: URL from which to download file
-        :type file_url: str
-        :param file_path: Path where to store file
-        :type: file_path: str
-        :returns: Successful download
-        :rtype: bool
-        """
-        response = requests.get(file_url)
-        with open(file_path, "ab") as file:
-            file.write(response.content)
-            file.flush()
-            os.fsync(file)  # type: ignore
-
-        return os.path.exists(file_path)
-
-    # Extend this class to handle the installing of the firmware file
-    class MyFirmwareHandler(wolk.FirmwareHandler):
-        def install_firmware(self, firmware_file_path: str) -> None:
-            """Handle the installing of the firmware file here."""
-            print(f"Installing firmware from path: {firmware_file_path}")
-            time.sleep(5)
-            sys.exit()
-
-        def get_current_version(self) -> str:
-            """Return current firmware version."""
-            return firmware_version
+                print(f"Unhandled feed value '{reference}': {value}")
 
     # Pass device and optionally connection details
-    # Provided connection details are the default value
-    # Provide actuation handler and actuator status provider via with_actuators
-    # Provide configuration provider/handler via with_configuration
     # Enable file management and firmware update via their respective methods
     wolk_device = (
-        wolk.WolkConnect(
-            device=device,
-            host="insert_host",
-            port=80, # TODO: insert port
-            ca_cert="INSERT/PATH/TO/YOUR/CA/CRT",
-        )
-        .with_actuators(
-            actuation_handler=actuation_handler,
-            actuator_status_provider=actuator_status_provider,
-        )
-        .with_configuration(
-            configuration_handler=configuration_handler,
-            configuration_provider=configuration_provider,
-        )
+        wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
         .with_file_management(
-            preferred_package_size=1000 * 1000,
-            max_file_size=100 * 1000 * 1000,
             file_directory="files",
-            custom_url_download=url_download,
+            preferred_package_size=1000,  # NOTE: size in kilobytes
         )
-        .with_firmware_update(firmware_handler=MyFirmwareHandler())
-        # Possibility to provide custom implementations for some features
+        .with_firmware_update(firmware_handler=DummyFirmwareInstaller())
+        .with_incoming_feed_value_handler(incoming_feed_value_handler)
+        # NOTE: Possibility to provide custom implementations for some features
         # .with_custom_protocol(message_factory, message_deserializer)
         # .with_custom_connectivity(connectivity_service)
         # .with_custom_message_queue(message_queue)
     )
 
+    # An example of how the function would be called
+    # and setting the connection interval to start the loop
+    incoming_feed_value_handler([{"SW": False}, {"HB": 120}])
+
     # Establish a connection to the WolkAbout IoT Platform
-    print("Connecting to WolkAbout IoT Platform")
     wolk_device.connect()
 
-    # Successfully connecting to the platform will publish device configuration
-    # all actuator statuses, files present on device, current firmware version
-    # and the result of a firmware update if it occurred
-    wolk_device.publish_configuration()
-    wolk_device.publish_actuator_status("SW")
-    wolk_device.publish_actuator_status("SL")
+    # Example of registering a new feed on the device
+    # NOTE: See wolk.Unit and wolk.FeedType for more options.
+    wolk_device.register_feed(
+        name="New Feed",  # Name that will be displayed on the UI
+        reference="NF",  # Per-device unique feed ID
+        feed_type=wolk.FeedType.IN,  # uni (IN) or bi-directional feed (In/Out)
+        unit=wolk.Unit.NUMERIC,  # Measurement unit for this feed
+        # NOTE: Custom instance defined unit can be specified as string
+    )
 
-    publish_period_seconds = configurations["HB"]  # Heart beat
+    # Example of registering device attribute
+    # NOTE: See wolk.DataType for more options
+    wolk_device.register_attribute(
+        name="Device activation timestamp",  # Name that will be displayed
+        data_type=wolk.DataType.NUMERIC,  # Type of data attribute will hold
+        value=str(int(time.time())),  # Value, always sent as string
+    )
 
     while True:
         try:
-            if wolk_device.connectivity_service.is_connected():
-                timestamp = round(time.time()) * 1000
-                # If unable to get system time use:
-                # timestamp = wolk_device.request_timestamp()
-                temperature = random.uniform(15, 30)
-                humidity = random.uniform(10, 55)
-                pressure = random.uniform(975, 1030)
-                accelerometer = (
-                    random.uniform(0, 100),
-                    random.uniform(0, 100),
-                    random.uniform(0, 100),
-                )
+            # Add feed values to outbound message queue
+            wolk_device.add_feed_value(
+                [
+                    (switch_feed.reference, switch_feed.value),
+                    (heart_beat.reference, heart_beat.value),
+                ]
+            )
 
-                # Enabled feeds
-                if "T" in configurations["EF"]:
-                    wolk_device.add_sensor_reading("T", temperature, timestamp)
-                if "H" in configurations["EF"]:
-                    wolk_device.add_sensor_reading("H", humidity, timestamp)
-                    if humidity > 50:
-                        # Adds an alarm event to the queue
-                        wolk_device.add_alarm("HH", True)
-                    else:
-                        wolk_device.add_alarm("HH", False)
-                if "P" in configurations["EF"]:
-                    wolk_device.add_sensor_reading("P", pressure, timestamp)
-                if "ACL" in configurations["EF"]:
-                    wolk_device.add_sensor_reading(
-                        "ACL", accelerometer, timestamp
-                    )
+            # Generate a random value
+            temperature = random.randint(-20, 80)
+            # Add a feed reading to the message queue
+            wolk_device.add_feed_value(("T", temperature))
 
-            else:
-                wolk_device.connect()
+            # Generate random value for the newly registered feed
+            new_feed = random.randint(0, 100)
+            # Add feed value reading of the new feed to message queue
+            wolk_device.add_feed_value(("NF", new_feed))
 
-            # Publishes all sensor readings and alarms from the queue
-            # to the WolkAbout IoT Platform
-            print("Publishing buffered messages")
+            # Publish all queued messages
             wolk_device.publish()
-            publish_period_seconds = configurations["HB"]
-            time.sleep(publish_period_seconds)
+            time.sleep(heart_beat.value)
         except KeyboardInterrupt:
             print("\tReceived KeyboardInterrupt. Exiting script")
             wolk_device.disconnect()
-            sys.exit()
+            return
 
 
 if __name__ == "__main__":

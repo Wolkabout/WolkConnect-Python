@@ -15,8 +15,10 @@
 from abc import ABC
 from abc import abstractmethod
 from typing import Callable
+from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Union
 
 from wolk.model.file_management_status import FileManagementStatus
 from wolk.model.file_transfer_package import FileTransferPackage
@@ -52,21 +54,38 @@ class FileManagement(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def get_preffered_package_size(self) -> int:
+        """
+        Return preffered package size for file transfer.
+
+        :returns: preferred_package_size
+        :rtype: int
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def supports_url_download(self) -> bool:
+        """
+        Return if the file management module supports URL download.
+
+        :returns: supports_url_download
+        :rtype: bool
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def configure(
         self,
-        preferred_package_size: int,
-        max_file_size: int,
         file_directory: str,
+        preferred_package_size: int = 0,
     ) -> None:
         """
         Configure options for file management module.
 
-        :param preferred_package_size: Size in bytes
-        :type preferred_package_size: int
-        :param max_file_size: Maximum file size that can be stored
-        :type max_file_size: int
         :param file_directory: Path to where files are stored
         :type file_directory: str
+        :param preferred_package_size: Size in kilobytes, 0 means no limit
+        :type preferred_package_size: int
         """
         raise NotImplementedError()
 
@@ -131,12 +150,16 @@ class FileManagement(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_file_list(self) -> List[str]:
+    def get_file_list(self) -> List[Dict[str, Union[str, int]]]:
         """
         Return list of files present on device.
 
+        Each list item is a dictionary that contains the name of the file,
+        its size in bytes, and a MD5 checksum of the file.
+
         :returns: file_list
-        :rtype: List[str]
+        :rtype: List[Dict[str, Union[str, int]]]
+
         """
         raise NotImplementedError()
 
@@ -153,17 +176,12 @@ class FileManagement(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def handle_file_list_confirm(self) -> None:
-        """Acknowledge file list response from WolkAbout IoT Platform."""
-        raise NotImplementedError()
-
-    @abstractmethod
-    def handle_file_delete(self, file_name: str) -> None:
+    def handle_file_delete(self, file_names: List[str]) -> None:
         """
-        Delete file from device.
+        Delete files from device.
 
-        :param file_name: File to be deleted
-        :type file_name: str
+        :param file_names: Files to be deleted
+        :type file_names: List[str]
         """
         raise NotImplementedError()
 
