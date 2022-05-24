@@ -131,7 +131,7 @@ def main() -> None:
     # Pass device and optionally connection details
     # Enable file management and firmware update via their respective methods
     wolk_device = (
-        wolk.WolkConnect(device)
+        wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
         .with_file_management(
             file_directory="files",
             preferred_package_size=1000,  # NOTE: size in kilobytes

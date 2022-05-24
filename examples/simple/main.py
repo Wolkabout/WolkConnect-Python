@@ -45,7 +45,7 @@ def main() -> None:
 
     # Create a WolkConnect object and pass your device
     # NOTE: Change Platform instance with host:str, port:int, ca_cert:str
-    wolk_device = wolk.WolkConnect(device)
+    wolk_device = wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
 
     # Establish a connection to the WolkAbout IoT Platform
     wolk_device.connect()
