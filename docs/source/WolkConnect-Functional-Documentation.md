@@ -1,6 +1,6 @@
 
 
-WolkConnect libraries are used to enable a device’s communication with [WolkAbout IoT Platform](https://demo.wolkabout.com/#/login).
+WolkConnect libraries are used to enable a device’s communication with WolkAbout IoT platform instance.
 Using WolkConnect libraries in the software or firmware of a device will drastically decrease the time to market for developers or anyone wanting to integrate their own product with WolkAbout IoT Platform.
 
 WolkConnect libraries are intended to be used on IP enabled devices. The available WolkConnect libraries (implemented in the following programming languages [C](https://github.com/Wolkabout/WolkConnect-C), [C++](https://github.com/Wolkabout/WolkConnect-Cpp), [Java](https://github.com/Wolkabout/WolkConnect-Java-), [Python](https://github.com/Wolkabout/WolkConnect-Python), [Node-RED](https://github.com/Wolkabout/WolkConnect-Node-RED)) are platform independent for OS based devices, with a special note that the WolkConnect-C library is suitable to be adapted for the use on non-OS devices as WolkConnect libraries have a small memory footprint. More hardware specific WolkConnect libraries are available for [Arduino](https://github.com/Wolkabout/WolkConnect-Arduino), [MicroPython](https://github.com/Wolkabout/WolkConnect-MicroPython) and [Zerynth](https://github.com/Wolkabout/wolkabout-iot).

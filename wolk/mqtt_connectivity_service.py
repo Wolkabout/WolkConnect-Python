@@ -38,8 +38,8 @@ class MQTTConnectivityService(ConnectivityService):
         device: Device,
         topics: List[str],
         qos: int = 2,
-        host: str = "demo.wolkabout.com",
-        port: int = 2883,
+        host: str = "insert_host",
+        port: int = 80, # TODO: insert port
         max_retries: int = 3,
         ca_cert: Optional[str] = None,
     ) -> None:
