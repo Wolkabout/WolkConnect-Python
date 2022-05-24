@@ -36,7 +36,7 @@
     "protocol": "WOLKABOUT",
     "postProvisioning": "STANDARD",
     "parameters": {
-      "FIRMWARE_UPDATE_CHECK_TIME": "-1",
+      "FIRMWARE_UPDATE_CHECK_TIME": null,
       "GATEWAY": "false",
       "CONNECTIVITY_TYPE": "MQTT",
       "FIRMWARE_VERSION": null,
