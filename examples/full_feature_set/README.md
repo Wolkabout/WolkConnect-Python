@@ -102,12 +102,11 @@ def configuration_provider():
 # Pass your device, actuation handler and actuator status provider
 # Pass configuration handler and provider
 # Pass server info and path to ca.crt for secure connection
-# defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = (
     wolk.WolkConnect(
         device=device,
         host="insert_host",
-        port=80,# TODO: insert port
+        port=80,# TODO: insert your port
         ca_cert="path/to/ca.crt",
     )
     .with_actuators(
