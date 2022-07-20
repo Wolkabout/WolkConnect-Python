@@ -20,14 +20,9 @@
 ----
 WolkAbout Python Connector library for connecting devices to WolkAbout IoT platform instance.
 
-Supported device communication protocols:
-* WolkAbout Protocol
-
 ## Prerequisite
 
-
 * Python 3.7+
-
 
 ## Installation
 
@@ -56,7 +51,7 @@ python3 setup.py install
 
 ### Establishing connection with WolkAbout IoT platform
 
-Create a device on WolkAbout IoT Platform by using the *Simple example* device type that is available on the platform.
+Create a device on WolkAbout IoT Platform by using the *Simple example* device type that is available on the platform. ``Note that device type can be created by importing `simple_example.json` file as new Device Type.``
 This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/simple/main.py) and demonstrates the periodic sending of a temperature feed reading.
 
 ```python
@@ -69,7 +64,7 @@ device = wolk.Device(key="device_key", password="some_password")
 # Pass your device and server information
 # defaults to secure connection to Demo instance - comment out host, port and ca_cert
 wolk_device = wolk.WolkConnect(
-    device, host="insert_host", port=80, ca_cert="path/to/ca.crt"
+    device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE"
 )
 
 wolk_device.connect()
@@ -81,13 +76,21 @@ wolk_device.connect()
 wolk_device.add_feed_value(("T", 26.93))
 
 # or multiple feed value readings
-wolk_device.add_feed_value([("T": 27.11), ("H": 54.34), ("P", 1002.3)])
+wolk_device.add_feed_value([("T", 27.11), ("H", 54.34), ("P", 1002.3)])
 ```
 
 Optionally pass a `timestamp` as `round(time.time()) * 1000`.
 This is useful for maintaining data history when readings are not published immediately after adding them to storage.
 If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
 
+#### Adding feed values with timestamp
+```python
+# Add a signel feed reading to the message queue with the timestamp
+wolk_device.add_feed_value(("T", 12.34), 1658315834000)
+
+# Add a multi feed reading to the message queue with the timestamp
+wolk_device.add_feed_value([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315834000)
+```
 
 ### Data publish strategy
 

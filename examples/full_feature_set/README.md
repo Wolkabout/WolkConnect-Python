@@ -16,17 +16,13 @@
 
 
 ```
-[![Build Status](https://travis-ci.com/Wolkabout/WolkConnect-Python.svg?branch=master)](https://travis-ci.com/Wolkabout/WolkConnect-Python) [![PyPI version](https://badge.fury.io/py/wolk-connect.svg)](https://badge.fury.io/py/wolk-connect) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wolk-connect) ![GitHub](https://img.shields.io/github/license/wolkabout/WolkConnect-Python) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/) [![Documentation Status](https://readthedocs.org/projects/wolkconnect-python/badge/?version=latest)](https://wolkconnect-python.readthedocs.io/en/latest/?badge=latest)
+[![Tests and Coverage](https://github.com/Wolkabout/WolkConnect-Python/actions/workflows/tests-and-coverage.yml/badge.svg?branch=development)](https://github.com/Wolkabout/WolkConnect-Python/actions/workflows/tests-and-coverage.yml) [![PyPI version](https://badge.fury.io/py/wolk-connect.svg)](https://badge.fury.io/py/wolk-connect) ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/wolk-connect) ![GitHub](https://img.shields.io/github/license/wolkabout/WolkConnect-Python) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black) [![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/) [![Documentation Status](https://readthedocs.org/projects/wolkconnect-python/badge/?version=latest)](https://wolkconnect-python.readthedocs.io/en/latest/?badge=latest)
 ----
 WolkAbout Python Connector library for connecting devices to WolkAbout IoT platform instance.
-
-Supported device communication protocols:
-* WolkAbout Protocol
 
 ## Prerequisite
 
 * Python 3.7+
-
 
 ## Installation
 
@@ -53,150 +49,88 @@ python3 setup.py install
 
 ## Example Usage
 
-**Establishing connection with WolkAbout IoT platform:**
+### Establishing connection with WolkAbout IoT platform
 
-Create a device on WolkAbout IoT Platform by using the *Full example* device type that is available on the platform.
+Create a device on WolkAbout IoT Platform by using the *Full example* device type that is available on the platform. Note that device type can be created by importing `full_feature_set.json` file as new Device Type.
 This device type fits [main.py](https://github.com/Wolkabout/WolkConnect-Python/blob/master/examples/full_feature_set/main.py) and demonstrates all the functionality of WolkConnect-Python library.
 
 ```python
-import wolk
+    # Insert the device credentials received
+# from WolkAbout IoT Platform when creating the device
+device = wolk.Device(key="device_key", password="some_password")
 
-# Setup device credentials which you got
-# when the device was created on the platform
-device = wolk.Device(
-    key="device_key", password="some_password", actuator_references=["SW", "SL"],
-)
+# Create an InOut feed and define a function that will handle updating its
+# value when the appropriate message has been received from the Platform
+switch_feed = InOutFeedExample("SW", False)
+heart_beat = InOutFeedExample("HB", 120)
 
+def incoming_feed_value_handler(
+        feed_values: List[Dict[str, Union[bool, int, float, str]]]
+) -> None:
+    for feed_value in feed_values:
+        for reference, value in feed_value.items():
+            if reference == switch_feed.reference:
+                print(f"Setting '{reference}' to: {value}")
+                switch_feed.value = value
+                break
 
-# Provide implementation of a way to read actuator status
-def actuator_status_provider(reference):
-    if reference == actuator_references[0]:
-        return (wolk.State.READY, switch.value)
-    elif reference == actuator_references[1]:
-        return (wolk.State.READY, slider.value)
+            if reference == heart_beat.reference:
+                print(f"Setting '{reference}' to: {value}")
+                heart_beat.value = value
+                break
 
-    return wolk.State.ERROR, None
+            print(f"Unhandled feed value '{reference}': {value}")
 
-
-# Provide implementation of a way to set actuator value
-def actuation_handler(reference, value):
-    print(f"Setting actuator '{reference}' to value: {value}")
-    if reference == actuator_references[0]:
-        switch.value = value
-
-    elif reference == actuator_references[1]:
-        slider.value = value
-
-
-# Provide implementation of a way to set configuration values
-def configuration_handler(configuration):
-    for (reference, value) in configuration.items():
-        configurations[reference] = value
-
-
-# Provide a way to read current device configuration values
-def configuration_provider():
-    return configurations  # See main.py for details
-
-
-# Pass your device, actuation handler and actuator status provider
-# Pass configuration handler and provider
-# Pass server info and path to ca.crt for secure connection
+# Pass device and optionally connection details
+# Enable file management and firmware update via their respective methods
 wolk_device = (
-    wolk.WolkConnect(
-        device=device,
-        host="insert_host",
-        port=80,# TODO: insert your port
-        ca_cert="path/to/ca.crt",
+    wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
+    .with_file_management(
+        file_directory="files",
+        preferred_package_size=1000,  # NOTE: size in kilobytes
     )
-    .with_actuators(
-        actuation_handler=actuation_handler,
-        actuator_status_provider=actuator_status_provider,
-    )
-    .with_configuration(
-        configuration_handler=configuration_handler,
-        configuration_provider=configuration_provider,
-    )
+    .with_firmware_update(firmware_handler=DummyFirmwareInstaller())
+    .with_incoming_feed_value_handler(incoming_feed_value_handler)
+    # NOTE: Possibility to provide custom implementations for some features
+    # .with_custom_protocol(message_factory, message_deserializer)
+    # .with_custom_connectivity(connectivity_service)
+    # .with_custom_message_queue(message_queue)
 )
-wolk_device.connect()
 ```
 
-### Adding sensor readings
+### Adding feed values
 
 ```python
-wolk_device.add_sensor_reading("T", 26.93)
+wolk_device.add_feed_value(("T", 26.93))
 
-# Multi-value sensor reading
-wolk_device.add_sensor_reading("ACL", (4, 2, 0))
-```
-or multiple sensors at once with `add_sensor_readings`:
-```python
-wolk_device.add_sensor_readings({"T": 26.93, "ACL": (4, 2, 0)})
+# or multiple feed value readings
+wolk_device.add_feed_value([("T", 27.11), ("H", 54.34), ("P", 1002.3)])
 ```
 
 Optionally pass a `timestamp` as `round(time.time()) * 1000`.
 This is useful for maintaining data history when readings are not published immediately after adding them to storage.
 If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
 
-### Adding events
-
+#### Adding feed values with timestamp
 ```python
-# Activate alarm
-wolk_device.add_alarm("HH", True)
-# Disable alarm
-wolk_device.add_alarm("HH", False)
-```
+# Add a signel feed reading to the message queue with the timestamp
+wolk_device.add_feed_value(("T", 12.34), 1658315834000)
 
-Optionally pass a `timestamp` as `round(time.time()) * 1000`.
-This is useful for maintaining data history when readings are not published immediately after adding them to storage.
-If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
+# Add a multi feed reading to the message queue with the timestamp
+wolk_device.add_feed_value([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315834000)
+```
 
 ### Data publish strategy
 
-Stored sensor readings and alarms, as well as current actuator statuses are pushed to WolkAbout IoT platform on demand by calling:
+Stored feed values are pushed to WolkAbout IoT platform on demand by calling:
 ```python
 wolk_device.publish()
 ```
-
-### Publishing actuator statuses
-
-```python
-wolk_device.publish_actuator_status("SW")
-```
-This will call the `actuator_status_provider` to read the actuator status, and publish actuator status.
-
-
-### Publishing configuration
-
-```python
-wolk_device.publish_configuration()
-```
-This will call the `configuration_provider` to read the current configuration and publish it to the platform
-
 
 ### Disconnecting from the platform
 
 ```python
 wolk_device.disconnect()
-```
-
-### Ping keep-alive service
-
-By default, the library publishes a keep alive message every 60 seconds to the Platform, to update the device's last report for cases when the device doesn't publish data often.
-This service can be disabled to reduce bandwidth or battery usage, or the interval can be modified:
-
-```python
-wolk_device = wolk.WolkConnect(device=device).with_keep_alive_service(
-    enabled=True, interval=60
-)
-```
-
-Additionally, if this service is enabled and the device establishes connection to the Platform, then each keep alive message sent will be responded with the current UTC timestamp on the Platform.
-
-This timestamp will be saved and updated for each response, and can be accessed with:
-
-```python
-platform_timestamp = wolk_device.request_timestamp()
 ```
 
 ### Data persistence
@@ -221,7 +155,7 @@ For more info on persistence mechanism see `wolk.interface.message_queue.Message
 ### File management and Firmware update
 
 WolkAbout Python Connector provides a mechanism for updating device firmware.
-By default this feature is disabled. Firmware update requires that a file management module is enabled.
+By default, this feature is disabled. Firmware update requires that a file management module is enabled.
 See code snippet below on how to enable the file management module and device firmware update.
 
 ```python
@@ -250,7 +184,7 @@ wolk_device = (
 ```
 
 File management can also perform downloads from a specified URL,
-but if the default implementation is not satisfactory, then this function can be overriden like so:
+but if the default implementation is not satisfactory, then this function can be overridden like so:
 
 ```python
 def url_download(file_url: str, file_path: str) -> bool:
