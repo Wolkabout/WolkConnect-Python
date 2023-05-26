@@ -115,6 +115,33 @@ class WolkAboutProtocolMessageFactory(MessageFactory):
 
         return message
 
+    def make_from_feed_values_collected(
+        self, collected_readings: Dict[int, Dict[str, OutgoingDataTypes]]
+    ) -> Message:
+        """
+        Serialize feed values collected over time.
+
+        :param collected_readings: The map of collected readings.
+        :type collected_readings: Dict[int, Dict[str, OutgoingDataTypes]]
+        :return: The message containing all data.
+        :rtype: Message
+        """
+        topic = self.common_topic + self.FEED_VALUES
+
+        payload = []
+        for timestamp, readings in collected_readings.items():
+            time_object: Dict[str, OutgoingDataTypes] = {
+                "timestamp": timestamp
+            }
+            for reading_reference, reading_value in readings.items():
+                time_object[reading_reference] = reading_value
+            payload.append(time_object)
+
+        message = Message(topic, json.dumps(payload))
+        self.logger.debug(f"{message}")
+
+        return message
+
     def make_time_request(self) -> Message:
         """
         Serialize message requesting platform timestamp.
