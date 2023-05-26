@@ -131,7 +131,12 @@ def main() -> None:
     # Pass device and optionally connection details
     # Enable file management and firmware update via their respective methods
     wolk_device = (
-        wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
+        wolk.WolkConnect(
+            device,
+            host="insert_host",
+            port=80,
+            ca_cert="PATH/TO/YOUR/CA.CRT/FILE",
+        )
         .with_file_management(
             file_directory="files",
             preferred_package_size=1000,  # NOTE: size in kilobytes
@@ -172,7 +177,7 @@ def main() -> None:
     while True:
         try:
             # Add feed values to outbound message queue
-            wolk_device.add_feed_value(
+            wolk_device.add_feed_value_sealed(
                 [
                     (switch_feed.reference, switch_feed.value),
                     (heart_beat.reference, heart_beat.value),
@@ -182,12 +187,12 @@ def main() -> None:
             # Generate a random value
             temperature = random.randint(-20, 80)
             # Add a feed reading to the message queue
-            wolk_device.add_feed_value(("T", temperature))
+            wolk_device.add_feed_value_sealed(("T", temperature))
 
             # Generate random value for the newly registered feed
             new_feed = random.randint(0, 100)
             # Add feed value reading of the new feed to message queue
-            wolk_device.add_feed_value(("NF", new_feed))
+            wolk_device.add_feed_value_sealed(("NF", new_feed))
 
             # Publish all queued messages
             wolk_device.publish()

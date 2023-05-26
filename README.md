@@ -73,10 +73,10 @@ wolk_device.connect()
 ### Adding feed values
 
 ```python
-wolk_device.add_feed_value(("T", 26.93))
+wolk_device.add_feed_value_sealed(("T", 26.93))
 
 # or multiple feed value readings
-wolk_device.add_feed_value([("T", 27.11), ("H", 54.34), ("P", 1002.3)])
+wolk_device.add_feed_value_sealed([("T", 27.11), ("H", 54.34), ("P", 1002.3)])
 ```
 
 Optionally pass a `timestamp` as `round(time.time()) * 1000`.
@@ -84,12 +84,13 @@ This is useful for maintaining data history when readings are not published imme
 If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
 
 #### Adding feed values with timestamp
+
 ```python
 # Add a signel feed reading to the message queue with the timestamp
-wolk_device.add_feed_value(("T", 12.34), 1658315834000)
+wolk_device.add_feed_value_sealed(("T", 12.34), 1658315834000)
 
 # Add a multi feed reading to the message queue with the timestamp
-wolk_device.add_feed_value([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315834000)
+wolk_device.add_feed_value_sealed([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315834000)
 ```
 
 ### Data publish strategy

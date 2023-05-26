@@ -1451,7 +1451,7 @@ class TestWolkConnect(unittest.TestCase):
             return_value=True
         )
 
-        self.wolk_device.add_feed_value("foo", "bar")
+        self.wolk_device.add_feed_value_sealed("foo", "bar")
 
         self.wolk_device.message_queue.put.assert_called_once()
 

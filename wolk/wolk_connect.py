@@ -22,6 +22,7 @@ from typing import Tuple
 from typing import Union
 
 from wolk import logger_factory
+from wolk.in_memory_readings_persistence import InMemoryReadingsPersistence
 from wolk.interface.connectivity_service import ConnectivityService
 from wolk.interface.file_management import FileManagement
 from wolk.interface.firmware_handler import FirmwareHandler
@@ -29,6 +30,7 @@ from wolk.interface.firmware_update import FirmwareUpdate
 from wolk.interface.message_deserializer import MessageDeserializer
 from wolk.interface.message_factory import MessageFactory
 from wolk.interface.message_queue import MessageQueue
+from wolk.interface.readings_persistence import ReadingsPersistence
 from wolk.message_deque import MessageDeque
 from wolk.model.data_delivery import DataDelivery
 from wolk.model.data_type import DataType
@@ -77,6 +79,8 @@ class WolkConnect:
     :vartype message_factory: MessageFactory
     :ivar message_queue: Store data before sending
     :vartype message_queue: MessageQueue
+    :ivar readings_persistence: Store readings before sending
+    :vartype readings_persistence: ReadingsPersistence
     """
 
     def __init__(
@@ -117,6 +121,9 @@ class WolkConnect:
             self.device
         )
         self.parameters: Dict[str, Union[int, bool, float, str]] = {}
+        self.readings_persistence: ReadingsPersistence = (
+            InMemoryReadingsPersistence()
+        )
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
@@ -250,6 +257,23 @@ class WolkConnect:
             )
 
         self.message_queue = message_queue
+
+        return self
+
+    def with_custom_readings_persistence(self, readings_persistence: ReadingsPersistence):  # type: ignore
+        """
+        Use custom means of storing readings.
+
+        :param readings_persistence: Custom readings persistence
+        :type readings_persistence: ReadingsPersistence
+        """
+        self.logger.debug(f"Readings persistence: {readings_persistence}")
+        if not isinstance(readings_persistence, ReadingsPersistence):
+            raise ValueError(
+                "Provided readings persistence does not implement ReadingsPersistence"
+            )
+
+        self.readings_persistence = readings_persistence
 
         return self
 
@@ -398,6 +422,40 @@ class WolkConnect:
             f"Adding feed value: reading: {reading}, timestamp = {timestamp}"
         )
 
+        self.readings_persistence.store_reading(reading, timestamp)
+
+    def add_feed_value_sealed(
+        self,
+        reading: Union[Reading, List[Reading]],
+        timestamp: Optional[int] = None,
+    ) -> None:
+        """
+        Place a feed value reading into storage.
+
+        A reading is identified by a unique feed reference string and
+        the current value of the feed.
+
+        This reading can either be passed as a tuple of (reference, value)
+        for a single feed or as a list of previously mentioned tuples
+        to pass multiple feed readings at once.
+
+        A Unix epoch timestamp in milliseconds as int can be provided to
+        denote when the reading occurred. By default, the current system
+        provided time will be assigned to a reading.
+
+        The sealed variant will ensure that these reading values get sent
+        as a separate message, independent of any other feed values that
+        have been added to the object.
+
+        :param reading: Feed value reading
+        :type reading: Union[Reading, List[Reading]]
+        :param timestamp: Unix timestamp. Defaults to system time.
+        :type timestamp: Optional[int]
+        """
+        self.logger.debug(
+            f"Adding feed value sealed: reading: {reading}, timestamp = {timestamp}"
+        )
+
         message = self.message_factory.make_from_feed_value(reading, timestamp)
         # NOTE: if device is PUSH, do we try to publish instantly?
         self.message_queue.put(message)
@@ -408,6 +466,22 @@ class WolkConnect:
         if not self.connectivity_service.is_connected():
             self.logger.warning("Not connected, unable to publish messages")
             return
+
+        saved_readings = len(self.readings_persistence.obtain_readings())
+        if saved_readings > 0:
+            readings_message = (
+                self.message_factory.make_from_feed_values_collected(
+                    self.readings_persistence.obtain_readings()
+                )
+            )
+            if readings_message is not None:
+                if self.connectivity_service.publish(readings_message):
+                    self.readings_persistence.clear_readings()
+                else:
+                    self.logger.warning(
+                        f"Failed to publish message: {readings_message}"
+                    )
+
         while True:
             message = self.message_queue.peek()
             if message is None:
