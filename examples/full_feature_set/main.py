@@ -35,6 +35,7 @@ except ModuleNotFoundError:
         print(f"Failed to import WolkConnect: '{e}'")
         raise e
 
+
 # NOTE: Enable debug logging by uncommenting the following line
 # Optionally, as a second argument pass a file name
 # wolk.logging_config("debug")
@@ -177,7 +178,7 @@ def main() -> None:
     while True:
         try:
             # Add feed values to outbound message queue
-            wolk_device.add_feed_value_sealed(
+            wolk_device.add_feed_value(
                 [
                     (switch_feed.reference, switch_feed.value),
                     (heart_beat.reference, heart_beat.value),
@@ -187,12 +188,12 @@ def main() -> None:
             # Generate a random value
             temperature = random.randint(-20, 80)
             # Add a feed reading to the message queue
-            wolk_device.add_feed_value_sealed(("T", temperature))
+            wolk_device.add_feed_value(("T", temperature))
 
             # Generate random value for the newly registered feed
             new_feed = random.randint(0, 100)
             # Add feed value reading of the new feed to message queue
-            wolk_device.add_feed_value_sealed(("NF", new_feed))
+            wolk_device.add_feed_value(("NF", new_feed))
 
             # Publish all queued messages
             wolk_device.publish()

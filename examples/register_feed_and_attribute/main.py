@@ -75,7 +75,7 @@ def main() -> None:
             # Generate random value for the newly registered feed
             new_feed = random.randint(0, 100)
             # Add feed value reading of the new feed to message queue
-            wolk_device.add_feed_value_sealed(("NF", new_feed))
+            wolk_device.add_feed_value(("NF", new_feed))
             print(f'Publishing "NF": {new_feed}')
             # Publish queued messages
             wolk_device.publish()

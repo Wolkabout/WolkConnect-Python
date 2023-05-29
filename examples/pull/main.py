@@ -116,7 +116,7 @@ def main() -> None:
             time.sleep(heart_beat.value / 10)
 
             # Add feed values to outbound message queue
-            wolk_device.add_feed_value_sealed(
+            wolk_device.add_feed_value(
                 [
                     (switch_feed.reference, switch_feed.value),
                     (heart_beat.reference, heart_beat.value),

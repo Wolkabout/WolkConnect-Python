@@ -1446,12 +1446,21 @@ class TestWolkConnect(unittest.TestCase):
     def test_add_feed_value(self):
         """Test add feed value."""
         self.wolk_device.logger.setLevel(logging.CRITICAL)
+        self.wolk_device.readings_persistence.store_reading = MagicMock()
+
+        self.wolk_device.add_feed_value(("foo", "bar"))
+
+        self.wolk_device.readings_persistence.store_reading.assert_called_once()
+
+    def test_add_feed_value_separated(self):
+        """Test add feed value separated."""
+        self.wolk_device.logger.setLevel(logging.CRITICAL)
         self.wolk_device.message_queue.put = MagicMock()
         self.wolk_device.message_factory.make_from_feed_value = MagicMock(
             return_value=True
         )
 
-        self.wolk_device.add_feed_value_sealed("foo", "bar")
+        self.wolk_device.add_feed_value_separated(("foo", "bar"))
 
         self.wolk_device.message_queue.put.assert_called_once()
 

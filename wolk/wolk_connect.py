@@ -421,10 +421,9 @@ class WolkConnect:
         self.logger.debug(
             f"Adding feed value: reading: {reading}, timestamp = {timestamp}"
         )
-
         self.readings_persistence.store_reading(reading, timestamp)
 
-    def add_feed_value_sealed(
+    def add_feed_value_separated(
         self,
         reading: Union[Reading, List[Reading]],
         timestamp: Optional[int] = None,
@@ -443,7 +442,7 @@ class WolkConnect:
         denote when the reading occurred. By default, the current system
         provided time will be assigned to a reading.
 
-        The sealed variant will ensure that these reading values get sent
+        The separated variant will ensure that these reading values get sent
         as a separate message, independent of any other feed values that
         have been added to the object.
 
