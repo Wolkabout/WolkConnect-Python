@@ -81,6 +81,8 @@ class WolkConnect:
     :vartype message_queue: MessageQueue
     :ivar readings_persistence: Store readings before sending
     :vartype readings_persistence: ReadingsPersistence
+    :ivar readings_limit: Limit of readings stored in persistence
+    :vartype readings_limit: int
     """
 
     def __init__(
@@ -124,6 +126,7 @@ class WolkConnect:
         self.readings_persistence: ReadingsPersistence = (
             InMemoryReadingsPersistence()
         )
+        self.readings_limit = 500000
 
         wolk_ca_cert = os.path.join(os.path.dirname(__file__), "ca.crt")
 
@@ -277,6 +280,16 @@ class WolkConnect:
 
         return self
 
+    def set_custom_readings_persistence_limit(self, limit: int):  # type: ignore
+        """
+        Change the limit for readings persistence.
+
+        :param limit: New limit for readings persistence
+        :type limit: int
+        """
+        self.readings_limit = limit
+        return self
+
     def with_custom_protocol(  # type: ignore
         self,
         message_factory: MessageFactory,
@@ -421,6 +434,18 @@ class WolkConnect:
         self.logger.debug(
             f"Adding feed value: reading: {reading}, timestamp = {timestamp}"
         )
+
+        # Check the limit first
+        existing_readings = self.readings_persistence.obtain_readings_count()
+        new_readings = 1 if isinstance(reading, tuple) else len(reading)
+        if existing_readings + new_readings >= self.readings_limit:
+            # Create a message from existing readings, store in message queue, and then clean persistence
+            message = self.message_factory.make_from_feed_values_collected(
+                self.readings_persistence.obtain_readings()
+            )
+            self.message_queue.put(message)
+            self.readings_persistence.clear_readings()
+
         self.readings_persistence.store_reading(reading, timestamp)
 
     def add_feed_value_separated(

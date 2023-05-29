@@ -88,6 +88,18 @@ class InMemoryReadingsPersistence(ReadingsPersistence):
         """
         return self.dict
 
+    def obtain_readings_count(self) -> int:
+        """
+        Return count of readings in dictionary.
+
+        :returns: Total count of readings.
+        :rtype: int
+        """
+        count = 0
+        for [_, readings] in self.dict.items():
+            count += len(readings)
+        return count
+
     def clear_readings(self) -> bool:
         """
         Clears the entire map of readings.

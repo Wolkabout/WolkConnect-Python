@@ -55,6 +55,16 @@ class ReadingsPersistence(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def obtain_readings_count(self) -> int:
+        """
+        Obtain the count of all readings stored in persistence.
+
+        :returns: The count of all readings.
+        :rtype: int
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def clear_readings(self) -> bool:
         """
         Clear the entire set of readings currently stored in the persistence.
