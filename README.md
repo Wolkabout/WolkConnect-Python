@@ -99,6 +99,14 @@ wolk_device.add_feed_value(("T", 12.34), 1658315834000)
 wolk_device.add_feed_value([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315834000)
 ```
 
+### Readings persistence and limit
+
+Readings with method `add_feed_value` are added into local persistence. When adding messages be mindful of the
+message size that will be published. The default MQTT message size is 260MB, and since readings are of different sizes
+(based on the users use-case), check that the limit of readings in persistence will be under the MQTT limit for your broker.
+The default readings limit is set to 500000. You can change it with `set_custom_readings_persistence_limit`, if your readings
+are bigger, you can decrease the size, or if you have smaller readings, you can increase the size.
+
 ### Data publish strategy
 
 Stored feed values are pushed to WolkAbout IoT platform on demand by calling:
