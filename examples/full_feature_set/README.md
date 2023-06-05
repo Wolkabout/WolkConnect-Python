@@ -112,6 +112,7 @@ This is useful for maintaining data history when readings are not published imme
 If `timestamp` is not provided, the library will assign a timestamp before placing the reading into storage.
 
 #### Adding feed values with timestamp
+
 ```python
 # Add a signel feed reading to the message queue with the timestamp
 wolk_device.add_feed_value(("T", 12.34), 1658315834000)
@@ -125,6 +126,19 @@ wolk_device.add_feed_value([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315
 Stored feed values are pushed to WolkAbout IoT platform on demand by calling:
 ```python
 wolk_device.publish()
+```
+
+### Adding feed values 'separated'
+
+When adding feed values, the values themselves are persisted, which means when publishing all values will be placed
+in a single message and published as a single message.
+
+If you would like to ensure different behavior, where you can add feed values that will be sent as a separate message
+from any other feed values, use the alternative method:
+
+```python
+# Method arguments are exactly the same as for the `add_feed_value`
+wolk_device.add_feed_value_separated([("T", 12.34), ("H", 56.78), ("P", 1022.00)], 1658315834000)
 ```
 
 ### Disconnecting from the platform

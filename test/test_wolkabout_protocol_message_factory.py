@@ -86,6 +86,51 @@ class WolkAboutProtocolMessageFactoryTests(unittest.TestCase):
 
         self.assertEqual(expected_message, serialized_message)
 
+    def test_feed_values_collected(self):
+        """Test valid message for collected data over time."""
+        reference_temperature = "T"
+        value_temperature = 123
+        reference_location = "LOC"
+        value_location1 = "45.45,19.19"
+        value_location2 = "42.42,18.18"
+        reference_information = "I"
+        value_information = "Hello!"
+
+        timestamp_first = round(time.time()) * 1000
+        timestamp_second = timestamp_first + 123456789
+
+        expected_topic = self.factory.common_topic + WAPMF.FEED_VALUES
+        expected_payload = json.dumps(
+            [
+                {
+                    "timestamp": timestamp_first,
+                    f"{reference_temperature}": value_temperature,
+                    f"{reference_location}": value_location1,
+                },
+                {
+                    "timestamp": timestamp_second,
+                    f"{reference_location}": value_location2,
+                    f"{reference_information}": value_information,
+                },
+            ]
+        )
+        expected_message = Message(expected_topic, expected_payload)
+
+        serialized_message = self.factory.make_from_feed_values_collected(
+            {
+                timestamp_first: {
+                    reference_temperature: value_temperature,
+                    reference_location: value_location1,
+                },
+                timestamp_second: {
+                    reference_location: value_location2,
+                    reference_information: value_information,
+                },
+            }
+        )
+
+        self.assertEqual(expected_message, serialized_message)
+
     def test_feed_value_throws_on_invalid_data(self):
         """Test valid message for two string feeds."""
         self.assertRaises(

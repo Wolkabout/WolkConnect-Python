@@ -31,6 +31,7 @@ except ModuleNotFoundError:
         print(f"Failed to import WolkConnect: '{e}'")
         raise e
 
+
 # NOTE: Enable debug logging by uncommenting the following line
 # Optionally, as a second argument pass a file name
 
@@ -45,12 +46,15 @@ def main() -> None:
 
     # Create a WolkConnect object and pass your device
     # NOTE: Change Platform instance with host:str, port:int, ca_cert:str
-    wolk_device = wolk.WolkConnect(device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE")
+    wolk_device = wolk.WolkConnect(
+        device, host="insert_host", port=80, ca_cert="PATH/TO/YOUR/CA.CRT/FILE"
+    )
 
     # Establish a connection to the WolkAbout IoT Platform
     wolk_device.connect()
 
-    publish_period_seconds = 60
+    publish_period_seconds = 5
+    i = 0
 
     while True:
         try:
@@ -58,10 +62,15 @@ def main() -> None:
             temperature = random.randint(-20, 80)
 
             # Add a feed reading to the message queue
-            wolk_device.add_feed_value(("T", temperature))
+            temperature = ("T", temperature)
+            wolk_device.add_feed_value(temperature)
+            print(f"Adding feed value data {temperature}.")
+            i += 1
 
-            print(f'Publishing "T": {temperature}')
-            wolk_device.publish()
+            if i % 10 == 0:
+                time.sleep(publish_period_seconds)
+                print("Publishing the feed values.")
+                wolk_device.publish()
             time.sleep(publish_period_seconds)
         except KeyboardInterrupt:
             print("\tReceived KeyboardInterrupt. Exiting script")

@@ -52,6 +52,20 @@ class MessageFactory(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def make_from_feed_values_collected(
+        self, collected_readings: Dict[int, Dict[str, OutgoingDataTypes]]
+    ) -> Message:
+        """
+        Serialize feed values collected and organized by timestamp.
+
+        :param collected_readings: Feed values, organized by timestamp, and then by reference.
+        :type collected_readings: Dict[int, Dict[str, OutgoingDataTypes]]
+        :return: The message containing all the data
+        :rtype: Message
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def make_pull_feed_values(self) -> Message:
         """
         Serialize message requesting any pending inbound feed values.

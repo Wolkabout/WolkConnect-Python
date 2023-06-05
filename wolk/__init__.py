@@ -8,7 +8,7 @@ and pass it to an instance of WolkConnect class.
 For more information about module features visit:
 https://github.com/Wolkabout/WolkConnect-Python/tree/master/examples/full_feature_set
 """
-__version__ = "5.0.1"
+__version__ = "5.1.0"
 from .interface.connectivity_service import ConnectivityService
 from .interface.firmware_handler import FirmwareHandler
 from .interface.message_deserializer import MessageDeserializer
